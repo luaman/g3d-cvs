@@ -18,10 +18,10 @@ public:
     void load(const std::string& filename) {
         model = MD2Model::fromFile(filename + ".md2");
 
-	    Texture::PreProcess preProcess;
-        preProcess.modulate = Color4::one() * 2.0f;
+	    Texture::Preprocess preprocess;
+        preprocess.modulate = Color4::one() * 2.0f;
         material.texture.append(Texture::fromFile(filename + ".pcx", 
-            ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preProcess));
+            ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preprocess));
     }
 
     void render(RenderDevice* rd) {

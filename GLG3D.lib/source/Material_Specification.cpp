@@ -18,9 +18,7 @@ Material::Specification::Specification() :
   m_extinctionTransmit(1.0f),
   m_etaReflect(1.0f),
   m_extinctionReflect(1.0f),
-  m_emissiveConstant(Color3::zero()),
-  m_bumpFilename(""),
-  m_normalMapWhiteHeightInPixels(0) {
+  m_emissiveConstant(Color3::zero()) {
 }
 
 
@@ -35,7 +33,7 @@ mat = Material::Specification {
                      settings = Texture::Settings {
                          
                      },
-                     preProcess = Texture::PreProcess {
+                     preprocess = Texture::Preprocess {
                          gammaAdjust = 2.2,
                          modulate = Color4(1,0,0,1)
                      }
@@ -273,17 +271,20 @@ void Material::Specification::setEta(float etaTransmit, float etaReflect) {
 
 void Material::Specification::setBump
 (const std::string&         filename, 
- const BumpMap::Settings&   Specification,
+ const BumpMap::Settings&   settings,
  float 	                    normalMapWhiteHeightInPixels) {
     
-     m_bumpFilename                 = filename;
-     m_normalMapWhiteHeightInPixels = normalMapWhiteHeightInPixels;
-     m_bumpSettings                 = Specification;
+     m_bump = BumpMap::Specification();
+     m_bump.texture.filename = filename;
+     m_bump.texture.preprocess = Texture::Preprocess::normalMap();
+     m_bump.texture.preprocess.bumpMapPreprocess.zExtentPixels = 
+         normalMapWhiteHeightInPixels;
+     m_bump.settings = settings;
 }
 
 
 void Material::Specification::removeBump() {
-    setBump("");
+    m_bump.texture.filename = "";
 }
 
 
@@ -304,9 +305,7 @@ bool Material::Specification::operator==(const Specification& s) const {
         (m_emissive == s.m_emissive) &&
         (m_emissiveConstant == s.m_emissiveConstant) &&
 
-        (m_bumpFilename == s.m_bumpFilename) &&
-        (m_bumpSettings == s.m_bumpSettings) &&
-        (m_normalMapWhiteHeightInPixels == s.m_normalMapWhiteHeightInPixels) &&
+        (m_bump == s.m_bump) &&
 
         (m_etaTransmit == s.m_etaTransmit) &&
         (m_extinctionTransmit == s.m_extinctionTransmit) &&
@@ -332,7 +331,7 @@ size_t Material::Specification::hashCode() const {
         HashTrait<std::string>::hashCode(m_emissive.filename) ^
         m_emissiveConstant.hashCode() ^
 
-        HashTrait<std::string>::hashCode(m_bumpFilename);
+        HashTrait<std::string>::hashCode(m_bump.texture.filename);
 }
 
 

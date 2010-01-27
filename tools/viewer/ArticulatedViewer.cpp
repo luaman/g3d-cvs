@@ -23,7 +23,7 @@ ArticulatedViewer::ArticulatedViewer() :
 
 void ArticulatedViewer::onInit(const std::string& filename) {
 
-    ArticulatedModel::PreProcess preprocess;
+    ArticulatedModel::Preprocess preprocess;
 //preprocess.stripMaterials = true;
 //preprocess.xform = Matrix4::scale(0.01f); // TODO
     m_model = ArticulatedModel::fromFile(filename, preprocess);

@@ -16,7 +16,7 @@ void App::loadScene() {
         MD2Model::Ref model = MD2Model::fromFile(pathConcat(dataDir, "md2/pknight/tris.md2"));
         Texture::Ref texture = Texture::fromFile(pathConcat(dataDir, "md2/pknight/knight.pcx"), ImageFormat::AUTO(),
                                                  Texture::DIM_2D, Texture::Settings::defaults(), 
-                                                 Texture::PreProcess::quake());
+                                                 Texture::Preprocess::quake());
         entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x, groundY + 0.95f, 0))));
         x += 2;
     }

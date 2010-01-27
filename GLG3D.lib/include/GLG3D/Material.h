@@ -78,10 +78,7 @@ public:
         Texture::Specification m_emissive;
         Color3          m_emissiveConstant;
 
-        std::string     m_bumpFilename;
-        BumpMap::Settings m_bumpSettings;
-        /** For use when computing normal maps */
-        float 	        m_normalMapWhiteHeightInPixels;        
+        BumpMap::Specification m_bump;
 
         Component4 loadLambertian() const;
         Component4 loadSpecular() const;
@@ -194,11 +191,14 @@ public:
            @param normalMapWhiteHeightInPixels When loading normal
               maps, argument used for G3D::GImage::computeNormalMap()
               whiteHeightInPixels.  Default is -0.02f
+              \deprecated
         */
         void setBump(
             const std::string& filename,
             const BumpMap::Settings& settings = BumpMap::Settings(),
-            float           normalMapWhiteHeightInPixels = -0.02f);
+            float normalMapWhiteHeightInPixels = -0.02f);
+
+        void setBump(const BumpMap::Specification& bump);
 
         void removeBump();
 

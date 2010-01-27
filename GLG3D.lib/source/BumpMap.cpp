@@ -2,12 +2,37 @@
  @file   BumpMap.cpp
  @author Morgan McGuire, http://graphics.cs.williams.edu
  @edited 2009-03-25
- @date   2009-11-19
+ @date   2010-01-30
 */
 #include "GLG3D/BumpMap.h"
 #include "G3D/Any.h"
 
 namespace G3D {
+
+bool BumpMap::Specification::operator==(const Specification& other) const {
+    return (texture == other.texture) && (settings == other.settings);
+}
+
+
+BumpMap::Specification::Specification(const Any& any) {
+    if (any.type() == Any::STRING) {
+        // Treat as a filename
+        texture.filename = any.string();
+        texture.preprocess = Texture::Preprocess::normalMap();
+    } else {
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "texture") {
+                texture = it->value;
+            } else if (key == "settings") {
+                settings = it->value;
+            } else {
+                any.verify(false, "Illegal key: " + it->key);        
+            }
+        }
+    }
+}
+
 
 BumpMap::BumpMap(const MapComponent<Image4>::Ref& normalBump, const Settings& settings) : 
     m_normalBump(normalBump), m_settings(settings) {
@@ -19,15 +44,8 @@ BumpMap::Ref BumpMap::create(const MapComponent<Image4>::Ref& normalBump, const 
 }
 
 
-BumpMap::Ref BumpMap::fromHeightFile(const std::string& filename, const Settings& settings,
-                                     float normalMapWhiteHeightInPixels, const Texture::Settings& textureSettings, const Texture::Dimension dim) {
-
-    Texture::PreProcess npp = Texture::PreProcess::normalMap();
-    npp.normalMapWhiteHeightInPixels = normalMapWhiteHeightInPixels;
-    
-    Texture::Ref normalBump = Texture::fromFile(filename, TextureFormat::RGBA8(), dim, textureSettings, npp); 
-
-    return BumpMap::create(MapComponent<Image4>::create(NULL, normalBump), settings);    
+BumpMap::Ref BumpMap::create(const Specification& spec) {
+    return BumpMap::create(MapComponent<Image4>::create(NULL, Texture::create(spec.texture)), spec.settings);    
 }
 
 

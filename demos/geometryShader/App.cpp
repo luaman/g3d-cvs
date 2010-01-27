@@ -34,7 +34,7 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
 
 void App::onInit() {
-    ArticulatedModel::PreProcess preprocess;
+    ArticulatedModel::Preprocess preprocess;
     preprocess.stripMaterials = true;
     preprocess.xform = Matrix4::scale(3.0f);
 

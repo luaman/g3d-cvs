@@ -109,11 +109,11 @@ SkyRef Sky::fromFile(
     // Even if there are cube map bugs, G3D knows how to work around them
     if (GLCaps::supports_GL_ARB_texture_cube_map()) {
         Texture::Settings   textureSettings;
-        Texture::PreProcess texturePreProcess;
+        Texture::Preprocess texturePreprocess;
         
         textureSettings.wrapMode = WrapMode::CLAMP;
         textureSettings.interpolateMode = Texture::TRILINEAR_MIPMAP;
-        texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
+        texturePreprocess.scaleFactor = 1.0f / scaleDownFactor;
 
         if (_filename[1] == "") {
             // Specified one cube map
@@ -122,7 +122,7 @@ SkyRef Sky::fromFile(
 				format, 
 				Texture::DIM_CUBE_MAP,
 				textureSettings,
-				texturePreProcess);
+				texturePreprocess);
 
         } else {
             // Specified six filenames
@@ -131,7 +131,7 @@ SkyRef Sky::fromFile(
 				format, 
 				Texture::DIM_CUBE_MAP,
 				textureSettings,
-				texturePreProcess);
+				texturePreprocess);
         }
 
         // For the cube map case, we don't need the other five texture slots
@@ -146,11 +146,11 @@ SkyRef Sky::fromFile(
         // This card doesn't support cube maps; it probably has low memory as well, so we
         // switch to bilinear instead of trilinear to save space on the mipmaps.
         Texture::Settings   textureSettings;
-        Texture::PreProcess texturePreProcess;
+        Texture::Preprocess texturePreprocess;
    
         textureSettings.wrapMode = WrapMode::CLAMP;
         textureSettings.interpolateMode = Texture::BILINEAR_NO_MIPMAP;
-        texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
+        texturePreprocess.scaleFactor = 1.0f / scaleDownFactor;
 
         static const char* ext[] = {"up", "lf", "rt", "bk", "ft", "dn"};
 
@@ -162,7 +162,7 @@ SkyRef Sky::fromFile(
                     format, 
                     Texture::DIM_2D, 
                     textureSettings, 
-                    texturePreProcess);
+                    texturePreprocess);
             }
         } else {
             // Specified six textures
@@ -172,7 +172,7 @@ SkyRef Sky::fromFile(
 					format,
                     Texture::DIM_2D,
 					textureSettings, 
-					texturePreProcess);
+					texturePreprocess);
             }
         }
 

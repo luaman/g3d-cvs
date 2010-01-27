@@ -42,10 +42,36 @@ public:
         int            iterations;
 
         inline Settings() : scale(0.05f), bias(0.0f), iterations(0) {}
+
         Settings(const Any& any);
+
         operator Any() const;
 
         bool operator==(const Settings& s) const;
+    
+        bool operator!=(const Settings& other) const {
+            return ! (*this == other);
+        }    
+    };
+
+    class Specification {
+    public:
+        /** If loading a height field, be sure to set  
+            texture.preprocess = Texture::Preprocess::normalMap() */
+        Texture::Specification          texture;
+        Settings                        settings;
+
+        Specification() {}
+
+        /** The \a any should be either a string that is a filename of a height field or
+            a table of texture and settings */
+        Specification(const Any& any);
+
+        bool operator==(const Specification& other) const;
+
+        bool operator!=(const Specification& other) const {
+            return ! (*this == other);
+        }
     };
 
 protected:
@@ -69,13 +95,7 @@ public:
         */
     static BumpMap::Ref create(const MapComponent<Image4>::Ref& normalBump, const Settings& settings);
 
-    /** @param normalMapWhiteHeightInPixels When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels. Default is -0.02f */
-    static BumpMap::Ref fromHeightFile
-    (const std::string& filename, 
-     const Settings& settings = Settings(), 
-     float normalMapWhiteHeightInPixels = -0.02f, 
-     const Texture::Settings& textureSettings = Texture::Settings(), 
-     const Texture::Dimension dim = Texture::defaultDimension());
+    static BumpMap::Ref create(const Specification& spec);
 
     //static BumpMap::Ref fromNormalFile(const std::string& filename, );
 

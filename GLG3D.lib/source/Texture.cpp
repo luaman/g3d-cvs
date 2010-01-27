@@ -178,21 +178,20 @@ const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
 }
 
 
-bool Texture::PreProcess::operator==(const PreProcess& other) const {
+bool Texture::Preprocess::operator==(const Preprocess& other) const {
     return 
         (modulate == other.modulate) &&
         (gammaAdjust == other.gammaAdjust) &&
         (scaleFactor == other.scaleFactor) &&
         (computeMinMaxMean == other.computeMinMaxMean) &&
         (computeNormalMap == other.computeNormalMap) &&
-        (normalMapLowPassBump == other.normalMapLowPassBump) &&
-        (normalMapWhiteHeightInPixels == other.normalMapWhiteHeightInPixels) &&
-        (normalMapScaleHeightByNz == other.normalMapScaleHeightByNz);
+        (bumpMapPreprocess == other.bumpMapPreprocess);
 }
 
-Texture::PreProcess::PreProcess(const Any& any) {
-    *this = PreProcess::defaults();
-    any.verifyName("Texture::PreProcess");
+
+Texture::Preprocess::Preprocess(const Any& any) {
+    *this = Preprocess::defaults();
+    any.verifyName("Texture::Preprocess");
     if (any.type() == Any::TABLE) {
         for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
             const std::string& key = toLower(it->key);
@@ -206,12 +205,8 @@ Texture::PreProcess::PreProcess(const Any& any) {
                 computeMinMaxMean = it->value;
             } else if (key == "computenormalmap") {
                 computeNormalMap = it->value;
-            } else if (key == "normalmaplowpassbump") {
-                normalMapLowPassBump = it->value;
-            } else if (key == "normalmapwhiteheightinpixels") {
-                normalMapWhiteHeightInPixels = it->value;
-            } else if (key == "normalmapscaleheightbynz") {
-                normalMapScaleHeightByNz = it->value;
+            } else if (key == "bumpmappreprocess") {
+                bumpMapPreprocess = it->value;
             } else {
                 any.verify(false, "Illegal key: " + it->key);
             }
@@ -223,57 +218,54 @@ Texture::PreProcess::PreProcess(const Any& any) {
             // Done!
         } else if (n == "texture::preprocess::gamma") {
             any.verifySize(1);
-            *this = Texture::PreProcess::gamma(any[0]);
+            *this = Texture::Preprocess::gamma(any[0]);
         } else if (n == "texture::preprocess::none") {
             any.verifySize(0);
-            *this = Texture::PreProcess::none();
+            *this = Texture::Preprocess::none();
         } else if (n == "texture::preprocess::quake") {
             any.verifySize(0);
-            *this = Texture::PreProcess::quake();
+            *this = Texture::Preprocess::quake();
         } else if (n == "texture::preprocess::normalmap") {
             any.verifySize(0);
-            *this = Texture::PreProcess::normalMap();
+            *this = Texture::Preprocess::normalMap();
         } else {
-            any.verify(false, "Unrecognized name for Texture::PreProcess constructor or factory method.");
+            any.verify(false, "Unrecognized name for Texture::Preprocess constructor or factory method.");
         }
     }
 }
 
-const Texture::PreProcess& Texture::PreProcess::defaults() {
-    static const Texture::PreProcess p;
+const Texture::Preprocess& Texture::Preprocess::defaults() {
+    static const Texture::Preprocess p;
     return p;
 }
 
 
-Texture::PreProcess Texture::PreProcess::gamma(float g) {
-    Texture::PreProcess p;
+Texture::Preprocess Texture::Preprocess::gamma(float g) {
+    Texture::Preprocess p;
     p.gammaAdjust = g;
     return p;
 }
 
 
-const Texture::PreProcess& Texture::PreProcess::none() {
-    static Texture::PreProcess p;
+const Texture::Preprocess& Texture::Preprocess::none() {
+    static Texture::Preprocess p;
     p.computeMinMaxMean = false;
     return p;
 }
 
 
-const Texture::PreProcess& Texture::PreProcess::quake() {
-    static Texture::PreProcess p;
+const Texture::Preprocess& Texture::Preprocess::quake() {
+    static Texture::Preprocess p;
     p.modulate = Color4::one() * 2.0f;
     p.gammaAdjust = 1.6f;
     return p;
 }
 
-const Texture::PreProcess& Texture::PreProcess::normalMap() {
+const Texture::Preprocess& Texture::Preprocess::normalMap() {
     static bool initialized = false;
-    static Texture::PreProcess p;
+    static Texture::Preprocess p;
     if (! initialized) {
         p.computeNormalMap = true;
-        p.normalMapLowPassBump = false;
-        p.normalMapScaleHeightByNz = false;
-        p.normalMapWhiteHeightInPixels = -0.02f;
         initialized = true;
     }
 
@@ -344,7 +336,7 @@ static void glStatePop() {
 Texture::Ref Texture::createColor(const Color3uint8& c) {
     Texture::Specification s;
     s.filename = "<white>";
-    s.preProcess.modulate = Color4uint8(c, 255);
+    s.preprocess.modulate = Color4uint8(c, 255);
     s.settings.interpolateMode = NEAREST_NO_MIPMAP;
     s.desiredFormat = ImageFormat::RGB8();
     return Texture::create(s);
@@ -354,7 +346,7 @@ Texture::Ref Texture::createColor(const Color3uint8& c) {
 Texture::Ref Texture::createColor(const Color4uint8& c) {
     Texture::Specification s;
     s.filename = "<white>";
-    s.preProcess.modulate = c;   
+    s.preprocess.modulate = c;   
     s.settings.interpolateMode = NEAREST_NO_MIPMAP;
     s.desiredFormat = ImageFormat::RGBA8();
     return Texture::create(s);
@@ -524,7 +516,7 @@ Texture::Ref Texture::fromMemory(
     const class ImageFormat*        desiredFormat,
     Dimension                       dimension,
     const Settings&                 settings,
-    const PreProcess&               preprocess) {
+    const Preprocess&               preprocess) {
 
     Array< Array<const void*> > data;
     data.resize(1);
@@ -592,7 +584,7 @@ static void transform(GImage& image, const Texture::CubeMapInfo::Face& info) {
 }
 
 Texture::Ref Texture::create(const Specification& s) {
-    return Texture::fromFile(s.filename, s.desiredFormat, s.dimension, s.settings, s.preProcess);
+    return Texture::fromFile(s.filename, s.desiredFormat, s.dimension, s.settings, s.preprocess);
 }
 
 Texture::Ref Texture::fromFile(
@@ -600,7 +592,7 @@ Texture::Ref Texture::fromFile(
     const class ImageFormat*        desiredFormat,
     Dimension                       dimension,
     const Settings&                 settings,
-    const PreProcess&               preProcess) {
+    const Preprocess&               preprocess) {
     
     std::string realFilename[6];
 
@@ -658,7 +650,7 @@ Texture::Ref Texture::fromFile(
 			desiredFormat,
 			dimension,
 			settings,
-			preProcess);
+			preprocess);
     }
 
     // Single mip-map level
@@ -728,7 +720,7 @@ Texture::Ref Texture::fromFile(
                    desiredFormat, 
                    dimension,
                    settings,
-                   preProcess);
+                   preprocess);
     
     return t;
 }
@@ -739,7 +731,7 @@ Texture::Ref Texture::fromFile(
     const ImageFormat*      desiredFormat,
     Dimension               dimension,
     const Settings&         settings,
-    const PreProcess&       preProcess) {
+    const Preprocess&       preprocess) {
 
     std::string f[6];
     f[0] = filename;
@@ -749,7 +741,7 @@ Texture::Ref Texture::fromFile(
     f[4] = "";
     f[5] = "";
 
-    return fromFile(f, desiredFormat, dimension, settings, preProcess);
+    return fromFile(f, desiredFormat, dimension, settings, preprocess);
 }
 
 
@@ -759,7 +751,7 @@ Texture::Ref Texture::fromTwoFiles(
     const ImageFormat*      desiredFormat,
     Dimension               dimension,
 	const Settings&			settings,
-	const PreProcess&		preProcess) {
+	const Preprocess&		preprocess) {
 
     debugAssert(desiredFormat);
 
@@ -838,7 +830,7 @@ Texture::Ref Texture::fromTwoFiles(
 				desiredFormat, 
 				dimension,
 				settings,
-				preProcess);
+				preprocess);
 
 		if (color[0].channels() == 3) {
 			// Delete the data if it was dynamically allocated
@@ -892,7 +884,7 @@ Texture::Ref Texture::fromMemory(
     const ImageFormat*                  desiredFormat,
     Dimension                           dimension,
     const Settings&                     settings,
-    const PreProcess&                   preProcess) {
+    const Preprocess&                   preprocess) {
 
     if (settings.interpolateMode != NEAREST_NO_MIPMAP &&
         settings.interpolateMode != NEAREST_MIPMAP) {
@@ -933,7 +925,7 @@ Texture::Ref Texture::fromMemory(
     // Used for normal map computation
     GImage normal;
 
-    float scaleFactor = preProcess.scaleFactor;
+    float scaleFactor = preprocess.scaleFactor;
     
     // Indirection needed in case we have to reallocate our own
     // data for preprocessing.
@@ -949,7 +941,7 @@ Texture::Ref Texture::fromMemory(
         debugAssertM(depth == 1, "Depth must be 1 for all textures that are not DIM_3D");
     }
 
-    if ((preProcess.modulate != Color4::one()) || (preProcess.gammaAdjust != 1.0f)) {
+    if ((preprocess.modulate != Color4::one()) || (preprocess.gammaAdjust != 1.0f)) {
 
         debugAssert((bytesFormat->code == ImageFormat::CODE_RGB8) ||
             (bytesFormat->code == ImageFormat::CODE_RGBA8));
@@ -980,14 +972,14 @@ Texture::Ref Texture::fromMemory(
                         bytesFormat->code,
                         const_cast<void*>(face[f]),
                         numBytes,
-                        preProcess.modulate,
-                        preProcess.gammaAdjust);
+                        preprocess.modulate,
+                        preprocess.gammaAdjust);
                 }
             }
         }
     }
 
-    if (preProcess.computeNormalMap) {
+    if (preprocess.computeNormalMap) {
         debugAssertM(bytesFormat->redBits == 8 || bytesFormat->luminanceBits == 8, "To preprocess a texture with normal maps, 8-bit channels are required");
         debugAssertM(bytesFormat->compressed == false, "Cannot compute normal maps from compressed textures");
         debugAssertM(bytesFormat->floatingPoint == false, "Cannot compute normal maps from floating point textures");
@@ -996,8 +988,7 @@ Texture::Ref Texture::fromMemory(
 
         GImage::computeNormalMap(width, height, bytesFormat->numComponents, 
                                  reinterpret_cast<const uint8*>((*bytesPtr)[0][0]),
-                                 normal, preProcess.normalMapWhiteHeightInPixels, 
-                                 preProcess.normalMapLowPassBump, preProcess.normalMapScaleHeightByNz);
+                                 normal, preprocess.bumpMapPreprocess);
         
         // Replace the previous array with the data from our normal map
         bytesPtr = new MipArray();
@@ -1078,7 +1069,7 @@ Texture::Ref Texture::fromMemory(
                                         bytesFormat->packedBitsPerTexel / 8, 
                                         scaleFactor,
                                         bytesFormat->openGLDataFormat,
-                                        preProcess.computeMinMaxMean,
+                                        preprocess.computeMinMaxMean,
                                         minval, maxval, meanval);
                     
                 } else {
@@ -1099,7 +1090,7 @@ Texture::Ref Texture::fromMemory(
                                   useNPOT, 
                                   scaleFactor,
                                   bytesFormat->openGLDataFormat,
-                                  preProcess.computeMinMaxMean,
+                                  preprocess.computeMinMaxMean,
                                   minval, maxval, meanval);
                 }
 
@@ -1158,7 +1149,7 @@ Texture::Ref Texture::fromGImage(
     const class ImageFormat*      desiredFormat,
     Dimension                       dimension,
 	const Settings&					settings,
-	const PreProcess&				preProcess) {
+	const Preprocess&				preprocess) {
 
     const ImageFormat* format = ImageFormat::RGB8();
     bool opaque = true;
@@ -1200,7 +1191,7 @@ Texture::Ref Texture::fromGImage(
             desiredFormat, 
 			dimension, 
 			settings,
-			preProcess);
+			preprocess);
 
     return t;
 }
@@ -2293,7 +2284,7 @@ bool Texture::Specification::operator==(const Specification& other) const {
         (desiredFormat == other.desiredFormat) &&
         (dimension == other.dimension) &&
         (settings == other.settings) &&
-        (preProcess == other.preProcess);
+        (preprocess == other.preprocess);
 }
 
 
@@ -2311,7 +2302,7 @@ Texture::Specification::Specification(const Any& any) {
         } else if (key == "settings") {
             settings = it->value;
         } else if (key == "preprocess") {
-            preProcess = it->value;
+            preprocess = it->value;
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }

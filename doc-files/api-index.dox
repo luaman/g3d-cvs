@@ -321,7 +321,7 @@ href="classes.html">Classes</a>.
         \link G3D::WeakCache WeakCache\endlink
 
      <LI><B>Images</B> &nbsp; &nbsp;
-        \link G3D::BumpMapPreProcess BumpMapPreProcess\endlink,
+        \link G3D::BumpMapPreprocess BumpMapPreprocess\endlink,
         \link G3D::GImage GImage\endlink,
         \link G3D::GImage::Error GImage::Error\endlink,
         \link G3D::Image1\endlink,

@@ -182,7 +182,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
-     <li> G3D::Texture::PreProcess::brighten -> G3D::Texture::PreProcess::modulate 
+     <li> G3D::Texture::Preprocess::brighten -> G3D::Texture::Preprocess::modulate 
      <li> SuperBSDF::packSpecularExponent now uses a nonlinear scale between 0 and 1025
      <li> G3D::MD2Model::create scale is now 1/2 the quake scale, so that a typical character is 2 meters tall
      <li> Removed G3D::Texture::invertY (See G3D::RenderDevice::invertY)
@@ -247,7 +247,7 @@
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> Clarified G3D::Any file format in documentation
-     <li> G3D::Texture::PreProcess::gammaAdjust
+     <li> G3D::Texture::Preprocess::gammaAdjust
      <li> G3D::ShadowMap::lightProjection(), G3D::ShadowMap::lightFrame()
      <li> Added Barycentric coordinates to CollisionDetection::isPointInTriangle
      <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
@@ -481,7 +481,7 @@
      <li> Mouse motion events for all platforms
      <li> G3D::Surface::Ref::sendGeometry
      <li> G3D::RenderDevice::pushState(FramebufferRef)
-     <li> G3D::Texture::PreProcess::computeNormalMap
+     <li> G3D::Texture::Preprocess::computeNormalMap
      <li> direct.h is now included by fileutils.h on Win32 to ensure that chdir, mkdir, etc. are available
      <li> Changed distribution directories to place include, lib, and bin under a directory named after the platform
           and all other files one directory up.

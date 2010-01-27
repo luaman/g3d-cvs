@@ -109,7 +109,7 @@ public:
 */
 static Texture::Ref loadBrightTexture(const std::string& filename, double brighten = 1.0) {
     //debugAssert(fileExists(filename));
-    Texture::PreProcess preprocess;
+    Texture::Preprocess preprocess;
     preprocess.modulate = Color4::one() * brighten;
     return Texture::fromFile(filename, ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preprocess);
 }

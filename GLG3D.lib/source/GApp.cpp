@@ -521,7 +521,7 @@ Lighting::Ref GApp::defaultLighting() {
         Texture::fromFile(pathConcat(cubePath, "noonclouds/noonclouds_*.jpg"), 
                           TextureFormat::RGB8(), Texture::DIM_CUBE_MAP,
                           Texture::Settings::cubeMap(), 
-                          Texture::PreProcess::gamma(2.1f));
+                          Texture::Preprocess::gamma(2.1f));
     lighting->environmentMapColor = Color3::one();
 
     return lighting;

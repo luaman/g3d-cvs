@@ -33,7 +33,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 
 	std::string resourceDir = filenamePath(filename);
 
-	Texture::PreProcess p;
+	Texture::Preprocess p;
     p.modulate = Color4::one() * 2.0f;
 
 	//Character texture handling

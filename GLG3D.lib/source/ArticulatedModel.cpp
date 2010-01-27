@@ -44,9 +44,9 @@ ArticulatedModel::Specification::operator Any() const {
 
 ///////////////////////////////////////////////////////////
 
-ArticulatedModel::PreProcess::PreProcess(const Any& any) {
-    *this = PreProcess();
-    any.verifyName("ArticulatedModel::PreProcess");
+ArticulatedModel::Preprocess::Preprocess(const Any& any) {
+    *this = Preprocess();
+    any.verifyName("ArticulatedModel::Preprocess");
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
         if (key == "stripmaterials") {
@@ -73,8 +73,8 @@ ArticulatedModel::PreProcess::PreProcess(const Any& any) {
     }
 }
 
-ArticulatedModel::PreProcess::operator Any() const {
-    Any a(Any::TABLE, "ArticulatedModel::PreProcess");
+ArticulatedModel::Preprocess::operator Any() const {
+    Any a(Any::TABLE, "ArticulatedModel::Preprocess");
     a.set("stripMaterials", stripMaterials);
 
 
@@ -162,25 +162,25 @@ ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList(const Ma
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Vector3& scale) {
-    return fromFile(filename, PreProcess(scale), Settings());
+    return fromFile(filename, Preprocess(scale), Settings());
 }
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const CoordinateFrame& xform) {
-    return fromFile(filename, PreProcess(xform.toMatrix4()), Settings());
+    return fromFile(filename, Preprocess(xform.toMatrix4()), Settings());
 }
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Matrix4& xform) {
-    return fromFile(filename, PreProcess(xform), Settings());
+    return fromFile(filename, Preprocess(xform), Settings());
 }
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, float scale) {
-    return fromFile(filename, PreProcess(scale), Settings());
+    return fromFile(filename, Preprocess(scale), Settings());
 }
 
 
-ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const PreProcess& preprocess, const Settings& settings) {
+ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Preprocess& preprocess, const Settings& settings) {
     alwaysAssertM(fileExists(filename),
         filename + " cannot be loaded by ArticulatedModel because it does not exist.");
 
@@ -227,7 +227,7 @@ static std::string findAnyImage(const std::string& filename) {
     return "";
 }
 
-void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& preprocess) {
+void ArticulatedModel::init3DS(const std::string& filename, const Preprocess& preprocess) {
 
     const Matrix4& xform = preprocess.xform;
 
@@ -378,7 +378,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
 Material::Settings ArticulatedModel::compute3DSMaterial
 (const void*         ptr,
  const std::string&  path,
- const PreProcess&   preprocess) {
+ const Preprocess&   preprocess) {
 
     const Load3DS::Material& material = *reinterpret_cast<const Load3DS::Material*>(ptr);
 

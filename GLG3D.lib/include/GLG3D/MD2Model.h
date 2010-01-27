@@ -554,7 +554,7 @@ public:
      Texture::Settings settings;
      settings.wrapMode = WrapMode::CLAMP;
 
-     Texture::PreProcess preprocess;
+     Texture::Preprocess preprocess;
      preprocess.brighten = 2.0f;
 
      Texture::fromFile(filename, ImageFormat::AUTO, Texture::DIM_2D, settings, preprocess)

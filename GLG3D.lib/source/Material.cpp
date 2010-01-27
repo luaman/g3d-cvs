@@ -77,12 +77,8 @@ Material::Ref Material::create(const Specification& settings) {
         value->m_emissive = settings.loadEmissive();
 
         // load bump map
-        if (settings.m_bumpFilename != "") {
-            value->m_bump = 
-                BumpMap::fromHeightFile
-                (settings.m_bumpFilename, 
-                 settings.m_bumpSettings, 
-                 settings.m_normalMapWhiteHeightInPixels);
+        if (! settings.m_bump.texture.filename.empty()) {
+            value->m_bump = BumpMap::create(settings.m_bump);
         }
 
         // Update the cache

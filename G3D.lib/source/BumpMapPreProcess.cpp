@@ -1,5 +1,5 @@
 /**
-  \file BumpMapPreProcess.cpp
+  \file BumpMapPreprocess.cpp
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
@@ -9,14 +9,14 @@
   Copyright 2000-2010, Morgan McGuire.
   All rights reserved.
  */
-#include "G3D/BumpMapPreProcess.h"
+#include "G3D/BumpMapPreprocess.h"
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
 
 namespace G3D {
 
-BumpMapPreProcess::BumpMapPreProcess(const Any& any) {
-    *this = BumpMapPreProcess();
+BumpMapPreprocess::BumpMapPreprocess(const Any& any) {
+    *this = BumpMapPreprocess();
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
         if (key == "lowpassfilter") {
@@ -32,8 +32,8 @@ BumpMapPreProcess::BumpMapPreProcess(const Any& any) {
 }
 
 
-BumpMapPreProcess::operator Any() const {
-    Any any(Any::TABLE, "BumpMapPreProcess");
+BumpMapPreprocess::operator Any() const {
+    Any any(Any::TABLE, "BumpMapPreprocess");
     any["lowPassFilter"] = lowPassFilter;
     any["zExtentPixels"] = zExtentPixels;
     any["scaleZByNz"] = scaleZByNz;

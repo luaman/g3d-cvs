@@ -1,5 +1,5 @@
 /**
-  \file BumpMapPreProcess.h
+  \file BumpMapPreprocess.h
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
@@ -10,8 +10,8 @@
   All rights reserved.
  */
 
-#ifndef G3D_BumpMapPreProcess_h
-#define G3D_BumpMapPreProcess_h
+#ifndef G3D_BumpMapPreprocess_h
+#define G3D_BumpMapPreprocess_h
 
 #include "G3D/platform.h"
 
@@ -22,7 +22,7 @@ class Any;
 Not in the BumpMap class to avoid a circular dependency between Texture and BumpMap.
 G3D::GImage::computeNormalMap().
 */
-class BumpMapPreProcess {
+class BumpMapPreprocess {
 public:
 
     /** If true, the elevations are box filtered after computing normals
@@ -42,11 +42,18 @@ public:
       mapping. Defaults to false.*/
     bool            scaleZByNz;
 
-    BumpMapPreProcess() : lowPassFilter(false), zExtentPixels(-0.05f), scaleZByNz(false) {}
+    BumpMapPreprocess() : lowPassFilter(false), zExtentPixels(-0.05f), scaleZByNz(false) {}
 
-    BumpMapPreProcess(const Any& any);
+    BumpMapPreprocess(const Any& any);
 
     operator Any() const;
+
+    bool operator==(const BumpMapPreprocess& other) const {
+        return 
+            (lowPassFilter == other.lowPassFilter) &&
+            (zExtentPixels == other.zExtentPixels) &&
+            (scaleZByNz == other.scaleZByNz);
+    }
 };
 
 }

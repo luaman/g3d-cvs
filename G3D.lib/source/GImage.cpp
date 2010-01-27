@@ -876,11 +876,9 @@ int GImage::sizeInMemory() const {
 void GImage::computeNormalMap(
     const GImage&       bump,
     GImage&             normal,
-    float               whiteHeightInPixels,
-    bool                lowPassBump,
-    bool                scaleHeightByNz) {
+    const BumpMapPreprocess& preprocess) {
     computeNormalMap(bump.m_width, bump.m_height, bump.m_channels, 
-        bump.byte(), normal, whiteHeightInPixels, lowPassBump, scaleHeightByNz);
+        bump.byte(), normal, preprocess);    
 }
 
 void GImage::computeNormalMap(
@@ -889,9 +887,11 @@ void GImage::computeNormalMap(
     int                 channels,
     const uint8*        src,
     GImage&             normal,
-    float               whiteHeightInPixels,
-    bool                lowPassBump,
-    bool                scaleHeightByNz) {
+    const BumpMapPreprocess& preprocess) {
+
+    float whiteHeightInPixels = preprocess.zExtentPixels;
+    bool lowPassBump = preprocess.lowPassFilter;
+    bool scaleHeightByNz = preprocess.scaleZByNz;
 
     if (whiteHeightInPixels < 0.0f) {
         // Default setting scales so that a gradient ramp

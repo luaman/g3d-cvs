@@ -22,6 +22,7 @@
 #include "G3D/Image3uint8.h"
 #include "G3D/Image4.h"
 #include "G3D/Image4uint8.h"
+#include "G3D/BumpMapPreprocess.h"
 #include "GLG3D/glheaders.h"
 
 namespace G3D {
@@ -46,7 +47,7 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
  If you enable texture compression, textures will be compressed on the fly.
  This can be slow (up to a second).
 
- The special filename "<white>" generates an all-white Color4 texture.  You can use PreProcess::modulate
+ The special filename "<white>" generates an all-white Color4 texture.  You can use Preprocess::modulate
  to create other colors from this.
 
  Unless DIM_2D_RECT, DIM_2D_NPOT, DIM_CUBE_MAP_NPOT are used, the texture is automatically
@@ -404,7 +405,7 @@ public:
     };
 
 
-    class PreProcess {
+    class Preprocess {
     public:
 
         /** Multiplies color channels.  Useful for rescaling to make
@@ -447,44 +448,38 @@ public:
             it where the RGB channels are XYZ and the A channel is the input bump height.*/
         bool                        computeNormalMap;
 
-        /** If computeNormalMap is true, then this blurs the elevation before computing normals.*/
-        bool                        normalMapLowPassBump;
+        BumpMapPreprocess           bumpMapPreprocess;
 
-        /** See G3D::GImage::computeNormalMap() */
-        float                       normalMapWhiteHeightInPixels;
 
-        bool                        normalMapScaleHeightByNz;
-
-        PreProcess() : modulate(Color4::one()), gammaAdjust(1.0f), scaleFactor(1.0f), computeMinMaxMean(true),
-                       computeNormalMap(false), normalMapLowPassBump(false),
-                       normalMapWhiteHeightInPixels(-0.02f), normalMapScaleHeightByNz(false) {}
+        Preprocess() : modulate(Color4::one()), gammaAdjust(1.0f), scaleFactor(1.0f), computeMinMaxMean(true),
+                       computeNormalMap(false) {}
 
         /** \param any Must be in the form of a table of the fields or appear as
             a call to a static factory method, e.g.,:
 
-            - Texture::PreProcess{  modulate = Color4(...), ... }
-            - Texture::PreProcess::gamma(2.2)
-            - Texture::PreProcess::none()
+            - Texture::Preprocess{  modulate = Color4(...), ... }
+            - Texture::Preprocess::gamma(2.2)
+            - Texture::Preprocess::none()
         */
-        PreProcess(const Any& a);
+        Preprocess(const Any& a);
 
         /** Defaults + gamma adjust set to g*/
-        static PreProcess gamma(float g);
+        static Preprocess gamma(float g);
 
-        static const PreProcess& defaults();
+        static const Preprocess& defaults();
 
         /** Default settings + computeMinMaxMean = false */
-        static const PreProcess& none();
+        static const Preprocess& none();
 
         /** Brighten by 2 and adjust gamma by 1.6, the default values
             expected for Quake versions 1 - 3 textures.*/
-        static const PreProcess& quake();
+        static const Preprocess& quake();
 
-        static const PreProcess& normalMap();
+        static const Preprocess& normalMap();
 
-        bool operator==(const PreProcess& other) const;
+        bool operator==(const Preprocess& other) const;
         
-        bool operator!=(const PreProcess& other) const {
+        bool operator!=(const Preprocess& other) const {
             return !(*this == other);
         }
 
@@ -536,7 +531,7 @@ public:
 
         Settings                  settings;
 
-        PreProcess                preProcess;
+        Preprocess                preprocess;
 
         Specification() : desiredFormat(ImageFormat::AUTO()), 
                           dimension(defaultDimension()) {}
@@ -653,7 +648,7 @@ public:
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
-        const PreProcess&               process        = PreProcess());
+        const Preprocess&               process        = Preprocess());
 
     /**
      Creates a cube map from six independently named files.  The first
@@ -664,7 +659,7 @@ public:
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
-        const PreProcess&               process        = PreProcess());
+        const Preprocess&               process        = Preprocess());
 
     /**
      Creates a texture from the colors of filename and takes the alpha values
@@ -677,7 +672,7 @@ public:
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
-        const PreProcess&               process        = PreProcess());
+        const Preprocess&               process        = Preprocess());
 
     /**
     Construct from an explicit set of (optional) mipmaps and (optional) cubemap faces.
@@ -715,7 +710,7 @@ public:
         const ImageFormat*                  desiredFormat  = ImageFormat::AUTO(),
         Dimension                           dimension      = defaultDimension(),
         const Settings&                     settings       = Settings::defaults(),
-        const PreProcess&                   preProcess     = PreProcess::defaults());
+        const Preprocess&                   preprocess     = Preprocess::defaults());
 
 
 	 /** Construct from a single packed 2D or 3D data set.  For 3D
@@ -731,7 +726,7 @@ public:
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
-        const PreProcess&               preProcess     = PreProcess::defaults());
+        const Preprocess&               preprocess     = Preprocess::defaults());
 
     static Texture::Ref fromGImage(
         const std::string&              name,
@@ -739,7 +734,7 @@ public:
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
-        const PreProcess&               preProcess     = PreProcess::defaults());
+        const Preprocess&               preprocess     = Preprocess::defaults());
 
     /** Creates another texture that is the same as this one but contains only
         an alpha channel.  Alpha-only textures are useful as mattes.  

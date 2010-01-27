@@ -32,7 +32,7 @@ class Any;
  Loads 3DS, PLY2, OFF, and IFS files (Articulatedmodel::fromFile), or
  you can create models (ArticulatedModel::createEmpty) from code at
  run time.  You can also load a model and then adjust the materials
- explicitly.  See ArticulatedModel::PreProcess and
+ explicitly.  See ArticulatedModel::Preprocess and
  ArticulatedModel::Setings for options.
  
  Use the ArticulatedModel::Pose class to explicitly adjust the
@@ -88,7 +88,7 @@ public:
     
       You can use the @a xform parameter to scale, translate, and rotate 
       (or even invert!) the model as it is loaded. */
-    class PreProcess {
+    class Preprocess {
     public:
         /** Removes all material properties while loading for cases where only geometry is desired. */
         bool                          stripMaterials;
@@ -139,18 +139,18 @@ public:
             forces stripMaterials to be true.*/
         Material::Ref           materialOverride;
         
-        PreProcess(const Any& any);
+        Preprocess(const Any& any);
         operator Any() const;
 
-        inline PreProcess() : stripMaterials(false), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        inline Preprocess() : stripMaterials(false), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
-        explicit inline PreProcess(const Matrix4& m) : stripMaterials(false), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const Matrix4& m) : stripMaterials(false), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const Vector3& scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const Vector3& scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
  
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const float scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const float scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
     };
 
     /**
@@ -181,7 +181,7 @@ public:
     class Specification {
     public:
         std::string     filename;
-        PreProcess      preprocess;
+        Preprocess      preprocess;
         Settings        settings;
 
         Specification();
@@ -385,7 +385,7 @@ private:
     Settings                    m_settings;
 
     /** Called from the constructor */
-    void init3DS(const std::string& filename, const PreProcess& preprocess);
+    void init3DS(const std::string& filename, const Preprocess& preprocess);
 
     /** Called from the constructor */
     void initIFS(const std::string& filename, const Matrix4& xform);
@@ -397,7 +397,7 @@ private:
     static Material::Settings compute3DSMaterial
         (const void* material, 
          const std::string& path, 
-         const PreProcess& preprocess);
+         const Preprocess& preprocess);
 
 public:
 
@@ -454,7 +454,7 @@ public:
      */
     static ArticulatedModel::Ref fromFile
         (const std::string&  filename, 
-         const PreProcess&   preprocess = PreProcess(),
+         const Preprocess&   preprocess = Preprocess(),
          const Settings&     settings   = Settings());
 
     static ArticulatedModel::Ref create(const Specification& s) {

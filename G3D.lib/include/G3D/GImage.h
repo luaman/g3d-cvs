@@ -32,6 +32,7 @@
 #include "G3D/Color3uint8.h"
 #include "G3D/Color4uint8.h"
 #include "G3D/MemoryManager.h"
+#include "G3D/BumpMapPreprocess.h"
 
 namespace G3D {
 class BinaryInput;
@@ -543,26 +544,11 @@ public:
 	    return Texture::fromGImage(filename, normal);
     </PRE>
 
-    @param lowPassBump If true, a 9x9 filter of 1's is used to low-pass filter the elevations,
-        which produces better results for parallax mapping.
-
-    @param scaleHeightByNz After computing normals, scale the height by |N.z|, a trick that
-        reduces texture swim in steep areas for parallax mapping.
-
-    @param whiteHeightInPixels How high should the brightest input value be considered for purposes
-      of normal computation, compared to the horizontal and vertical size of a pixel.
-      A value of 255 means that a 255 x 255 bump image with a full black-to-white gradient will
-      produce a 45-degree ramp (this also results in "cubic" voxels).  
-      
-      
-      A negative value means to set whiteHeight to -whiteHeight * larger dimensions.
       */
     static void computeNormalMap(
         const class GImage& bump, 
         class GImage& normal,
-        float whiteHeightInPixels = -0.05f,
-        bool lowPassBump = false,
-        bool scaleHeightByNz = false);
+        const BumpMapPreprocess& preprocess = BumpMapPreprocess());
 
     static void computeNormalMap
        (int                 width,
@@ -570,9 +556,7 @@ public:
         int                 channels,
         const uint8*        src,
         GImage&             normal,
-        float               whiteHeightInPixels,
-        bool                lowPassBump,
-        bool                scaleHeightByNz);
+        const BumpMapPreprocess& preprocess = BumpMapPreprocess());
 
     /**
     Bayer demosaicing using the filter proposed in 
