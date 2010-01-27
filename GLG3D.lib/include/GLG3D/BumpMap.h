@@ -14,6 +14,7 @@ namespace G3D {
 
 class Any;
 
+
 /** 
   @brief Normal + bump map for use with G3D::Material.
 

@@ -37,6 +37,7 @@ namespace G3D {
 class BinaryInput;
 class BinaryOutput;
 
+
 /**
   Interface to image compression & file formats. 
  

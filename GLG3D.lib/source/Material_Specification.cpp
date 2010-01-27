@@ -41,33 +41,87 @@ mat = Material::Specification {
                      }
         }
 }
+*/
+/*
+Material::Specification::Specification(const Any& any) {
+    *this = Specification();
 
+    any.verifyName("Material::Specification");
 
-Material::Specification::Specification(const Any& a) {
-    alwaysAssertM(a.type() == AnyVal::TABLE, "Must be a table of values");
+    m_etaTransmit = any.get("etatransmit", m_etaTransmit);
+    m_extinctionTransmit = any.get("extinctiontransmit", m_extinctionTransmit);
 
-    if (beginsWith(toLower(lamb.name()), "color4")) {
-        setLambertian(Color4(lamb));
-    } else if (beginsWith(toLower(lamb.name()), "color3")) {
-        setLambertian(Color3(lamb));
-    } else if (lamb.type() == Any::STRING) {
-        setLambertian(lamb.string());
-    } else {
-        // Full specification
-        setLambertian(Texture::Specification(lamb));
+    m_etaReflect = any.get("etareflect", m_etaReflect);
+    m_extinctionReflect = any.get("extinctionreflect", m_extinctionReflect);
+
+    m_bumpFilename = any.get("bumpfilename", m_bumpFilename);
+    m_normalMapWhiteHeightInPixels = any.get("normalmapwhiteheightinpixels"
+
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "lambertian") {
+            if (it->value.type() == Any::STRING) {
+                setLambertian(it->value.string());
+            } else if (beginsWith(toLower(it->value.name()), "color4")) {
+                setLambertian(Color4(it->value));
+            } else if (beginsWith(toLower(it->value.name()), "color3")) {
+                setLambertian(Color3(it->value));
+            } else {
+                // Full specification
+                setLambertian(Texture::Specification(it->value));
+            }
+        } else if (key == "specular") {
+            if (it->value.type() == Any::STRING) {
+                setSpecular(it->value.string());
+            } else if (beginsWith(toLower(it->value.name()), "color3")) {
+                setSpecular(Color3(it->value));
+            } else {
+                // Full specification
+                setSpecular(Texture::Specification(it->value));
+            }
+        } else if (key == "shininess") {
+            if (it->value.type() == Any::STRING) {
+                setShininess(it->value.string());
+            } else if (beginsWith(toLower(it->value.name()), "glossyexponent")) {
+                setGlossyExponentShininess(it->value.number());
+            } else if (beginsWith(toLower(it->value.name()), "mirror")) {
+                setMirrorShininess(it->value.number());
+            } else {
+                // Full specification
+                setShininess(Texture::Specification(it->value));
+            }    
+        } else if (key == "transmissive") {
+            if (it->value.type() == Any::STRING) {
+                setTransmissive(it->value.string());
+            } else if (beginsWith(toLower(it->value.name()), "color3")) {
+                setTransmissive(Color3(it->value));
+            } else {
+                // Full specification
+                setTransmissive(Texture::Specification(it->value));
+            }
+        } else if (key == "emissive") {
+            if (it->value.type() == Any::STRING) {
+                setEmissive(it->value.string());
+            } else if (beginsWith(toLower(it->value.name()), "color3")) {
+                setEmissive(Color3(it->value));
+            } else {
+                // Full specification
+                setEmissive(Texture::Specification(it->value));
+            }
+        } else if (key == "emissive") {
+            if (it->value.type() == Any::STRING) {
+                setEmissive(it->value.string());
+            } else if (beginsWith(toLower(it->value.name()), "color3")) {
+                setEmissive(Color3(it->value));
+            } else {
+                // Full specification
+                setEmissive(Texture::Specification(it->value));
+            }
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
     }
 
-    m_lambertianFilename = a.get("lambertianFilename", "").string();
-    m_lambertianConstant = a.get("lambertianConstant", Color4::one());
-
-    m_specularFilename = a.get("specularFilename", "").string();
-    m_specularConstant = a.get("specularConstant", Color4::one());
-
-    m_shininessFilename = a.get("shininessFilename", "").string();
-    m_shininessConstant = iClamp(a.get("shininessConstant", 0), 0, 1);
-
-    m_transmissiveFilename = a.get("transmissiveFilename", "").string();
-    m_transmissiveConstant = a.get("transmissiveConstant", Color3::black());
 
     m_etaTransmit = a.get("etaTransmit", 1);
     m_extinctionTransmit = a.get("extinctionTransmit", 0);
@@ -93,7 +147,6 @@ Material::Specification::Specification(const Any& a) {
         Texture::DIM_2D : Texture::DIM_2D_NPOT;
 }
 */
-
 
 void Material::Specification::setLambertian(const std::string& filename, const Color4& constant) {
     m_lambertian = Texture::Specification();

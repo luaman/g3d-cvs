@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\BumpMapPreProcess.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Capsule.cpp"
 				>
 			</File>
@@ -592,6 +596,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\BumpMap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\BumpMapPreProcess.h"
 				>
 			</File>
 			<File

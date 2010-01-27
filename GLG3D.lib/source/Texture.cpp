@@ -2290,7 +2290,7 @@ static void modulateImage(ImageFormat::Code fmt, void* _byte, int n, const Color
 bool Texture::Specification::operator==(const Specification& other) const {
     return 
         (filename == other.filename) &&
-        (desiredFormat->code == other.desiredFormat->code) &&
+        (desiredFormat == other.desiredFormat) &&
         (dimension == other.dimension) &&
         (settings == other.settings) &&
         (preProcess == other.preProcess);
