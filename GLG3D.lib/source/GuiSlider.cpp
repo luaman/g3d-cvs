@@ -1,7 +1,7 @@
 /**
  @file GuiSlider.cpp
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2007-06-02
  @edited  2007-06-10

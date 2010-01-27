@@ -1,7 +1,7 @@
 /**
   @file VideoRecordDialog.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2008-10-14
   @edited  2009-09-14

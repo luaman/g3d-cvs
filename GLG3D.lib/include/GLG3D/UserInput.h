@@ -1,7 +1,7 @@
 /**
   @file UserInput.h
  
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2002-09-28
   @edited  2006-10-20

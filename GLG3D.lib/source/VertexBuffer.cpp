@@ -3,7 +3,7 @@
  
  Implementation of the vertex array system used by RenderDevice.
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-01-08
  @edited  2008-12-24

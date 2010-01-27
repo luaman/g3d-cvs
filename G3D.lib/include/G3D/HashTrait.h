@@ -1,7 +1,7 @@
 /**
   @file HashTrait.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2008-10-01
   @edited  2009-11-01
 

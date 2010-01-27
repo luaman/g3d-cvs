@@ -1,6 +1,6 @@
 /**
  @file   SuperBSDF.cpp
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  @date   2008-08-10
 */
 #include "GLG3D/SuperBSDF.h"

@@ -2,7 +2,7 @@
   @file UprightFrame.cpp
   Box class
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2007-05-02
   @edited  2007-05-05

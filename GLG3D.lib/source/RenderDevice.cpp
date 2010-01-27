@@ -1,7 +1,7 @@
 /**
  @file RenderDevice.cpp
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2001-07-08
  @edited  2009-01-15

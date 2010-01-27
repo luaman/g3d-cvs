@@ -1,6 +1,6 @@
 /**
   @file Matrix.h
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2005-10-23
   @edited  2007-07-18

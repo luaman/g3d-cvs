@@ -3,7 +3,7 @@
  
   Axis-aligned box class
  
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2004-01-10
   @edited  2009-02-10

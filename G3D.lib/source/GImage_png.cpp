@@ -1,6 +1,6 @@
 /**
   @file GImage_png.cpp
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
   @created 2002-05-27
   @edited  2009-04-20
  */

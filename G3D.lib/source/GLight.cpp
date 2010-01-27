@@ -1,7 +1,7 @@
 /**
   @file GLight.cpp
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-11-12
   @edited  2009-11-16

@@ -1,7 +1,7 @@
 /**
   @file Surface.h
   
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-11-15
   @edited  2009-04-02

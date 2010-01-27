@@ -3,7 +3,7 @@
   
   The BSP::load method.
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-05-25
   @edited  2009-02-30

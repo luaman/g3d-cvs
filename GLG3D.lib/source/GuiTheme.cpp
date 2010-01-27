@@ -1,6 +1,6 @@
 /**
  \file GuiTheme.cpp
- \author Morgan McGuire, morgan@cs.williams.edu
+ \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2008-01-01
  \edited  2010-01-04

@@ -1,7 +1,7 @@
 /**
  @file PrecomputedRandom.cpp
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2009-03-31
  @edited  2009-07-01

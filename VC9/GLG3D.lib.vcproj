@@ -376,7 +376,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\Material_Settings.cpp"
+				RelativePath="..\GLG3D.lib\source\Material_Specification.cpp"
 				>
 			</File>
 			<File

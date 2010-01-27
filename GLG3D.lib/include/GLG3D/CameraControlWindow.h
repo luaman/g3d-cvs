@@ -1,7 +1,7 @@
 /**
   @file CameraControlWindow.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2002-07-28
   @edited  2008-07-14

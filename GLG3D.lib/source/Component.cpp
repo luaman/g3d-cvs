@@ -1,6 +1,6 @@
 /**
  @file   Component.cpp
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  @date   2009-02-19
 */
 

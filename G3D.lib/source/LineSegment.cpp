@@ -1,7 +1,7 @@
 /**
  @file LineSegment.cpp
   
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-02-08
  @edited  2008-02-02

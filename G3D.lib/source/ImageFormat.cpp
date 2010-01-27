@@ -1,7 +1,7 @@
 /**
  @file ImageFormat.cpp
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-05-23
  @edited  2009-12-10

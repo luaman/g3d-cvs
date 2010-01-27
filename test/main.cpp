@@ -8,7 +8,7 @@
 
  Call those two methods from main() in main.cpp.
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2002-01-01
  @edited  2009-11-03
  */

@@ -3,7 +3,7 @@
  
  Monochrome Color class
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2007-01-31
  @edited  2009-03-20
 

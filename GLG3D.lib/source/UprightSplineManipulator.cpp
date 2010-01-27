@@ -1,7 +1,7 @@
 /**
   @file UprightSplineManipulator.cpp
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2007-06-01
   @edited  2008-10-08

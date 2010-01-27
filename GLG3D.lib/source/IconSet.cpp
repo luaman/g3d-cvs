@@ -1,7 +1,7 @@
 /**
   @file IconSet.cpp
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2010-01-04
   @edited  2010-01-04

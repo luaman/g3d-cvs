@@ -1,7 +1,7 @@
 /**
  @file Draw.h
   
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-10-29
  @edited  2009-09-05

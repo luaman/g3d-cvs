@@ -1,6 +1,6 @@
 /**
  @file   Material.h
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  @date   2008-08-10
  @edited 2009-04-29
 */

@@ -1,7 +1,7 @@
 /**
  @file Spline.h
 
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 
 #ifndef G3D_SPLINE_H

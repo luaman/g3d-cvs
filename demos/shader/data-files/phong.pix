@@ -3,7 +3,7 @@
  Per-pixel Phong Shading
 
  @file phong.pix
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 
 /** Diffuse/ambient surface color */

@@ -1,7 +1,7 @@
 /**
   @file getOpenGLState.cpp
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @cite       Created by Morgan McGuire & Seth Block
   @created 2001-08-05
   @edited  2006-10-15

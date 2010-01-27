@@ -1,7 +1,7 @@
 /**
   @file Log.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @cite Backtrace by Aaron Orenstein
   @created 2001-08-04
   @edited  2005-11-04

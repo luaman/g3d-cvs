@@ -3,7 +3,7 @@
 
   Hash set
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2001-12-09
   @edited  2009-06-10

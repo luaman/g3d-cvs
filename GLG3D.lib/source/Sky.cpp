@@ -1,7 +1,7 @@
 /** 
   @file Sky.cpp
 
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2002-10-04
   @edited  2006-02-11

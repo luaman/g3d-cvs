@@ -1,6 +1,6 @@
 /**
  @file   BumpMap.cpp
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  @edited 2009-03-25
  @date   2009-11-19
 */

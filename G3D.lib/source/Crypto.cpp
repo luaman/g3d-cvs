@@ -1,7 +1,7 @@
 /**
  @file Crypto.cpp
 
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
 
 
  @created 2006-03-28

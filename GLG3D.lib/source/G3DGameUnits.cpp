@@ -1,7 +1,7 @@
 /**
  @file G3DGameUnits.cpp
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2002-10-05
  @edited  2003-11-25
  */

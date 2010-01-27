@@ -1,6 +1,6 @@
 /**
   @file GBuffer.h
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 #ifndef GLG3D_GBuffer_h
 #define GLG3D_GBuffer_h

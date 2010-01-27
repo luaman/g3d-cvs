@@ -1,6 +1,6 @@
 /**
  @file Film.h
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  @created 2008-07-01
  @edited  2009-05-25
  */

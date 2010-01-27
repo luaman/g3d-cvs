@@ -1,6 +1,6 @@
 /**
   @file GuiText.h
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   Copyright 2000-2010, Morgan McGuire
  */
 

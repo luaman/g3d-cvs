@@ -1,7 +1,7 @@
 /**
  @file fileutils.h
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @author  2002-06-06
  @edited  2007-01-18

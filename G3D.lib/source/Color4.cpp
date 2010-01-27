@@ -3,7 +3,7 @@
 
  Color class.
 
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  @cite Portions by Laura Wollstadt, graphics3d.com
  @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
 

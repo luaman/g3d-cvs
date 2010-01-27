@@ -3,7 +3,7 @@
 
  Indexed Mesh algorithms.
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2003-09-14
  @edited  2010-01-18

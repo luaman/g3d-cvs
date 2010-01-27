@@ -1,7 +1,7 @@
 /**
   @file Box2D.h
  
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2001-06-02
   @edited  2008-12-27

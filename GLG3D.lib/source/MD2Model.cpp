@@ -1,7 +1,7 @@
 /**
  @file MD2Model.cpp
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2003-08-07
  @edited  2007-05-08

@@ -1,7 +1,7 @@
 /**
  @file Triangle.h
   
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-04-05
  @edited  2008-10-06

@@ -1,7 +1,7 @@
 /**
   @file KDTree.h
   
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2004-01-11
   @edited  2009-12-28

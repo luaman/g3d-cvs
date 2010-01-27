@@ -1,7 +1,7 @@
 /**
   @file GPUProgram.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-04-13
   @edited  2006-02-25

@@ -3,7 +3,7 @@
 
  Simple text lexer/tokenizer.
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @cite Based on a lexer written by Aaron Orenstein. 
 

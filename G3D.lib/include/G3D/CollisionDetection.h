@@ -4,7 +4,7 @@
 
   Moving collision detection for simple primitives.
 
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
   @cite Spherical collision based on Paul Nettle's
   ftp://ftp.3dmaileffects.com/pub/FluidStudios/CollisionDetection/Fluid_Studios_Generic_Collision_Detection_for_Games_Using_Ellipsoids.pdf
   and comments by Max McGuire.  Ray-sphere intersection by Eric Haines.

@@ -1,6 +1,6 @@
 /**
   @file scratch/main.cpp
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>

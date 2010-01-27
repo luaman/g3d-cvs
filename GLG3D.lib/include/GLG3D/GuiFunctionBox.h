@@ -1,7 +1,7 @@
 /**
   @file GuiFunctionBox.h
  
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2007-10-02
   @edited  2008-07-10

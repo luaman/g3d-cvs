@@ -1,7 +1,7 @@
 /**
  @file GLCaps.h
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2004-03-28
  @edited  2009-12-31

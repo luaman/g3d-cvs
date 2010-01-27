@@ -1,7 +1,7 @@
 /**
  @file tesselate.cpp
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-05-01
  @edited  2005-02-24

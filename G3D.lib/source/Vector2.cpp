@@ -3,7 +3,7 @@
  
  2D vector class, used for texture coordinates primarily.
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @cite Portions based on Dave Eberly'x Magic Software Library
   at http://www.magic-software.com

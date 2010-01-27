@@ -1,7 +1,7 @@
 /**
   @file GLG3D/TriTree.cpp
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2009-06-10
   @edited  2009-06-20

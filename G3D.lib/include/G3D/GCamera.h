@@ -1,7 +1,7 @@
 /**
   @file GCamera.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2005-07-20
   @edited  2009-04-20

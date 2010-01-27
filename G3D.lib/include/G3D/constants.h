@@ -1,7 +1,7 @@
 /**
   @file G3D/constants.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2009-05-20
   @edited  2009-05-20
 */

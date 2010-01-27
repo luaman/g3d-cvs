@@ -3,7 +3,7 @@
  
  Math util class.
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @cite highestBit by Jukka Liimatta
  
  @created 2001-06-02

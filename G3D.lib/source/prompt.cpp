@@ -1,7 +1,7 @@
 /**
  @file prompt.cpp
  
- @author Morgan McGuire, morgan@cs.williams.edu 
+ @author Morgan McGuire, http://graphics.cs.williams.edu 
  @cite Windows dialog interface by Max McGuire, mmcguire@ironlore.com
  @cite Font setting code by Kurt Miller, kurt@flipcode.com
 

@@ -1,7 +1,7 @@
 /**
   @file Milestone.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-08-09
   @edited  2006-02-09

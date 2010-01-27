@@ -1,7 +1,7 @@
 /**
   @file GLG3D/ThirdPersonManipulator.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2006-06-09
   @edited  2006-07-18

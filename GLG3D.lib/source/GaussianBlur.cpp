@@ -1,6 +1,6 @@
 /**
    @file GaussianBlur.cpp
-   @author Morgan McGuire, morgan@cs.williams.edu
+   @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 #include "GLG3D/GaussianBlur.h"
 #include "GLG3D/RenderDevice.h"

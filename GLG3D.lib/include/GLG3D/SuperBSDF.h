@@ -1,6 +1,6 @@
 /**
  @file   SuperBSDF.h
- @author Morgan McGuire, morgan@cs.williams.edu
+ @author Morgan McGuire, http://graphics.cs.williams.edu
  @date   2008-08-10
 */
 #ifndef G3D_SuperBSDF_h

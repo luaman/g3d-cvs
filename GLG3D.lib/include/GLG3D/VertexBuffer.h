@@ -1,6 +1,6 @@
 /**
   @file VertexBuffer.h
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2003-08-09
   @edited  2008-12-06
 */

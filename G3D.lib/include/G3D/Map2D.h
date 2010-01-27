@@ -164,7 +164,7 @@ namespace G3D {
   [3, w - 4].  The class does not offer quadratic interpolation because
   the interpolation filter could not center over a pixel.
   
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 template< typename Storage, 
 typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type>

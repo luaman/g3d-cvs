@@ -4,7 +4,7 @@
  This header includes all of the GLG3D libraries in 
  appropriate namespaces.
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2002-08-07
  @edited  2010-01-04

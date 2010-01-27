@@ -1,7 +1,7 @@
 /**
   @file ShadowMap.cpp
 
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
   @edited 2009-05-27
  */
 #include "GLG3D/ShadowMap.h"

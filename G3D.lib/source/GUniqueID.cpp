@@ -1,6 +1,6 @@
 /**
   @file GUniqueID.cpp
-  @author Morgan McGuire, morgan@cs.williams.edu
+  @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 #include "G3D/GUniqueID.h"
 #include "G3D/BinaryInput.h"

@@ -1,7 +1,7 @@
 /**
  @file debugPrintf.h
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2001-08-26
  @edited  2007-07-20

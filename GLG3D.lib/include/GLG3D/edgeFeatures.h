@@ -1,7 +1,7 @@
 /**
  @file edgeFeatures.h
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2004-04-20
  @edited  2006-02-03

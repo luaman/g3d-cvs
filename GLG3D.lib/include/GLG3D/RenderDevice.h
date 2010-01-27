@@ -6,7 +6,7 @@
   You can freely mix OpenGL calls with RenderDevice, just make sure you put
   the state back the way you found it or you will confuse RenderDevice.
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2001-05-29
   @edited  2009-12-29
 

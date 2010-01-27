@@ -1,7 +1,7 @@
 /**
  @file GFont.cpp
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2002-11-02
  @edited  2009-11-31

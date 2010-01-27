@@ -32,7 +32,7 @@
  include the size of the header itself.  The minimum message is 9
  bytes:a 4-byte type, a 4-byte header equal to "1", and one byte of data.
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2002-11-22
  @edited  2006-11-25
  */

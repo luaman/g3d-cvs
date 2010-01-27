@@ -1,6 +1,6 @@
 /**
  @file BinaryFormat.h
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @author  2005-06-03
  @edited  2005-06-03

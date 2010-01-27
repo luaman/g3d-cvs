@@ -5,7 +5,7 @@
 
  @cite http://tfc.duke.free.fr/us/tutorials/models/md2.htm
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2003-02-21
  @edited  2010-01-13
  */

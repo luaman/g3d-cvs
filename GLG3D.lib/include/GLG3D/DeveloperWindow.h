@@ -1,7 +1,7 @@
 /**
   @file DeveloperWindow.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2007-06-10
   @edited  2009-03-30

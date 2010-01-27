@@ -1,7 +1,7 @@
 /**
  @file Intersect.h
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   
  @created 2009-06-29
  @edited  2009-06-29

@@ -1,7 +1,7 @@
 /**
   @file G3D/enumclass.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2007-01-27
   @edited  2007-07-20
 */

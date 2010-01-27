@@ -1,7 +1,7 @@
 /**
   @file CarbonWindow.h
   
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @author Casey O'Donnell, caseyodonnell@gmail.com
   @created 2006-08-20
   @edited  2007-08-23

@@ -1,7 +1,7 @@
 /**
   @file GLG3D/GKey.h
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2006-10-20
   @edited  2007-01-27
 */

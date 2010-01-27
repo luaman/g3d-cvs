@@ -1,7 +1,7 @@
 /** 
   @file Pointer.h
  
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2007-05-16
   @edited  2009-03-26

@@ -11,7 +11,7 @@
   @cite PNG compress/decompressor is the <A HREF="http://www.libpng.org/pub/png/libpng.html">libpng library</A>, used in accordance with their license.
   @cite PPM code by Morgan McGuire based on http://netpbm.sourceforge.net/doc/ppm.html
 
-  \maintainer Morgan McGuire, morgan@cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   \created 2002-05-27
   \edited  2010-01-04

@@ -1,7 +1,7 @@
 /**
  @file glFormat.h
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2002-08-07
  @edited  2008-12-24
