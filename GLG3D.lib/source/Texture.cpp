@@ -329,6 +329,20 @@ static void glStatePop() {
 }  
 
 
+Texture::Ref Texture::createColor
+(const Color3uint8& c, 
+ const ImageFormat* format) {
+    // TODO
+}
+
+
+Texture::Ref Texture::createColor
+(const Color4uint8& c, 
+ const ImageFormat* format) {
+    // TODO:
+}
+
+
 TextureRef Texture::white() {
     static WeakReferenceCountedPointer<Texture> cache;
 

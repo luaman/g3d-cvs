@@ -216,10 +216,11 @@ public:
     static const char* toString(InterpolateMode m);
     static InterpolateMode toInterpolateMode(const std::string& s);
 
-    /** A m_depth texture can automatically perform the m_depth comparison used for shadow mapping
-        on a texture lookup.  The result of a texture lookup is thus the shadowed amount
-        (which will be percentage closer filtered on newer hardware) and <I>not</I> the 
-        actual m_depth from the light's point of view.
+    /** A m_depth texture can automatically perform the m_depth
+        comparison used for shadow mapping on a texture lookup.  The
+        result of a texture lookup is thus the shadowed amount (which
+        will be percentage closer filtered on newer hardware) and
+        <I>not</I> the actual m_depth from the light's point of view.
        
         This combines GL_TEXTURE_COMPARE_MODE_ARB and GL_TEXTURE_COMPARE_FUNC_ARB from
         http://www.nvidia.com/dev_content/nvopenglspecs/GL_ARB_shadow.txt
@@ -268,6 +269,16 @@ public:
         or future calls will return the mutated texture as well. */
     static Texture::Ref gray();
 
+    /** Creates a new 1x1 texture in this color */
+    static Texture::Ref createColor
+    (const Color3uint8& c, 
+     const ImageFormat* format = ImageFormat::RGB8());
+
+    /** Creates a new 1x1 texture in this color */
+    static Texture::Ref createColor
+    (const Color4uint8& c, 
+     const ImageFormat* format = ImageFormat::RGBA8());
+
     /** @copydoc white(). */
     inline static Texture::Ref one() {
         return white();
@@ -304,7 +315,6 @@ public:
         underlying image data.  */
     class Settings {
     public:
-
         /** Default is TRILINEAR_MIPMAP */
         InterpolateMode             interpolateMode;
 
@@ -514,7 +524,8 @@ public:
         /** Defaults to ImageFormat::AUTO() */
         const class ImageFormat*  desiredFormat;
 
-        /** Defaults to ImageFormat::DIM_2D_NPOT on cards that support it, DIM_2D otherwise */
+        /** Defaults to ImageFormat::DIM_2D_NPOT on cards that support
+            it, DIM_2D otherwise. */
         Dimension                 dimension;
 
         Settings                  settings;

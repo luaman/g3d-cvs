@@ -30,10 +30,25 @@ Material::Specification::Specification() :
 
 
 /*
+mat = Material::Specification {
+   lambertian = "texture.jpg",
+   lambertian = Color4(r,g,b,a),
+   lambertian = Texture::Specification{
+                     filename = "texture.jpg",
+                     imageFormat = ImageFormat::AUTO(),
+                     dimension = Texture::DIM_2D_NPOT,
+                     settings = Texture::Settings {
+                         
+                     },
+                     preProcess = Texture::PreProcess {
+                         gammaAdjust = 2.2,
+                         modulate = Color4(1,0,0,1)
+                     }
+        }
+}
+
 Material::Specification::Specification(const Any& a) {
     alwaysAssertM(a.type() == AnyVal::TABLE, "Must be a table of values");
-
-    m_name = a.get("name", "Untitled").string();
 
     m_lambertianFilename = a.get("lambertianFilename", "").string();
     m_lambertianConstant = a.get("lambertianConstant", Color4::one());

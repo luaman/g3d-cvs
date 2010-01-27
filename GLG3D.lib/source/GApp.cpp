@@ -79,14 +79,14 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_exitCode(0),
     m_useFilm(settings.film.enabled),
     debugPane(NULL),
-    renderDevice(NULL),
     m_settings(settings),
+    renderDevice(NULL),
     userInput(NULL),
     lastWaitTime(System::time()),
-    m_desiredFrameRate(5000),
     m_lastFrameOverWait(0),
-    m_realTime(0), 
+    m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f),
+    m_realTime(0), 
     m_simTime(0) {
 
     lastGApp = this;
