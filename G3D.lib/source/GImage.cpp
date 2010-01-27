@@ -890,8 +890,8 @@ void GImage::computeNormalMap(
     const BumpMapPreprocess& preprocess) {
 
     float whiteHeightInPixels = preprocess.zExtentPixels;
-    bool lowPassBump = preprocess.lowPassFilter;
-    bool scaleHeightByNz = preprocess.scaleZByNz;
+    bool lowPassBump          = preprocess.lowPassFilter;
+    bool scaleHeightByNz      = preprocess.scaleZByNz;
 
     if (whiteHeightInPixels < 0.0f) {
         // Default setting scales so that a gradient ramp

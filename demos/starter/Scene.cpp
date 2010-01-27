@@ -53,7 +53,7 @@ Scene::Ref Scene::create() {
         mat.setSpecular(base + "G.png");
         mat.setGlossyExponentShininess(20);
         BumpMap::Settings b;
-        b.iterations = 1;
+        b.iterations = 0;
         mat.setBump(base + "B.png", b);
         model->partArray[0].triList[0]->material = Material::create(mat);
 
