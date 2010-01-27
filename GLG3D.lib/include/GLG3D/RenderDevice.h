@@ -193,7 +193,7 @@ public:
         due to the cost of tracking and restoring the state. Most users will not
         use more, but increasing this value is the only necessary change.
      */
-    enum {MAX_TRACKED_TEXTURE_IMAGE_UNITS = 32};
+    enum {MAX_TRACKED_TEXTURE_IMAGE_UNITS = 16};
 
 private:
 

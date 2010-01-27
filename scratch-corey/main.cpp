@@ -7,7 +7,6 @@ public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
-    ShaderRef sr;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -36,6 +35,7 @@ int main(int argc, char** argv) {
     // settings class.  For example:
     settings.window.width       = 720; 
     settings.window.height      = 480;
+	settings.window.resizable   = true;
 
 #   ifdef G3D_WIN32
         // On unix-like operating systems, icompile automatically
@@ -82,28 +82,18 @@ void App::onInit() {
     // Example of how to add debugging controls
     debugPane->addButton("Exit", this, &App::endProgram);
     
-    debugPane->addLabel("Add more debug controls");
-    debugPane->addLabel("in App::onInit().");
-
     // More examples of debugging GUI controls:
     // debugPane->addCheckBox("Use explicit checking", &explicitCheck);
     // debugPane->addTextBox("Name", &myName);
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
 
-    const char* shaderCode = 
-    STR(
+	Texture::Ref srgbTex = Texture::fromFile(dataDir + "cubemap/test/testcube_+x.jpg", ImageFormat::SRGB8());
+	debugPane->addTextureBox("SRGB", srgbTex);
 
-    uniform unsigned int testuint;
-    uniform isampler2D sourceTexture;
-    uniform usamplerCube bloomTexture;
+	Texture::Ref rgbTex = Texture::fromFile(dataDir + "cubemap/test/testcube_+x.jpg", ImageFormat::RGB8());
+	debugPane->addTextureBox("RGB", rgbTex);
 
-    void main(void) {
-     
-        gl_FragColor.rgb = vec3(testuint, 0, 0);
-    });
-
-    sr = Shader::fromStrings("", shaderCode);
 
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
@@ -155,15 +145,6 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(true, true, true);
-
-    rd->push2D();
-    sr->args.set("sourceTexture", sky->getEnvironmentMap());
-    sr->args.set("bloomTexture", sky->getEnvironmentMap());
-
-    rd->setShader(sr);
-    rd->setTexture(0, sky->getEnvironmentMap());
-    Draw::rect2D(Rect2D::xywh(200, 200, 400, 400), rd);
-    rd->pop2D();
 
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a

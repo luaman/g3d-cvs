@@ -174,7 +174,7 @@
      <li> Fix: G3D::TextInput now allows trailing 'f' on floating-point numbers
      <li> Fix: Cube map faces that are too large for the GPU are automatically rescaled on load by Texture
      <li> Fix: G3D::Draw::lighting now renders shadow casting lights as well
-     <li> Fix: G3D::RenderDevice now handles textures up to 32 correctly while leaving texture units, coords and matrics at 8
+     <li> Fix: G3D::RenderDevice now handles textures up to 16 correctly while leaving texture units, coords and matrics at 8
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
