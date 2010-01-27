@@ -391,8 +391,6 @@ Material::Settings ArticulatedModel::compute3DSMaterial
         return spec;
     }
 
-    spec.setTextureDimension(preprocess.textureDimension);
-
     const Load3DS::Map& texture1 = material.texture1;
 
     std::string textureFile = texture1.filename;

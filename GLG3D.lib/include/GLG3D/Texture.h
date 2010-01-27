@@ -482,6 +482,13 @@ public:
         static const PreProcess& quake();
 
         static const PreProcess& normalMap();
+
+        bool operator==(const PreProcess& other) const;
+        
+        bool operator!=(const PreProcess& other) const {
+            return !(*this == other);
+        }
+
     };
 
 private:
@@ -532,18 +539,27 @@ public:
 
         PreProcess                preProcess;
 
-        Specification() : desiredFormat(ImageFormat::AUTO()), dimension(defaultDimension()) {}
+        Specification() : desiredFormat(ImageFormat::AUTO()), 
+                          dimension(defaultDimension()) {}
+
         Specification(const Any& any);
+
+        bool operator==(const Specification& s) const;
+
+        bool operator!=(const Specification& s) const {
+            return !(*this == s);
+        }
     };
 
     static Ref create(const Specification& s);
 
     /** Call glGetTexImage with appropriate target. 
     
-        This will normally perform a synchronous read, which causes the CPU to stall while the GPU
-        catches up, and then stalls the GPU while data is being read.  For higher performance,
-        use an OpenGL PixelBufferObject to perform an asynchronous read.  PBO is not abstracted
-        by G3D.  The basic operation is:
+        This will normally perform a synchronous read, which causes
+        the CPU to stall while the GPU catches up, and then stalls the
+        GPU while data is being read.  For higher performance, use an
+        OpenGL PixelBufferObject to perform an asynchronous read.  PBO
+        is not abstracted by G3D.  The basic operation is:
 
         <pre>
             GLuint pbo;

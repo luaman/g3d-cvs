@@ -9,23 +9,17 @@
 namespace G3D {
 
 Material::Specification::Specification() : 
-  m_lambertianFilename(""), 
   m_lambertianConstant(Color4(0.85f, 0.85f, 0.85f, 1.0f)),
-  m_specularFilename(""),
   m_specularConstant(Color3::zero()),
-  m_shininessFilename(""),
   m_shininessConstant(SuperBSDF::packedSpecularNone()),
-  m_transmissiveFilename(""),
   m_transmissiveConstant(Color3::zero()),
   m_etaTransmit(1.0f),
   m_extinctionTransmit(1.0f),
   m_etaReflect(1.0f),
   m_extinctionReflect(1.0f),
-  m_emissiveFilename(""),
   m_emissiveConstant(Color3::zero()),
   m_bumpFilename(""),
-  m_normalMapWhiteHeightInPixels(0),
-  m_textureDimension(Texture::DIM_2D_NPOT) {
+  m_normalMapWhiteHeightInPixels(0) {
 }
 
 
@@ -47,8 +41,20 @@ mat = Material::Specification {
         }
 }
 
+
 Material::Specification::Specification(const Any& a) {
     alwaysAssertM(a.type() == AnyVal::TABLE, "Must be a table of values");
+
+    if (beginsWith(toLower(lamb.name()), "color4")) {
+        setLambertian(Color4(lamb));
+    } else if (beginsWith(toLower(lamb.name()), "color3")) {
+        setLambertian(Color3(lamb));
+    } else if (lamb.type() == Any::STRING) {
+        setLambertian(lamb.string());
+    } else {
+        // Full specification
+        setLambertian(Texture::Specification(lamb));
+    }
 
     m_lambertianFilename = a.get("lambertianFilename", "").string();
     m_lambertianConstant = a.get("lambertianConstant", Color4::one());
@@ -87,43 +93,10 @@ Material::Specification::Specification(const Any& a) {
 }
 */
 
-Material::Specification::operator Any() const {
-    Any a(Any::TABLE);
-    a.set("lambertianFilename", m_lambertianFilename);
-    a.set("lambertianConstant", m_lambertianConstant);
-
-    a.set("specularFilename", m_specularFilename);
-    a.set("specularConstant", m_specularConstant);
-
-    a.set("shininessFilename", m_shininessFilename);
-    a.set("shininessConstant", m_shininessConstant);
-
-    a.set("transmissiveFilename", m_transmissiveFilename);
-    a.set("transmissiveConstant", m_transmissiveConstant);
-
-    a.set("etaTransmit", m_etaTransmit);
-    a.set("extinctionTransmit", m_extinctionTransmit); 
-    a.set("etaReflect", m_etaReflect);
-    a.set("extinctionReflect", m_extinctionReflect); 
-
-    a.set("emissiveFilename", m_emissiveFilename);
-    a.set("emissiveConstant", m_emissiveConstant);
-
-    Any b = m_bumpSettings;
-    b.set("filename", m_bumpFilename);
-    b.set("normalMapWhiteHeightInPixels", m_normalMapWhiteHeightInPixels);
-    a.set("bump", b);
-
-//    a.set("textureSpecification", m_textureSettings);  TODO
-    a.set("textureDimension", (m_textureDimension == Texture::DIM_2D) ? 
-        "DIM_2D" : "DIM_2D_NPOT");
-
-    return a;
-}
-
 
 void Material::Specification::setLambertian(const std::string& filename, const Color4& constant) {
-    m_lambertianFilename = filename;
+    m_lambertian = Texture::Specification();
+    m_lambertian.filename = filename;
     m_lambertianConstant = constant;
 }
 
@@ -133,13 +106,20 @@ void Material::Specification::setLambertian(const Color4& constant) {
 }
 
 
+void Material::Specification::setLambertian(const Texture::Specification& spec) {
+    m_lambertianConstant = Color4::one();
+    m_lambertian = spec;        
+}
+
+
 void Material::Specification::removeLambertian() {
     setLambertian(Color4(0,0,0,1));
 }
 
 
 void Material::Specification::setEmissive(const std::string& filename, const Color3& constant) {
-    m_emissiveFilename = filename;
+    m_emissive = Texture::Specification();
+    m_emissive.filename = filename;
     m_emissiveConstant = constant;
 }
 
@@ -154,8 +134,15 @@ void Material::Specification::removeEmissive() {
 }
 
 
+void Material::Specification::setEmissive(const Texture::Specification& spec) {
+    m_emissiveConstant = Color3::one();
+    m_emissive = spec;        
+}
+
+
 void Material::Specification::setSpecular(const std::string& filename, const Color3& constant) {
-    m_specularFilename = filename;
+    m_specular = Texture::Specification();
+    m_specular.filename = filename;
     m_specularConstant = constant;
 }
 
@@ -165,13 +152,20 @@ void Material::Specification::setSpecular(const Color3& constant) {
 }
 
 
+void Material::Specification::setSpecular(const Texture::Specification& spec) {
+    m_specularConstant = Color3::one();
+    m_specular = spec;        
+}
+
+
 void Material::Specification::removeSpecular() {
     setSpecular(Color3::zero());
 }
 
 
 void Material::Specification::setShininess(const std::string& filename, float constant) {
-    m_shininessFilename = filename;
+    m_shininess = Texture::Specification();
+    m_shininess.filename = filename;
     m_shininessConstant = constant;
     if (constant == SuperBSDF::packedSpecularNone()) {
         removeSpecular();
@@ -184,14 +178,27 @@ void Material::Specification::setShininess(float constant) {
 }
 
 
+void Material::Specification::setShininess(const Texture::Specification& spec) {
+    m_shininessConstant = 1.0;
+    m_shininess = spec;        
+}
+
+
 void Material::Specification::setTransmissive(const std::string& filename, const Color3& constant) {
-    m_transmissiveFilename = filename;
+    m_transmissive = Texture::Specification();
+    m_transmissive.filename = filename;
     m_transmissiveConstant = constant;
 }
 
 
 void Material::Specification::setTransmissive(const Color3& constant) {
     setTransmissive("", constant);
+}
+
+
+void Material::Specification::setTransmissive(const Texture::Specification& spec) {
+    m_transmissiveConstant = Color3::one();
+    m_transmissive = spec;        
 }
 
 
@@ -228,19 +235,19 @@ void Material::Specification::removeBump() {
 
 bool Material::Specification::operator==(const Specification& s) const {
     return 
-        (m_lambertianFilename == s.m_lambertianFilename) &&
+        (m_lambertian == s.m_lambertian) &&
         (m_lambertianConstant == s.m_lambertianConstant) &&
 
-        (m_specularFilename == s.m_specularFilename) &&
+        (m_specular == s.m_specular) &&
         (m_specularConstant == s.m_specularConstant) &&
 
-        (m_shininessFilename == s.m_shininessFilename) &&
+        (m_shininess == s.m_shininess) &&
         (m_shininessConstant == s.m_shininessConstant) &&
 
-        (m_transmissiveFilename == s.m_transmissiveFilename) &&
+        (m_transmissive == s.m_transmissive) &&
         (m_transmissiveConstant == s.m_transmissiveConstant) &&
 
-        (m_emissiveFilename == s.m_emissiveFilename) &&
+        (m_emissive == s.m_emissive) &&
         (m_emissiveConstant == s.m_emissiveConstant) &&
 
         (m_bumpFilename == s.m_bumpFilename) &&
@@ -256,19 +263,19 @@ bool Material::Specification::operator==(const Specification& s) const {
 
 size_t Material::Specification::hashCode() const {
     return 
-        HashTrait<std::string>::hashCode(m_lambertianFilename) ^
+        HashTrait<std::string>::hashCode(m_lambertian.filename) ^
         m_lambertianConstant.hashCode() ^
 
-        HashTrait<std::string>::hashCode(m_specularFilename) ^
+        HashTrait<std::string>::hashCode(m_specular.filename) ^
         m_specularConstant.hashCode() ^
 
-        HashTrait<std::string>::hashCode(m_shininessFilename) ^
+        HashTrait<std::string>::hashCode(m_shininess.filename) ^
         (size_t)m_shininessConstant ^
 
-        HashTrait<std::string>::hashCode(m_transmissiveFilename) ^
+        HashTrait<std::string>::hashCode(m_transmissive.filename) ^
         m_transmissiveConstant.hashCode() ^
 
-        HashTrait<std::string>::hashCode(m_emissiveFilename) ^
+        HashTrait<std::string>::hashCode(m_emissive.filename) ^
         m_emissiveConstant.hashCode() ^
 
         HashTrait<std::string>::hashCode(m_bumpFilename);
@@ -278,12 +285,8 @@ size_t Material::Specification::hashCode() const {
 Component4 Material::Specification::loadLambertian() const {
     Texture::Ref texture;
 
-    if (m_lambertianFilename != "") {
-        texture = Texture::fromFile
-            (m_lambertianFilename, 
-             TextureFormat::AUTO(),
-             m_textureDimension,
-             m_textureSettings);
+    if (m_lambertian.filename != "") {
+        texture = Texture::create(m_lambertian);
     }
 
     return Component4(m_lambertianConstant, texture);
@@ -293,12 +296,8 @@ Component4 Material::Specification::loadLambertian() const {
 Component3 Material::Specification::loadTransmissive() const {
     Texture::Ref texture;
 
-    if (m_transmissiveFilename != "") {
-        texture = Texture::fromFile
-            (m_transmissiveFilename, 
-             TextureFormat::RGB8(),
-             m_textureDimension,
-             m_textureSettings);
+    if (m_transmissive.filename != "") {
+        texture = Texture::create(m_transmissive);
     }
 
     return Component3(m_transmissiveConstant, texture);
@@ -308,27 +307,23 @@ Component3 Material::Specification::loadTransmissive() const {
 Component4 Material::Specification::loadSpecular() const {
     Texture::Ref texture;
 
-    if (m_specularFilename != "") {
-        if (m_shininessFilename != "") {
+    if (m_specular.filename != "") {
+        if (m_shininess.filename != "") {
             // Glossy and shiny
             texture = Texture::fromTwoFiles
-                (m_specularFilename, 
-                 m_shininessFilename,
-                 ImageFormat::RGBA8(),
-                 m_textureDimension,
-                 m_textureSettings);
+                (m_specular.filename, 
+                 m_shininess.filename,
+                 m_specular.desiredFormat,
+                 m_specular.dimension,
+                 m_specular.settings);
         } else {
             // Only specular
-            texture = Texture::fromFile
-                (m_specularFilename, 
-                 ImageFormat::RGB8(),
-                 m_textureDimension,
-                 m_textureSettings);
+            texture = Texture::create(m_specular);
         }
-    } else if (m_shininessFilename != "") {
+    } else if (m_shininess.filename != "") {
         
         // Only shininess.  Pack it into the alpha of an all-white texture
-        GImage s(m_shininessFilename);
+        GImage s(m_shininess.filename);
 
         s.convertToL8();
         GImage pack(s.width(), s.height(), 4);
@@ -338,11 +333,11 @@ Component4 Material::Specification::loadSpecular() const {
         }
 
         texture = Texture::fromGImage
-            (m_shininessFilename,
+            (m_shininess.filename,
              pack,
              ImageFormat::RGBA8(),
-             m_textureDimension,
-             m_textureSettings);
+             m_shininess.dimension,
+             m_shininess.settings);
     }
 
     return Component4(Color4(m_specularConstant, m_shininessConstant), texture);
@@ -352,12 +347,8 @@ Component4 Material::Specification::loadSpecular() const {
 Component3 Material::Specification::loadEmissive() const {
     Texture::Ref texture;
 
-    if (m_emissiveFilename != "") {
-        texture = Texture::fromFile
-            (m_emissiveFilename, 
-             TextureFormat::RGB8(),
-             m_textureDimension,
-             m_textureSettings);
+    if (m_emissive.filename != "") {
+        texture = Texture::create(m_emissive);
     }
 
     return Component3(m_emissiveConstant, texture);

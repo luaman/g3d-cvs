@@ -93,10 +93,6 @@ public:
         /** Removes all material properties while loading for cases where only geometry is desired. */
         bool                          stripMaterials;
 
-        /** Default is <b>Texture::DIM_2D</b>.  Use Texture::DIM_2D_NPOT to load non-power 
-            of 2 textures without rescaling them.*/
-        Texture::Dimension            textureDimension;
-
         /** If a material's diffuse texture is name X.Y and X-bump.* file exists,
             add that to the material as a bump map. Default is <b>false</b>.
             
@@ -139,21 +135,22 @@ public:
             }
         };
 
-        /** Override all materials with this one, if non-NULL.  This forces stripMaterials to be true.*/
+        /** Override all materials with this one, if non-NULL.  This
+            forces stripMaterials to be true.*/
         Material::Ref           materialOverride;
         
         PreProcess(const Any& any);
         operator Any() const;
 
-        inline PreProcess() : stripMaterials(false), textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        inline PreProcess() : stripMaterials(false), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
-        explicit inline PreProcess(const Matrix4& m) : stripMaterials(false), textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline PreProcess(const Matrix4& m) : stripMaterials(false), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const Vector3& scale) : stripMaterials(false), textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline PreProcess(const Vector3& scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
  
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const float scale) : stripMaterials(false), textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline PreProcess(const float scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
     };
 
     /**

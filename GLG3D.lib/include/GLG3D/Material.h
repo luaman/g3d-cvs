@@ -57,16 +57,16 @@ public:
     private:
         friend class Material;
 
-        std::string     m_lambertianFilename;
+        Texture::Specification m_lambertian;
         Color4          m_lambertianConstant;
 
-        std::string     m_specularFilename;
+        Texture::Specification m_specular;
         Color3          m_specularConstant;
 
-        std::string     m_shininessFilename;
+        Texture::Specification m_shininess;
         float           m_shininessConstant;
 
-        std::string     m_transmissiveFilename;
+        Texture::Specification m_transmissive;
         Color3          m_transmissiveConstant;
 
         float           m_etaTransmit;
@@ -75,16 +75,13 @@ public:
         float           m_etaReflect;
         float           m_extinctionReflect;
 
-        std::string     m_emissiveFilename;
+        Texture::Specification m_emissive;
         Color3          m_emissiveConstant;
 
         std::string     m_bumpFilename;
         BumpMap::Settings m_bumpSettings;
         /** For use when computing normal maps */
         float 	        m_normalMapWhiteHeightInPixels;        
-
-        Texture::Dimension m_textureDimension;
-        Texture::Settings  m_textureSettings;
 
         Component4 loadLambertian() const;
         Component4 loadSpecular() const;
@@ -102,28 +99,18 @@ public:
             return !((*this) == s);
         }
 
-        /** Save a description (does not include the image data; that 
-           remains in the referenced image files) */
-        void save(const std::string& filename) const;
-
-        /** Load from a file created by save() */
+        /** Load from a file created by save(). */
         void load(const std::string& filename);
 
-        inline void setTextureDimension(Texture::Dimension d) {
-            m_textureDimension = d;
-        }
+        /** Filename of Lambertian (diffuse) term, empty if none. The
+            alpha channel is a mask that will be applied to all maps
+            for coverage.  That is, alpha = 0 indicates holes in the
+            surface.  Alpha is for partial coverage. Do not use alpha
+            for transparency; set transmissiveFilename instead.*/
+        void setLambertian(const std::string& filename,
+                           const Color4& constant = Color4::one());
 
-        /** Default is Texture::DIM_2D_NPOT*/
-        inline Texture::Dimension textureDimension() const {
-            return m_textureDimension;
-        }
-
-        void setTextureSettings(Texture::Settings& s);
-
-        /** Filename of Lambertian (diffuse) term, empty if none. The alpha channel is a mask that will
-            be applied to all maps for coverage.  That is, alpha = 0 indicates holes in the 
-            surface.  Do not use alpha for transparency; set transmissiveFilename instead.*/
-        void setLambertian(const std::string& filename, const Color4& constant = Color4::one());
+        void setLambertian(const Texture::Specification& spec);
         
         inline void setLambertian(const std::string& filename, float c) {
             setLambertian(filename, Color4(Color3(c), 1.0f));
@@ -141,6 +128,8 @@ public:
         void setEmissive(const std::string& filename, const Color3& constant = Color3::one());
         
         void setEmissive(const Color3& constant);
+
+        void setEmissive(const Texture::Specification& spec);
         
         void removeEmissive();
 
@@ -152,6 +141,8 @@ public:
         
         void setSpecular(const Color3& constant);
 
+        void setSpecular(const Texture::Specification& spec);
+
         /**  */
         void removeSpecular();
 
@@ -159,6 +150,12 @@ public:
          The constant multiplies packed values stored in the file. 
          */
         void setShininess(const std::string& filename, float constant = 1.0f);
+
+        /**
+           If a specular filename is set as well, the specular specification
+           overrides all of the settings except for the filename itself.
+         */
+        void setShininess(const Texture::Specification& spec);
         
         /** \brief Packed sharpness of the specular highlight.
             
@@ -185,6 +182,8 @@ public:
         void setTransmissive(const std::string& filename, const Color3& constant = Color3::one());
         
         void setTransmissive(const Color3& constant);
+
+        void setTransmissive(const Texture::Specification& spec);
         
         void removeTransmissive();
 

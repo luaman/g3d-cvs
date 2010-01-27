@@ -178,6 +178,18 @@ const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
 }
 
 
+bool Texture::PreProcess::operator==(const PreProcess& other) const {
+    return 
+        (modulate == other.modulate) &&
+        (gammaAdjust == other.gammaAdjust) &&
+        (scaleFactor == other.scaleFactor) &&
+        (computeMinMaxMean == other.computeMinMaxMean) &&
+        (computeNormalMap == other.computeNormalMap) &&
+        (normalMapLowPassBump == other.normalMapLowPassBump) &&
+        (normalMapWhiteHeightInPixels == other.normalMapWhiteHeightInPixels) &&
+        (normalMapScaleHeightByNz == other.normalMapScaleHeightByNz);
+}
+
 Texture::PreProcess::PreProcess(const Any& any) {
     *this = PreProcess::defaults();
     any.verifyName("Texture::PreProcess");
@@ -2264,6 +2276,16 @@ static void modulateImage(ImageFormat::Code fmt, void* _byte, int n, const Color
 
 
 /////////////////////////////////////////////////////
+bool Texture::Specification::operator==(const Specification& other) const {
+    return 
+        (filename == other.filename) &&
+        (desiredFormat->code == other.desiredFormat->code) &&
+        (dimension == other.dimension) &&
+        (settings == other.settings) &&
+        (preProcess == other.preProcess);
+}
+
+
 Texture::Specification::Specification(const Any& any) {
     *this = Specification();
     any.verifyName("Texture::Specification");

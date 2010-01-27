@@ -78,8 +78,11 @@ Material::Ref Material::create(const Specification& settings) {
 
         // load bump map
         if (settings.m_bumpFilename != "") {
-            value->m_bump = BumpMap::fromHeightFile(settings.m_bumpFilename, settings.m_bumpSettings, settings.m_normalMapWhiteHeightInPixels, 
-                settings.m_textureSettings, settings.m_textureDimension);
+            value->m_bump = 
+                BumpMap::fromHeightFile
+                (settings.m_bumpFilename, 
+                 settings.m_bumpSettings, 
+                 settings.m_normalMapWhiteHeightInPixels);
         }
 
         // Update the cache
