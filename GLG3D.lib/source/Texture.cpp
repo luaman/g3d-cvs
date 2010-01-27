@@ -559,6 +559,9 @@ static void transform(GImage& image, const Texture::CubeMapInfo::Face& info) {
     image.rotate90CW(info.rotations);
 }
 
+Texture::Ref Texture::create(const Specification& s) {
+    return Texture::fromFile(s.filename, s.desiredFormat, s.dimension, s.settings, s.preProcess);
+}
 
 Texture::Ref Texture::fromFile(
     const std::string               filename[6],
@@ -2247,12 +2250,69 @@ static void modulateImage(ImageFormat::Code fmt, void* _byte, int n, const Color
 
 
 /////////////////////////////////////////////////////
+Texture::Specification::Specification(const Any& any) {
+    *this = Specification();
+    any.verifyName("Texture::Specification");
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "filename") {
+            filename = it->value.string();
+        } else if (key == "desiredFormat") {
+            desiredFormat = ImageFormat::fromString(it->value.string());
+        } else if (key == "dimension") {
+            dimension = toDimension(it->value);
+        } else if (key == "settings") {
+            settings = it->value;
+        } else if (key == "preprocess") {
+            preProcess = it->value;
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
+    }
+}
 
 const char* Texture::toString(DepthReadMode m) {
     switch (m) {
     case DEPTH_NORMAL: return "DEPTH_NORMAL";
     case DEPTH_LEQUAL: return "DEPTH_LEQUAL";
     case DEPTH_GEQUAL: return "DEPTH_GEQUAL";
+    default:
+        return "ERROR";
+    }
+}
+
+
+Texture::Dimension Texture::toDimension(const std::string& s) {
+    if (s == "DIM_2D") {
+        return DIM_2D;
+    } else if (s == "DIM_3D") {
+        return DIM_3D;
+    } else if (s == "DIM_2D_RECT") {
+        return DIM_2D_RECT;
+    } else if (s == "DIM_CUBE_MAP") {
+        return DIM_CUBE_MAP;
+    } else if (s == "DIM_2D_NPOT") {
+        return DIM_2D_NPOT;
+    } else if (s == "DIM_CUBE_MAP_NPOT") {
+        return DIM_CUBE_MAP_NPOT;
+    } else if (s == "DIM_3D_NPOT") {
+        return DIM_3D_NPOT;
+    } else {
+        debugAssertM(false, "Unrecognized dimension");
+        return DIM_2D;
+    }
+}
+
+
+const char* Texture::toString(Dimension d) {
+    switch (d) {
+    case DIM_2D: return "DIM_2D";
+    case DIM_3D: return "DIM_3D";
+    case DIM_2D_RECT: return "DIM_2D_RECT";
+    case DIM_CUBE_MAP: return "DIM_CUBE_MAP";
+    case DIM_2D_NPOT: return "DIM_2D_NPOT";
+    case DIM_CUBE_MAP_NPOT: return "DIM_CUBE_MAP_NPOT";
+    case DIM_3D_NPOT: return "DIM_3D_NPOT";
     default:
         return "ERROR";
     }

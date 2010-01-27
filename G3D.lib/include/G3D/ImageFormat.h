@@ -201,32 +201,34 @@ public:
     /** True if the bit depths specified are for float formats. */
     bool                floatingPoint;
 
-    /** Human readable name of this texture.*/
-    std::string name() const;
+    /** Human readable name of this format.*/
+    const std::string& name() const;
+
+    /** Takes the same values that name() returns */
+    static const ImageFormat* fromString(const std::string& s);
 
 private:
 
     ImageFormat
-    (
-        int             numComponents,
-        bool            compressed,
-        int             glFormat,
-        int             glBaseFormat,
-        int             luminanceBits,
-        int             alphaBits,
-        int             redBits,
-        int             greenBits,
-        int             blueBits,
-        int             depthBits,
-        int             stencilBits,
-        int             hardwareBitsPerTexel,
-        int             packedBitsPerTexel,
-        int             glDataFormat,
-        bool            opaque,
-        bool            floatingPoint,
-        Code            code,
-        ColorSpace      colorSpace,
-        BayerPattern    bayerPattern = BAYER_PATTERN_NONE);
+    (int             numComponents,
+     bool            compressed,
+     int             glFormat,
+     int             glBaseFormat,
+     int             luminanceBits,
+     int             alphaBits,
+     int             redBits,
+     int             greenBits,
+     int             blueBits,
+     int             depthBits,
+     int             stencilBits,
+     int             hardwareBitsPerTexel,
+     int             packedBitsPerTexel,
+     int             glDataFormat,
+     bool            opaque,
+     bool            floatingPoint,
+     Code            code,
+     ColorSpace      colorSpace,
+     BayerPattern    bayerPattern = BAYER_PATTERN_NONE);
 
 public:
 

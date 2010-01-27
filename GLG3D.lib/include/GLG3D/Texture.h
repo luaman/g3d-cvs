@@ -234,6 +234,9 @@ public:
     static const char* toString(DepthReadMode m);
     static DepthReadMode toDepthReadMode(const std::string& s);
     
+    static const char* toString(Dimension m);
+    static Dimension toDimension(const std::string& s);
+
     /**
      Splits a filename around the '*' character-- used by cube maps to generate all filenames.
      */
@@ -494,15 +497,35 @@ private:
 
     static int64                    m_sizeOfAllTexturesInMemory;
 
-    Texture(
-        const std::string&          name,
-        GLuint                      textureID,
-        Dimension                   dimension,
-        const ImageFormat*          format,
-        bool		      	        opaque,
-        const Settings&             settings);
-
+    Texture
+    (const std::string&          name,
+     GLuint                      textureID,
+     Dimension                   dimension,
+     const ImageFormat*          format,
+     bool                        opaque,
+     const Settings&             settings);
+    
 public:
+
+    class Specification {
+    public:
+        std::string               filename;
+
+        /** Defaults to ImageFormat::AUTO() */
+        const class ImageFormat*  desiredFormat;
+
+        /** Defaults to ImageFormat::DIM_2D_NPOT on cards that support it, DIM_2D otherwise */
+        Dimension                 dimension;
+
+        Settings                  settings;
+
+        PreProcess                preProcess;
+
+        Specification() : desiredFormat(ImageFormat::AUTO()), dimension(defaultDimension()) {}
+        Specification(const Any& any);
+    };
+
+    static Ref create(const Specification& s);
 
     /** Call glGetTexImage with appropriate target. 
     
