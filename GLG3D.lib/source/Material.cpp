@@ -1,7 +1,8 @@
 /**
  @file   Material.cpp
- @author Morgan McGuire, morgan@cs.williams.edu
- @date   2009-03-19
+ @author Morgan McGuire, http://graphics.cs.williams.edu
+ @created  2009-03-19
+ @edited   2010-01-19
 */
 #include "GLG3D/Material.h"
 #include "G3D/Table.h"
@@ -54,7 +55,7 @@ static MaterialCache& globalCache() {
 }
 
 
-Material::Ref Material::create(const Settings& settings) {
+Material::Ref Material::create(const Specification& settings) {
     MaterialCache& cache = globalCache();
     Material::Ref value = cache[settings];
 

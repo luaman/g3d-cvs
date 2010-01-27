@@ -3,12 +3,12 @@
 
  Coordinate frame class
 
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2001-06-02
  @edited  2009-11-13
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
 */
 

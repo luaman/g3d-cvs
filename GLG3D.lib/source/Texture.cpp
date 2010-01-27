@@ -3,16 +3,11 @@
 
  @author Morgan McGuire, morgan@cs.williams.edu
 
- Notes:
- <UL>
- <LI>http://developer.apple.com/opengl/extensions/ext_texture_rectangle.html
- </UL>
-
  @created 2001-02-28
- @edited  2009-11-18
+ @edited  2010-01-18
 */
-
 #include "G3D/Log.h"
+#include "G3D/Any.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Rect2D.h"
 #include "G3D/GImage.h"
@@ -26,7 +21,12 @@
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/RenderDevice.h"
 
+#ifdef verify
+#undef verify
+#endif
+
 namespace G3D {
+
 
 /** Used by various Texture methods when a framebuffer is needed */
 static const Framebuffer::Ref& workingFramebuffer() {
@@ -37,19 +37,13 @@ static const Framebuffer::Ref& workingFramebuffer() {
 
 Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
     debugAssertGLOk();
-    Texture* me = const_cast<Texture*>(this);
     const Framebuffer::Ref& fbo = workingFramebuffer();
 
     if (rd == NULL) {
         rd = RenderDevice::lastRenderDeviceCreated;
     }
 
-    // Binding to a G3D framebuffer destroys the invertY flag so we save it here
-    const bool oldInvertY = false;
     Color4 c;
-    if (oldInvertY) {
-        y = height() - 1 - y;
-    }
 
     // Read back 1 pixel
     if (format()->depthBits == 0) {
@@ -181,6 +175,56 @@ const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
     }
 
     return cubeMapInfo[convention];
+}
+
+
+Texture::PreProcess::PreProcess(const Any& any) {
+    *this = PreProcess::defaults();
+    any.verifyName("Texture::PreProcess");
+    if (any.type() == Any::TABLE) {
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "modulate") {
+                modulate = Color4(it->value);
+            } else if (key == "gammaadjust") {
+                gammaAdjust = it->value;
+            } else if (key == "scalefactor") {
+                scaleFactor = it->value;
+            } else if (key == "computeminmaxmean") {
+                computeMinMaxMean = it->value;
+            } else if (key == "computenormalmap") {
+                computeNormalMap = it->value;
+            } else if (key == "normalmaplowpassbump") {
+                normalMapLowPassBump = it->value;
+            } else if (key == "normalmapwhiteheightinpixels") {
+                normalMapWhiteHeightInPixels = it->value;
+            } else if (key == "normalmapscaleheightbynz") {
+                normalMapScaleHeightByNz = it->value;
+            } else {
+                any.verify(false, "Illegal key: " + it->key);
+            }
+        }
+    } else {
+        const std::string& n = toLower(any.name());
+        if (n == "texture::preprocess::defaults") {
+            any.verifySize(0);
+            // Done!
+        } else if (n == "texture::preprocess::gamma") {
+            any.verifySize(1);
+            *this = Texture::PreProcess::gamma(any[0]);
+        } else if (n == "texture::preprocess::none") {
+            any.verifySize(0);
+            *this = Texture::PreProcess::none();
+        } else if (n == "texture::preprocess::quake") {
+            any.verifySize(0);
+            *this = Texture::PreProcess::quake();
+        } else if (n == "texture::preprocess::normalmap") {
+            any.verifySize(0);
+            *this = Texture::PreProcess::normalMap();
+        } else {
+            any.verify(false, "Unrecognized name for Texture::PreProcess constructor or factory method.");
+        }
+    }
 }
 
 const Texture::PreProcess& Texture::PreProcess::defaults() {
@@ -2203,6 +2247,105 @@ static void modulateImage(ImageFormat::Code fmt, void* _byte, int n, const Color
 
 
 /////////////////////////////////////////////////////
+
+const char* Texture::toString(DepthReadMode m) {
+    switch (m) {
+    case DEPTH_NORMAL: return "DEPTH_NORMAL";
+    case DEPTH_LEQUAL: return "DEPTH_LEQUAL";
+    case DEPTH_GEQUAL: return "DEPTH_GEQUAL";
+    default:
+        return "ERROR";
+    }
+}
+
+
+Texture::DepthReadMode Texture::toDepthReadMode(const std::string& s) {
+    if (s == "DEPTH_NORMAL") {
+        return DEPTH_NORMAL;
+    } else if (s == "DEPTH_LEQUAL") {
+        return DEPTH_LEQUAL;
+    } else if (s == "DEPTH_GEQUAL") {
+        return DEPTH_GEQUAL;
+    } else {
+        debugAssertM(false, "Unrecognized depth read mode");
+        return DEPTH_NORMAL;
+    }
+}
+
+
+const char* Texture::toString(InterpolateMode m) {
+    switch (m) {
+    case TRILINEAR_MIPMAP:   return "TRILINEAR_MIPMAP";
+    case BILINEAR_MIPMAP:    return "BILINEAR_MIPMAP";
+    case NEAREST_MIPMAP:     return "NEAREST_MIPMAP";
+    case BILINEAR_NO_MIPMAP: return "BILINEAR_NO_MIPMAP";
+    case NEAREST_NO_MIPMAP:  return "NEAREST_NO_MIPMAP";
+    default:
+        return "ERROR";
+    }
+}
+
+
+Texture::InterpolateMode Texture::toInterpolateMode(const std::string& s) {
+    if (s == "TRILINEAR_MIPMAP") {
+        return TRILINEAR_MIPMAP;
+    } else if (s == "BILINEAR_MIPMAP") {
+        return BILINEAR_MIPMAP;
+    } else if (s == "NEAREST_MIPMAP") {
+        return NEAREST_MIPMAP;
+    } else if (s == "BILINEAR_NO_MIPMAP") {
+        return BILINEAR_NO_MIPMAP;
+    } else if (s == "NEAREST_NO_MIPMAP") {
+        return NEAREST_NO_MIPMAP;
+    } else {
+        debugAssertM(false, "Unrecognized interpolate mode");
+        return TRILINEAR_MIPMAP;
+    }
+}
+
+
+Texture::Settings::Settings(const Any& any) {
+    *this = Settings::defaults();
+    any.verifyName("Texture::Settings");
+    if (any.type() == Any::TABLE) {
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "automipmap") {
+                autoMipMap = it->value;
+            } else if (key == "depthreadmode") {
+                depthReadMode = toDepthReadMode(it->value);
+            } else if (key == "interpolatemode") {
+                interpolateMode = toInterpolateMode(it->value);
+            } else if (key == "maxanisotropy") {
+                maxAnisotropy = it->value;
+            } else if (key == "maxmipmap") {
+                maxMipMap = it->value;
+            } else if (key == "minmipmap") {
+                minMipMap = it->value;
+            } else if (key == "wrapmode") {
+                wrapMode = WrapMode(it->value.string());
+            } else {
+                any.verify(false, "Illegal key: " + it->key);
+            }
+        }
+    } else {
+        any.verifySize(0);
+        const std::string& n = toLower(any.name());
+        if (n == "texture::settings::defaults") {
+            // Done!
+        } else if (n == "texture::settings::buffer") {
+            *this = Texture::Settings::buffer();
+        } else if (n == "texture::settings::cubemap") {
+            *this = Texture::Settings::cubeMap();
+        } else if (n == "texture::settings::shadow") {
+            *this = Texture::Settings::shadow();
+        } else if (n == "texture::settings::video") {
+            *this = Texture::Settings::video();
+        } else {
+            any.verify(false, "Unrecognized name for Texture::Settings constructor or factory method.");
+        }
+    }
+}
 
 Texture::Settings::Settings() : 
     interpolateMode(TRILINEAR_MIPMAP),

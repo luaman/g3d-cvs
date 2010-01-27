@@ -213,6 +213,9 @@ public:
         BILINEAR_NO_MIPMAP = 2,
         NEAREST_NO_MIPMAP = 6};
 
+    static const char* toString(InterpolateMode m);
+    static InterpolateMode toInterpolateMode(const std::string& s);
+
     /** A m_depth texture can automatically perform the m_depth comparison used for shadow mapping
         on a texture lookup.  The result of a texture lookup is thus the shadowed amount
         (which will be percentage closer filtered on newer hardware) and <I>not</I> the 
@@ -227,7 +230,10 @@ public:
         See also G3D::RenderDevice::configureShadowMap and the Collision_Demo.
      */
     enum DepthReadMode {DEPTH_NORMAL = 0, DEPTH_LEQUAL = 1, DEPTH_GEQUAL = 2};
-
+    
+    static const char* toString(DepthReadMode m);
+    static DepthReadMode toDepthReadMode(const std::string& s);
+    
     /**
      Splits a filename around the '*' character-- used by cube maps to generate all filenames.
      */
@@ -336,6 +342,14 @@ public:
 
         Settings();
 
+        /** \param any Must be in the form of a table of the fields or appear as
+            a call to a static factory method, e.g.,:
+
+            - Texture::Settings{  interpolateMode = "TRILINEAR_MIPMAP", wrapMode = "TILE", ... }
+            - Texture::Settings::video()
+        */
+        Settings(const Any& any);
+
         static const Settings& defaults();
 
         /** 
@@ -381,9 +395,10 @@ public:
     class PreProcess {
     public:
 
-        /** Multiplies color channels.  Useful for rescaling to make textures brighter (e.g., for Quake
-            textures, which are dark) or to tint textures as they are loaded.  Modulation happens first of
-            all preprocessing.
+        /** Multiplies color channels.  Useful for rescaling to make
+            textures brighter (e.g., for Quake textures, which are
+            dark) or to tint textures as they are loaded.  Modulation
+            happens first of all preprocessing.
          */
         Color4                      modulate;
 
@@ -391,11 +406,11 @@ public:
            After brightening, each (unit-scale) pixel is raised to
            this power. Many textures are drawn to look good when
            displayed on the screen in PhotoShop, which means that they
-           are drawn with a document gamma of about 2.0. 
+           are drawn with a document gamma of about 2.2.
 
-           If the document gamma is 2.0, set \a gammaAdjust to:
+           If the document gamma is 2.2, set \a gammaAdjust to:
            <ul>
-             <li> 2.0 for reflectivity, emissive, and environment maps (e.g., lambertian, glossy, etc.)
+             <li> 2.2 for reflectivity, emissive, and environment maps (e.g., lambertian, glossy, etc.)
              <li> 1.0 for 2D elements, like fonts and full-screen images
              <li> 1.0 for computed data (e.g., normal maps, bump maps, GPGPU data)
            </ul>
@@ -432,6 +447,15 @@ public:
                        computeNormalMap(false), normalMapLowPassBump(false),
                        normalMapWhiteHeightInPixels(-0.02f), normalMapScaleHeightByNz(false) {}
 
+        /** \param any Must be in the form of a table of the fields or appear as
+            a call to a static factory method, e.g.,:
+
+            - Texture::PreProcess{  modulate = Color4(...), ... }
+            - Texture::PreProcess::gamma(2.2)
+            - Texture::PreProcess::none()
+        */
+        PreProcess(const Any& a);
+
         /** Defaults + gamma adjust set to g*/
         static PreProcess gamma(float g);
 
@@ -440,7 +464,8 @@ public:
         /** Default settings + computeMinMaxMean = false */
         static const PreProcess& none();
 
-        /** Brighten by 2 and adjust gamma by 1.6, the default values expected for Quake versions 1 - 3 textures.*/
+        /** Brighten by 2 and adjust gamma by 1.6, the default values
+            expected for Quake versions 1 - 3 textures.*/
         static const PreProcess& quake();
 
         static const PreProcess& normalMap();

@@ -1,17 +1,17 @@
 /** 
   @file WrapMode.h
  
-  @maintainer Morgan McGuire, graphics3d.com
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2007-04-17
   @edited  2007-04-17
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2010, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef G3D_WRAPMODE_H
-#define G3D_WRAPMODE_H
+#ifndef G3D_WrapMode_h
+#define G3D_WrapMode_h
 
 #include "G3D/platform.h"
 #include "G3D/enumclass.h"
@@ -29,8 +29,9 @@
 namespace G3D {
 
 /** 
-  Describes the behavior of G3D::Texture, G3D::Map2D, G3D::Image3, etc. when accessing an out-of-bounds
-  pixel.  Not all classes support all modes.
+  Describes the behavior of G3D::Texture, G3D::Map2D, G3D::Image3,
+  etc. when accessing an out-of-bounds pixel.  Not all classes support
+  all modes.
 
   Refer to these as scoped enums, e.g., <code>WrapMode m = WrapMode::CLAMP;</code>.
 
