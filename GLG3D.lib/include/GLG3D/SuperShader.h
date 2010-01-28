@@ -98,6 +98,14 @@ void configureShadowShaderArgs(
     const Material&                 material,
     VertexAndPixelShader::ArgList&  args);
 
+/**
+ \param i The index of the light when bound in the shader */
+void configureSingleLightShaderArgs(
+   const GLight& light,
+   int i,
+   VertexAndPixelShader::ArgList&  args, 
+   bool shadowMapPass = false);
+
 
 /** Creates the non-shadow casting and shadow casting shaders
     appropriate for this material.  These may come from a
@@ -118,6 +126,8 @@ typedef ReferenceCountedPointer<class ExtraLightPass>  ExtraLightPassRef;
 typedef ReferenceCountedPointer<class ShadowedPass>    ShadowedPassRef;
 
 class Pass : public ReferenceCountedObject {
+public:
+    typedef ReferenceCountedPointer<Pass> Ref;
 private:
 
     /** Read a shader and force all of its #includes to be resolved */

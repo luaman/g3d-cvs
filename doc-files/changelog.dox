@@ -17,6 +17,7 @@
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
      <li> G3D::Any replaces G3D::AnyVal
      <li> G3D::Texture::createColor
+     <li> G3D::SuperShader::configureSingleLightShaderArgs
      <li> G3D::VideoRecordDialog now exposes quality setting in both GUI and code
      <li> Upgraded to GLEW 1.5.2
      <li> G3D::Texture enums now have to/from string methods for parsing

@@ -231,11 +231,11 @@ NonShadowedPass::NonShadowedPass() :
 
 
 
-static void configureLight(
+void configureSingleLightShaderArgs(
    const GLight& light,
    int i,
    VertexAndPixelShader::ArgList&  args, 
-   bool shadowMapPass = false) {
+   bool shadowMapPass) {
 
     initializeStringConstants();
 
@@ -279,7 +279,7 @@ static void configureLights
         if (lightArray.size() > i + lightIndex) {
             const GLight& light = lightArray[i + lightIndex];
 
-            configureLight(light, i, args);
+            configureSingleLightShaderArgs(light, i, args);
         } else {
             // This light is off. Choose attenuation w = 2 and set its color to black
             args.set(lightPositionString[i],    Vector4(0, 1, 0, 0));
@@ -381,7 +381,7 @@ void ShadowedPass::setLight(
     const GLight&                   light, 
     const ShadowMap::Ref&           shadowMap) {
     
-    configureLight(light, 0, args, true);
+    configureSingleLightShaderArgs(light, 0, args, true);
 
     // Shadow map setup
     if (GLCaps::enumVendor() == GLCaps::ATI) {
