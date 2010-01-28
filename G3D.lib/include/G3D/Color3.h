@@ -48,6 +48,8 @@ public:
         - Color3(#, #, #)
         - Color3::fromARGB(#)
         - Color3{r = #, g = #, b = #)
+        - Color3::one()
+        - Color3::zero()
         */
     Color3(const Any& any);
     

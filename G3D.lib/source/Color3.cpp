@@ -6,7 +6,7 @@
  @author Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2001-06-02
- @edited  2009-11-28
+ @edited  2010-01-28
  */
 
 #include "G3D/platform.h"
@@ -25,8 +25,10 @@ namespace G3D {
 Color3::Color3(const Any& any) {
     *this = Color3::zero();
     any.verifyName("Color3");
+    std::string name = toLower(any.name());
 
-    if (any.type() == Any::TABLE) {
+    switch (any.type()) {
+    case Any::TABLE:
 
         for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
             const std::string& key = toLower(it->key);
@@ -40,13 +42,29 @@ Color3::Color3(const Any& any) {
                 any.verify(false, "Illegal key: " + it->key);
             }
         }
-    } else if (toLower(any.name()) == "color3") {
-        r = any[0];
-        g = any[1];
-        b = any[2];
-    } else {
-        any.verifyName("Color3::fromARGB");
-        *this = Color3::fromARGB((int)any[0].number());
+        break;
+
+    case Any::ARRAY:
+        if (name == "color3") {
+            any.verifySize(3);
+            r = any[0];
+            g = any[1];
+            b = any[2];
+        } else if (name == "color3::one") {
+            any.verifySize(0);
+            *this = one();
+        } else if (name == "color3::zero") {
+            any.verifySize(0);
+            *this = zero();
+        } else if (name == "color3::fromargb") {
+            *this = Color3::fromARGB((int)any[0].number());
+        } else {
+            any.verify(false, "Expected Color3 constructor");
+        }
+        break;
+
+    default:
+        any.verify(false, "Bad Color3 constructor");
     }
 }
    
