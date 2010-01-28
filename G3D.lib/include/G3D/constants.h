@@ -59,18 +59,27 @@ public:
         /** Use the best method available, ideally true ray tracing. */
         BEST = 100
     };
+
 private:
 
+    /** Used for to/from string conversion.  Last is the emtpy string as a sentinel */
+    static const std::string str[6];
     Value value;
 
 public:
     G3D_DECLARE_ENUM_CLASS_METHODS(RefractionQuality);
+
+    RefractionQuality(const class Any&);
+    RefractionQuality& operator=(const Any&);
+    operator Any() const;
+    const std::string& toString() const;
 };
 
 
 /** Values for SuperSurface::GPUGeom::mirrorHint. */
 class MirrorQuality {
 public:
+
     enum Value {
         /** Reflections are black */
         NONE = 0, 
@@ -78,7 +87,8 @@ public:
         /** Use a static environment map.  This is what most games use */
         STATIC_ENV = 25, 
         
-        /** Planar reflection, typically for water or glass windows.  */
+        /** Planar reflection, typically for water or glass windows.  This assumes that the mirror is flat;
+        it is distinct from RefractionQuality::DYNAMIC_FLAT, which assumes the <i>background</i> is flat.*/
         DYNAMIC_PLANAR = 50,
 
         /** Render a dynamic environment map. */
@@ -89,10 +99,17 @@ public:
     };
 
 private:
+
+    /** Used for to/from string conversion.  Last is the emtpy string as a sentinel */
+    static const std::string str[6];
     Value value;
 
 public:
     G3D_DECLARE_ENUM_CLASS_METHODS(MirrorQuality);
+    MirrorQuality(const class Any&);
+    MirrorQuality& operator=(const Any&);
+    operator Any() const;
+    const std::string& toString() const;
 };
 
 } // namespace G3D

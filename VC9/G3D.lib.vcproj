@@ -241,6 +241,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\constants.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\ConvexPolyhedron.cpp"
 				>
 			</File>

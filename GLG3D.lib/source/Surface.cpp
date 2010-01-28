@@ -620,7 +620,7 @@ void Surface::renderTransparents
             const float eta = gmodel->gpuGeom()->material->bsdf()->etaTransmit();
 
             if ((eta > 1.01f) && 
-                (gmodel->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
+                (gmodel->gpuGeom()->material->refractionHint() == RefractionQuality::DYNAMIC_FLAT) &&
                 (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
 
                 if (! didReadback) {

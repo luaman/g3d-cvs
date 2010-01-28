@@ -18,28 +18,11 @@ Material::Specification::Specification() :
   m_extinctionTransmit(1.0f),
   m_etaReflect(1.0f),
   m_extinctionReflect(1.0f),
-  m_emissiveConstant(Color3::zero()) {
+  m_emissiveConstant(Color3::zero()),
+  m_refractionHint(RefractionQuality::DYNAMIC_FLAT), 
+  m_mirrorHint(MirrorQuality::STATIC_ENV) {
 }
 
-
-/*
-mat = Material::Specification {
-   lambertian = "texture.jpg",
-   lambertian = Color4(r,g,b,a),
-   lambertian = Texture::Specification{
-                     filename = "texture.jpg",
-                     imageFormat = ImageFormat::AUTO(),
-                     dimension = Texture::DIM_2D_NPOT,
-                     settings = Texture::Settings {
-                         
-                     },
-                     preprocess = Texture::Preprocess {
-                         gammaAdjust = 2.2,
-                         modulate = Color4(1,0,0,1)
-                     }
-        }
-}
-*/
 
 Material::Specification::Specification(const Any& any) {
     *this = Specification();
@@ -132,6 +115,10 @@ Material::Specification::Specification(const Any& any) {
                 // Full specification
                 setBump(BumpMap::Specification(it->value));
             }
+        } else if (key == "refractionhint") {
+            m_refractionHint = it->value;
+        } else if (key == "mirrorhint") {
+            m_mirrorHint = it->value;
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }
@@ -303,7 +290,10 @@ bool Material::Specification::operator==(const Specification& s) const {
         (m_etaTransmit == s.m_etaTransmit) &&
         (m_extinctionTransmit == s.m_extinctionTransmit) &&
         (m_etaReflect == s.m_etaReflect) &&
-        (m_extinctionReflect == s.m_extinctionReflect);
+        (m_extinctionReflect == s.m_extinctionReflect) &&
+
+        (m_refractionHint == s.m_refractionHint) &&
+        (m_mirrorHint == s.m_mirrorHint);
 }
 
 

@@ -9,6 +9,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/HashTrait.h"
+#include "G3D/constants.h"
 #include "GLG3D/Component.h"
 #include "GLG3D/SuperBSDF.h"
 #include "GLG3D/BumpMap.h"
@@ -85,11 +86,20 @@ public:
         Component3 loadTransmissive() const;
         Component3 loadEmissive() const;
 
+        /** Preferred level of refraction quality. The actual level available depends on the renderer.*/
+        RefractionQuality       m_refractionHint;
+
+        /** Preferred level of mirror reflection quality. The actual level available depends on the renderer.*/
+        MirrorQuality           m_mirrorHint;
+
     public:
 
         Specification();
         
-        Specification::Specification(const Any& any);
+        /** The parsing has been under significant revision and so is intentionally undocumented; see
+           the Material_Specification.cpp source code for the latest format.
+         \beta */
+        Specification(const Any& any);
 
         bool operator==(const Specification& s) const;
         operator Any() const;
@@ -206,6 +216,16 @@ public:
 
         void removeBump();
 
+        /** Defaults to G3D::RefractionQuality::DYNAMIC_FLAT */
+        void setRefractionHint(RefractionQuality q) {
+            m_refractionHint = q;
+        }
+
+        /** Defaults to G3D::MirrorQuality::STATIC_ENV */
+        void setMirrorHint(MirrorQuality q) {
+            m_mirrorHint = q;
+        }
+
         size_t hashCode() const;
     };
 
@@ -230,6 +250,12 @@ protected:
     /** For experimentation.  This is automatically passed to the
         shaders if finite.*/
     Color4                      m_customConstant;
+
+    /** Preferred level of refraction quality. The actual level available depends on the renderer.*/
+    RefractionQuality           m_refractionHint;
+
+    /** Preferred level of mirror reflection quality. The actual level available depends on the renderer.*/
+    MirrorQuality               m_mirrorHint;
 
     Material();
 
@@ -365,6 +391,17 @@ public:
             return hashCode(*mat);
         }
     };
+
+
+    /** Preferred level of refraction quality. The actual level available depends on the renderer.*/
+    RefractionQuality refractionHint() const {
+        return m_refractionHint;
+    }
+
+    /** Preferred level of mirror reflection quality. The actual level available depends on the renderer.*/
+    MirrorQuality mirrorHint() const {
+        return m_mirrorHint;
+    }
 };
 
 }

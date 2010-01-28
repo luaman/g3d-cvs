@@ -73,6 +73,9 @@ Material::Ref Material::create(const Specification& settings) {
                 settings.m_etaReflect,
                 settings.m_extinctionReflect);
 
+        value->m_refractionHint = settings.m_refractionHint;
+        value->m_mirrorHint = settings.m_mirrorHint;
+
         // load emission map
         value->m_emissive = settings.loadEmissive();
 

@@ -74,12 +74,6 @@ public:
             two-sided lighting and texturing and not cull
             back faces. */
         bool                    twoSided;
-
-        /** Preferred level of refraction quality. The actual level available depends on the renderer.*/
-        RefractionQuality       refractionHint;
-
-        /** Preferred level of mirror reflection quality. The actual level available depends on the renderer.*/
-        MirrorQuality           mirrorHint;
         
         Material::Ref           material;
 
@@ -91,13 +85,13 @@ public:
         
     protected:
         
-        inline GPUGeom(PrimitiveType p, bool t, RefractionQuality r, MirrorQuality m) : 
-            primitive(p), twoSided(t), refractionHint(r), mirrorHint(m) {}
+        inline GPUGeom(PrimitiveType p, bool t) : 
+            primitive(p), twoSided(t) {}
         
     public:
 
         inline static GPUGeom::Ref create(PrimitiveType p = PrimitiveType::TRIANGLES) {
-            return new GPUGeom(p, false, RefractionQuality::DYNAMIC_FLAT, MirrorQuality::STATIC_ENV);
+            return new GPUGeom(p, false);
         }
     };
 

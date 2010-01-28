@@ -230,7 +230,7 @@ public:
 
             friend class Part;
 
-            inline TriList() : GPUGeom(PrimitiveType::TRIANGLES, false, RefractionQuality::DYNAMIC_FLAT, MirrorQuality::STATIC_ENV) {}
+            inline TriList() : GPUGeom(PrimitiveType::TRIANGLES, false) {}
 
         public:
             typedef ReferenceCountedPointer<TriList> Ref;

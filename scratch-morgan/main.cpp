@@ -93,17 +93,18 @@ void App::onInit() {
     glass.setShininess(SuperBSDF::packedSpecularMirror());
     glass.setTransmissive(Color3::white() * 0.8f);
     glass.setLambertian(0.1f);
+    glass.setRefractionHint(RefractionQuality::DYNAMIC_FLAT);
 
     Material::Settings air;
     air.setEta(1.0f, eta);
     air.setTransmissive(Color3::white() * 0.9f);
     air.setSpecular(Color3::black());
     air.setLambertian(0.0f);
+    air.setRefractionHint(RefractionQuality::NONE);
 
     // Outside of model
     ArticulatedModel::Part::TriList::Ref outside = glassModel->partArray[0].triList[0];
     outside->material = Material::create(glass);
-    outside->refractionHint = RefractionQuality::DYNAMIC_FLAT;
 
     // Peak: ~ 750 fps
 
@@ -111,7 +112,6 @@ void App::onInit() {
     ArticulatedModel::Part::TriList::Ref inside = glassModel->partArray[0].newTriList(Material::create(air));
     inside->indexArray = outside->indexArray;
     inside->indexArray.reverse();
-    inside->refractionHint = RefractionQuality::NONE;
     glassModel->updateAll();
 
     GuiPane* p = debugPane->addPane("Configuration");

@@ -66,7 +66,7 @@ ArticulatedModel::Preprocess::Preprocess(const Any& any) {
         } else if (key == "materialsubstitution") {
             // TODO
         } else if (key == "materialoverride") {
-            // TODO
+            materialOverride = Material::create(it->value);
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }
