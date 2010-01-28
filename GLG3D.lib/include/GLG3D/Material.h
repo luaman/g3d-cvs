@@ -2,7 +2,7 @@
  @file   Material.h
  @author Morgan McGuire, http://graphics.cs.williams.edu
  @date   2008-08-10
- @edited 2009-04-29
+ @edited 2010-01-29
 */
 #ifndef GLG3D_Material_h
 #define GLG3D_Material_h
@@ -88,6 +88,8 @@ public:
     public:
 
         Specification();
+        
+        Specification::Specification(const Any& any);
 
         bool operator==(const Specification& s) const;
         operator Any() const;
@@ -198,7 +200,9 @@ public:
             const BumpMap::Settings& settings = BumpMap::Settings(),
             float normalMapWhiteHeightInPixels = -0.02f);
 
-        void setBump(const BumpMap::Specification& bump);
+        void setBump(const BumpMap::Specification& bump) {
+            m_bump = bump;
+        }
 
         void removeBump();
 

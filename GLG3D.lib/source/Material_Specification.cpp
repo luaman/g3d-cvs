@@ -40,7 +40,7 @@ mat = Material::Specification {
         }
 }
 */
-/*
+
 Material::Specification::Specification(const Any& any) {
     *this = Specification();
 
@@ -51,9 +51,6 @@ Material::Specification::Specification(const Any& any) {
 
     m_etaReflect = any.get("etareflect", m_etaReflect);
     m_extinctionReflect = any.get("extinctionreflect", m_extinctionReflect);
-
-    m_bumpFilename = any.get("bumpfilename", m_bumpFilename);
-    m_normalMapWhiteHeightInPixels = any.get("normalmapwhiteheightinpixels"
 
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
@@ -78,15 +75,28 @@ Material::Specification::Specification(const Any& any) {
                 setSpecular(Texture::Specification(it->value));
             }
         } else if (key == "shininess") {
-            if (it->value.type() == Any::STRING) {
+            switch (it->value.type()) {
+            case Any::STRING:
                 setShininess(it->value.string());
-            } else if (beginsWith(toLower(it->value.name()), "glossyexponent")) {
-                setGlossyExponentShininess(it->value.number());
-            } else if (beginsWith(toLower(it->value.name()), "mirror")) {
-                setMirrorShininess(it->value.number());
-            } else {
+                break;
+
+            case Any::ARRAY:
+                if (beginsWith(toLower(it->value.name()), "glossyexponent")) {
+                    it->value.verifySize(1);
+                    setGlossyExponentShininess(it->value[0]);
+                } else if (beginsWith(toLower(it->value.name()), "mirror")) {
+                    it->value.verifySize(0);
+                    setMirrorShininess();
+                } else {
+                    // Full specification
+                    setShininess(Texture::Specification(it->value));
+                }
+                break;
+
+            default:
                 // Full specification
                 setShininess(Texture::Specification(it->value));
+                break;
             }    
         } else if (key == "transmissive") {
             if (it->value.type() == Any::STRING) {
@@ -115,36 +125,19 @@ Material::Specification::Specification(const Any& any) {
                 // Full specification
                 setEmissive(Texture::Specification(it->value));
             }
+        } else if (key == "bump") {
+            if (it->value.type() == Any::STRING) {
+                setBump(it->value.string());
+            } else {
+                // Full specification
+                setBump(BumpMap::Specification(it->value));
+            }
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }
     }
-
-
-    m_etaTransmit = a.get("etaTransmit", 1);
-    m_extinctionTransmit = a.get("extinctionTransmit", 0);
-
-    m_etaReflect = a.get("etaReflect", 1);
-    m_extinctionReflect = a.get("extinctionReflect", 0);
-
-    m_emissiveFilename = a.get("emissiveFilename", "").string();
-    m_emissiveConstant = a.get("emissiveConstant", Color3::black());
-
-    AnyVal b = a.get("bump", AnyVal());
-    if (! b.isNil()) {
-        m_bumpSettings = BumpMap::Settings::fromAnyVal(b);
-        m_bumpFilename = b.get("filename", "").string();
-        m_normalMapWhiteHeightInPixels = b.get("normalMapWhiteHeightInPixels", 0);
-    } else {
-        m_bumpFilename = "";
-    }
-
-    m_textureSettings  = Texture::Specification::fromAnyVal(a.get("textureSpecification"));
-    m_textureDimension = 
-        (a.get("textureDimension", "DIM_2D_NPOT").string() == "DIM_2D") ? 
-        Texture::DIM_2D : Texture::DIM_2D_NPOT;
 }
-*/
+
 
 void Material::Specification::setLambertian(const std::string& filename, const Color4& constant) {
     m_lambertian = Texture::Specification();
