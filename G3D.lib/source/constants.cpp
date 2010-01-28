@@ -44,7 +44,7 @@ const std::string& MirrorQuality::toString() const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string RefractionQuality::str[] = {"NONE", "STATIC_ENV", "DYNAMIC_FLAT", "DYNAMIC_ENV", "BEST"};
+const std::string RefractionQuality::str[] = {"NONE", "STATIC_ENV", "DYNAMIC_FLAT", "DYNAMIC_FLAT_MULTILAYER", "DYNAMIC_ENV", "BEST"};
 
 RefractionQuality::RefractionQuality(const class Any& any) {
     *this = any;

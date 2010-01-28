@@ -620,10 +620,11 @@ void Surface::renderTransparents
             const float eta = gmodel->gpuGeom()->material->bsdf()->etaTransmit();
 
             if ((eta > 1.01f) && 
-                (gmodel->gpuGeom()->material->refractionHint() == RefractionQuality::DYNAMIC_FLAT) &&
+                (gmodel->gpuGeom()->material->refractionHint() >= RefractionQuality::DYNAMIC_FLAT) &&
+                (gmodel->gpuGeom()->material->refractionHint() <= RefractionQuality::DYNAMIC_FLAT_MULTILAYER) &&
                 (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
 
-                if (! didReadback) {
+                if (! didReadback || (gmodel->gpuGeom()->material->refractionHint() == RefractionQuality::DYNAMIC_FLAT_MULTILAYER)) {
                     if (refractBackground.isNull()) {
                         refractBackground = Texture::createEmpty("Background", rd->width(), rd->height(), screenFormat, Texture::DIM_2D_NPOT, Texture::Settings::video());
                     }

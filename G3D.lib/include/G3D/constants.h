@@ -50,8 +50,12 @@ public:
         STATIC_ENV = 25, 
 
         /** Use a dynamically rendered 2D environment map; distort the background.  This looks good for many scenes
-            but avoids the cost of rendering a cube map for REFRACT_DYNAMIC_ENV. */
-        DYNAMIC_FLAT = 50, 
+            but avoids the cost of rendering a cube map for DYNAMIC_ENV. */
+        DYNAMIC_FLAT = 50,
+
+        /** Use a dynamically rendered 2D environment map that is re-captured per transparent object.  This works well
+            for transparent objects that are separated by a significant camera space z distance but overlap in screen space.*/
+        DYNAMIC_FLAT_MULTILAYER = 55,
 
         /** Render a dynamic environment map */
         DYNAMIC_ENV = 75, 
@@ -63,7 +67,7 @@ public:
 private:
 
     /** Used for to/from string conversion.  Last is the emtpy string as a sentinel */
-    static const std::string str[6];
+    static const std::string str[7];
     Value value;
 
 public:
