@@ -29,12 +29,6 @@ Material::Specification::Specification(const Any& any) {
 
     any.verifyName("Material::Specification");
 
-    m_etaTransmit = any.get("etatransmit", m_etaTransmit);
-    m_extinctionTransmit = any.get("extinctiontransmit", m_extinctionTransmit);
-
-    m_etaReflect = any.get("etareflect", m_etaReflect);
-    m_extinctionReflect = any.get("extinctionreflect", m_extinctionReflect);
-
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
         if (key == "lambertian") {
@@ -119,6 +113,14 @@ Material::Specification::Specification(const Any& any) {
             m_refractionHint = it->value;
         } else if (key == "mirrorhint") {
             m_mirrorHint = it->value;
+        } else if (key == "etatransmit") {
+            m_etaTransmit = it->value;
+        } else if (key == "extinctiontransmit") {
+            m_extinctionTransmit = it->value;
+        } else if (key == "etareflect") {
+            m_etaReflect = it->value;
+        } else if (key == "extinctionreflect") {
+            m_extinctionReflect = it->value;
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }
