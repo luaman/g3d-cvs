@@ -39,7 +39,7 @@ Matrix4::Matrix4(const Any& any) {
     } else if (name == "matrix4::scale") {
         if (any.size() == 1) {
             *this = scale(any[0].number());
-        } else if (any.size() == 3) {
+        } if (any.size() == 3) {
             *this = scale(any[0], any[1], any[2]);
         } else {
             any.verify(false, "Matrix4::scale() takes either 1 or 3 arguments");
