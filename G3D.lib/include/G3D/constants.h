@@ -67,7 +67,8 @@ public:
 private:
 
     /** Used for to/from string conversion.  Last is the emtpy string as a sentinel */
-    static const std::string str[7];
+    static const std::string    str[7];
+    static const Value          enm[6];
     Value value;
 
 public:
@@ -105,7 +106,9 @@ public:
 private:
 
     /** Used for to/from string conversion.  Last is the emtpy string as a sentinel */
-    static const std::string str[6];
+    static const std::string    str[6];
+    static const Value          enm[5];
+
     Value value;
 
 public:
