@@ -5,7 +5,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-10-02
-  @edited  2010-01-13
+  @edited  2010-01-29
  */
 
 #include "G3D/platform.h"
@@ -18,6 +18,7 @@
 #include "G3D/CoordinateFrame.h"
 #include "G3D/Rect2D.h"
 #include "G3D/Any.h"
+#include "G3D/stringutils.h"
 
 namespace G3D {
 
@@ -25,12 +26,26 @@ namespace G3D {
 Matrix4::Matrix4(const Any& any) {
     any.verifyName("Matrix4");
     any.verifyType(Any::ARRAY);
-    any.verifySize(16);
 
-    for (int r = 0; r < 4; ++r) {
-        for (int c = 0; c < 4; ++c) {
-            elt[r][c] = any[r * 4 + c];
+    const std::string& name = toLower(any.name());
+    if (name == "matrix4") {
+        any.verifySize(16);
+
+        for (int r = 0; r < 4; ++r) {
+            for (int c = 0; c < 4; ++c) {
+                elt[r][c] = any[r * 4 + c];
+            }
         }
+    } else if (name == "matrix4::scale") {
+        if (any.size() == 1) {
+            *this = scale(any[0]->number());
+        } if (any.size() == 3) {
+            *this = scale(any[0], any[1], any[2]);
+        } else {
+            any.verify(false, "Matrix4::scale() takes either 1 or 3 arguments");
+        }
+    } else {
+        any.verify(false, "Expected Matrix4 constructor");
     }
 }
 
