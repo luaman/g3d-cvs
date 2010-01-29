@@ -577,7 +577,7 @@ void Surface::sendGeometry(RenderDevice* rd) const {
 
 void Surface::renderTransparents
 (RenderDevice*                  rd,
- const Array<Surface::Ref>&  modelArray,
+ const Array<Surface::Ref>&     modelArray,
  const Lighting::Ref&           lighting,
  const Array<SuperShader::PassRef>& extraAdditivePasses,
  const Array<ShadowMap::Ref>&   shadowMapArray,
@@ -616,6 +616,7 @@ void Surface::renderTransparents
         Surface::Ref model = modelArray[m];
         SuperSurface::Ref gmodel = model.downcast<SuperSurface>();
 
+        // Render refraction (without modulating by transmissive)
         if (gmodel.notNull() && supportsRefract) {
             const float eta = gmodel->gpuGeom()->material->bsdf()->etaTransmit();
 
@@ -626,7 +627,8 @@ void Surface::renderTransparents
 
                 if (! didReadback || (gmodel->gpuGeom()->material->refractionHint() == RefractionQuality::DYNAMIC_FLAT_MULTILAYER)) {
                     if (refractBackground.isNull()) {
-                        refractBackground = Texture::createEmpty("Background", rd->width(), rd->height(), screenFormat, Texture::DIM_2D_NPOT, Texture::Settings::video());
+                        refractBackground = Texture::createEmpty("Background", rd->width(), rd->height(), screenFormat, 
+                                                                 Texture::DIM_2D_NPOT, Texture::Settings::video());
                     }
 
                     rd->copyTextureFromScreen(refractBackground, rd->viewport(), screenFormat);
@@ -664,12 +666,6 @@ void Surface::renderTransparents
                     cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
                     Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
                     refractShader->args.set("backSizeMeters", backSizeMeters);
-                    
-                    // Always use the same background image, rendered
-                    // before transparents.  This approach is enough
-                    // of an approximation that we can't expect a ray
-                    // passing through two transparents to be
-                    // reasonable anyway
                     refractShader->args.set("background", refractBackground);
                     refractShader->args.set("backgroundInvertY", rd->framebuffer().notNull());
                     rd->setShader(refractShader);        
@@ -680,14 +676,24 @@ void Surface::renderTransparents
             }
         }
 
+        // Add lights (additive blending is turned on automatically
+        // inside of these)
         model->renderNonShadowed(rd, lighting);
+
         debugAssert(lighting->shadowedLightArray.size() <= shadowMapArray.size());
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], 
                                                shadowMapArray[L]);
         }
-        for (int p = 0; p < extraAdditivePasses.size(); ++p) {
-            model->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+
+        // Add extra light passes
+        if (extraAdditivePasses.size() > 0) {
+            rd->pushState();
+            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+            for (int p = 0; p < extraAdditivePasses.size(); ++p) {
+                model->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+            }
+            rd->popState();
         }
     }
 
