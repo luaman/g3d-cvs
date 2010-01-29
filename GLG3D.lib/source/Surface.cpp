@@ -691,7 +691,6 @@ void Surface::renderTransparents
         }
     }
 
-    // TODO: Depth write so that z-buffer is up to date
     rd->popState();
 }
 ////////////////////////////////////////////////////////////////////////////////////////

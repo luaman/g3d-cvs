@@ -839,8 +839,9 @@ void SuperSurface::renderPS20ShadowMappedLightPass(
     const ShadowMap::Ref& shadowMap) const {
 
     SuperShader::ShadowedPass::instance()->setLight(light, shadowMap);
-    rd->setShader(SuperShader::ShadowedPass::instance()->getConfiguredShader(*m_gpuGeom->material, rd->cullFace()));
-    sendGeometry2(rd);
+    renderSuperShaderPass(rd, SuperShader::ShadowedPass::instance());
+    // rd->setShader(SuperShader::ShadowedPass::instance()->getConfiguredShader(*m_gpuGeom->material, rd->cullFace()));
+    //sendGeometry2(rd);
 }
 
 
