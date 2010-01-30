@@ -15,8 +15,6 @@ ArticulatedViewer::ArticulatedViewer() :
 	m_model(NULL),
 	m_numEdges(0),
 	m_numFaces(0),
-	m_texturebool(false),
-	m_texture(""),
 	m_numVertices(0)
 	{}
 
@@ -24,8 +22,6 @@ ArticulatedViewer::ArticulatedViewer() :
 void ArticulatedViewer::onInit(const std::string& filename) {
 
     ArticulatedModel::Preprocess preprocess;
-//preprocess.stripMaterials = true;
-//preprocess.xform = Matrix4::scale(0.01f); // TODO
     m_model = ArticulatedModel::fromFile(filename, preprocess);
 	Array<Surface::Ref> arrayModel;
 	m_model->pose(arrayModel);
@@ -38,20 +34,13 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 		m_numFaces += ((partArray[y].indexArray.size())/3);
 	}
 
-    return;
-
-    // TODO: Scale the model in place, rather than re-loading!
-
     bool overwrite = true;
 
 	// Gind the size of the bounding box of the entire model
 	AABox bounds;
 	if (arrayModel.size() > 0) {
-		m_texturebool = false;
-	
-		//checks to see if the model has texture coordinates, for display later
+
 		for (int x = 0; x < arrayModel.size(); ++x) {		
-			m_texturebool = arrayModel[x]->hasTexCoords() || m_texturebool;
 
 			//merges the bounding boxes of all the seperate parts into the bounding box of the entire object
 			AABox temp;
@@ -95,7 +84,17 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 		transform.rotation = Matrix3::identity() * scale;
 		transform.translation = -center * scale;
 
-		m_model = ArticulatedModel::fromFile( filename, transform );
+		// Transform parts in-place
+		for (int partIndex = 0; partIndex < m_model->partArray.length(); ++partIndex) {
+			MeshAlg::Geometry& geom = m_model->partArray[partIndex].geometry;
+
+			for (int vertIndex = 0; vertIndex < geom.vertexArray.length(); ++vertIndex) {
+				geom.vertexArray[vertIndex] = transform.pointToWorldSpace(geom.vertexArray[vertIndex]);
+			}
+		}
+
+		m_model->updateAll();
+
 	}
 }
 
@@ -112,9 +111,4 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
 	screenPrintf("Faces: %d", m_numFaces);
 	screenPrintf("Vertices: %d", m_numVertices);
 
-	if (m_texturebool) {
-		screenPrintf("Contains texture Coordinates");
-	} else {
-		screenPrintf("No texture coordinates");
-	}
 }

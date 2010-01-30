@@ -22,8 +22,6 @@ private:
 	ArticulatedModel::Ref		m_model;
 	int						m_numEdges;
 	int						m_numFaces;
-	bool					m_texturebool;
-	std::string				m_texture;
 	int						m_numVertices;
 
 
