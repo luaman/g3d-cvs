@@ -66,7 +66,7 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
 
 
 const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
-    static CubeMapInfo cubeMapInfo[4];
+    static CubeMapInfo cubeMapInfo[NUM_CUBECONVENTIONS];
     static bool initialized = false;
     if (! initialized) {
         initialized = true;
@@ -1472,7 +1472,7 @@ void Texture::splitFilenameAtWildCard(
     const std::string splitter = "*";
 
     int i = filename.rfind(splitter);
-    if (i != -1) {
+	if (i != std::string::npos) {
         filenameBase = filename.substr(0, i);
         filenameExt  = filename.substr(i + 1, filename.size() - i - splitter.length()); 
     } else {

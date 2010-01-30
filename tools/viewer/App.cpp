@@ -14,7 +14,6 @@
 #include "ArticulatedViewer.h"
 #include "TextureViewer.h"
 #include "FontViewer.h"
-#include "SkyViewer.h"
 #include "BSPViewer.h"
 #include "MD2Viewer.h"
 #include "GUIViewer.h"
@@ -128,47 +127,6 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
     Surface2D::sortAndRender(rd, posed2D);
 }
 
-static bool allCubeMapFacesExist(const std::string& base, const std::string& ext) {
-    for (int i = 0; i < 4; ++i) {
-        Texture::CubeMapConvention c = (Texture::CubeMapConvention)i;
-
-        const Texture::CubeMapInfo& info = Texture::cubeMapInfo(c);
-
-        bool success = true;
-        for (int f = 0; f < 6; ++f) {
-            const char* s = info.face[f].suffix;
-            if (! fileExists(base + s + "." + ext) &&
-                ! fileExists(base + toUpper(s) + "." + ext)) {
-                success = false;
-                break;
-            }
-        }
-        if (success) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- @param ext Does not contain the period, must be an image extension
- */
-static bool isCubeMapFace(const std::string& _base, const std::string& _ext) {
-    std::string base = toLower(_base);
-    std::string ext = toLower(_ext);
-    for (int i = 0; i < 4; ++i) {
-        Texture::CubeMapConvention c = (Texture::CubeMapConvention)i;
-
-        const Texture::CubeMapInfo& info = Texture::cubeMapInfo(c);
-        for (int f = 0; f < 6; ++f) {
-            if (endsWith(base, std::string(info.face[f].suffix) + "." + ext)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 
 void App::setViewer(const std::string& newFilename) {
     filename = newFilename;
@@ -192,22 +150,12 @@ void App::setViewer(const std::string& newFilename) {
         
     } else if (Texture::isSupportedImage(filename)) {
         
-        // Images can be either a Texture or a Sky: figure out which we have
-	
-        // If the image represents a skybox, there will be 5 others just like it,
-        // corresponding to the rest of the cube
-        if (isCubeMapFace(filename, ext)) {
-            
-            std::string skyRoot = filename.substr(0, filename.length() - 6);
-            
-            if (allCubeMapFacesExist(skyRoot, ext)) {
-                viewer = new SkyViewer();
-            } else {
-                viewer = new TextureViewer();
-            }
-        } else {
-            viewer = new TextureViewer();
-        }
+        // Images can be either a Texture or a Sky, TextureViewer will figure it out
+        viewer = new TextureViewer();
+
+		// Angle the camera slightly so a sky/cube map doesn't see only 1 face
+		defaultController->setFrame(Matrix3::fromAxisAngle(Vector3::unitY(), halfPi() / 2.0) * Matrix3::fromAxisAngle(Vector3::unitX(), halfPi() / 2.0));
+
     } else if (ext == "fnt") {
         
         viewer = new FontViewer(debugFont);

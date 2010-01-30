@@ -36,7 +36,7 @@ SkyRef Sky::fromCubeMap(
         "Directory must end in a slash");
 
     debugAssert( _cubeMap.notNull() );
-    debugAssert( _cubeMap->dimension() == Texture::DIM_CUBE_MAP );
+	debugAssert( _cubeMap->dimension() == Texture::DIM_CUBE_MAP || _cubeMap->dimension() == Texture::DIM_CUBE_MAP_NPOT );
 
     Texture::Ref t[6];
     t[0] = _cubeMap;

@@ -101,7 +101,10 @@ public:
         CUBE_POS_Y = 2,
         CUBE_NEG_Y = 3,
         CUBE_POS_Z = 4,
-        CUBE_NEG_Z = 5};
+        CUBE_NEG_Z = 5,
+
+		NUM_CUBEFACES
+	};
 
     /** Image alignment conventions specified by different APIs. 
         G3D loads cube maps so that they act like reflection maps.
@@ -118,7 +121,10 @@ public:
         CUBE_G3D,
 
         /** Uses "PY", "NX", etc. */
-        CUBE_DIRECTX};
+        CUBE_DIRECTX,
+
+		NUM_CUBECONVENTIONS
+	};
 
     struct CubeMapInfo {
         struct Face {
@@ -132,12 +138,12 @@ public:
             int             rotations;
 
             /** Filename suffix */
-            const char*     suffix;
+			std::string     suffix;
 
-            inline Face() : flipX(true), flipY(false), rotations(0), suffix("") {}
+            Face() : flipX(true), flipY(false), rotations(0) {}
         };
 
-        const char*         name;
+		std::string         name;
 
         /** Index using CubeFace */
         Face                face[6];

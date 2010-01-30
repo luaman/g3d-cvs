@@ -221,10 +221,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\tools\Viewer\SkyViewer.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\tools\Viewer\TextureViewer.cpp"
 				>
 			</File>
@@ -272,10 +268,6 @@
 			</File>
 			<File
 				RelativePath="..\tools\Viewer\MD2Viewer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tools\Viewer\SkyViewer.h"
 				>
 			</File>
 			<File

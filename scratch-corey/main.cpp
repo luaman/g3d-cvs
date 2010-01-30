@@ -88,10 +88,11 @@ void App::onInit() {
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
 
-	Texture::Ref srgbTex = Texture::fromFile(dataDir + "cubemap/test/testcube_+x.jpg", ImageFormat::SRGB8());
-	debugPane->addTextureBox("SRGB", srgbTex);
+	//Texture::Ref srgbTex = Texture::fromFile(dataDir + "cubemap/test/testcube_+x.jpg", ImageFormat::SRGB8());
+	//debugPane->addTextureBox("SRGB", srgbTex);
 
-	Texture::Ref rgbTex = Texture::fromFile(dataDir + "cubemap/test/testcube_+x.jpg", ImageFormat::RGB8());
+//	Texture::Ref rgbTex = Texture::fromFile(dataDir + "cubemap/test/testcube_+x.jpg", ImageFormat::RGB8());
+	Texture::Ref rgbTex = Texture::fromFile(dataDir + "graytest.png", ImageFormat::RGB8());
 	debugPane->addTextureBox("RGB", rgbTex);
 
 

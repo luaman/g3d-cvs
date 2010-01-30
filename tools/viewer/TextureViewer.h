@@ -22,8 +22,10 @@ private:
 	TextureRef	    m_texture;
 	int				m_width;
 	int				m_height;
-	std::string		m_filename;
-	std::string		m_ext;
+
+	bool			m_isSky;
+    SkyParameters   m_skyParameters;
+    SkyRef          m_sky;
 
 
 public:
