@@ -191,14 +191,15 @@ public:
         ARB_non_power_of_two texture support with POT fallback.
 
         \sa defaultDimension */
-    enum Dimension 
-        {DIM_2D = 2, 
+    enum Dimension {
+		DIM_2D = 2, 
          DIM_3D = 3, 
          DIM_2D_RECT = 4, 
          DIM_CUBE_MAP = 5,
          DIM_2D_NPOT = 6, 
          DIM_CUBE_MAP_NPOT = 7,
-         DIM_3D_NPOT = 8};
+         DIM_3D_NPOT = 8
+	};
 
     /** 
       Returns true if this is a legal wrap mode for a G3D::Texture.
@@ -221,7 +222,8 @@ public:
         NEAREST_MIPMAP = 5,
 
         BILINEAR_NO_MIPMAP = 2,
-        NEAREST_NO_MIPMAP = 6};
+        NEAREST_NO_MIPMAP = 6
+	};
 
     static const char* toString(InterpolateMode m);
     static InterpolateMode toInterpolateMode(const std::string& s);

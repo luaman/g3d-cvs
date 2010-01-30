@@ -71,7 +71,7 @@ void TextureViewer::onInit(const std::string& filename) {
 	if (allCubeMapFacesExist(path + base, ext, wildcardBase)) {
 		m_isSky = true;
 
-		m_texture = Texture::fromFile(wildcardBase + "*." + ext, ImageFormat::AUTO(), Texture::DIM_CUBE_MAP_NPOT);
+		m_texture = Texture::fromFile(wildcardBase + "*." + ext, ImageFormat::AUTO(), Texture::DIM_CUBE_MAP_NPOT, Texture::Settings::cubeMap());
 
 		m_sky = Sky::fromCubeMap(m_texture, path, false); 
 		m_skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
