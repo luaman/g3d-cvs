@@ -167,11 +167,11 @@ const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
 
         cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Z].flipX  = true;
         cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Z].flipY  = false;
-        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Z].suffix = "NZ";
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Z].suffix = "PZ";
 
         cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Z].flipX  = true;
         cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Z].flipY  = false;
-        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Z].suffix = "PZ";
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Z].suffix = "NZ";
     }
 
     return cubeMapInfo[convention];
