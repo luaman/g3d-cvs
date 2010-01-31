@@ -57,7 +57,7 @@ protected:
 
     ShadowMap(const std::string& name);
 
-    void renderDepthOnly(RenderDevice* renderDevice, const Array<Surface::Ref>& shadowCaster, RenderDevice::CullFace cullFace) const;
+    void renderDepthOnly(RenderDevice* renderDevice, const Array< ReferenceCountedPointer<Surface> >& shadowCaster, RenderDevice::CullFace cullFace) const;
 
 public:
 
