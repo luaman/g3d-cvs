@@ -2,7 +2,7 @@
   @file ShadowMap.cpp
 
   @author Morgan McGuire, http://graphics.cs.williams.edu
-  @edited 2009-05-27
+  @edited 2010-01-30
  */
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/RenderDevice.h"
@@ -19,7 +19,7 @@ ShadowMap::ShadowMap(const std::string& name) :
     m_polygonOffset(0.001f), 
     m_backfacePolygonOffset(-0.1f),
     m_lastRenderDevice(NULL), 
-    m_colorTextureIsDirty(true) {
+    m_colorDepthTextureIsDirty(true) {
 }
 
 
@@ -73,7 +73,7 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
     if (desiredSize == 0) {
         m_depthTexture = NULL;
         m_framebuffer = NULL;
-        m_colorTexture = NULL;
+        m_colorDepthTexture = NULL;
         return;
     }
 
@@ -97,7 +97,7 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
          ImageFormat::DEPTH16(),
          dim, 
          textureSettings);
-    m_colorTexture = NULL;
+    m_colorDepthTexture = NULL;
 
     if (GLCaps::supports_GL_EXT_framebuffer_object()) {
         m_framebuffer = Framebuffer::create(m_name + " Frame Buffer");
@@ -111,16 +111,16 @@ bool ShadowMap::enabled() const {
 }
 
 
-void ShadowMap::updateDepth(
-    RenderDevice*                   renderDevice,
-    const CoordinateFrame&          lightCFrame, 
-    const Matrix4&                  lightProjectionMatrix,
-    const Array<Surface::Ref>&   shadowCaster,
-    float                           biasDepth,
-    RenderDevice::CullFace          cullFace) {
-
-    m_lightProjection = lightProjectionMatrix;
-    m_lightFrame = lightCFrame;
+void ShadowMap::updateDepth
+(RenderDevice*                   renderDevice,
+ const CoordinateFrame&          lightCFrame, 
+ const Matrix4&                  lightProjectionMatrix,
+ const Array<Surface::Ref>&      shadowCaster,
+ float                           biasDepth,
+ RenderDevice::CullFace          cullFace) {
+    
+    m_lightProjection  = lightProjectionMatrix;
+    m_lightFrame       = lightCFrame;
     m_lastRenderDevice = renderDevice;
 
     if (shadowCaster.size() == 0) {
@@ -149,6 +149,7 @@ void ShadowMap::updateDepth(
 
     debugAssertGLOk();
     renderDevice->pushState(m_framebuffer);
+    {
         if (m_framebuffer.notNull()) {
             renderDevice->setDrawBuffer(RenderDevice::DRAW_NONE);
             renderDevice->setReadBuffer(RenderDevice::READ_NONE);
@@ -202,6 +203,7 @@ void ShadowMap::updateDepth(
         }
 
         debugAssertGLOk();
+    }
     renderDevice->popState();
 
     if (m_framebuffer.isNull()) {
@@ -212,26 +214,26 @@ void ShadowMap::updateDepth(
         renderDevice->setReadBuffer(old);
     }
 
-    m_colorTextureIsDirty = true;
+    m_colorDepthTextureIsDirty = true;
 }
 
 
-TextureRef ShadowMap::colorDepthTexture() const {
-    if (m_colorTextureIsDirty) {
+Texture::Ref ShadowMap::colorDepthTexture() const {
+    if (m_colorDepthTextureIsDirty) {
         // We pretend that this is a const method, but
         // we might have to update the internal cache.
-        const_cast<ShadowMap*>(this)->computeColorTexture();
+        const_cast<ShadowMap*>(this)->computeColorDepthTexture();
     }
 
-    return m_colorTexture;
+    return m_colorDepthTexture;
 }
 
 
-void ShadowMap::computeColorTexture() {
+void ShadowMap::computeColorDepthTexture() {
     RenderDevice* rd = m_lastRenderDevice;
     debugAssertM(rd, "Must call updateDepth() before colorDepthTexture()");
 
-    if (m_colorTexture.isNull()) {
+    if (m_colorDepthTexture.isNull()) {
         Texture::Settings settings = Texture::Settings::video();
         settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
         settings.wrapMode = m_depthTexture->settings().wrapMode;
@@ -243,9 +245,9 @@ void ShadowMap::computeColorTexture() {
         const ImageFormat* fmt = ImageFormat::RGB16F();
         debugAssert(GLCaps::supportsTexture(fmt));
 
-        m_colorTexture = Texture::createEmpty
+        m_colorDepthTexture = Texture::createEmpty
             (m_name, m_depthTexture->width(), m_depthTexture->height(), 
-             fmt, Texture::DIM_2D, settings);
+             fmt, Texture::defaultDimension(), settings);
     }
 
     // Convert depth to color
@@ -253,7 +255,7 @@ void ShadowMap::computeColorTexture() {
         m_colorConversionFramebuffer = Framebuffer::create("Depth to Color Conversion");
     }
     
-    m_colorConversionFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_colorTexture);
+    m_colorConversionFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_colorDepthTexture);
 
     setMode(Texture::DEPTH_NORMAL);
     rd->push2D(m_colorConversionFramebuffer);
@@ -267,7 +269,7 @@ void ShadowMap::computeColorTexture() {
     }
     rd->pop2D();
     setMode(m_depthTexture->settings().depthReadMode);
-    m_colorTextureIsDirty = false;
+    m_colorDepthTextureIsDirty = false;
 }
 
 

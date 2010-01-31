@@ -123,8 +123,9 @@ public:
 
     virtual std::string name() const = 0;
 
-    /** If true, this object depends on back-to-front rendering order and should be
-        rendered in sorted order. Default is false.*/
+    /** If true, this object transmits light and depends on
+        back-to-front rendering order and should be rendered in sorted
+        order. Default is false.*/
     virtual bool hasTransparency() const {
         return false;
     }

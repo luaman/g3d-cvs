@@ -25,10 +25,10 @@ class ShadowMap : public ReferenceCountedObject {
 public:
     typedef ReferenceCountedPointer<ShadowMap> Ref;
 
-private:
+protected:
     std::string         m_name;
 
-    TextureRef          m_depthTexture;
+    Texture::Ref        m_depthTexture;
 
     /** If NULL, use the backbuffer */
     Framebuffer::Ref    m_framebuffer;
@@ -49,11 +49,11 @@ private:
     class RenderDevice* m_lastRenderDevice;
 
     /** True when m_colorTexture is out of date */
-    bool                m_colorTextureIsDirty;
+    bool                m_colorDepthTextureIsDirty;
 
-    Texture::Ref        m_colorTexture;
+    Texture::Ref        m_colorDepthTexture;
 
-    void computeColorTexture();
+    void computeColorDepthTexture();
 
     ShadowMap(const std::string& name);
 
@@ -99,7 +99,7 @@ public:
 
     /** Call with desiredSize = 0 to turn off shadow maps.
      */
-    void setSize(int desiredSize = 1024, const Texture::Settings& settings = Texture::Settings::shadow());
+    virtual void setSize(int desiredSize = 1024, const Texture::Settings& settings = Texture::Settings::shadow());
 
     static ShadowMap::Ref create(const std::string& name = "Shadow Map", int size = 1024, 
                                const Texture::Settings& settings = Texture::Settings::shadow());
@@ -159,7 +159,7 @@ public:
     \param biasDepth amount to bias z values by in the biasedMVP when
     later rendering Usually around 0.0001-0.005
     */
-    void updateDepth
+    virtual void updateDepth
     (class RenderDevice*           renderDevice, 
      const CoordinateFrame&        lightFrame,
      const Matrix4&                lightProjectionMatrix,
@@ -181,7 +181,7 @@ public:
 
     /** Returns the depthTexture as RGB16F format. Useful for cards
         that do not support reading against depth textures.*/
-    TextureRef colorDepthTexture() const;
+    Texture::Ref colorDepthTexture() const;
 
     inline Rect2D rect2DBounds() const {
         return m_depthTexture->rect2DBounds();
