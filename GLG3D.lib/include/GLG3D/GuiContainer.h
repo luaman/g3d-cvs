@@ -29,12 +29,13 @@ namespace G3D {
  clientRect().  
  */
 class GuiContainer : public GuiControl {
-protected:
+public:
     enum {CONTROL_HEIGHT    =  25};
     enum {CONTROL_WIDTH     = 215};
     enum {BUTTON_WIDTH      =  80};
     enum {TOOL_BUTTON_WIDTH =  50};
 
+protected:
     Rect2D              m_clientRect;
 
     GuiContainer(class GuiWindow* gui, const class GuiText& text);

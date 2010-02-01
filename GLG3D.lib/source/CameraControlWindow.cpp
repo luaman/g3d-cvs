@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2007-06-01
-  @edited  2009-09-14
+  @edited  2010-02-01
 */
 #include "G3D/platform.h"
 #include "G3D/GCamera.h"
@@ -18,7 +18,7 @@
 
 namespace G3D {
 
-enum {FILM_PANE_SIZE = 60};
+enum {FILM_PANE_SIZE = 102};
 const Vector2 CameraControlWindow::smallSize(286 + 16, 46);
 const Vector2 CameraControlWindow::bigSize(286 + 16, 155 + FILM_PANE_SIZE);
 
@@ -45,7 +45,7 @@ public:
     /** Name */
     GuiTextBox*        m_textBox;
 
-    OSWindow*           m_osWindow;
+    OSWindow*          m_osWindow;
     
     BookmarkDialog(OSWindow* osWindow, const Vector2& position, GuiThemeRef skin, 
                    std::string& name, Result& result,
@@ -197,31 +197,8 @@ CameraControlWindow::CameraControlWindow(
     /////////////////////////////////////////////////////////////////////////////////////////
 
     GuiPane* filmPane = pane->addPane();
-    filmPane->moveBy(-9, 0);
-    {
-        GuiNumberBox<float>* gamma = NULL;
-        GuiNumberBox<float>* exposure = NULL;
-        float maxExposure = 10.0f;
-        if (film.notNull()) {
-            gamma = filmPane->addNumberBox("Gamma", Pointer<float>(film, &Film::gamma, &Film::setGamma), 
-                                           "", GuiTheme::LOG_SLIDER, 0.5f, 7.0f, 0.001f);
-            gamma->moveBy(0, 2);
-            exposure = filmPane->addNumberBox("Exposure",      
-                                              Pointer<float>(film, &Film::exposure, &Film::setExposure), 
-                                              "", GuiTheme::LOG_SLIDER, 0.001f, maxExposure);
-        } else {
-            static float g = 1.0f;
-            static float e = 1.0f;
-            gamma = filmPane->addNumberBox("Gamma", &g, "", GuiTheme::LOG_SLIDER, 0.5f, 7.0f, 0.001f);
-            gamma->moveBy(0, 2);
-            exposure = filmPane->addNumberBox("Exposure", &e, 
-                                              "", GuiTheme::LOG_SLIDER, 0.001f, maxExposure);
-            gamma->setEnabled(false);
-            exposure->setEnabled(false);            
-        }
-        gamma->setWidth(290);
-        exposure->setWidth(290);
-    }
+    filmPane->moveBy(-9, 2);
+    film->makeGui(filmPane, 10.0f, 290, 2);
     /////////////////////////////////////////////////////////////////////////////////////////
 
     GuiPane* manualPane = pane->addPane();

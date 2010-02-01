@@ -2,7 +2,7 @@
  @file Film.h
  @author Morgan McGuire, http://graphics.cs.williams.edu
  @created 2008-07-01
- @edited  2009-05-25
+ @edited  2010-02-01
  */
 
 #ifndef G3D_Film_h
@@ -13,6 +13,7 @@
 #include "GLG3D/Shader.h"
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/Texture.h"
+#include "GLG3D/GuiContainer.h"
 
 namespace G3D {
 
@@ -77,13 +78,19 @@ private:
     /** Expose, invert gamma and correct out-of-gamut colors */
     Shader::Ref             m_shader;
 
+    /** Expose before bloom */
+    Shader::Ref             m_preBloomShader;
+
     /** Output of blend shader/input to the vertical blur. 16-bit float.*/
     Texture::Ref            m_blended;
 
-    /** 16-bit float blurred vertical */
+    /** float pre-bloom curve applied */
+    Texture::Ref            m_preBloom;
+
+    /** float blurred vertical */
     Texture::Ref            m_temp;
 
-    /** 16-bit float blurred vertical + horizontal */
+    /** float blurred vertical + horizontal */
     Texture::Ref            m_blurry;
 
     /** \brief Monitor gamma used in tone-mapping. Default is 2.0. */
@@ -158,7 +165,7 @@ public:
     }
 
     /** Adds controls for this Film to the specified GuiPane. */
-    void makeGui(class GuiPane*, float maxExposure = 10.0f);
+    void makeGui(class GuiPane*, float maxExposure = 10.0f, float sliderWidth = GuiContainer::CONTROL_WIDTH, float controlIndent = 0);
 
     /** \brief Renders the input as filtered by the film settings to the currently bound framebuffer.
         \param downsample One side of the downsampling filter in pixels. 1 = no downsampling. 2 = 2x2 downsampling (antialiasing). Not implemented.

@@ -40,7 +40,10 @@ public:
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
     catchCommonExceptions = false;
-    lighting = defaultLighting();
+//    lighting = defaultLighting();
+    lighting = Lighting::create();
+    lighting->lightArray.append(GLight::directional(Vector3::unitY(), Color3::white()));
+    renderDevice->setColorClearValue(Color3::black());
 }
 
 
@@ -83,46 +86,27 @@ void App::onInit() {
 
 //    setDesiredFrameRate(30);
 
-    model = ArticulatedModel::createHeightfield("c:/temp/test.png");
-    glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), Matrix4::scale(2.0f, 2.0f, 2.0f));
+    {
+        model = ArticulatedModel::createHeightfield("c:/temp/test.png");
+        Material::Specification spec;
+        spec.setLambertian("c:/temp/shades.png");
+        model->partArray[0].triList[0]->material = Material::create(spec);
+    }
+    {
+        m_film->setBloomStrength(0.3f);
+        m_film->setBloomRadiusFraction(0.02f);
+        ArticulatedModel::Preprocess p;
+        Material::Specification s;
+        s.setLambertian(Color3(1.0f, 0.7f, 0.2f));
+        p.materialOverride = Material::create(s);
+        p.xform = Matrix4::scale(2.0f, 2.0f, 2.0f);
+        glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), p);
+    }
 
-    Material::Settings glass;
-    float eta = 2.0f;
-    glass.setEta(eta, 1.0f);
-    glass.setSpecular(Color3::white() * 0.02f);
-    glass.setShininess(SuperBSDF::packedSpecularMirror());
-    glass.setTransmissive(Color3::white() * 0.8f);
-    glass.setLambertian(0.1f);
-    glass.setRefractionHint(RefractionQuality::DYNAMIC_FLAT);
+    debugPane->addTextureBox("", m_colorBuffer0)->zoomToFit();
 
-    Material::Settings air;
-    air.setEta(1.0f, eta);
-    air.setTransmissive(Color3::white() * 0.9f);
-    air.setSpecular(Color3::black());
-    air.setLambertian(0.0f);
-    air.setRefractionHint(RefractionQuality::NONE);
-
-    // Outside of model
-    ArticulatedModel::Part::TriList::Ref outside = glassModel->partArray[0].triList[0];
-    outside->material = Material::create(glass);
-
-    // Peak: ~ 750 fps
-
-    // Inside (inverted)
-    ArticulatedModel::Part::TriList::Ref inside = glassModel->partArray[0].newTriList(Material::create(air));
-    inside->indexArray = outside->indexArray;
-    inside->indexArray.reverse();
-    glassModel->updateAll();
-
-    GuiPane* p = debugPane->addPane("Configuration");
-    p->addButton("Hello");
-
-    static int x = 0;
-    p->addRadioButton("Test", 0, &x);
-
-    GuiPane* p2 = debugPane->addPane("Configuration", GuiTheme::ORNATE_PANE_STYLE);
-    p2->addButton("Hello");
-
+    // Start wherever the developer HUD last marked as "Home"
+    defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
 
 

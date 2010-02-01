@@ -122,7 +122,8 @@ Shader::Ref GaussianBlur::makeShader(int N) {
                 vec4 sum = texture2D(source, pixel) * gaussCoef[0];
                 
                 for (int tap = 1; tap < kernelSize; ++tap) {
-                    sum += texture2D(source, pixelStep * (float(tap) - float(kernelSize - 1) * 0.5) + pixel) * gaussCoef[tap];
+                    vec4 v = texture2D(source, pixelStep * (float(tap) - float(kernelSize - 1) * 0.5) + pixel);
+                    sum += v * gaussCoef[tap];
                 }
                 
                 gl_FragColor = sum;) + "}";
