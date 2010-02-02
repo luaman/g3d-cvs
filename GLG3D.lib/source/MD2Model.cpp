@@ -1,10 +1,10 @@
 /**
- @file MD2Model.cpp
+ \file MD2Model.cpp
 
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- @created 2003-08-07
- @edited  2007-05-08
+ \created 2003-08-07
+ \edited  2010-01-02
  */
 
 #include "G3D/platform.h"

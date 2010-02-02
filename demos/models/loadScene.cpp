@@ -88,7 +88,7 @@ void App::loadScene() {
                               triList->indexArray, 7, 7, Vector2(10, 10), true, 
                               false, Matrix3::identity() * 10);
 
-        triList->twoSided = true;
+        triList->twoSided = false;
 
         Material::Settings mat;
         mat.setEmissive(Color3::black());

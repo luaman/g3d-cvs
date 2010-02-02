@@ -54,9 +54,7 @@ static void renderSomething(RenderDevice* rd) {
     rd->clear();
     rd->setProjectionAndCameraMatrix(camera);
     Draw::box(Box(Vector3(-5, 3, -1), Vector3(-3, 5, 1)), rd, Color3::red(), Color3::black());
-    Draw::box(Box(Vector3(3, -5, -1), Vector3(5, -3, 1)), rd, Color3::white(), Color3::black());
-
-    
+    Draw::box(Box(Vector3(3, -5, -1), Vector3(5, -3, 1)), rd, Color3::white(), Color3::black());  
 }
 
 void drawRect(const Rect2D& rect, RenderDevice* rd) {

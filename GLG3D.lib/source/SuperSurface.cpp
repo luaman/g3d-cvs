@@ -5,7 +5,7 @@
   @created 2004-11-20
   @edited  2009-02-20
 
-  Copyright 2004-2009, Morgan McGuire
+  Copyright 2001-2010, Morgan McGuire
  */
 #include "G3D/Log.h"
 #include "GLG3D/SuperSurface.h"
@@ -1111,6 +1111,44 @@ int SuperSurface::numBoundaryEdges() const {
 int SuperSurface::numWeldedBoundaryEdges() const {
     // TODO
     return 0;
+}
+
+
+void SuperSurface::CPUGeom::copyVertexDataToGPU
+(VertexRange&               vertex, 
+ VertexRange&               normal, 
+ VertexRange&               packedTangentVAR, 
+ VertexRange&               texCoord0VAR, 
+ VertexBuffer::UsageHint    hint) {
+
+    int vtxSize = sizeof(Vector3) * geometry->vertexArray.size();
+    int texSize = sizeof(Vector2) * texCoord0->size();
+    int tanSize = sizeof(Vector4) * packedTangent->size();
+
+    if ((vertex.maxSize() >= vtxSize) &&
+        (normal.maxSize() >= vtxSize) &&
+        ((tanSize == 0) || (packedTangentVAR.maxSize() >= tanSize)) &&
+        ((texSize == 0) || (texCoord0VAR.maxSize() >= texSize))) {
+        VertexRange::updateInterleaved
+           (geometry->vertexArray,  vertex,
+            geometry->normalArray,  normal,
+            *packedTangent,         packedTangentVAR,
+            *texCoord0,             texCoord0VAR);
+
+    } else {
+
+        // Maximum round-up size of varArea.
+        int roundOff = 16;
+
+        // Allocate new VARs
+        VertexBuffer::Ref varArea = VertexBuffer::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
+        VertexRange::createInterleaved
+            (geometry->vertexArray, vertex,
+             geometry->normalArray, normal,
+             *packedTangent,        packedTangentVAR,
+             *texCoord0,            texCoord0VAR,
+             varArea);       
+    }
 }
 
 }

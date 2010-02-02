@@ -110,14 +110,19 @@ public:
         const Array<Vector2>*    texCoord0;
         
         inline CPUGeom(
-                const Array<int>* index,
-                const MeshAlg::Geometry* geometry,
-                const Array<Vector2>* texCoord0,
-                const Array<Vector4>* packedTangent = NULL) : 
+                const Array<int>*           index,
+                const MeshAlg::Geometry*    geometry,
+                const Array<Vector2>*       texCoord0,
+                const Array<Vector4>*       packedTangent = NULL) : 
             index(index), geometry(geometry), packedTangent(packedTangent), 
             texCoord0(texCoord0) {}
 
         inline CPUGeom() : index(NULL), geometry(NULL), packedTangent(NULL), texCoord0(NULL) {}
+
+        /** Updates the interleaved vertex arrays.  If they are not big enough, allocates a new vertex buffer and 
+            reallocates the vertex arrays inside them.  This is often used as a helper to convert a CPUGeom to a GPUGeom.
+         */
+        void copyVertexDataToGPU(VertexRange& vertex, VertexRange& normal, VertexRange& packedTangents, VertexRange& texCoord0, VertexBuffer::UsageHint hint);
     };
 
 protected:

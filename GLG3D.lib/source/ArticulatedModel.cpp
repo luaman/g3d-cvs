@@ -529,34 +529,8 @@ void ArticulatedModel::Part::updateVAR(VertexBuffer::UsageHint hint) {
         return;
     }
 
-    int vtxSize = sizeof(Vector3) * geometry.vertexArray.size();
-    int texSize = sizeof(Vector2) * texCoordArray.size();
-    int tanSize = sizeof(Vector4) * packedTangentArray.size();
-
-    if ((vertexVAR.maxSize() >= vtxSize) &&
-        (normalVAR.maxSize() >= vtxSize) &&
-        ((tanSize == 0) || (packedTangentVAR.maxSize() >= tanSize)) &&
-        ((texSize == 0) || (texCoord0VAR.maxSize() >= texSize))) {
-        VertexRange::updateInterleaved
-           (geometry.vertexArray, vertexVAR,
-            geometry.normalArray, normalVAR,
-            packedTangentArray,   packedTangentVAR,
-            texCoordArray,        texCoord0VAR);
-
-    } else {
-
-        // Maximum round-up size of varArea.
-        int roundOff = 16;
-
-        // Allocate new VARs
-        VertexBufferRef varArea = VertexBuffer::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
-        VertexRange::createInterleaved
-            (geometry.vertexArray, vertexVAR,
-             geometry.normalArray, normalVAR,
-             packedTangentArray,   packedTangentVAR,
-             texCoordArray,        texCoord0VAR,
-             varArea);       
-    }
+    SuperSurface::CPUGeom g(NULL, &geometry, &texCoordArray, &packedTangentArray);
+    g.copyVertexDataToGPU(vertexVAR, normalVAR, packedTangentVAR, texCoord0VAR, hint);
 
     for (int i = 0; i < triList.size(); ++i) {
         triList[i]->updateVAR(hint, vertexVAR, normalVAR, packedTangentVAR, texCoord0VAR);
