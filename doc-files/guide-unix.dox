@@ -1,8 +1,7 @@
 /** @page guideunix Installing %G3D on Linux and FreeBSD
 
 The following sections give step-by-step instructions for downloading,
-building, and installing the 8.00 version of %G3D on OS X, Linux, and
-FreeBSD.  
+building, and installing the 8.00 version of %G3D on OS X and Linux.
 
 The short version of these instructions is simple:
 
@@ -11,6 +10,7 @@ The short version of these instructions is simple:
 <li> Unzip <a
 href="http://prdownloads.sourceforge.net/g3d/G3D-8.00-src.zip?download">G3D-8.00-src.zip</a>
 <li> Type <code>buildg3d --install /usr/local update</code> to build the library
+<li> Set your G3DDATA environment variable to the <code>/usr/local/G3D/data</code> directory
 <li> See <code><a href="file:///usr/local/G3D/demos/starter/">/usr/local/G3D/demos/starter/</A></code> for a simple application framework
 </ol>
 \endhtmlonly

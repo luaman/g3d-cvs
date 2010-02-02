@@ -11,7 +11,7 @@
   determine if we can safely call the routines that use that assembly.
 
   @created 2003-01-25
-  @edited  2009-04-15
+  @edited  2010-01-03
  */
 
 #include "G3D/platform.h"
@@ -39,6 +39,8 @@
 #if defined(__i386__) || defined(__x86_64__) || defined(G3D_WIN32)
 #    define G3D_NOT_OSX_PPC
 #endif
+
+#include <cstdlib>
 
 #ifdef G3D_WIN32
 
@@ -342,6 +344,8 @@ std::string System::findDataFile
 (const std::string&  full,
  bool                errorIfNotFound) {
 
+    const char* g3dPath = getenv("G3DDATA");
+
     // Places where specific files were most recently found.  This is
     // used to cache seeking of common files.
     static Table<std::string, std::string> lastFound;
@@ -377,6 +381,10 @@ std::string System::findDataFile
     // add application specified data directory to be searched first
     pathBase.append(initialAppDataDir);
 
+    if (g3dPath != NULL) {
+        pathBase.append(pathConcat(g3dPath, ""));
+    }
+
     // try walking back along the directory tree
     std::string prev = "";
     for (int i = 0; i < backlen; ++i) {
@@ -389,7 +397,7 @@ std::string System::findDataFile
         pathBase.append(prev);
         prev = prev + "../";        
     }
-
+/*
     // Hard-code in likely install directories
     int ver = G3D_VER;
     std::string lname = format("G3D-%d.%02d", ver / 10000, (ver / 100) % 100);
@@ -435,6 +443,7 @@ std::string System::findDataFile
         pathBase.append(pathBase[i] + lname);
         pathBase.append(pathBase[i] + "G3D/");
     }
+*/
 
     Array<std::string> subDir;
     subDir.append("", "font/", "sky/", "gui/");

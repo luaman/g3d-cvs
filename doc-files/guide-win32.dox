@@ -9,6 +9,7 @@ the 8.00 version of %G3D on Windows XP, Vista, and 7.
 <ol>
 <li> Unzip <a
 href="http://prdownloads.sourceforge.net/g3d/G3D-8.00-win32.zip?download">G3D-8.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
+<li> Set your G3DDATA environment variable to the G3D/data directory.
 <li> See <code><a href="../demos/starter">G3D\demos\starter</a></code> for a simple application framework.
 </ol>
 \endhtmlonly
@@ -87,6 +88,15 @@ directory.  If you installed G3D to
 <li><p>Push <b>Ok</b> to close the <b>Options</b> dialog.</p>
 
 <li><p>Quit Visual Studio to ensure that your changes are saved.</p>
+<li><p>Set the G3DDATA environment variable to the directory containing the G3D data files (e.g., c:\G3D\data).  For instructions on setting environment variables
+for different versions of Windows, see:
+<ul>
+ <li> <a href="http://support.microsoft.com/kb/311843">Windows 2000</a>
+ <li> <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;310519">Windows XP</a>
+ <li> <a href="http://support.tabs3.com/main/R10463.htm">Windows Vista</a>
+ <li> <a href="http://www.itechtalk.com/thread3595.html">Windows 7</a>
+</ul>
+</p>
 </ol>
 
 See the <a href="guidenewwin32.html">instructions for creating a new project</a> on Windows for information about how to write your first G3D program,
