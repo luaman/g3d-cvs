@@ -198,7 +198,9 @@ CameraControlWindow::CameraControlWindow(
 
     GuiPane* filmPane = pane->addPane();
     filmPane->moveBy(-9, 2);
-    film->makeGui(filmPane, 10.0f, 290, 2);
+    if (film.notNull()) {
+        film->makeGui(filmPane, 10.0f, 290, 2);
+    }
     /////////////////////////////////////////////////////////////////////////////////////////
 
     GuiPane* manualPane = pane->addPane();
