@@ -17,6 +17,7 @@
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/MD2Model.h"
 #include "GLG3D/VertexRange.h"
+#include "GLG3D/SuperSurface.h"
 
 namespace G3D {
 
@@ -812,8 +813,7 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
         useVAR = (nextVarArea != NONE_ALLOCATED);
     }
 
-    const Array<Vector3>& vertexArray   = interpolatedFrame.vertexArray;
-    const Array<Vector3>& normalArray   = interpolatedFrame.normalArray;
+    SuperSurface::CPUGeom cpuGeom(&indexArray, &interpolatedFrame, &_texCoordArray);
 
     if (useVAR) {
 
@@ -822,15 +822,15 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
         varArea[nextVarArea]->reset();
 
         debugAssert(! varArea[nextVarArea].isNull());
-        VertexRange varTexCoord(_texCoordArray, varArea[nextVarArea]);
-        VertexRange varNormal  (normalArray,   varArea[nextVarArea]);
-        VertexRange varVertex  (vertexArray,   varArea[nextVarArea]);
+        VertexRange varTexCoord(*cpuGeom.texCoord0, varArea[nextVarArea]);
+        VertexRange varNormal  (cpuGeom.geometry->normalArray,   varArea[nextVarArea]);
+        VertexRange varVertex  (cpuGeom.geometry->vertexArray,   varArea[nextVarArea]);
         
         renderDevice->beginIndexedPrimitives();
             renderDevice->setTexCoordArray(0, varTexCoord);
             renderDevice->setNormalArray(varNormal);
             renderDevice->setVertexArray(varVertex);
-            renderDevice->sendIndices(PrimitiveType::TRIANGLES, indexArray);
+            renderDevice->sendIndices(PrimitiveType::TRIANGLES, *cpuGeom.index);
         renderDevice->endIndexedPrimitives();
         
         nextVarArea = (nextVarArea + 1) % NUM_VAR_AREAS;
@@ -850,8 +850,8 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
 
             renderDevice->beginPrimitive(primitive.type);
 
-                const Vector3* normal = normalArray.getCArray();
-                const Vector3* vertex = vertexArray.getCArray();
+                const Vector3* normal = cpuGeom.geometry->normalArray.getCArray();
+                const Vector3* vertex = cpuGeom.geometry->vertexArray.getCArray();
 
                 for (int i = 0; i < n; ++i) {
                     const int v = pvertex[i].index;
