@@ -19,42 +19,29 @@
 #include "GLG3D/Texture.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/RenderDevice.h"
-
+#include "GLG3D/Material.h"
 
 namespace G3D {
 
 /**
- Quake II model class.
+   \brief Quake II model class, primarily used for animated characters.
  <P>
- See demos/MD2Model for an example of how to use this class.
+ See demos/models for an example of how to use this class.
 
  <P>
  Models are centered about their waist.  To figure out where the feet are you
  might want to look at the bounding box for the stand/walk animations.
  
- <P>
-  When available, this class uses SSE instructions for fast vertex blending.
-  This cuts the time for getGeometry by a factor of 2.
-
  <P>This class is not threadsafe; you cannot
  even call methods on two different instances on different threads.
-
-  <P>
- The posed model supplies texture coordinates and normals when rendering
- but the caller must
- bind a texture, set the object to world matrix, and set up lighting.
- <P>
- If VertexRange has been initialized for the renderDevice, the first time
- this is called (for any Model) a 512k VertexRange area is allocated.  This
- memory is shared between all MD2 models.
- <P>
- Really huge MD2 models will not fit into this small VertexRange area and
- will revert to non-VertexRange rendering.
 
  <P>
  When getting geometry from the posed model, the normalArray 
  values are interpolated and may have slightly less than unit length.
 
+ <P>
+  When available, this class uses SSE instructions for fast vertex blending.
+  This cuts the time for getGeometry by a factor of 2 on most processors.
  */
 class MD2Model : public ReferenceCountedObject {
 public:
@@ -105,7 +92,10 @@ public:
 
         /**
          When time is negative, this frame is blended into the first
-         frame of the animation (which will occur at time 0) over PRE_BLEND_TIME.  This allows disjoint animations to be smoothly connected. 
+         frame of the animation (which will occur at time 0) over
+         PRE_BLEND_TIME.  This allows disjoint animations to be
+         smoothly connected.
+
          MD2Model::choosePose will set time to -PRE_BLEND_TIME and set preFrame. If
          you are manually constructing a pose, MD2Model::getFrameNumber
          will return a value you can use.
@@ -430,7 +420,9 @@ public:
       files are stored in two files, tris.md2 and weapon.md2.  
       You will have to load both as separate models.
 
-     @param scale Optional scale factor to apply while loading.  The scale of 1.0 is chosen so that a typical character is 2 meters tall (1/2 the default quake unit scaling)
+     @param scale Optional scale factor to apply while loading.  The
+     scale of 1.0 is chosen so that a typical character is 2 meters
+     tall (1/2 the default quake unit scaling)
      */
     static MD2Model::Ref fromFile(const std::string& filename, float scale = 1.0f);
 
@@ -438,10 +430,7 @@ public:
 
     Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose);
 
-    /** You can also pose a model without a material.  A good example of why this is useful
-        is the MD2Model_Demo, in which shadows are rendered by flattening a pose of the model.
-        The shadow should not be textured!*/
-    Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat);
+    Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose, const Material::Ref& mat);
 
     inline const Array<Vector2>& texCoordArray() const {
         return _texCoordArray;

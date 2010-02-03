@@ -18,7 +18,7 @@ private:
 
     MD2Model::Ref               md2Model;
     MD2Model::Pose              md2Pose;
-    GMaterial                   md2Material;
+    Material::Ref               md2Material;
 
     IFSModel::Ref               ifsModel;
     GMaterial                   ifsMaterial;
@@ -44,7 +44,7 @@ public:
     
     static Entity::Ref create
     (const MD2Model::Ref& model,
-     const GMaterial& material = GMaterial(),
+     const Material::Ref& material = Material::createDiffuse(Color3::white()),
      const CFrame& c = CFrame()) {
 
         Entity* e = new Entity();

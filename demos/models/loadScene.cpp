@@ -14,10 +14,15 @@ void App::loadScene() {
     // MD2
     if (true) {
         MD2Model::Ref model = MD2Model::fromFile(pathConcat(dataDir, "md2/pknight/tris.md2"));
-        Texture::Ref texture = Texture::fromFile(pathConcat(dataDir, "md2/pknight/knight.pcx"), ImageFormat::AUTO(),
-                                                 Texture::DIM_2D, Texture::Settings::defaults(), 
-                                                 Texture::Preprocess::quake());
-        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x, groundY + 0.95f, 0))));
+
+        Any lamb(Any::TABLE, "Texture::Specification");
+        lamb["filename"] = pathConcat(dataDir, "md2/pknight/knight.pcx");
+        lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");
+        Any anySpec(Any::TABLE, "Material::Specification");
+        anySpec["lambertian"] = lamb;
+        Material::Ref material = Material::create(anySpec);
+
+        entityArray.append(Entity::create(model, material, CoordinateFrame(rot180, Vector3(x, groundY + 0.95f, 0))));
         x += 2;
     }
 

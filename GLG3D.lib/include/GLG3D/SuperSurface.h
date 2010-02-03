@@ -117,12 +117,16 @@ public:
             index(index), geometry(geometry), packedTangent(packedTangent), 
             texCoord0(texCoord0) {}
 
-        inline CPUGeom() : index(NULL), geometry(NULL), packedTangent(NULL), texCoord0(NULL) {}
+        CPUGeom() : index(NULL), geometry(NULL), packedTangent(NULL), texCoord0(NULL) {}
 
-        /** Updates the interleaved vertex arrays.  If they are not big enough, allocates a new vertex buffer and 
-            reallocates the vertex arrays inside them.  This is often used as a helper to convert a CPUGeom to a GPUGeom.
+        /** Updates the interleaved vertex arrays.  If they are not
+            big enough, allocates a new vertex buffer and reallocates
+            the vertex arrays inside them.  This is often used as a
+            helper to convert a CPUGeom to a GPUGeom.
          */
-        void copyVertexDataToGPU(VertexRange& vertex, VertexRange& normal, VertexRange& packedTangents, VertexRange& texCoord0, VertexBuffer::UsageHint hint);
+        void copyVertexDataToGPU(VertexRange& vertex, VertexRange& normal, 
+                                 VertexRange& packedTangents, VertexRange& texCoord0, 
+                                 VertexBuffer::UsageHint hint);
     };
 
 protected:
@@ -135,6 +139,10 @@ protected:
     GPUGeom::Ref            m_gpuGeom;
 
     CPUGeom                 m_cpuGeom;
+
+    /** For use by classes that want the m_cpuGeom to point at
+     geometry that is deallocated with the surface.*/
+    MeshAlg::Geometry       m_internalGeometry;
 
     ReferenceCountedPointer<ReferenceCountedObject> m_source;
 
@@ -192,7 +200,26 @@ protected:
 
 public:
 
-    inline const GPUGeom::Ref& gpuGeom() const {
+    /** For use by classes that pose objects on the CPU and need a
+        place to store the geometry.  See MD2Model::pose
+        implementation for an example of how to use this.  */
+    const MeshAlg::Geometry& internalGeometry() const {
+        return m_internalGeometry;
+    }
+
+    MeshAlg::Geometry& internalGeometry() {
+        return m_internalGeometry;
+    }
+
+    GPUGeom::Ref& gpuGeom() {
+        return m_gpuGeom;
+    }
+
+    virtual CPUGeom& cpuGeom() {
+        return m_cpuGeom;
+    }
+
+    const GPUGeom::Ref& gpuGeom() const {
         return m_gpuGeom;
     }
 

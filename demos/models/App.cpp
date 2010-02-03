@@ -1,7 +1,6 @@
 /**
-  @file models/App.cpp
-
-  @author Morgan McGuire, http://graphics.cs.williams.edu
+   \file models/App.cpp
+   \author Morgan McGuire, http://graphics.cs.williams.edu
  */
 #include <G3D/G3DAll.h>
 #include "App.h"

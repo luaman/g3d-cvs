@@ -9,7 +9,7 @@
 
 #include "G3D/platform.h"
 #if defined(G3D_WIN32)
-    #include <xmmintrin.h>
+#    include <xmmintrin.h>
 #endif
 
 #include "G3D/Log.h"
@@ -451,8 +451,43 @@ Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose) {
 }
 
 
-Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat) {
-    return new PosedMD2Model(this, cframe, pose, true, mat);
+Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const Material::Ref& mat) {
+    //return new PosedMD2Model(this, cframe, pose, true, mat);
+
+    // Keep a back pointer so that the index array can't be deleted
+    SuperSurface::Ref surface = SuperSurface::create(name(), cframe, SuperSurface::GPUGeom::create(), 
+                                                     SuperSurface::CPUGeom(), this);
+
+    // Use the internal storage of the surface
+    SuperSurface::CPUGeom& cpuGeom = surface->cpuGeom();
+
+    // Need an empty array for the tangents
+    const static Array<Vector4> packedTangentArray;
+    cpuGeom.index         = &indexArray;
+    cpuGeom.geometry      = &surface->internalGeometry();
+    cpuGeom.packedTangent = &packedTangentArray;
+    cpuGeom.texCoord0     = &_texCoordArray;
+
+    getGeometry(pose, *const_cast<MeshAlg::Geometry*>(cpuGeom.geometry));
+
+    
+    // Upload data to the GPU
+    SuperSurface::GPUGeom::Ref gpuGeom = surface->gpuGeom();
+    cpuGeom.copyVertexDataToGPU(gpuGeom->vertex, gpuGeom->normal, gpuGeom->packedTangent, 
+                                gpuGeom->texCoord0, VertexBuffer::WRITE_EVERY_FRAME);
+
+    // TODO: Upload and store this only once
+    VertexBuffer::Ref indexBuffer = VertexBuffer::create(indexArray.size() * sizeof(int), VertexBuffer::WRITE_ONCE, VertexBuffer::INDEX);
+    gpuGeom->index = VertexRange(indexArray, indexBuffer);
+
+    // TODO: this isn't conservative when blending between animations; we should
+    // take the max of both
+    gpuGeom->boxBounds = animationBoundingBox[iAbs(pose.animation)];
+    gpuGeom->sphereBounds = animationBoundingSphere[iAbs(pose.animation)];
+
+    gpuGeom->material = mat;
+
+    return surface;
 }
 
 
