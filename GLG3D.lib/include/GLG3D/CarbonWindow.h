@@ -175,6 +175,8 @@ private:
 
 public:
 
+    static Vector2 screenSize();
+
     static CarbonWindow* create(const GWindow::Settings& settings = GWindow::Settings());
     
     static CarbonWindow* create(const GWindow::Settings& settings, WindowRef window);

@@ -22,6 +22,16 @@
 
 namespace G3D {
 
+Vector2 OSWindow::screenSize() {
+#   ifdef G3D_WIN32
+        return Win32Window::screenSize();
+#   elif defined(G3D_OSX)
+        return CarbonWindow::screenSize();
+#   else
+        return SDLWindow::screenSize();
+#   endif
+}
+
 OSWindow* OSWindow::create(const OSWindow::Settings& s) {
 #   ifdef G3D_WIN32
         return Win32Window::create(s);

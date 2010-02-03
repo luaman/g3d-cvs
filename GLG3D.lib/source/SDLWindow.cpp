@@ -23,6 +23,23 @@
 
 namespace G3D {
 
+bool sdlAlreadyInitialized = false;
+
+static void doSDLInit() {
+    if (!sdlAlreadyInitialized) {
+        if (SDL_Init(SDL_INIT_NOPARACHUTE | 
+            SDL_INIT_VIDEO |
+            SDL_INIT_JOYSTICK) < 0 ) {
+
+            fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
+            debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
+            Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
+            exit(1);
+        }
+        sdlAlreadyInitialized = true;
+    }
+}
+
 int screenWidth(Display* display) {
     const int screenNumber = DefaultScreen(display);
     return DisplayWidth(display, screenNumber);
@@ -61,6 +78,16 @@ static bool SDL_handleErrorCheck_(
     return _internal::_handleErrorCheck_(expression, message, filename, lineNumber, useGuiPrompt);
 }
 
+Vector2 SDLWindow::screenSize() {
+    doSDLInit();
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    SDL_GetWMInfo(&info);
+    Display* X11Display = info.info.x11.display;
+    int width  = screenWidth (X11Display);
+    int height = screenHeight(X11Display);
+    return G3D::Vector2(width,height);
+}
 
 SDLWindow* SDLWindow::create(const OSWindow::Settings& settings) {
 
@@ -73,15 +100,7 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
     m_settings = settings;
 
-    if (SDL_Init(SDL_INIT_NOPARACHUTE | 
-        SDL_INIT_VIDEO |
-        SDL_INIT_JOYSTICK) < 0 ) {
-
-        fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
-        debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
-        Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
-        exit(1);
-    }
+    doSDLInit();
 
     // Set default icon if available
     if (!m_settings.defaultIconFilename.empty()) {
@@ -268,6 +287,7 @@ SDLWindow::~SDLWindow() {
     m_joy.clear();
 
     SDL_Quit();
+    sdlAlreadyInitialized = false;
 }
 
 

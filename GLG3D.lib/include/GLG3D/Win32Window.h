@@ -110,6 +110,8 @@ private:
 
 public:
 
+    static Vector2 screenSize();
+
     /** Different subclasses will be returned depending on
         whether DirectInput8 is available. You must delete 
         the window returned when you are done with it. */

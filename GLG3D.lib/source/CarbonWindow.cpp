@@ -383,7 +383,6 @@ void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) 
     enableJoysticks();
 }
 
-
 void CarbonWindow::createShareWindow(GWindow::Settings s) {
     static bool initialized = false;
     
@@ -595,6 +594,13 @@ CarbonWindow::CarbonWindow(
 }
     
 CarbonWindow::CarbonWindow(const GWindow::Settings& s, WindowRef window) : _createdWindow(false) {
+}
+
+Vector2 CarbonWindow::screenSize() {
+    CGRect rScreen = CGDisplayBounds(kCGDirectMainDisplay);
+    int width  = rScreen.size.width;
+    int height = rScreen.size.height;
+    return G3D::Vector2(width,height);
 }
 
 #pragma mark Public - CarbonWindow Creation:

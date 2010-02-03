@@ -273,6 +273,13 @@ Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(f
 }
 
 
+Vector2 Win32Window::screenSize() {
+    int width  = GetSystemMetrics(SM_CXFULLSCREEN);
+    int height = GetSystemMetrics(SM_CYFULLSCREEN);
+    return G3D::Vector2( width, height );
+}
+
+
 Win32Window* Win32Window::create(const OSWindow::Settings& settings) {
 
     // Create Win32Window which uses DI8 joysticks but WM_ keyboard messages

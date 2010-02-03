@@ -70,6 +70,8 @@ protected:
 
 public:
 
+    static Vector2 screenSize();
+
     static SDLWindow* create(const OSWindow::Settings& settings = OSWindow::Settings());
 
     SDLWindow(const OSWindow::Settings& settings);
@@ -127,6 +129,8 @@ public:
 
 //    virtual void makeCurrent() const;
 };
+
+extern bool sdlAlreadyInitialized;
 
 } // namespace
 

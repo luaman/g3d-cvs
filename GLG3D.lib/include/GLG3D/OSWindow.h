@@ -269,6 +269,8 @@ protected:
 
 public:
 
+    static Vector2 screenSize();
+
     /** Creates the default instance for this platform:
         Linux/FreeBSD - SDLWindow
         OS X - CarbonWindow
@@ -584,6 +586,10 @@ public:
     }
 
 };
+
+/** Reports the dimensions of the primary display at any time,
+    with or without any open windows. */
+inline Vector2 screenSize() { return OSWindow::screenSize(); }
 
 /** @deprecated */
 typedef OSWindow GWindow;
