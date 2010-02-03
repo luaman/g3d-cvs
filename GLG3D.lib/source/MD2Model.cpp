@@ -63,6 +63,7 @@ const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] =
 MD2Model::Ref MD2Model::fromFile(const std::string& filename, float s) {
     MD2Model* model = new MD2Model();
     model->load(filename, s);
+
     return model;
 }
 
@@ -476,9 +477,7 @@ Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, con
     cpuGeom.copyVertexDataToGPU(gpuGeom->vertex, gpuGeom->normal, gpuGeom->packedTangent, 
                                 gpuGeom->texCoord0, VertexBuffer::WRITE_EVERY_FRAME);
 
-    // TODO: Upload and store this only once
-    VertexBuffer::Ref indexBuffer = VertexBuffer::create(indexArray.size() * sizeof(int), VertexBuffer::WRITE_ONCE, VertexBuffer::INDEX);
-    gpuGeom->index = VertexRange(indexArray, indexBuffer);
+    gpuGeom->index = indexVAR;
 
     // TODO: this isn't conservative when blending between animations; we should
     // take the max of both

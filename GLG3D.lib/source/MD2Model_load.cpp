@@ -293,6 +293,10 @@ void MD2Model::load(const std::string& filename, float resize) {
 
     numBoundaryEdges = MeshAlg::countBoundaryEdges(edgeArray);
     numWeldedBoundaryEdges = MeshAlg::countBoundaryEdges(weldedEdgeArray);
+
+    VertexBuffer::Ref indexBuffer = 
+        VertexBuffer::create(indexArray.size() * sizeof(int), VertexBuffer::WRITE_ONCE, VertexBuffer::INDEX);
+    indexVAR = VertexRange(indexArray, indexBuffer);
 }
 
 

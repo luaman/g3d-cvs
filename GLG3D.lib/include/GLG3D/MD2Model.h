@@ -404,6 +404,7 @@ protected:
     int                         numBoundaryEdges;
     int                         numWeldedBoundaryEdges;
     std::string                 _name;
+    VertexRange                 indexVAR;
 
 public:
 
