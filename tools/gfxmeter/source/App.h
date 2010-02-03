@@ -13,15 +13,17 @@ public:
     CoordinateFrame     cframe;
     MD2Model::Ref       model;
     MD2Model::Pose      pose;
-    GMaterial           material;
+    Material::Ref       material;
 
     void load(const std::string& filename) {
-        model = MD2Model::fromFile(filename + ".md2");
+        model = MD2Model::fromFile(filename + ".md2", 2.0f);
 
-	    Texture::Preprocess preprocess;
-        preprocess.modulate = Color4::one() * 2.0f;
-        material.texture.append(Texture::fromFile(filename + ".pcx", 
-            ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preprocess));
+        Any lamb(Any::TABLE, "Texture::Specification");
+        lamb["filename"] = filename + ".pcx";
+        lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");
+        Any anySpec(Any::TABLE, "Material::Specification");
+        anySpec["lambertian"] = lamb;
+        material = Material::create(anySpec);
     }
 
     void render(RenderDevice* rd) {
