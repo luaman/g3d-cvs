@@ -29,7 +29,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 	
 	//the equivalent of tris.md2 is stored in filename
 	models.push(MD2Model::fromFile(filename));
-	materials.push(GMaterial());
+    materials.push(Material::createDiffuse(Color3::white()));
 
 	std::string resourceDir = filenamePath(filename);
 
@@ -74,13 +74,16 @@ void MD2Viewer::onInit(const std::string& filename) {
 		}
 	}
 
-	if (desiredTexture != "") {
-        p.modulate = Color4::one() * (endsWith(toLower(desiredTexture), ".pcx") ? 2.0f : 1.0f);
-		materials[0].texture.push(Texture::fromFile(desiredTexture,
-													ImageFormat::AUTO(),
-													Texture::DIM_2D,
-													Texture::Settings::defaults(),
-													p));
+
+    if (desiredTexture != "") {
+        Any lamb(Any::TABLE, "Texture::Specification");
+        lamb["filename"] = desiredTexture;
+        if (endsWith(toLower(desiredTexture), ".pcx")) {
+            lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");
+        }
+        Any anySpec(Any::TABLE, "Material::Specification");
+        anySpec["lambertian"] = lamb;
+		materials[0] = Material::create(anySpec);
 	}
 	
 	// If there is a weapon.md2 file and that wasn't the file that was explicitly 
@@ -88,16 +91,16 @@ void MD2Viewer::onInit(const std::string& filename) {
 	// loaded, above
 	if (validWeapon){
 		models.push(MD2Model::fromFile(resourceDir + "weapon.md2"));
-		materials.push(GMaterial());
+        materials.push(Material::createDiffuse(Color3::white()));
 	}
 
 	if (fileExists(resourceDir + "weapon.pcx") && validWeapon){
-        p.modulate = Color4::one() * 2.0f;
-		materials[1].texture.push(Texture::fromFile(resourceDir + "weapon.pcx",
-													ImageFormat::AUTO(),
-													Texture::DIM_2D,
-													Texture::Settings::defaults(),
-													p));
+        Any lamb(Any::TABLE, "Texture::Specification");
+        lamb["filename"] = resourceDir + "weapon.pcx";
+        lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");
+        Any anySpec(Any::TABLE, "Material::Specification");
+        anySpec["lambertian"] = lamb;
+        materials[1] = Material::create(anySpec);
     }
 
 	textureName = filenameBaseExt(desiredTexture);

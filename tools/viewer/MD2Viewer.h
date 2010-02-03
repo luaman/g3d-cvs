@@ -3,11 +3,10 @@
  
  Viewer for Quake2 .md2 models
  
- @maintainer Eric Muller 09edm@williams.edu
  @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
  @created 2007-05-31
- @edited  2007-06-08
+ @edited  2010-02-08
  */
 #ifndef MD2VIEWER_H
 #define MD2VIEWER_H
@@ -18,10 +17,10 @@
 
 class MD2Viewer : public Viewer {
 private:
-    Array<MD2Model::Ref>  models;
-    Array<Surface::Ref>   posed;
-    Array<GMaterial>	  materials;
-    MD2Model::Pose        currentPose;
+    Array<MD2Model::Ref>        models;
+    Array<Surface::Ref>         posed;
+    Array<Material::Ref>        materials;
+    MD2Model::Pose              currentPose;
 
     bool						validWeapon;
     std::string					textureName;
