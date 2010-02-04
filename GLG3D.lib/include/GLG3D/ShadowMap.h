@@ -57,7 +57,10 @@ protected:
 
     ShadowMap(const std::string& name);
 
+    /** Calls the other method of the same name multiple times with appropriate culling faces and polygon offsets */
     void renderDepthOnly(RenderDevice* renderDevice, const Array< ReferenceCountedPointer<Surface> >& shadowCaster, RenderDevice::CullFace cullFace) const;
+
+    virtual void renderDepthOnly(RenderDevice* renderDevice, const Array< ReferenceCountedPointer<Surface> >& shadowCaster, RenderDevice::CullFace cullFace, float polygonOffset) const;
 
 public:
 

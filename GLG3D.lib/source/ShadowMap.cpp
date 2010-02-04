@@ -200,23 +200,24 @@ void ShadowMap::updateDepth
 }
 
 
+void ShadowMap::renderDepthOnly(RenderDevice* renderDevice, const Array<Surface::Ref>& shadowCaster, RenderDevice::CullFace cullFace, float polygonOffset) const {
+    renderDevice->setPolygonOffset(polygonOffset);
+    Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+}
+
+
 void ShadowMap::renderDepthOnly(RenderDevice* renderDevice, const Array<Surface::Ref>& shadowCaster, RenderDevice::CullFace cullFace) const {
     debugAssertGLOk();
     if (cullFace == RenderDevice::CULL_BACK) {
-        renderDevice->setPolygonOffset(m_polygonOffset);
-        Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        renderDepthOnly(renderDevice, shadowCaster, cullFace, m_polygonOffset);
     } else if (cullFace == RenderDevice::CULL_FRONT) {
-        renderDevice->setPolygonOffset(m_backfacePolygonOffset);
-        Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        renderDepthOnly(renderDevice, shadowCaster, cullFace, m_backfacePolygonOffset);
     } else if (m_backfacePolygonOffset == m_polygonOffset) {
-        renderDevice->setPolygonOffset(m_polygonOffset);
-        Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        renderDepthOnly(renderDevice, shadowCaster, cullFace, m_polygonOffset);
     } else {
         // Different culling values
-        renderDevice->setPolygonOffset(m_polygonOffset);
-        Surface::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_BACK);
-        renderDevice->setPolygonOffset(m_backfacePolygonOffset);
-        Surface::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT);
+        renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_BACK, m_polygonOffset);
+        renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT, m_backfacePolygonOffset);
     }
 
     debugAssertGLOk();
