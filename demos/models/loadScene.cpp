@@ -56,13 +56,6 @@ void App::loadScene() {
         x += 2;
     }
 
-    // IFSModel (note that IFS files can be loaded with ArticulatedModel and will render better)
-    if (false) {
-        IFSModelRef model = IFSModel::fromFile(System::findDataFile("cow.ifs"));
-        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,2))));
-        x += 2;
-    }
-
     // Reflective object
     if (false) {
         std::string filename = System::findDataFile("cow.ifs");
@@ -74,6 +67,41 @@ void App::loadScene() {
         spec.setShininess(SuperBSDF::packedSpecularMirror());
 
         model->partArray[0].triList[0]->material = Material::create(spec);
+        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
+        x += 2;
+    }
+
+    // Transmissive object
+    if (true) {
+        std::string filename = System::findDataFile("sphere.ifs");
+        Material::Specification glass;
+        glass.setLambertian(Color3::zero());
+        glass.setTransmissive(Color3::green() * 0.9f);
+        glass.setSpecular(Color3::white() * 0.05f);
+        glass.setGlossyExponentShininess(200);
+        glass.setEta(1.5f, 1.0f);
+        glass.setRefractionHint(RefractionQuality::DYNAMIC_FLAT);
+
+        ArticulatedModel::Preprocess p;
+        p.materialOverride = Material::create(glass);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile(filename, p);
+
+        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
+        x += 2;
+    }
+
+    // Partial coverage object
+    if (false) {
+        std::string filename = System::findDataFile("sphere.ifs");
+        Material::Specification tissue;
+        tissue.setLambertian(Color4(Color3::white() * 0.8f,0.5f));
+        tissue.setSpecular(Color3::white() * 0.05f);
+        tissue.setGlossyExponentShininess(10);
+
+        ArticulatedModel::Preprocess p;
+        p.materialOverride = Material::create(tissue);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile(filename, p);
+
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
         x += 2;
     }

@@ -11,11 +11,11 @@
   - World-space Position
   - World-space unit Normal (after bump map, if applied)
  */
-varying vec3      position;
-varying vec3      normal;
+varying vec3        position;
+varying vec3        normal;
 
 uniform sampler2D   lambertianMap;
-uniform vec3        lambertianConstant;
+uniform vec4        lambertianConstant;
 
 uniform sampler2D   specularMap;
 // Contains specular exponent/128 in alpha channel
@@ -28,7 +28,7 @@ uniform float       eta;
 
 void main(void) {
 
-    vec4 lambertian   = texture2D(lambertianMap, gl_TexCoord[g3d_Index(lambertianMap)].xy)     * vec4(lambertianConstant, 1.0);
+    vec4 lambertian   = texture2D(lambertianMap, gl_TexCoord[g3d_Index(lambertianMap)].xy)     * lambertianConstant;
     vec4 specular     = texture2D(specularMap, gl_TexCoord[g3d_Index(specularMap)].xy)         * specularConstant;
     vec3 transmissive = texture2D(transmissiveMap, gl_TexCoord[g3d_Index(specularMap)].xy).rgb * transmissiveConstant;
 

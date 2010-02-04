@@ -65,6 +65,6 @@ void main(void) {
 
     shadowCoord      = lightMVP * vec4(wsPosition, 1.0);
 
-    texCoord         = (gl_TextureMatrix[0] * gl_MultiTexCoord0).st;
+    texCoord         = gl_MultiTexCoord0.st;
     gl_Position      = ftransform();
 }

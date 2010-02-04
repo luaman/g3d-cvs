@@ -16,6 +16,12 @@ varying vec3 csN_raw;
 
 uniform vec2 backSizeMeters;
 
+uniform sampler2D lambertianMap;
+uniform vec4      lambertianConstant;
+
+/** Texture coordinate */
+varying vec2 texCoord;
+
 bool totalInternalRefraction(in vec3 v) {
     return dot(v, v) <= 0.01;
 }
@@ -53,4 +59,6 @@ void main(void) {
         }
         gl_FragColor.rgb = texture2D(background, texCoord).rgb;
     }
+
+    gl_FragColor.a = texture2D(lambertianMap, texCoord).a * lambertianConstant.a;
 }

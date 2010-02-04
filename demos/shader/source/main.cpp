@@ -152,7 +152,7 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
 
     // Process the installed widgets.
 
-    Array<Surface::Ref> opaque, transparent; 
+    Array<Surface::Ref> translucent; 
 
     // Use fixed-function lighting for the 3D widgets for convenience.
     rd->pushState();
@@ -163,21 +163,21 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
         // 3D
         if (posed3D.size() > 0) {
             Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
-            Surface::sort(posed3D, lookVector, opaque, transparent);
+            Surface::extractTranslucent(posed3D, translucent, false);
+            Surface::sortFrontToBack(posed3D, lookVector);
+            Surface::sortBackToFront(translucent, lookVector);
 
-            for (int i = 0; i < opaque.size(); ++i) {
-                opaque[i]->render(renderDevice);
+            for (int i = 0; i < posed3D.size(); ++i) {
+                posed3D[i]->render(renderDevice);
             }
 
-            for (int i = 0; i < transparent.size(); ++i) {
-                transparent[i]->render(renderDevice);
+            for (int i = 0; i < translucent.size(); ++i) {
+                translucent[i]->render(renderDevice);
             }
         }
     rd->popState();
 
     Surface2D::sortAndRender(rd, posed2D);
-
-    sky->renderLensFlare(rd, localSky);
 }
 
 void App::configureShaderArgs(const LightingRef lighting) {

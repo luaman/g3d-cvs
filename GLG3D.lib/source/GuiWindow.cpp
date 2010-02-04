@@ -520,24 +520,10 @@ void GuiWindow::Modal::oneFrame() {
 
         renderDevice->pushState();
         {
-            Array<Surface::Ref> posedArray, opaque, transparent; 
+            Array<Surface::Ref> posedArray; 
             Array<Surface2DRef> posed2DArray;
 
             manager->onPose(posedArray, posed2DArray);
-
-            // 3D
-            if (posedArray.size() > 0) {
-                Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
-                Surface::sort(posedArray, lookVector, opaque, transparent);
-                
-                for (int i = 0; i < opaque.size(); ++i) {
-                    opaque[i]->render(renderDevice);
-                }
-                
-                for (int i = 0; i < transparent.size(); ++i) {
-                    transparent[i]->render(renderDevice);
-                }
-            }
             
             if (posed2DArray.size() > 0) {
                 renderDevice->push2D();

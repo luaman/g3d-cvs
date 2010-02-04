@@ -2,8 +2,12 @@
 varying vec3 csPos;
 varying vec3 csN_raw;
 
+/** Texture coordinate */
+varying vec2 texCoord;
+
 void main(void) {
-    csN_raw = gl_NormalMatrix    * gl_Normal;
-    csPos   = (gl_ModelViewMatrix * gl_Vertex).xyz;
+    csN_raw     = gl_NormalMatrix     * gl_Normal;
+    csPos       = (gl_ModelViewMatrix * gl_Vertex).xyz;
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    texCoord    = gl_MultiTexCoord0.st;
 }

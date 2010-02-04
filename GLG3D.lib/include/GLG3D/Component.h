@@ -278,6 +278,16 @@ private:
         }
     }
 
+    static float alpha(const Color1& c) {
+        return 1.0;
+    }
+    static float alpha(const Color3& c) {
+        return 1.0;
+    }
+    static float alpha(const Color4& c) {
+        return c.a;
+    }
+
 public:
 
     /** All zero */
@@ -413,6 +423,11 @@ public:
     /** Says nothing about the alpha channel */
     inline bool notBlack() const {
         return factors() != BLACK;
+    }
+
+    /** Returns true if there is non-unit alpha. */
+    inline bool nonUnitAlpha() const {
+        return (alpha(m_min) != 1.0f);
     }
 
     /** Says nothing about the alpha channel */

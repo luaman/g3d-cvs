@@ -265,15 +265,10 @@ public:
 
     /** Called by Surface.
 	 
-        Removes the opaque SuperSurfaces from array @a all and appends
-        them to the opaqueAmodels array (transparents must be rendered
-        inline with other model types).  This produces an array for
-        the array versions of renderNonShadowed and
-        renderShadowMappedLightPass.
+        Removes the SuperSurfaces from array @a all and appends
+        them to the \a super array.
         */
-    static void extractOpaque(
-        Array<Surface::Ref>& all, 
-        Array<Surface::Ref>& genericModels);
+    static void extract(Array<Surface::Ref>& all, Array<Surface::Ref>& super);
 
     /** Returns a measure of the capabilities of this machine. This is
         computed during the first rendering and cached. */
@@ -305,7 +300,9 @@ public:
 
     virtual std::string name() const;
 
-    virtual bool hasTransparency() const;
+    virtual bool hasTransmission() const;
+
+    virtual bool hasPartialCoverage() const;
 
     virtual void getCoordinateFrame(CoordinateFrame& c) const;
 

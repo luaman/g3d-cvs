@@ -65,7 +65,8 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& posed3D) {
         sky->render(rd, skyParameters);
     }
     
-    Surface::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
+    Surface::sortAndRender(rd, defaultCamera, posed3D, lighting, Array<ShadowMap::Ref>(shadowMap), 
+        Array<SuperShader::Pass::Ref>(), Surface::ALPHA_BLEND);
 
     /*
     // See bounding volumes:
@@ -73,7 +74,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& posed3D) {
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
     */
-    Draw::axes(CFrame(Vector3(0,-0.9,0)), rd);
+    Draw::axes(CFrame(Vector3(0,-0.9f,0)), rd);
 
     rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0.0f);
     Draw::lighting(lighting, rd, false);

@@ -105,14 +105,14 @@ void Material::setStorage(ImageStorage s) const {
 
 void Material::configure(VertexAndPixelShader::ArgList& args) const {
 
-    if (m_bsdf->lambertian().notBlack()) {
+    if (m_bsdf->lambertian().notBlack() || m_bsdf->lambertian().nonUnitAlpha()) {
         if (m_bsdf->lambertian().texture().notNull()) {
             args.set("lambertianMap",            m_bsdf->lambertian().texture());
             if (m_bsdf->lambertian().constant() != Color4::one()) {
-                args.set("lambertianConstant",   m_bsdf->lambertian().constant().rgb());
+                args.set("lambertianConstant",   m_bsdf->lambertian().constant());
             }
         } else {
-            args.set("lambertianConstant",       m_bsdf->lambertian().constant().rgb());
+            args.set("lambertianConstant",       m_bsdf->lambertian().constant());
         }
     }
 
@@ -156,7 +156,7 @@ void Material::configure(VertexAndPixelShader::ArgList& args) const {
 void Material::computeDefines(std::string& defines) const {
     // Set diffuse if not-black or if there is an alpha mask
 
-    if (m_bsdf->lambertian().notBlack()) {
+    if (m_bsdf->lambertian().notBlack() || m_bsdf->lambertian().nonUnitAlpha()) {
         if (m_bsdf->lambertian().texture().notNull()) {
             defines += "#define LAMBERTIANMAP\n";
             if (m_bsdf->lambertian().constant() != Color4::one()) {

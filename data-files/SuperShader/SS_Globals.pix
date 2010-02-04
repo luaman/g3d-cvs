@@ -43,7 +43,7 @@ uniform vec4        lightAttenuation0;
 #endif
 
 #ifdef LAMBERTIANCONSTANT
-    uniform vec3        lambertianConstant;
+    uniform vec4        lambertianConstant;
 #endif
 
 #ifdef LAMBERTIANMAP

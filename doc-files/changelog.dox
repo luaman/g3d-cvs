@@ -19,6 +19,7 @@
      <li> G3D::Any replaces G3D::AnyVal
      <li> System::findDataFile no longer scans all disk drives; instead it checks the G3DDATA environment variable
      <li> G3D::Texture::createColor
+     <li> G3D::Surface::AlphaMode
      <li> Tuned bloom appearance under G3D::Film
      <li> G3D::SuperShader::configureSingleLightShaderArgs
      <li> G3D::VideoRecordDialog now exposes quality setting in both GUI and code
@@ -57,7 +58,7 @@
      <li> G3D::CameraControlWindow can now copy camera position to clipboard in CFrame constructor format
      <li> G3D::VideoRecordDialog now puts date before program name
      <li> G3D::Matrix4::getPerspectiveProjectionParameters
-     <li> G3D::Surface::renderTransparents; G3D::Surface::sortAndRender now performs refraction
+     <li> G3D::Surface::renderTransmissives; G3D::Surface::sortAndRender now performs refraction
      <li> G3D::RefractionQuality, G3D::MirrorQuality, G3D::PrimitiveType
      <li> G3D::ThirdPersonManipulator now draws hidden lines
      <li> G3D::GBuffer
@@ -181,12 +182,15 @@
      <li> Fix: Cube map faces that are too large for the GPU are automatically rescaled on load by Texture
      <li> Fix: G3D::Draw::lighting now renders shadow casting lights as well
      <li> Fix: G3D::RenderDevice now handles textures up to 16 correctly while leaving texture units, coords and matrics at 8
+     <li> Fix: Alpha cutout for transmissive surfaces
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
      <li> G3D::Texture::Preprocess::brighten -> G3D::Texture::Preprocess::modulate 
+     <li> Surface::renderTransmissives -> G3D::Surface::renderTransmissives
+     <li> Surface::hasTransparency -> Surface::hasTransmission + Surface::hasPartialCoverage, to support varying partial coverage modes
      <li> SuperBSDF::packSpecularExponent now uses a nonlinear scale between 0 and 1025
      <li> G3D::MD2Model::create scale is now 1/2 the quake scale, so that a typical character is 2 meters tall
      <li> Removed G3D::Texture::invertY (See G3D::RenderDevice::invertY)

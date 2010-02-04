@@ -109,9 +109,9 @@ const char* toString(SuperSurface::GraphicsProfile p) {
 
 
 void SuperSurface::renderNonShadowed(
-    const Array<Surface::Ref>& posedArray, 
-    RenderDevice* rd, 
-    const LightingRef& lighting) {
+    const Array<Surface::Ref>&      posedArray, 
+    RenderDevice*                   rd, 
+    const LightingRef&              lighting) {
 
     if (posedArray.size() == 0) {
         return;
@@ -122,8 +122,12 @@ void SuperSurface::renderNonShadowed(
         return;
     }
 
+    RenderDevice::BlendFunc srcBlend;
+    RenderDevice::BlendFunc dstBlend;
+    RenderDevice::BlendEq   blendEq;
+    rd->getBlendFunc(srcBlend, dstBlend, blendEq);
+
     rd->pushState();
-        rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
         bool originalDepthWrite = rd->depthWrite();
 
         // Lighting will be turned on and off by subroutines
@@ -149,7 +153,7 @@ void SuperSurface::renderNonShadowed(
                 "SuperSurface::renderNonShadowed, which is intended exclusively for opaque objects.");
 
             // Alpha blend will be changed by subroutines so we restore it for each object
-            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+            rd->setBlendFunc(srcBlend, dstBlend, blendEq);
             rd->setDepthWrite(originalDepthWrite);
 
             if (posed->m_gpuGeom->twoSided) {
@@ -196,10 +200,10 @@ void SuperSurface::renderNonShadowed(
 
 
 void SuperSurface::renderShadowMappedLightPass
-(const Array<Surface::Ref>& posedArray, 
- RenderDevice* rd, 
- const GLight& light, 
- const ShadowMap::Ref& shadowMap) {
+(const Array<Surface::Ref>&     posedArray, 
+ RenderDevice*                  rd, 
+ const GLight&                  light, 
+ const ShadowMap::Ref&          shadowMap) {
     
     if (posedArray.size() == 0) {
         return;
@@ -209,8 +213,6 @@ void SuperSurface::renderShadowMappedLightPass
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
 
         rd->setCullFace(RenderDevice::CULL_BACK);
-
-        rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         for (int i = 0; i < posedArray.size(); ++i) {
             const SuperSurface::Ref& posed    = posedArray[i].downcast<SuperSurface>();
@@ -268,18 +270,18 @@ void SuperSurface::renderShadowMappedLightPass
  }
 
 
-void SuperSurface::extractOpaque(
+void SuperSurface::extract(
     Array<Surface::Ref>&   all, 
-    Array<Surface::Ref>&   opaqueGeneric) {
+    Array<Surface::Ref>&   super) {
     
     for (int i = 0; i < all.size(); ++i) {
         ReferenceCountedPointer<SuperSurface> m = 
             dynamic_cast<SuperSurface*>(all[i].pointer());
 
-        if (m.notNull() && ! m->hasTransparency()) {
+        if (m.notNull()) {
             // This is a most-derived subclass and is opaque
 
-            opaqueGeneric.append(m);
+            super.append(m);
             all.fastRemove(i);
             // Iterate over again
             --i;
@@ -393,12 +395,21 @@ bool SuperSurface::renderNonShadowedOpaqueTerms(
 
 bool SuperSurface::renderPS20NonShadowedOpaqueTerms(
     RenderDevice*                           rd,
-    const Lighting::Ref&                      lighting) const {
+    const Lighting::Ref&                    lighting) const {
 
     const Material::Ref& material = m_gpuGeom->material;
     const SuperBSDF::Ref&     bsdf = material->bsdf();
 
-    if (! (bsdf->hasReflection() || (m_gpuGeom->material->emissive().notBlack() && ! lighting->emissiveScale.isZero()))) {
+
+    RenderDevice::BlendFunc srcBlend;
+    RenderDevice::BlendFunc dstBlend;
+    RenderDevice::BlendEq   blendEq;
+    rd->getBlendFunc(srcBlend, dstBlend, blendEq);
+
+    // Note that partial coverage surfaces must always be rendered opaquely, even if black, because
+    // the alpha value may affect the image.
+    if (! ((bsdf->hasReflection() || (srcBlend != RenderDevice::BLEND_ONE))
+        || (m_gpuGeom->material->emissive().notBlack() && ! lighting->emissiveScale.isZero()))) {
         // Nothing to draw
         return false;
     }
@@ -411,7 +422,6 @@ bool SuperSurface::renderPS20NonShadowedOpaqueTerms(
         rd->setShader(SuperShader::NonShadowedPass::instance()->getConfiguredShader(*(m_gpuGeom->material), rd->cullFace()));
 
         sendGeometry2(rd);
-        return true;
 
     } else {
 
@@ -444,7 +454,7 @@ bool SuperSurface::renderPS20NonShadowedOpaqueTerms(
         if (numLights > SuperShader::NonShadowedPass::LIGHTS_PER_PASS) {
             // Add extra lighting terms
             rd->pushState();
-            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+            rd->setBlendFunc(RenderDevice::BLEND_CURRENT, RenderDevice::BLEND_ONE);
             rd->setDepthWrite(false);
             rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
             for (int L = SuperShader::NonShadowedPass::LIGHTS_PER_PASS; 
@@ -549,7 +559,7 @@ bool SuperSurface::renderFFNonShadowedOpaqueTerms(
 
         if (renderedOnce) {
             // Make sure we add this pass to the previous already-rendered terms
-            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+            rd->setBlendFunc(RenderDevice::BLEND_CURRENT, RenderDevice::BLEND_ONE);
         }
 
         sendGeometry2(rd);
@@ -601,7 +611,7 @@ bool SuperSurface::renderPS14NonShadowedOpaqueTerms(
     // arg1 = texture0
 
 
-    bool hasDiffuse = ! bsdf->lambertian().isBlack();
+    bool hasDiffuse = bsdf->lambertian().notBlack() || bsdf->lambertian().nonUnitAlpha();
     bool hasReflection = mirrorReflectiveFF(bsdf) && 
             lighting.notNull() &&
             (lighting->environmentMapColor != Color3::black());
@@ -621,7 +631,7 @@ bool SuperSurface::renderPS14NonShadowedOpaqueTerms(
 
             // Add ambient + lights
             rd->enableLighting();
-            if (! bsdf->lambertian().isBlack() || hasGlossy) {
+            if (bsdf->lambertian().notBlack() || hasGlossy || bsdf->lambertian().nonUnitAlpha()) {
                 rd->setTexture(nextUnit, bsdf->lambertian().texture());
                 rd->setColor(bsdf->lambertian().constant());
 
@@ -745,7 +755,6 @@ void SuperSurface::renderNonShadowed
 
     if (! bsdf->transmissive().isBlack()) {
         rd->pushState();
-            rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5f);
             // Transparent
             bool oldDepthWrite = rd->depthWrite();
 
@@ -988,8 +997,13 @@ std::string SuperSurface::name() const {
 }
 
 
-bool SuperSurface::hasTransparency() const {
+bool SuperSurface::hasTransmission() const {
     return ! m_gpuGeom->material->bsdf()->transmissive().isBlack();
+}
+
+
+bool SuperSurface::hasPartialCoverage() const {
+    return m_gpuGeom->material->bsdf()->lambertian().nonUnitAlpha();
 }
 
 

@@ -33,7 +33,7 @@ void main(void) {
 #       endif
         ;
 
-    float shadow;
+    float shadow = 0.0;
     
     // Test whether we are within a spotlight's cone. 
     vec3 wsL = normalize(lightPosition0.xyz - wsPosition.xyz * lightPosition0.w);
@@ -95,19 +95,9 @@ void main(void) {
             float(all(bvec4(greaterThanEqual(projShadowCoord.xy, -s.xy),
                             lessThanEqual(projShadowCoord.xy, vec2(1.0, 1.0) + s.xy))));
 
-    } else {
-        // Outside spotlight cone
-        shadow = 0.0;
     }
 
-    if (shadow == 0.0
-#       ifdef LAMBERTIANMAP
-             || lambertianColor.a < 0.5
-#endif
-        ) {
-        // Either a pixel totally in shadow or one that will be
-        // culled by the alpha blender anyway.  Stop computing here
-        // before we perform additional texture lookups.
+    if (shadow == 0.0) {
         discard;
     }
 
@@ -163,5 +153,4 @@ void main(void) {
            + I_specular * specularColor.rgb
 #       endif
         );
-          
 }

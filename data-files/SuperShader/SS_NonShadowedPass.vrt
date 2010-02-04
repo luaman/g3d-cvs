@@ -55,6 +55,6 @@ void main(void) {
 #       endif       
 #    endif
 
-    texCoord     = (gl_TextureMatrix[0] * gl_MultiTexCoord0).st;
+    texCoord     = gl_MultiTexCoord0.st;
     gl_Position  = ftransform();
 }

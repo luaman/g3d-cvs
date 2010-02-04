@@ -855,6 +855,15 @@ public:
         BlendFunc                       dst,
         BlendEq                         eq = BLENDEQ_ADD);
 
+    void getBlendFunc(
+        BlendFunc&                      src,
+        BlendFunc&                      dst,
+        BlendEq&                        eq) {
+            src = m_state.srcBlendFunc;
+            dst = m_state.dstBlendFunc;
+            eq  = m_state.blendEq;
+    }
+
     /** 
       Sets a 2D clipping region (OpenGL scissor region) relative to the current window
       dimensions (not the viewport). Prevents rendering outside the clip region.

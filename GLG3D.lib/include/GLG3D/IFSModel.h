@@ -28,6 +28,8 @@ typedef ReferenceCountedPointer<class IFSModel> IFSModelRef;
  Loads the IFS, PLY2, and OFF research file formats.
  You can also load these using ArticulatedModel, which provides more sophisticated 
  rendering mechanisms.
+
+ \deprecated
  */
 class IFSModel : public ReferenceCountedObject {
 public:

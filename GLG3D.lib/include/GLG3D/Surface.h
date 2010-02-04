@@ -119,6 +119,23 @@ protected:
 public:
     typedef ReferenceCountedPointer<class Surface> Ref;
 
+    /** \brief How sortAndRender() configures the RenderDevice to process alpha */
+    enum AlphaMode {
+        /** Alpha > 0.5 is rendered, alpha <= 0.5 is discarded. */
+        ALPHA_BINARY,
+
+        /** Convert alpha to coverage values using <code>glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB)</code>. 
+           Requires a MSAA framebuffer to be bound.*/
+        // See http://www.dhpoware.com/demos/glMultiSampleAntiAliasing.html for an example.
+        ALPHA_TO_COVERAGE,
+        
+        /** Render surfaces with partial coverage from back to front, using Porter and Duff's OVER operator.
+            This leaves the depth buffer inconsistent with the color buffer and requires a sort, but often gives 
+            the best appearance.
+         */
+        ALPHA_BLEND
+    };
+
     virtual ~Surface() {}
 
     virtual std::string name() const = 0;
@@ -126,7 +143,13 @@ public:
     /** If true, this object transmits light and depends on
         back-to-front rendering order and should be rendered in sorted
         order. Default is false.*/
-    virtual bool hasTransparency() const {
+    virtual bool hasTransmission() const {
+        return false;
+    }
+
+    /** If true, this object's material produces subpixel coverage (i.e. alpha) and may require back-to-front rendering
+        depending on Surface::AlphaMode. */
+    virtual bool hasPartialCoverage() const {
         return false;
     }
 
@@ -138,17 +161,15 @@ public:
 
       @param wsLookVector Sort axis; usually the -Z axis of the camera.
      */
-    static void sort(
-        const Array<Surface::Ref>& inModels, 
-        const Vector3&                wsLookVector,
-        Array<Surface::Ref>&       opaque,
-        Array<Surface::Ref>&       transparent);
+    static void sortFrontToBack
+       (Array<Surface::Ref>&       surfaces, 
+        const Vector3&             wsLookVector);
 
-    /** Sorts the array in place along the look vector from front-to-back.*/
-    static void sort(
-        const Array<Surface::Ref>& inModels, 
-        const Vector3&                wsLookVector,
-        Array<Surface::Ref>&       opaque);
+    static void sortBackToFront
+       (Array<Surface::Ref>&       surfaces, 
+        const Vector3&             wsLookVector) {
+        sortFrontToBack(surfaces, -wsLookVector);
+    }
 
     static void getBoxBounds(const Array<Surface::Ref>& models, AABox& bounds);
     static void getSphereBounds(const Array<Surface::Ref>& models, Sphere& bounds);
@@ -303,6 +324,13 @@ public:
         const GLight& light,
         const ReferenceCountedPointer<ShadowMap>& shadowMap) const;
 
+    /**
+     Removes elements from \a all and puts them in \a translucent.
+     \a translucent is cleared first.
+     Always treats hasTransmissive() objects as translucent.
+     If \a partialCoverageIsTranslucent is true, also treats hasPartialCoverage as translucent.
+     */
+    static void extractTranslucent(Array<Surface::Ref>& all, Array<Surface::Ref>& translucent, bool partialCoverageIsTranslucent);
 
     /** Render geometry only (no shading), and ignore color (but do perform alpha testing).
         Render only back or front faces (two-sided surfaces render no matter what).
@@ -357,9 +385,9 @@ public:
        mapped lights), optimizing ArticulatedModels separately to
        minimize state changes.  
        
-       Calls renderTransparents() for transparent surface rendering.  If you
-       need to perform other rendering before transparents, explicitly remove
-       non-opaque objects from \a allModels yourself and then call renderTransparents
+       Calls renderTranslucent() for translucent surface rendering.  If you
+       need to perform other rendering before translucents, explicitly remove
+       non-opaque objects from \a allModels yourself and then call renderTranslucent
        later.  Note that you can use the shadow maps that were computed by sortAndRender.
 
        \param shadowMaps As many shadow maps as there are
@@ -367,28 +395,29 @@ public:
        sortAndRender() does that and puts the results back into the array. 
     */
     static void sortAndRender
-    (class RenderDevice*            rd, 
-     const class GCamera&           camera,
-     const Array<SurfaceRef>&    allModels, 
-     const LightingRef&             _lighting, 
+    (class RenderDevice*                rd, 
+     const class GCamera&               camera,
+     const Array<SurfaceRef>&           allModels, 
+     const LightingRef&                 lighting, 
      const Array<ReferenceCountedPointer<ShadowMap> >&  shadowMaps,
-     const Array<SuperShader::PassRef>& extraAdditivePasses);
+     const Array<SuperShader::PassRef>& extraAdditivePasses,
+     AlphaMode                          alphaMode = ALPHA_BINARY);
 
     static void sortAndRender
-    (class RenderDevice*            rd, 
-     const class GCamera&           camera,
-     const Array<SurfaceRef>&    allModels, 
-     const LightingRef&             _lighting, 
-     const Array< ReferenceCountedPointer<ShadowMap> >&     shadowMaps);
+    (class RenderDevice*                rd, 
+     const class GCamera&               camera,
+     const Array<SurfaceRef>&           allModels, 
+     const LightingRef&                 lighting, 
+     const Array< ReferenceCountedPointer<ShadowMap> >& shadowMaps);
     
     static void sortAndRender
-    (RenderDevice*                  rd, 
-     const GCamera&                 camera,
-     const Array<SurfaceRef>&    posed3D, 
-     const LightingRef&             lighting, 
+    (RenderDevice*                      rd, 
+     const GCamera&                     camera,
+     const Array<SurfaceRef>&           allModels, 
+     const LightingRef&                 lighting, 
      const ReferenceCountedPointer<ShadowMap>&  shadowMap = NULL);
 
-    /** Render elements of modelArray, handling transparency reasonably.  Special cased
+    /** Render elements of modelArray, handling transmission reasonably.  Special cased
         code for refracting SuperSurface instances.  Called from sortAndRender().
 
         Assumes:
@@ -397,15 +426,18 @@ public:
          - shadowMapArray has the length of lighting->shadowedLightArray and contains
            already computed shadow maps
 
-        Works correctly, but is inefficient, for non-transparent surfaces.
+        Works correctly, but is inefficient, for non-translucent surfaces.
+
+        \param alphaMode Mode for resolving partial coverage (which is independent of transmission)
       */
-    static void renderTransparents
+    static void renderTranslucent
     (RenderDevice*                  rd,
-     const Array<Surface::Ref>&  modelArray,
+     const Array<Surface::Ref>&     modelArray,
      const Lighting::Ref&           lighting,
      const Array<SuperShader::PassRef>& extraAdditivePasses,
      const Array< ReferenceCountedPointer<ShadowMap> >&   shadowMapArray = Array<ShadowMap::Ref>(),
-     RefractionQuality              maxRefractionQuality = RefractionQuality::BEST);
+     RefractionQuality              maxRefractionQuality = RefractionQuality::BEST,
+     AlphaMode                      alphaMode = ALPHA_BINARY);
 
 protected:
 

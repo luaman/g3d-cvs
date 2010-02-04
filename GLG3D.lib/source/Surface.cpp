@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-11-15
-  @edited  2009-02-25
+  @edited  2010-02-05
  */ 
 
 #include "G3D/Sphere.h"
@@ -19,8 +19,6 @@
 #include "GLG3D/Surface.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/SuperShader.h"
-#include "GLG3D/Shape.h" // todo:remove
-#include "GLG3D/GApp.h" // tODO:remove
 
 namespace G3D {
 
@@ -139,14 +137,13 @@ void Surface::sortAndRender
  const Array<Surface::Ref>&     allModels, 
  const LightingRef&             _lighting, 
  const Array<ShadowMap::Ref>&   shadowMaps,
- const Array<SuperShader::PassRef>& extraAdditivePasses) {
+ const Array<SuperShader::PassRef>& extraAdditivePasses,
+ AlphaMode                      alphaMode) {
 
     static bool recurse = false;
 
     alwaysAssertM(! recurse, "Cannot call Surface::sortAndRender recursively");
     recurse = true;
-
-    static Array<Surface::Ref> opaqueGeneric, otherOpaque, transparent, posed3D;
 
     Lighting::Ref lighting = _lighting->clone();
 
@@ -169,7 +166,6 @@ void Surface::sortAndRender
         Surface::getBoxBounds(allModels, sceneBounds);
 
         Array<Surface::Ref> lightVisible;
-        Array<Surface::Ref> lightSorted;
 
         // Generate shadow maps
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
@@ -180,13 +176,11 @@ void Surface::sortAndRender
 
             ShadowMap::computeMatrices(light, sceneBounds, lightFrame, lightProjectionMatrix);
 
-debugDraw(new AxesShape(lightFrame.coordinateFrame()));
             Surface::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
-            Surface::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);
-            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted, 0.001f);
+            Surface::sortFrontToBack(lightVisible, lightFrame.coordinateFrame().lookVector());
+            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightVisible, 0.001f);
 
             lightVisible.fastClear();
-            lightSorted.fastClear();
         }
     } else {
         // We're not going to be able to draw shadows, so move the shadowed lights into
@@ -195,30 +189,63 @@ debugDraw(new AxesShape(lightFrame.coordinateFrame()));
         lighting->shadowedLightArray.clear();
     }
 
-    // Cull objects outside the view frustum
-    cull(camera, rd->viewport(), allModels, posed3D);
+    // All objects visible to the camera; gets stripped down to opaque non-super
+    static Array<Surface::Ref> visible;
 
-    // Separate and sort the models
-    SuperSurface::extractOpaque(posed3D, opaqueGeneric);
-    Surface::sort(opaqueGeneric, camera.coordinateFrame().lookVector(), opaqueGeneric);
-    Surface::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
+    // Cull objects outside the view frustum
+    cull(camera, rd->viewport(), allModels, visible);
+
+    rd->pushState();
+
+    // In the ALPHA_BLEND case we strip out opaque partial coverage surfaces,
+    // otherwise they get lumped into the opaque arrays.
+    static Array<Surface::Ref>
+        super,                        // SuperSurfaces with no translucency
+        translucent;                  // Transmission or alpha
+
+    const Vector3 viewVector = camera.coordinateFrame().lookVector();
+    Surface::extractTranslucent(visible, translucent, alphaMode == ALPHA_BLEND);
+    Surface::sortBackToFront(translucent, viewVector);
+    SuperSurface::extract(visible, super);
+
+    rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+    switch (alphaMode) {
+    case ALPHA_BINARY:
+        rd->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.5f);
+        break;
+
+    case ALPHA_TO_COVERAGE:
+        glPushAttrib(GL_MULTISAMPLE_BIT_ARB);
+        glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+        break;
+
+    case ALPHA_BLEND:
+        rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.0f);
+        break;
+    }
+    // Get early-out depth test by rendering the closest objects first
+    Surface::sortFrontToBack(super,   viewVector);
+    Surface::sortFrontToBack(visible, viewVector);
+
     rd->setProjectionAndCameraMatrix(camera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
 
     // Opaque unshadowed
-    for (int m = 0; m < otherOpaque.size(); ++m) {
-        otherOpaque[m]->renderNonShadowed(rd, lighting);
+    for (int m = 0; m < visible.size(); ++m) {
+        visible[m]->renderNonShadowed(rd, lighting);
     }
-    SuperSurface::renderNonShadowed(opaqueGeneric, rd, lighting);
+    SuperSurface::renderNonShadowed(super, rd, lighting);
 
+    // Additively blend the additional passes
+    rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
     // Opaque shadowed
     for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-        rd->pushState();
-        SuperSurface::renderShadowMappedLightPass(opaqueGeneric, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
-        rd->popState();
-        for (int m = 0; m < otherOpaque.size(); ++m) {
-            otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        for (int m = 0; m < visible.size(); ++m) {
+            visible[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
         }
+        rd->pushState();
+        SuperSurface::renderShadowMappedLightPass(super, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        rd->popState();
     }
 
     // Extra additive passes
@@ -226,35 +253,58 @@ debugDraw(new AxesShape(lightFrame.coordinateFrame()));
         rd->pushState();
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
             for (int p = 0; p < extraAdditivePasses.size(); ++p) {
-                for (int m = 0; m < opaqueGeneric.size(); ++m) {
-                    opaqueGeneric[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+                for (int m = 0; m < visible.size(); ++m) {
+                    rd->pushState();
+                        visible[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+                    rd->popState();
                 }
-                for (int m = 0; m < otherOpaque.size(); ++m) {
-                    otherOpaque[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+                for (int m = 0; m < super.size(); ++m) {
+                    rd->pushState();
+                        super[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+                    rd->popState();
                 }
         }
         rd->popState();
     }
 
     // Transparent, must be rendered from back to front
-    renderTransparents(rd, transparent, lighting, extraAdditivePasses, 
-                       shadowMaps, RefractionQuality::BEST);
+    renderTranslucent(rd, translucent, lighting, extraAdditivePasses, 
+                       shadowMaps, RefractionQuality::BEST, alphaMode);
 
-    opaqueGeneric.fastClear();
-    otherOpaque.fastClear();
-    transparent.fastClear();
-    posed3D.fastClear();
+    super.fastClear();
+    translucent.fastClear();
+    visible.fastClear();
+
+    if (alphaMode == ALPHA_TO_COVERAGE) {
+        glPopAttrib();
+    }
+    rd->popState();
 
     recurse = false;
 }
 
 
+void Surface::extractTranslucent
+(Array<Surface::Ref>& all, 
+ Array<Surface::Ref>& translucent, 
+ bool partialCoverageIsTranslucent) {
+
+     translucent.fastClear();
+     for (int i = 0; i < all.size(); ++i) {
+         if (all[i]->hasTransmission() || (partialCoverageIsTranslucent && all[i]->hasPartialCoverage())) {
+             translucent.append(all[i]);
+             all.fastRemove(i);
+             --i;
+         }
+     }
+}
+
 void Surface::sortAndRender
 (class RenderDevice*            rd, 
  const class GCamera&           camera,
- const Array<SurfaceRef>&    allModels, 
+ const Array<SurfaceRef>&       allModels, 
  const LightingRef&             _lighting, 
- const Array<ShadowMap::Ref>&     shadowMaps) {
+ const Array<ShadowMap::Ref>&   shadowMaps) {
     sortAndRender(rd, camera, allModels, _lighting, shadowMaps, Array<SuperShader::PassRef>());
 }
 
@@ -262,11 +312,11 @@ void Surface::sortAndRender
 void Surface::sortAndRender
 (RenderDevice*                  rd, 
  const GCamera&                 camera,
- const Array<Surface::Ref>&  posed3D, 
+ const Array<Surface::Ref>&     posed3D, 
  const LightingRef&             lighting, 
  const ShadowMap::Ref&          shadowMap) {
 
-     static Array<ShadowMap::Ref> shadowMaps;
+    static Array<ShadowMap::Ref> shadowMaps;
     if (shadowMap.notNull()) {
         shadowMaps.append(shadowMap);
     }
@@ -285,6 +335,7 @@ void Surface2D::sortAndRender(RenderDevice* rd, Array<Surface2D::Ref>& posed2D) 
         rd->pop2D();
     }
 }
+
 
 class ModelSorter {
 public:
@@ -309,68 +360,23 @@ public:
 };
 
 
-void Surface::sort(
-    const Array<Surface::Ref>& inModels, 
-    const Vector3&                wsLook,
-    Array<Surface::Ref>&       opaque,
-    Array<Surface::Ref>&       transparent) {
+void Surface::sortFrontToBack(
+    Array<Surface::Ref>& surface, 
+    const Vector3&       wsLook) {
 
-    static Array<ModelSorter> op;
-    static Array<ModelSorter> tr;
+    static Array<ModelSorter> sorter;
     
-    for (int m = 0; m < inModels.size(); ++m) {
-        if (inModels[m]->hasTransparency()) {
-            tr.append(ModelSorter(inModels[m], wsLook));
-        } else {
-            op.append(ModelSorter(inModels[m], wsLook));
-        }
+    for (int m = 0; m < surface.size(); ++m) {
+        sorter.append(ModelSorter(surface[m], wsLook));
     }
 
-    // Sort
-    tr.sort(SORT_DECREASING);
-    op.sort(SORT_INCREASING);
+    sorter.sort(SORT_INCREASING);
 
-    transparent.resize(tr.size(), DONT_SHRINK_UNDERLYING_ARRAY);
-    for (int m = 0; m < tr.size(); ++m) {
-        transparent[m] = tr[m].model;
+    for (int m = 0; m < sorter.size(); ++m) {
+        surface[m] = sorter[m].model;
     }
 
-    opaque.resize(op.size(), DONT_SHRINK_UNDERLYING_ARRAY);
-    for (int m = 0; m < op.size(); ++m) {
-        opaque[m] = op[m].model;
-    }
-
-    tr.fastClear();
-    op.fastClear();
-}
-
-
-void Surface::sort(
-    const Array<Surface::Ref>& inModels, 
-    const Vector3&                wsLook,
-    Array<Surface::Ref>&       opaque) { 
-
-    if (&inModels == &opaque) {
-        // The user is trying to sort in place.  Make a separate array for them.
-        Array<Surface::Ref> temp = inModels;
-        sort(temp, wsLook, opaque);
-        return;
-    }
-
-    static Array<ModelSorter> op;
-    
-    for (int m = 0; m < inModels.size(); ++m) {
-        op.append(ModelSorter(inModels[m], wsLook));
-    }
-
-    // Sort
-    op.sort(SORT_INCREASING);
-
-    opaque.resize(op.size(), DONT_SHRINK_UNDERLYING_ARRAY);
-    for (int m = 0; m < op.size(); ++m) {
-        opaque[m] = op[m].model;
-    }
-    op.fastClear();
+    sorter.fastClear();
 }
 
 
@@ -575,13 +581,14 @@ void Surface::sendGeometry(RenderDevice* rd) const {
 
 
 
-void Surface::renderTransparents
+void Surface::renderTranslucent
 (RenderDevice*                  rd,
  const Array<Surface::Ref>&     modelArray,
  const Lighting::Ref&           lighting,
  const Array<SuperShader::PassRef>& extraAdditivePasses,
  const Array<ShadowMap::Ref>&   shadowMapArray,
- RefractionQuality              maxRefractionQuality) {
+ RefractionQuality              maxRefractionQuality,
+ AlphaMode                      alphaMode) {
 
     rd->pushState();
 
@@ -607,25 +614,25 @@ void Surface::renderTransparents
 
     const CFrame& cameraFrame = rd->cameraToWorldMatrix();
     
-    // Standard G3D::SuperShader transparent rendering
-    // Disable depth write so that precise ordering doesn't matter
-    rd->setDepthWrite(false);
-
-    // Transparent, must be rendered from back to front
     for (int m = 0; m < modelArray.size(); ++m) {
         Surface::Ref model = modelArray[m];
+
+        // Don't write depth for transmissive objects because they are too sensitive to order
+        rd->setDepthWrite(! model->hasTransmission());
+
         SuperSurface::Ref gmodel = model.downcast<SuperSurface>();
 
         // Render refraction (without modulating by transmissive)
-        if (gmodel.notNull() && supportsRefract) {
-            const float eta = gmodel->gpuGeom()->material->bsdf()->etaTransmit();
+        if (gmodel.notNull() && model->hasTransmission() && supportsRefract) {
+            Material::Ref material = gmodel->gpuGeom()->material;
+            const float eta = material->bsdf()->etaTransmit();
 
             if ((eta > 1.01f) && 
-                (gmodel->gpuGeom()->material->refractionHint() >= RefractionQuality::DYNAMIC_FLAT) &&
-                (gmodel->gpuGeom()->material->refractionHint() <= RefractionQuality::DYNAMIC_FLAT_MULTILAYER) &&
+                (material->refractionHint() >= RefractionQuality::DYNAMIC_FLAT) &&
+                (material->refractionHint() <= RefractionQuality::DYNAMIC_FLAT_MULTILAYER) &&
                 (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
 
-                if (! didReadback || (gmodel->gpuGeom()->material->refractionHint() == RefractionQuality::DYNAMIC_FLAT_MULTILAYER)) {
+                if (! didReadback || (material->refractionHint() == RefractionQuality::DYNAMIC_FLAT_MULTILAYER)) {
                     if (refractBackground.isNull()) {
                         refractBackground = Texture::createEmpty("Background", rd->width(), rd->height(), screenFormat, 
                                                                  Texture::DIM_2D_NPOT, Texture::Settings::video());
@@ -645,6 +652,8 @@ void Surface::renderTransparents
                 // does not perform refraction
                 rd->pushState();
                 {
+                    rd->setDepthWrite(false);
+                    rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
                     Sphere bounds3D = gmodel->worldSpaceBoundingSphere();
                     
                     // Estimate of distance from object to background to
@@ -668,7 +677,9 @@ void Surface::renderTransparents
                     refractShader->args.set("backSizeMeters", backSizeMeters);
                     refractShader->args.set("background", refractBackground);
                     refractShader->args.set("backgroundInvertY", rd->framebuffer().notNull());
-                    rd->setShader(refractShader);        
+                    refractShader->args.set("lambertianMap", Texture::whiteIfNull(material->bsdf()->lambertian().texture()));
+                    refractShader->args.set("lambertianConstant", material->bsdf()->lambertian().constant());
+                    rd->setShader(refractShader);
                     rd->setObjectToWorldMatrix(model->coordinateFrame());
                     gmodel->sendGeometry(rd);
                 }
@@ -676,20 +687,52 @@ void Surface::renderTransparents
             }
         }
 
-        // Add lights (additive blending is turned on automatically
-        // inside of these)
+        if (model->hasTransmission()) {
+            if (model->hasPartialCoverage()) {
+                if (alphaMode == ALPHA_BLEND) {
+                    // Transmission, and alpha, and alpha blending.
+                    // We already knocked out the non-transmitted light, so just add, but
+                    // modulate down the source contribution.
+                    rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE);
+                } else {
+                    // Transmission, binary or alpha-to-coverage alpha.
+                    // We already knocked out the non-transmitted light, so just add
+                    rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+                }
+            } else {
+                // Transmission, no alpha.  We already knocked out the non-transmitted light, so just add
+                rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+            }
+        } else if (model->hasPartialCoverage()) {
+            if (alphaMode == ALPHA_BLEND) {
+                // No transmission, blended alpha
+                rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+            } else {
+                // No transmission, binary or alpha-to-coverage alpha: treat as opaque
+                rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+            }
+        } else {
+            // Actually opaque
+            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+        }
+
+        // Add lights, or black
         model->renderNonShadowed(rd, lighting);
 
+        // Add shadowed lights
+        if ((alphaMode == ALPHA_BLEND) && model->hasPartialCoverage()) {
+            rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE);     
+        } else {
+            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+        }
         debugAssert(lighting->shadowedLightArray.size() <= shadowMapArray.size());
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], 
-                                               shadowMapArray[L]);
+            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMapArray[L]);
         }
 
         // Add extra light passes
         if (extraAdditivePasses.size() > 0) {
             rd->pushState();
-            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
             for (int p = 0; p < extraAdditivePasses.size(); ++p) {
                 model->renderSuperShaderPass(rd, extraAdditivePasses[p]);
             }
