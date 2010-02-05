@@ -412,7 +412,7 @@ std::string System::findDataFile
 
         const char* g3dPath = getenv("G3DDATA");
 
-        if (g3dPath) {
+        if (g3dPath && (initialAppDataDir != g3dPath)) {
             maybeAddDirectory(g3dPath, directoryArray, true);
         }
 
@@ -456,72 +456,16 @@ void System::setAppDataDir(const std::string& path) {
 
 
 std::string demoFindData(bool errorIfNotFound) {
-    // Directories that might contain the data
-    Array<std::string> potential;
-
-    // Look back up the directory tree
-    std::string x = "../";
-    std::string f = "";
-    for (int i = 0; i < 6; ++i) {
-        potential.append(f);
-        f = f + x;
-    }
-    
-    // Hard-code in likely install directories
-    int ver = G3D_VER;
-    std::string lname = format("G3D-%d.%02d", ver / 10000, (ver / 100) % 100);
-
-    if (G3D_VER % 100 != 0) {
-        lname = lname + format("-b%02d/", ver % 100);
+    static const char* g3dPath = getenv("G3DDATA");
+    if (g3dPath) {
+        return g3dPath;
+    } else if (fileExists("../data")) {
+        return "../data";
+    } else if (fileExists("../data-files")) {
+        return "../data-files";
     } else {
-        lname = lname + "/";
+        return "";
     }
-
-    std::string lpath = "libraries/" + lname;
-    #ifdef G3D_WIN32
-        potential.append(std::string("c:/") + lpath);
-        potential.append(std::string("d:/") + lpath);
-        potential.append(std::string("e:/") + lpath);
-        potential.append(std::string("f:/") + lpath);
-        potential.append(std::string("g:/") + lpath);
-        potential.append(std::string("x:/") + lpath);
-    #elif defined(G3D_LINUX)
-        potential.append("/usr/local/" + lname);
-        potential.append("/course/cs224/");
-        potential.append("/map/gfx0/common/games/");
-    #elif defined(G3D_FREEBSD)
-        potential.append("/usr/local/" + lname);
-	potential.append("/usr/local/371/")
-	potential.append("/usr/cs-local/371/")
-    #elif defined(G3D_OSX)
-        potential.append("/usr/local/" + lname);
-        potential.append("/Volumes/McGuire/Projects/");
-        potential.append("/Volumes/McGuire/Projects/G3D/");
-    #endif
-
-    // Scan all potentials for the font directory
-    for (int p = 0; p < potential.size();  ++p) {
-        std::string path = potential[p];
-        //debugPrintf("Looking at: %sdata\n", path.c_str());
-        if (fileExists(path + "data") && fileExists(path + "data/font")) {
-            return path + "data/";
-        }
-        if (fileExists(path + "data-files") && fileExists(path + "data-files/font")) {
-            return path + "data-files/";
-        }
-    }
-
-    if (errorIfNotFound) {
-        const char* choice[] = {"Exit"};
-
-        prompt("Demo Error", "The demo could not locate the data directory.  "
-            "The data is required to run this demo.  If you have not downloaded "
-            "the data zipfile, get it from http://g3d.sf.net.  If you have "
-            "downloaded it, it needs to be no more than 4 directories above the "
-            "demo directory.", choice, 1, true);
-    }
-
-    return "";
 }
 
 
