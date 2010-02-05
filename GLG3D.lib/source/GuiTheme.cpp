@@ -1584,7 +1584,7 @@ void GuiTheme::TextStyle::deserialize(const std::string& path, const std::string
                         if (x != "") {
                             font = GFont::fromFile(x);
                         } else {
-                            Log::common()->printf("GuiTheme Warning: could not find font %s\n", fontFilename.c_str());
+                            logPrintf("GuiTheme Warning: could not find font %s\n", fontFilename.c_str());
                         }
                     }
                 }

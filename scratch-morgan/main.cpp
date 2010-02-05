@@ -170,7 +170,7 @@ int main(int argc, char** argv) {
     (void)argv;
 
     
-    //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
+    GFont::makeFont(256, "c:/font/arial2");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
     //b.writeInt32(1);
     //b.commit(true);

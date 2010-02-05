@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2002-11-02
- @edited  2007-05-19
+ @edited  2010-02-07
  */
 
 #ifndef G3D_GFONT_H
@@ -55,19 +55,19 @@ public:
 private:
 
     /** Must be a power of 2.  Number of characters in the set (typically 128 or 256)*/
-    int charsetSize;
+    int             charsetSize;
 
     /** The actual width of the character. */ 
-    Array<int> subWidth;
+    Array<int>      subWidth;
 
     /** The width of the box, in texels, around the character. */
-    int charWidth;
-    int charHeight;
+    int             charWidth;
+    int             charHeight;
 
     /** Y distance from top of the bounding box to the font baseline. */
-    int baseline;
+    int             baseline;
 
-    Texture::Ref m_texture;
+    Texture::Ref    m_texture;
 
     /** Assumes you are already inside of beginPrimitive(QUADS) */
     Vector2 drawString(
@@ -109,6 +109,11 @@ public:
         return m_textureMatrix;
     }
 
+    /** Font size at which there is no scaling.  Fonts will appear sharpest at power-of-two
+        multiples of this size. */
+    float nativeSize() const {
+        return charHeight / 1.5f;
+    }
     /** Load a new font from disk (fonts are be cached in memory, so repeatedly loading
         the same font is fast as long as the first was not garbage collected).
 
