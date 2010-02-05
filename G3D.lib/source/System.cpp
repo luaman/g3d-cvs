@@ -340,11 +340,42 @@ void getG3DVersion(std::string& s) {
 }
 
 
+struct Directory {
+    std::string          path;
+    Array<std::string>   contents;
+};
+
+static bool maybeAddDirectory(const std::string& newPath, Array<Directory>& directoryArray, bool recurse = true) {
+    if (fileExists(newPath)) {
+        Directory& d = directoryArray.next();
+        d.path = newPath;
+        getFiles(pathConcat(newPath, "*"), d.contents);
+        Array<std::string> dirs;
+        getDirs(pathConcat(newPath, "*"), dirs);
+        d.contents.append(dirs);
+
+        if (recurse) {
+            // Look for subdirectories
+            static const std::string subdirs[] = 
+            {"font", "gui", "SuperShader", "cubemap", "icon", "material", "image", "md2", "md3", "ifs", "3ds", "sky", ""};
+
+            for (int j = 0; j < dirs.size(); ++j) {
+                for (int i = 0; ! subdirs[i].empty(); ++i) {
+                    if (dirs[j] == subdirs[i]) {
+                        maybeAddDirectory(pathConcat(newPath, dirs[j]), directoryArray, false);
+                    }
+                }
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 std::string System::findDataFile
 (const std::string&  full,
  bool                errorIfNotFound) {
-
-    const char* g3dPath = getenv("G3DDATA");
 
     // Places where specific files were most recently found.  This is
     // used to cache seeking of common files.
@@ -365,107 +396,40 @@ std::string System::findDataFile
         }
     }
 
-    std::string initialAppDataDir(instance().m_appDataDir);
+    static Array<Directory> directoryArray;
 
-    std::string name = filenameBaseExt(full);
-    std::string originalPath = filenamePath(full);
+    if (directoryArray.size() == 0) {
+        // Initialize the directory array
+        RealTime t0 = System::time();
 
-    // Search several paths
-    Array<std::string> pathBase;
+        std::string initialAppDataDir(instance().m_appDataDir);
 
-    int backlen = 4;
+        maybeAddDirectory("", directoryArray, true);
 
-    // add what should be the current working directory
-    pathBase.append("");
-
-    // add application specified data directory to be searched first
-    pathBase.append(initialAppDataDir);
-
-    if (g3dPath != NULL) {
-        pathBase.append(pathConcat(g3dPath, ""));
-    }
-
-    // try walking back along the directory tree
-    std::string prev = "";
-    for (int i = 0; i < backlen; ++i) {
-        pathBase.append(originalPath + prev);
-        prev = prev + "../";        
-    }
-
-    prev = "../";
-    for (int i = 0; i < backlen; ++i) {
-        pathBase.append(prev);
-        prev = prev + "../";        
-    }
-/*
-    // Hard-code in likely install directories
-    int ver = G3D_VER;
-    std::string lname = format("G3D-%d.%02d", ver / 10000, (ver / 100) % 100);
-
-    if (G3D_VER % 100 != 0) {
-        lname = lname + format("-b%02d/", ver % 100);
-    } else {
-        lname = lname + "/";
-    }
-
-    // Look in some other likely places
-#   ifdef G3D_WIN32
-        std::string lpath = "libraries/G3D/";
-        pathBase.append(std::string("c:/") + lpath);
-        pathBase.append(std::string("d:/") + lpath);
-        pathBase.append(std::string("x:/") + lpath);
-
-        pathBase.append(std::string("e:/") + lpath);
-        pathBase.append(std::string("f:/") + lpath);
-        pathBase.append(std::string("g:/") + lpath);
-        pathBase.append(std::string("y:/") + lpath);
-        pathBase.append(std::string("z:/") + lpath);
-        pathBase.append(std::string("w:/") + lpath);
-#   endif
-#   if defined(G3D_LINUX)
-        pathBase.append("/usr/local/");
-        pathBase.append("/course/cs224/");
-        pathBase.append("/map/gfx0/common/games/");
-#   endif
-#   if defined(G3D_FREEBSD)
-        pathBase.append("/usr/local/");
-        pathBase.append("/usr/local/371/");
-        pathBase.append("/usr/cs-local/371/");
-#   endif
-#   if defined(G3D_OSX)
-        pathBase.append("/usr/local/" + lname);
-        pathBase.append("/Volumes/McGuire/Projects/");
-#   endif
-
-    // Add the library name to all variations
-    int N = pathBase.size();
-    for (int i = 0; i < N; ++i) {
-        pathBase.append(pathBase[i] + lname);
-        pathBase.append(pathBase[i] + "G3D/");
-    }
-*/
-
-    Array<std::string> subDir;
-    subDir.append("", "font/", "sky/", "gui/");
-    subDir.append("SuperShader/", "cubemap/", "icon/");
-    subDir.append("image/", "md2/", "md2/speedway/");
-    subDir.append("md3/", "ifs/", "3ds/");
-
-    Array<std::string> path;
-    for (int p = 0; p < pathBase.size(); ++p) {
-        for (int s = 0; s < subDir.size(); ++s) {
-            path.append(pathBase[p] + subDir[s]);
-            path.append(pathBase[p] + "data/" + subDir[s]);
-            path.append(pathBase[p] + "data-files/" + subDir[s]);
+        if (! initialAppDataDir.empty()) {
+            maybeAddDirectory(initialAppDataDir, directoryArray, true);
         }
+
+        const char* g3dPath = getenv("G3DDATA");
+
+        if (g3dPath) {
+            maybeAddDirectory(g3dPath, directoryArray, true);
+        }
+
+        // For running starter files in a G3D install
+        maybeAddDirectory("../data", directoryArray, true);
+
+        // For running under Visual Studio when working on the G3D.sln
+        maybeAddDirectory("../data-files", directoryArray, true);
+        logLazyPrintf("Initializing System::findDataFile took %fs\n", System::time() - t0);
     }
 
-    for (int i = 0; i < path.length(); ++i) {
-        std::string filename = path[i] + name;
-        if (fileExists(filename)) {
-            logPrintf("\nWARNING: Could not find '%s' so '%s' "
-                      "was substituted.\n", full.c_str(), 
-                      filename.c_str());
+    const std::string& name = filenameBaseExt(full);
+    for (int i = 0; i < directoryArray.size(); ++i) {
+        const Directory& d = directoryArray[i];
+        
+        if (d.contents.contains(name)) {
+            std::string filename = pathConcat(d.path, name);
             // Update the cache
             lastFound.set(full, filename);
             return filename;
@@ -475,8 +439,8 @@ std::string System::findDataFile
     if (errorIfNotFound) {
         // Generate an error message
         std::string locations;
-        for (int i = 0; i < path.size(); ++i) {
-            locations += path[i] + name + "\n";
+        for (int i = 0; i < directoryArray.size(); ++i) {
+            locations += pathConcat(directoryArray[i].path, name) + "\n";
         }
         alwaysAssertM(false, "Could not find '" + full + "' in:\n" + locations);
     }

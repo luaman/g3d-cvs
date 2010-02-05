@@ -410,15 +410,18 @@ void createDirectory(
 ///////////////////////////////////////////////////////////////////////////////
 
 bool fileExists(
-    const std::string&	filename,
+    const std::string&	_filename,
 	const bool			lookInZipfiles) {
 
-	if (filename == "") {
+	if (_filename.empty()) {
 		return false;
 	}
 
+    // Remove trailing slash
+    const std::string& filename = (endsWith(_filename, "/") || endsWith(_filename, "\\")) ? _filename.substr(0, _filename.length() - 1) : _filename;
+
     // Useful for debugging
-    //char curdir[1024]; _getcwd(curdir, 1024); 
+    char curdir[1024]; _getcwd(curdir, 1024); 
 
     struct _stat st;
     int ret = _stat(filename.c_str(), &st);
@@ -710,11 +713,10 @@ void parseFilename(
  @param includePath     If true, the names include paths
  */
 static void getFileOrDirListNormal
-(
- const std::string&		filespec,
- Array<std::string>&		files,
- bool				wantFiles,
- bool                           includePath) {
+(const std::string&		filespec,
+ Array<std::string>&	files,
+ bool				    wantFiles,
+ bool                   includePath) {
     
     bool test = wantFiles ? true : false;
     
@@ -937,8 +939,7 @@ static void determineFileOrDirList(
 }
 
 
-void getFiles(
-              const std::string&			filespec,
+void getFiles(const std::string&			filespec,
               Array<std::string>&			files,
               bool					includePath) {
     
