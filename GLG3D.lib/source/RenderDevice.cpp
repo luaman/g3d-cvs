@@ -1608,7 +1608,7 @@ void RenderDevice::setDepthTest(DepthTest test) {
         return;
     }
     
-    if ((m_state.depthTest != test) && (test != DEPTH_ALWAYS_PASS)) {
+    if ((m_state.depthTest != test) || (test != DEPTH_ALWAYS_PASS)) {
         minGLStateChange();
         if ((test == DEPTH_ALWAYS_PASS) && (m_state.depthWrite == false)) {
             // http://www.opengl.org/sdk/docs/man/xhtml/glDepthFunc.xml

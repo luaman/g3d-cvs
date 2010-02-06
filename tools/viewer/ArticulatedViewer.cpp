@@ -36,7 +36,7 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 
     bool overwrite = true;
 
-	// Gind the size of the bounding box of the entire model
+	// Find the size of the bounding box of the entire model
 	AABox bounds;
 	if (arrayModel.size() > 0) {
 
@@ -66,7 +66,8 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 		Vector3 extent = bounds.extent();
 		Vector3 center = bounds.center();
 
-		float scale = 2.0f / max(extent.x, max(extent.y, extent.z));
+		// Scale to 5 units
+		float scale = 5.0f / max(extent.x, max(extent.y, extent.z));
 
         if (scale <= 0) {
             scale = 1;
@@ -91,10 +92,11 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 			for (int vertIndex = 0; vertIndex < geom.vertexArray.length(); ++vertIndex) {
 				geom.vertexArray[vertIndex] = transform.pointToWorldSpace(geom.vertexArray[vertIndex]);
 			}
+
+			//m_model->partArray[partIndex].updateVAR();
 		}
 
 		m_model->updateAll();
-
 	}
 }
 
