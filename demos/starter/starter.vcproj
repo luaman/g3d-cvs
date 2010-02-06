@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="starter"
-	ProjectGUID="{81865B12-D9F6-4EE4-9A97-35CDDE08587B}"
+	ProjectGUID="{E0243284-5836-4E53-92CC-03D362F325ED}"
 	RootNamespace="starter"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -60,7 +60,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName)d.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -72,6 +71,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -147,6 +147,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -173,11 +174,31 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\source\App.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Scene.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
+			<File
+				RelativePath=".\source\App.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Scene.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Shader Files"
 			>
 		</Filter>
 		<Filter
@@ -187,10 +208,6 @@
 				RelativePath=".\data-files\scene\crates.txt"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Shader Files"
-			>
 		</Filter>
 	</Files>
 	<Globals>

@@ -34,7 +34,7 @@ void copyIfNewer(
 
     destspec = maybeAddSlash(destspec);
 
-    if (fileExists(destspec) && ! G3D::isDirectory(destspec)) {
+    if (G3D::fileExists(destspec, false, false) && ! G3D::isDirectory(destspec)) {
         printf("A file already exists named %s.  Target must be a directory.", 
             destspec.c_str());
         exit(-2);

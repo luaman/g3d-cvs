@@ -177,11 +177,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\demos\starter\App.cpp"
+				RelativePath="..\demos\starter\source\App.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\starter\Scene.cpp"
+				RelativePath="..\demos\starter\source\Scene.cpp"
 				>
 			</File>
 		</Filter>
@@ -191,11 +191,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\demos\starter\App.h"
+				RelativePath="..\demos\starter\source\App.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\starter\Scene.h"
+				RelativePath="..\demos\starter\source\Scene.h"
 				>
 			</File>
 		</Filter>
