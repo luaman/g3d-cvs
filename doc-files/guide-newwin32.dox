@@ -1,6 +1,10 @@
 /** @page guidenewwin32 Creating a New Project on Windows
 
 \htmlonly
+
+<b>The easiest way to create a new project is to copy the <a href="../demos/starter">starter</a> project, which includes VS2008 .sln and .vcproj files.</b>
+The following instructions explain how to manually configure a new project (or an existing one that you're adding G3D to).
+
 <ol>
 <li> <p>Launch Visual Studio.</p>
 
@@ -40,6 +44,8 @@ installed G3D to <code>c:\libraries</code>, the sample program files are in
 <li> <p> In Visual Studio, right-click on the project folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Properties</b> and then the <b>All Configurations</b> dropdown, the <b>Linker</b> tree node and the <b>Advanced</b> item underneath it. 
 Set the <b>Randomized Base Address</b> to <b>Disable Randomization (/DYNAMICBASE:NO)</b> as demonstrated in this image:
 <center><img src="vc8-new-project-dynamicbase.png" border=0 align=top></center></p>
+
+<li> <p> Click on <b>Manifest Tool</b>, then <b>Input / Output</b>.  On the right pane, set <b>Embed Manifest</b> to <b>No</b><p>
 
 <li> <p> Push <b>F5</b> to compile and run this default program.  If Visual Studio and G3D are installed 
 correctly, Visual Studio will automatically link your program against all libraries needed.  When run,
