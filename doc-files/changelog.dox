@@ -20,7 +20,9 @@
      <li> System::findDataFile no longer scans all disk drives; instead it checks the G3DDATA environment variable
      <li> G3D::Texture::createColor
      <li> G3D::GFont::nativeSize
+     <li> G3D::fileExists now caches results by default; see new optional argument and G3D::clearFileSystemCache
      <li> G3D::Surface::AlphaMode
+     <li> G3D::fileExists now allows wildcards
      <li> Tuned bloom appearance under G3D::Film
      <li> G3D::SuperShader::configureSingleLightShaderArgs
      <li> G3D::VideoRecordDialog now exposes quality setting in both GUI and code
@@ -191,6 +193,7 @@
    <ul>
      <li> G3D::Texture::Preprocess::brighten -> G3D::Texture::Preprocess::modulate 
      <li> Surface::renderTransmissives -> G3D::Surface::renderTransmissives
+     <li> G3D::UserInput has joysticks disabled internally to avoid confusion for new users
      <li> Surface::hasTransparency -> Surface::hasTransmission + Surface::hasPartialCoverage, to support varying partial coverage modes
      <li> SuperBSDF::packSpecularExponent now uses a nonlinear scale between 0 and 1025
      <li> G3D::MD2Model::create scale is now 1/2 the quake scale, so that a typical character is 2 meters tall

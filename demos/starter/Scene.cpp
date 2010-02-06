@@ -17,53 +17,105 @@ void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
 }
 
 
-Scene::Ref Scene::create() {
+/** Returns a table mapping scene names to filenames */
+static Table<std::string, std::string>& filenameTable() {
+    static Table<std::string, std::string> filenameTable;
+
+    if (filenameTable.size() == 0) {
+        // Create a table mapping scene names to filenames
+        Array<std::string> filenameArray;
+        getFiles("scene/*.txt", filenameArray);
+        for (int i = 0; i < filenameArray.size(); ++i) {
+            Any a;
+            a.load(pathConcat("scene", filenameArray[i]));
+
+            std::string name = a["name"].string();
+            alwaysAssertM(! filenameTable.containsKey(name),
+                "Duplicate scene names in " + filenameArray[i] + " and " +
+                filenameTable["name"]);
+                
+            filenameTable.set(name, filenameArray[i]);
+        }
+    }
+
+    return filenameTable;
+}
+
+
+Array<std::string> Scene::sceneNames() {
+    return filenameTable().getKeys();
+}
+
+
+Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
+
     Scene::Ref s = new Scene();
-    s->m_lighting = GApp::defaultLighting();
+    s->m_lighting = Lighting::create();
+    s->m_lighting->lightArray.clear();
+    s->m_lighting->shadowedLightArray.clear();
+    s->m_lighting->environmentMapColor = Color3::one();
 
-    std::string materialPath = System::findDataFile("material");
-    std::string crateFile = System::findDataFile("crate.ifs");
-
-    // Ground plane
-    {
-        ArticulatedModel::Ref model = ArticulatedModel::fromFile(crateFile, Vector3(6.0f, 1.0f, 6.0f));
-
-        Material::Settings mat;
-        std::string base = pathConcat(materialPath, "asphalt/asphalt-");
-        mat.setLambertian(base + "L.jpg");
-        mat.setSpecular(base + "G.jpg");
-        mat.setGlossyExponentShininess(20);
-
-        BumpMap::Settings b;
-        b.iterations = 0;
-        mat.setBump(base + "L.jpg", b, -0.005f);
-        
-        model->partArray[0].triList[0]->material = Material::create(mat);
-
-        s->m_entityArray.append(Entity::create(Vector3::unitY() * -0.5f * meters(), model));
+    const std::string* f = filenameTable().getPointer(scene);
+    if (f == NULL) {
+        throw "No scene with name '" + scene + "' found in (" + 
+            stringJoin(filenameTable().getKeys(), ", ") + ")";
     }
- 
-    // Crates
-    {
-        ArticulatedModel::Ref model = ArticulatedModel::fromFile(crateFile);
+    const std::string& filename = *f;
 
-        Material::Settings mat;
-        std::string base = pathConcat(materialPath, "metalcrate/metalcrate-");
-        mat.setLambertian(base + "L.png", 0.2f);
-        mat.setSpecular(base + "G.png");
-        mat.setGlossyExponentShininess(20);
-        BumpMap::Settings b;
-        b.iterations = 0;
-        mat.setBump(base + "B.png", b);
-        model->partArray[0].triList[0]->material = Material::create(mat);
+    Any any;
+    any.load(pathConcat("scene", filename));
 
-        s->m_entityArray.append(Entity::create(Vector3(1.0f, 0.5f, 0.0f) * meters(), model));
-        s->m_entityArray.append(Entity::create(CFrame::fromXYZYPRDegrees(0.6f, 0.5f, -1.8f, 30.0f), model));
+    // Load the lighting
+    Any lighting = any["lighting"];
+    s->m_lighting->ambientTop = lighting["ambientTop"];
+    s->m_lighting->ambientBottom = lighting["ambientBottom"];
+    Any shadowedLightArray = lighting["shadowedLightArray"]; 
+    s->m_lighting->shadowedLightArray.resize(shadowedLightArray.size());
+    for (int i = 0; i < shadowedLightArray.size(); ++i) {
+        s->m_lighting->shadowedLightArray[i] = shadowedLightArray[i];
     }
+    if (lighting.containsKey("environmentMap")) {
+        s->m_lighting->environmentMap = Texture::create(Texture::Specification(lighting["environmentMap"]));
+    }
+
+    // Load the models
+    Any models = any["models"];
+    Table<std::string, ArticulatedModel::Ref> modelTable;
+    for (Any::AnyTable::Iterator it = models.table().begin(); it.hasMore(); ++it) {
+        modelTable.set(it->key, ArticulatedModel::create(it->value));        
+    }
+
+    // Instance the models
+    Any entities = any["entities"];
+    entities.verifyType(Any::ARRAY);
+    for (int e = 0; e < entities.size(); ++e) {
+        // Entities look like functions whose name is the model and whose arguments
+        // are the CFrames
+        const Any& entityArgs = entities[e];
+        entityArgs.verifyType(Any::ARRAY);
+        const ArticulatedModel::Ref* model = modelTable.getPointer(entityArgs.name());
+        entityArgs.verify((model != NULL), 
+            "Can't instantiate undefined model named " + entityArgs.name() + ".");
+        CFrame cframe;
+
+        if (entityArgs.size() == 1) {
+            const Any& c = entityArgs[0];
+            if (toLower(c.name()) == "vector3") {
+                cframe = Vector3(c);
+            } else {
+                cframe = c;
+            }
+        }            
+
+        s->m_entityArray.append(Entity::create(cframe, *model));
+    }
+
+    // Load the camera
+    camera = any["camera"];
     
     return s;
 }
-    
+
 
 void Scene::onPose(Array<Surface::Ref>& surfaceArray) {
     for (int e = 0; e < m_entityArray.size(); ++e) {

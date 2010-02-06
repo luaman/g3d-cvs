@@ -23,7 +23,7 @@ ArticulatedModel::Specification::Specification(const Any& any) {
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
         if (key == "filename") {
-            filename = it->value.string();
+            filename = System::findDataFile(it->value.string());
         } else if (key == "preprocess") {
             preprocess = it->value;
         } else if (key == "settings") {

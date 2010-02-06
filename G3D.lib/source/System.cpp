@@ -339,7 +339,7 @@ void getG3DVersion(std::string& s) {
     s = cstr;
 }
 
-
+#if 0 // TODO: delete
 struct Directory {
     std::string          path;
     Array<std::string>   contents;
@@ -372,6 +372,7 @@ static bool maybeAddDirectory(const std::string& newPath, Array<Directory>& dire
         return false;
     }
 }
+#endif
 
 std::string System::findDataFile
 (const std::string&  full,
@@ -381,14 +382,18 @@ std::string System::findDataFile
     // used to cache seeking of common files.
     static Table<std::string, std::string> lastFound;
 
+    // First check if the file exists as requested.  This will go
+    // through the FileSystemCache, so most calls do not touch disk.
     if (fileExists(full)) {
         return full;
     }
 
+    // Now check where we previously found this file.
     std::string* last = lastFound.getPointer(full);
     if (last != NULL) {
         if (fileExists(*last)) {
-            // It is still there
+            // Even if cwd has changed the file is still present.
+            // We won't notice if it has been deleted, however.
             return *last;
         } else {
             // Remove this from the cache it is invalid
@@ -396,38 +401,51 @@ std::string System::findDataFile
         }
     }
 
-    static Array<Directory> directoryArray;
+    // Places to look
+    static Array<std::string> directoryArray;
 
     if (directoryArray.size() == 0) {
         // Initialize the directory array
         RealTime t0 = System::time();
 
+        Array<std::string> baseDirArray;
+
         std::string initialAppDataDir(instance().m_appDataDir);
-
-        maybeAddDirectory("", directoryArray, true);
-
+        
+        baseDirArray.append("");
         if (! initialAppDataDir.empty()) {
-            maybeAddDirectory(initialAppDataDir, directoryArray, true);
+            baseDirArray.append(initialAppDataDir);
         }
 
         const char* g3dPath = getenv("G3DDATA");
 
         if (g3dPath && (initialAppDataDir != g3dPath)) {
-            maybeAddDirectory(g3dPath, directoryArray, true);
+            baseDirArray.append(g3dPath);
+        }
+
+        static const std::string subdirs[] = 
+            {"font", "gui", "SuperShader", "cubemap", "icon", "material", "image", "md2", "md3", "ifs", "3ds", "sky", ""};
+        for (int j = 0; j < baseDirArray.size(); ++j) {
+            std::string d = baseDirArray[j];
+            if (fileExists(d)) {
+                directoryArray.append(d);
+                for (int i = 0; ! subdirs[i].empty(); ++i) {
+                    const std::string& p = pathConcat(d, subdirs[i]);
+                    if (fileExists(p)) {
+                        directoryArray.append(p);
+                    }
+                }
+            }
         }
 
         logLazyPrintf("Initializing System::findDataFile took %fs\n", System::time() - t0);
     }
 
-    const std::string& name = filenameBaseExt(full);
     for (int i = 0; i < directoryArray.size(); ++i) {
-        const Directory& d = directoryArray[i];
-        
-        if (d.contents.contains(name)) {
-            std::string filename = pathConcat(d.path, name);
-            // Update the cache
-            lastFound.set(full, filename);
-            return filename;
+        const std::string& p = pathConcat(directoryArray[i], full);
+        if (fileExists(p)) {
+            lastFound.set(full, p);
+            return p;
         }
     }
 
@@ -435,7 +453,7 @@ std::string System::findDataFile
         // Generate an error message
         std::string locations;
         for (int i = 0; i < directoryArray.size(); ++i) {
-            locations += pathConcat(directoryArray[i].path, name) + "\n";
+            locations += pathConcat(directoryArray[i], full) + "\n";
         }
         alwaysAssertM(false, "Could not find '" + full + "' in:\n" + locations);
     }

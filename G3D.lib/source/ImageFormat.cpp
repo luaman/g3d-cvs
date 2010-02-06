@@ -55,7 +55,7 @@ ImageFormat::ImageFormat(
     opaque(_opaque),
     floatingPoint(_floatingPoint) {
 
-	debugAssert(_packedBitsPerTexel <= _hardwareBitsPerTexel);
+    debugAssert(_packedBitsPerTexel <= _hardwareBitsPerTexel);
 }
 
 const ImageFormat* ImageFormat::depth(int depthBits) {
@@ -195,6 +195,7 @@ const std::string& ImageFormat::name() const {
     return nameArray[code];
 }
 
+
 const ImageFormat* ImageFormat::fromString(const std::string& s) {
     
     for (int i = 0; ! nameArray[i].empty(); ++i) {
@@ -204,6 +205,7 @@ const ImageFormat* ImageFormat::fromString(const std::string& s) {
     }
     return NULL;
 }
+
 
 const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
     switch (code) {

@@ -2297,8 +2297,8 @@ Texture::Specification::Specification(const Any& any) {
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
         if (key == "filename") {
-            filename = it->value.string();
-        } else if (key == "desiredFormat") {
+            filename = System::findDataFile(it->value.string());
+        } else if (key == "desiredformat") {
             desiredFormat = ImageFormat::fromString(it->value.string());
         } else if (key == "dimension") {
             dimension = toDimension(it->value);

@@ -1,0 +1,67 @@
+// You can extend this sample scene file format with your own fields.
+// Edit the scene parsing in Scene.cpp.
+{
+    name = "Crates",
+   
+    models = {
+       ground = ArticulatedModel::Specification {
+            filename = "ifs/crate.ifs",
+            preprocess = ArticulatedModel::Preprocess {
+                xform = Matrix4::scale(6.0, 1.0, 6.0),
+                materialOverride = Material::Specification {
+                    lambertian = "material/asphalt/asphalt-L.jpg",
+                    specular = "material/asphalt/asphalt-G.jpg",
+                    shininess = glossyExponent(20),
+                    bump = "material/asphalt/asphalt-L.jpg",
+                }
+            }
+       },   
+        
+       metalCrate = ArticulatedModel::Specification {            
+            filename = "ifs/crate.ifs",
+            preprocess = ArticulatedModel::Preprocess {
+                materialOverride = Material::Specification {
+                    lambertian = "material/metalcrate/metalcrate-L.png",
+                    specular = "material/metalcrate/metalcrate-G.png",
+                    shininess = glossyExponent(30),
+                    bump = "material/metalcrate/metalcrate-B.png",
+                }
+            }
+       },
+    },
+    
+    lighting = {
+        ambientTop    = Color3::fromARGB(0x303842),
+        ambientBottom = Color3::fromARGB(0x262627),
+
+        lightArray = (
+            GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d))
+        ),
+        shadowedLightArray = (
+            GLight::directional(Vector3(1,2,1), Color3::fromARGB(0xfcf6eb))
+        ),
+
+        environmentMap = Texture::Specification {
+            filename = "cubemap/noonclouds/noonclouds_*.jpg",
+            desiredFormat = "RGB8",
+            dimension = "DIM_CUBE_MAP",
+            preprocess = Texture::Preprocess::gamma(2.1f)
+        } 
+    },
+    
+    entities = (
+        metalCrate(Vector3(1.0, 0.5, 0.0)),
+        metalCrate(CFrame::fromXYZYPRDegrees(0.6f, 0.5f, -1.8f, 30.0f)),
+
+        ground(Vector3(0, -0.5, 0))
+    ),
+    
+    camera = GCamera {
+        coordinateFrame = CFrame::fromXYZYPRDegrees( -0.8f,   0.6f,  2.4f,  339.5f, 0.6),
+        nearPlaneZ = -0.5,
+        farPlaneZ = -50,
+        fovDirection = "VERTICAL",
+        fovDegrees = 60
+    }
+   
+}

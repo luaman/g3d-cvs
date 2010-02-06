@@ -63,6 +63,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/debug.h"
+#include "G3D/g3dfnmatch.h"
 #include "G3D/G3DGameUnits.h"
 #include "G3D/g3dmath.h"
 #include "G3D/uint128.h"

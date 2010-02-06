@@ -61,7 +61,10 @@ void UserInput::init(
         keyMapping = NULL;
     }
 
-    useJoystick = _window->numJoysticks() > 0;
+    // We turned off joysticks for G3D 8.00 because few people ever seemed to use it and
+    // uncalibrated joysticks could cause serious confusion for users.
+    //
+    useJoystick = false; //_window->numJoysticks() > 0;
     _window->getRelativeMouseState(mouse, mouseButtons);
     guiMouse = mouse;
 

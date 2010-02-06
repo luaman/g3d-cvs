@@ -368,6 +368,7 @@ href="classes.html">Classes</a>.
         \link G3D::filenameExt filenameExt\endlink,
         \link G3D::filenamePath filenamePath\endlink,
         \link G3D::fileIsNewer fileIsNewer\endlink,
+        \link G3D::g3dfnmatch G3D::g3dfnmatch\endlink,
         \link G3D::generateFilenameBase generateFilenameBase\endlink,
         \link G3D::getFiles getFiles\endlink, 
         \link G3D::getDirs getDirs\endlink,

@@ -4,14 +4,14 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @author  2002-06-06
- @edited  2007-01-18
+ @edited  2010-02-06
 
- Copyright 2000-2007, Morgan McGuire.
+ Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_FILEUTILS_H
-#define G3D_FILEUTILS_H
+#ifndef G3D_fileUtils_h
+#define G3D_fileUtils_h
 
 #include "G3D/platform.h"
 #include <string>
@@ -144,12 +144,21 @@ FILE* createTempFile();
 /**
  Returns true if the given file (or directory) exists.
 
- @param filename the path to test. must not end in a trailing slash.
- @param lookInZipfiles if the path does not exist, calls zipfileExists()
+ \param filename the path to test. must not end in a trailing slash.
+ \param lookInZipfiles if the path does not exist, calls zipfileExists()
+ \param trustCache If true and \a lookInZipfiles is true, cache directory and zipfile contents
+  so that subsequent calls to the same directory are fast.
+
+ \sa G3D::clearFileSystemCache, G3D::zipfileExists
  */
-bool fileExists(
-    const std::string&          filename,
-	const bool					lookInZipfiles = true);
+bool fileExists
+(const std::string&          filename,
+ bool	                     lookInZipfiles = true,
+ bool                        trustCache = true);
+
+
+/** Clears the cache used by fileExists */
+void clearFileSystemCache();
 
 /**
  Returns true if the given file (or directory) exists
@@ -163,11 +172,10 @@ bool fileExists(
  @param outInternalFile the path (within the .zip) where the desired file is located, if valid
 
  */
-bool zipfileExists(
-	const std::string&          filename,
-	std::string&				outZipfile,
-	std::string&				outInternalFile
-	);
+bool zipfileExists
+(const std::string&          filename,
+ std::string&		     outZipfile,
+ std::string&		     outInternalFile);
 
 bool zipfileExists(const std::string& filename);
 

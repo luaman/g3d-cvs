@@ -17,7 +17,7 @@ bool BumpMap::Specification::operator==(const Specification& other) const {
 BumpMap::Specification::Specification(const Any& any) {
     if (any.type() == Any::STRING) {
         // Treat as a filename
-        texture.filename = any.string();
+        texture.filename = System::findDataFile(any.string());
         texture.preprocess = Texture::Preprocess::normalMap();
     } else {
         for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {

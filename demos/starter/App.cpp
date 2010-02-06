@@ -62,7 +62,7 @@ void App::onInit() {
 
     m_shadowMap = ShadowMap::create();
 
-    m_scene = Scene::create();
+    m_scene = Scene::create("Crates", defaultCamera);
 }
 
 
@@ -114,7 +114,9 @@ void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surfa
 
 
 void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
-    Draw::skyBox(rd, m_scene->lighting()->environmentMap);
+    if (m_scene->lighting()->environmentMap.notNull()) {
+        Draw::skyBox(rd, m_scene->lighting()->environmentMap);
+    }
 
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a

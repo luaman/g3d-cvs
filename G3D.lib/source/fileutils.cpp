@@ -4,7 +4,7 @@
  @author Morgan McGuire, graphics3d.com
  
  @author  2002-06-06
- @edited  2008-01-20
+ @edited  2010-02-05
  */
 
 #include <cstring>
@@ -16,6 +16,7 @@
 #include "G3D/g3dmath.h"
 #include "G3D/stringutils.h"
 #include "G3D/Set.h"
+#include "G3D/g3dfnmatch.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -409,25 +410,100 @@ void createDirectory(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool fileExists(
-    const std::string&	_filename,
-	const bool			lookInZipfiles) {
+class FileSystemCache {
+private:
 
-	if (_filename.empty()) {
-		return false;
-	}
+    Table<std::string, Array<std::string> > m_files;
 
-    // Remove trailing slash
+public:
+
+    bool fileExists(const std::string& filename) {
+        const std::string& path = resolveFilename(filenamePath(filename));
+        const std::string& name = filenameBaseExt(filename);
+        
+        bool neverBeforeSeen = false;
+        Array<std::string>& fileList = m_files.getCreate(path, neverBeforeSeen);
+        if (neverBeforeSeen) {
+            if (! G3D::fileExists(path, true, false)) {
+                // The path itself doesn't exist... back out our insertion (which makes fileList& invalid) 
+                m_files.remove(path);
+                return false;
+            }
+
+            std::string spec = pathConcat(path, "*");
+
+            // Will automatically recurse into zipfiles
+            getFiles(spec, fileList);
+            getDirs(spec, fileList);
+
+#           ifdef G3D_WIN32 
+            {
+                // Case insensitive
+                for (int i = 0; i < fileList.size(); ++i) {
+                    fileList[i] = toLower(fileList[i]);
+                }
+            }
+#           endif
+        }
+
+        if (filenameContainsWildcards(name)) {
+            // See if anything matches
+            for (int i = 0; i < fileList.size(); ++i) {
+                if (g3dfnmatch(name.c_str(), fileList[i].c_str(), 0)) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            // On windows, this is a lower-lower comparison, so it is case insensitive
+            return fileList.contains(name);
+        }
+    }
+
+    void clear() {
+        m_files.clear();
+    }
+
+    static FileSystemCache& instance() {
+        static FileSystemCache i;
+        return i;
+    }
+};
+
+
+void clearFileSystemCache() {
+    FileSystemCache::instance().clear();
+}
+
+bool fileExists
+(const std::string&	_filename,
+ bool                   lookInZipfiles,
+ bool                   trustCache) {
+    
+    if (_filename.empty()) {
+        return false;
+    }
+
+    // Remove trailing slash from directories
     const std::string& filename = (endsWith(_filename, "/") || endsWith(_filename, "\\")) ? _filename.substr(0, _filename.length() - 1) : _filename;
 
+    if (trustCache && lookInZipfiles) {
+#       ifdef G3D_WIN32
+            // Case insensitive
+            return FileSystemCache::instance().fileExists(toLower(filename));
+#       else
+            return FileSystemCache::instance().fileExists(filename);
+#       endif
+    }
+
     // Useful for debugging
-    char curdir[1024]; _getcwd(curdir, 1024); 
+    //char curdir[1024]; _getcwd(curdir, 1024); 
 
     struct _stat st;
     int ret = _stat(filename.c_str(), &st);
 
     // _stat returns zero on success
-	bool exists = (ret == 0);
+    bool exists = (ret == 0);
 
     if (! exists && lookInZipfiles) {
 		// Does not exist standalone, but might exist in a zipfile
@@ -713,9 +789,9 @@ void parseFilename(
  @param includePath     If true, the names include paths
  */
 static void getFileOrDirListNormal
-(const std::string&		filespec,
+(const std::string&	filespec,
  Array<std::string>&	files,
- bool				    wantFiles,
+ bool			wantFiles,
  bool                   includePath) {
     
     bool test = wantFiles ? true : false;
@@ -824,12 +900,8 @@ static void getFileOrDirListNormal
 #   endif
 }
 
-/**
- 
- c:/temp/foo.zip/plainsky\\*
-"    path       "
-                "prefix   "
 
+/**
  @param path   The zipfile name (no trailing slash)
  @param prefix Directory inside the zipfile. No leading slash, must have trailing slash if non-empty.
  @param file   Name inside the zipfile that we are testing to see if it matches prefix + "*"
