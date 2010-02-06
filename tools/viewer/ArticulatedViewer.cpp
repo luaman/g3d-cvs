@@ -64,7 +64,6 @@ void ArticulatedViewer::onInit(const std::string& filename) {
         }
 
 		Vector3 extent = bounds.extent();
-		Vector3 center = bounds.center();
 
 		// Scale to 5 units
 		float scale = 5.0f / max(extent.x, max(extent.y, extent.z));
@@ -77,26 +76,17 @@ void ArticulatedViewer::onInit(const std::string& filename) {
             scale = 1;
         }
 
-        if (! center.isFinite()) {
-            center = Vector3::zero();
-        }
-
-		CoordinateFrame transform;
-		transform.rotation = Matrix3::identity() * scale;
-		transform.translation = -center * scale;
-
 		// Transform parts in-place
 		for (int partIndex = 0; partIndex < m_model->partArray.length(); ++partIndex) {
 			MeshAlg::Geometry& geom = m_model->partArray[partIndex].geometry;
 
 			for (int vertIndex = 0; vertIndex < geom.vertexArray.length(); ++vertIndex) {
-				geom.vertexArray[vertIndex] = transform.pointToWorldSpace(geom.vertexArray[vertIndex]);
+				geom.vertexArray[vertIndex] = geom.vertexArray[vertIndex] * scale;
 			}
 
-			//m_model->partArray[partIndex].updateVAR();
+			m_model->partArray[partIndex].computeBounds();
+			m_model->partArray[partIndex].updateVAR();
 		}
-
-		m_model->updateAll();
 	}
 }
 
