@@ -2,8 +2,11 @@
 
 \htmlonly
 
-<b>The easiest way to create a new project is to copy the <a href="../demos/starter">starter</a> project, which includes VS2008 .sln and .vcproj files.</b>
+<table border=1>
+<tr><td>
+<b>The easiest way to create a new project is to just copy the <a href="../demos/starter">starter</a> project, which includes VS2008 .sln and .vcproj files.</b>
 The following instructions explain how to manually configure a new project (or an existing one that you're adding G3D to).
+</td></tr></table>
 
 <ol>
 <li> <p>Launch Visual Studio.</p>
