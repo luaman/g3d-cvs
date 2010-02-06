@@ -33,7 +33,7 @@
 *@(#)fnmatch.h8.1 (Berkeley) 6/2/93
 *
 * From FreeBSD fnmatch.h 1.7
-* $Id: g3dfnmatch.cpp,v 1.1 2010/02/06 06:51:28 morgan3d Exp $
+* $Id: g3dfnmatch.cpp,v 1.2 2010/02/06 10:03:24 corey_taylor Exp $
 */
 #include "G3D/g3dfnmatch.h"
 
@@ -45,12 +45,11 @@
 
 namespace G3D {
 
-#define EOS'\0'
+#define EOS '\0'
 
 static const char *rangematch(const char *, char, int);
 
-int
-g3dfnmatch(const char *pattern, const char *string, int flags)
+int g3dfnmatch(const char *pattern, const char *string, int flags)
 {
     const char *stringstart;
     char c, test;
@@ -99,7 +98,7 @@ g3dfnmatch(const char *pattern, const char *string, int flags)
 
             /* General case, use recursion. */
             while ((test = *string) != EOS) {
-                if (!fnmatch(pattern, string, flags & ~FNM_PERIOD))
+                if (!rangematch(pattern, *string, flags & ~FNM_PERIOD))
                     return (0);
                 if (test == '/' && flags & FNM_PATHNAME)
                     break;

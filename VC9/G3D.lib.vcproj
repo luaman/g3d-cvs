@@ -281,6 +281,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\g3dfnmatch.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\g3dmath.cpp"
 				>
 			</File>
@@ -704,6 +708,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\G3DAll.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\g3dfnmatch.h"
 				>
 			</File>
 			<File
