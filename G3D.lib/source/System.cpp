@@ -416,11 +416,6 @@ std::string System::findDataFile
             maybeAddDirectory(g3dPath, directoryArray, true);
         }
 
-        // For running starter files in a G3D install
-        maybeAddDirectory("../data", directoryArray, true);
-
-        // For running under Visual Studio when working on the G3D.sln
-        maybeAddDirectory("../data-files", directoryArray, true);
         logLazyPrintf("Initializing System::findDataFile took %fs\n", System::time() - t0);
     }
 
@@ -459,10 +454,21 @@ std::string demoFindData(bool errorIfNotFound) {
     static const char* g3dPath = getenv("G3DDATA");
     if (g3dPath) {
         return g3dPath;
+#   ifdef G3D_WIN32
     } else if (fileExists("../data")) {
+        // G3D install on Windows
         return "../data";
     } else if (fileExists("../data-files")) {
+        // G3D source on Windows
         return "../data-files";
+#   else
+    } else if (fileExists("../../../../data")) {
+        // G3D install on Unix
+        return "../../../../data";
+    } else if (fileExists("../../../../data-files")) {
+        // G3D source on Unix
+        return "../../../../data-files";
+#   endif
     } else {
         return "";
     }

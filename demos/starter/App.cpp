@@ -1,6 +1,4 @@
-/**
-  @file App.cpp
- */
+/** \file App.cpp */
 #include "App.h"
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
@@ -36,10 +34,6 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
 
 void App::onInit() {
-
-    float s1 = debugFont->nativeSize();
-    float s2 = GFont::fromFile(System::findDataFile("arial2.fnt"))->nativeSize();
-
     // Called before the application loop beings.  Load data here and
     // not in the constructor so that common exceptions will be
     // automatically caught.
