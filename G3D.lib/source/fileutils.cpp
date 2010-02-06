@@ -449,7 +449,7 @@ public:
         if (filenameContainsWildcards(name)) {
             // See if anything matches
             for (int i = 0; i < fileList.size(); ++i) {
-                if (g3dfnmatch(name.c_str(), fileList[i].c_str(), 0)) {
+                if (g3dfnmatch(name.c_str(), fileList[i].c_str(), 0) == 0) {
                     return true;
                 }
             }
