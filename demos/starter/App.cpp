@@ -14,10 +14,12 @@ int main(int argc, char** argv) {
     settings.window.height      = 600;
 
 #   ifdef G3D_WIN32
-        // On unix operating systems, icompile automatically copies data files.  
-        // On Windows, we just run from the data directory.
-        if (fileExists("data-files")) {
+        if (fileExists("data-files", false, false)) {
+            // Running on Windows, building inside the starter directory
             chdir("data-files");
+        } else if (fileExists("../demos/starter/data-files", false, false)) {
+            // Running on Windows, building from the G3D.sln project
+            chdir("../demos/starter/data-files");
         }
 #   endif
 
