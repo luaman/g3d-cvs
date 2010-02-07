@@ -45,6 +45,7 @@
             filename = "cubemap/noonclouds/noonclouds_*.jpg",
             desiredFormat = "RGB8",
             dimension = "DIM_CUBE_MAP",
+            settings = Texture::Settings::cubeMap(),
             preprocess = Texture::Preprocess::gamma(2.1f)
         } 
     },

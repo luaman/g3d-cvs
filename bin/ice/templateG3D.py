@@ -38,6 +38,6 @@ def generateStarterFiles(state):
 
     mkdir('doc-files')
     for d in ['data-files', 'source']:
-        copyifnewer.copyIfNewer(pathConcat(starterPath, d), pathConcat('source', d))
+        copyifnewer.copyIfNewer(pathConcat(starterPath, d), d)
      
 
