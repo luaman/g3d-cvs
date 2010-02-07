@@ -32,15 +32,12 @@ def generateStarterFiles(state):
         colorPrint("ERROR: G3D template cannot be used with a library", ERROR_COLOR)
         sys.exit(-232)
                 
-    mkdir('build')
-    mkdir('source')
-    mkdir('doc-files')
-    mkdir('data-files')
-
     starterPath = findG3DStarter(state)
     
     print '\nCopying G3D starter files from ' + starterPath
 
-    for f in ['App.h', 'App.cpp', 'Scene.h', 'Scene.cpp']:
-        shutil.copyfile(pathConcat(starterPath, f), pathConcat('source', f))
+    mkdir('doc-files')
+    for d in ['data-files', 'source']:
+        copyifnewer.copyIfNewer(pathConcat(starterPath, d), pathConcat('source', d))
+     
 
