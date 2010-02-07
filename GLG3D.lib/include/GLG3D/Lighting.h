@@ -3,13 +3,13 @@
 
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2002-10-05
- @edited  2007-12-05
+ @edited  2010-02-06
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
  */
-#ifndef G3D_LIGHTING_H
-#define G3D_LIGHTING_H
+#ifndef G3D_Lighting_h
+#define G3D_Lighting_h
 
 #include "G3D/platform.h"
 #include "GLG3D/Texture.h"
@@ -120,11 +120,27 @@ typedef SkyParameters SkyParameters;
 
 /**
    A rich environment lighting model that contains both global and local sources.
+
+   Note: This class will change substantially in G3D 9.00.
  */
 class Lighting : public ReferenceCountedObject {
 public:
 
     typedef ReferenceCountedPointer<class Lighting> Ref;
+
+    /** \beta */
+    class Specification {
+    public:
+        Color3                            emissiveScale;
+        Color3                            ambientTop;
+        Color3                            ambientBottom;
+        Texture::Specification            environmentMap;
+        Color3                            environmentMapColor;
+        Array<GLight>                     lightArray;
+        Array<GLight>                     shadowedLightArray;
+        Specification() : emissiveScale(Color3::white()), ambientTop(Color3::black()), ambientBottom(Color3::black()), environmentMapColor(Color3::white()) {}
+        Specification(const class Any&);
+    };
 
 private:
 
@@ -132,7 +148,8 @@ private:
 
 public:
 
-    LightingRef static fromSky(const SkyRef& sky, const SkyParameters&, const Color3& groundColor);
+    /** \deprecated */
+    static Lighting::Ref fromSky(const SkyRef& sky, const SkyParameters&, const Color3& groundColor);
 
     /** Multiply this by all emissive values when rendering.  
         Some algorithms (e.g., G3D::ToneMap) scale
@@ -159,16 +176,18 @@ public:
     Array<GLight>       shadowedLightArray;
 
     /** Creates a (dark) environment. */
-    static ReferenceCountedPointer<Lighting> create() {
+    static Ref create() {
         return new Lighting();
     }
+
+    static Ref create(const Specification& s);
 
     inline Color3 ambientAverage() const {
         return (ambientBottom + ambientTop) / 2.0f;
     }
 
     /** Make a copy of this lighting environment (does not clone the environment map) */
-    LightingRef clone() const;
+    Lighting::Ref clone() const;
 
     /**
      Removes the dimmest non-shadowed light and adds its contribution in to the ambient terms.

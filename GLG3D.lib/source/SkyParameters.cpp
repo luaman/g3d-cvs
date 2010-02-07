@@ -3,7 +3,7 @@
 
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2002-10-05
- @edited  2007-12-28
+ @edited  2010-02-06
  */
 
 #include "GLG3D/Lighting.h"
@@ -11,6 +11,7 @@
 #include "G3D/Matrix3.h"
 #include "G3D/splinefunc.h"
 #include "G3D/GLight.h"
+#include "G3D/Any.h"
 #include <sys/timeb.h>
 #include <sys/types.h> 
 
@@ -177,6 +178,57 @@ GLight SkyParameters::directionalLight() const {
 
 
 //////////////////////////////////////////////////////////////////////
+
+Lighting::Specification::Specification(const Any& any) {
+    *this = Specification();
+    any.verifyName("Lighting::Specification");
+
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "emissivescale") {
+            emissiveScale = it->value;
+        } else if (key == "ambienttop") {
+            ambientTop = it->value;
+        } else if (key == "ambientbottom") {
+            ambientBottom = it->value;
+        } else if (key == "environmentmap") {
+            environmentMap = it->value;
+        } else if (key == "environmentmapcolor") {
+            environmentMapColor = it->value;
+        } else if (key == "lightarray") {
+            const Any& array = it->value;
+            array.verifyType(Any::ARRAY);
+            lightArray.resize(array.size());
+            for (int i = 0; i < array.size(); ++i) {
+                lightArray[i] = array[i];
+            }
+        } else if (key == "shadowedlightarray") {
+            const Any& array = it->value;
+            array.verifyType(Any::ARRAY);
+            shadowedLightArray.resize(array.size());
+            for (int i = 0; i < array.size(); ++i) {
+                shadowedLightArray[i] = array[i];
+            }
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
+    }
+}
+
+
+Lighting::Ref Lighting::create(const Specification& s) {
+    Lighting::Ref L = Lighting::create();
+    L->lightArray = s.lightArray;
+    L->shadowedLightArray = s.shadowedLightArray;
+    L->emissiveScale = s.emissiveScale;
+    L->ambientTop = s.ambientTop;
+    L->ambientBottom = s.ambientBottom;
+    if (s.environmentMap.filename != "") {
+        L->environmentMap = Texture::create(s.environmentMap);
+    }
+    L->environmentMapColor = s.environmentMapColor;
+    return L;
+}
 
 
 LightingRef Lighting::clone() const {

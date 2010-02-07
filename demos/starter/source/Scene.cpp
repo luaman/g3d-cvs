@@ -50,10 +50,6 @@ Array<std::string> Scene::sceneNames() {
 Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
 
     Scene::Ref s = new Scene();
-    s->m_lighting = Lighting::create();
-    s->m_lighting->lightArray.clear();
-    s->m_lighting->shadowedLightArray.clear();
-    s->m_lighting->environmentMapColor = Color3::one();
 
     const std::string* f = filenameTable().getPointer(scene);
     if (f == NULL) {
@@ -66,16 +62,10 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
     any.load(pathConcat("scene", filename));
 
     // Load the lighting
-    Any lighting = any["lighting"];
-    s->m_lighting->ambientTop = lighting["ambientTop"];
-    s->m_lighting->ambientBottom = lighting["ambientBottom"];
-    Any shadowedLightArray = lighting["shadowedLightArray"]; 
-    s->m_lighting->shadowedLightArray.resize(shadowedLightArray.size());
-    for (int i = 0; i < shadowedLightArray.size(); ++i) {
-        s->m_lighting->shadowedLightArray[i] = shadowedLightArray[i];
-    }
-    if (lighting.containsKey("environmentMap")) {
-        s->m_lighting->environmentMap = Texture::create(Texture::Specification(lighting["environmentMap"]));
+    if (any.containsKey("lighting")) {
+        s->m_lighting = Lighting::create(any["lighting"]);
+    } else {
+        s->m_lighting = Lighting::create();
     }
 
     // Load the models
@@ -96,8 +86,8 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
         const ArticulatedModel::Ref* model = modelTable.getPointer(entityArgs.name());
         entityArgs.verify((model != NULL), 
             "Can't instantiate undefined model named " + entityArgs.name() + ".");
-        CFrame cframe;
 
+        CFrame cframe;
         if (entityArgs.size() == 1) {
             const Any& c = entityArgs[0];
             if (toLower(c.name()) == "vector3") {

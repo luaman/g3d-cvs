@@ -30,7 +30,7 @@
        },
     },
     
-    lighting = {
+    lighting = Lighting::Specification {
         ambientTop    = Color3::fromARGB(0x303842),
         ambientBottom = Color3::fromARGB(0x262627),
 
