@@ -48,8 +48,6 @@ installed G3D to <code>c:\libraries</code>, the sample program files are in
 Set the <b>Randomized Base Address</b> to <b>Disable Randomization (/DYNAMICBASE:NO)</b> as demonstrated in this image:
 <center><img src="vc8-new-project-dynamicbase.png" border=0 align=top></center></p>
 
-<li> <p> Click on <b>Manifest Tool</b>, then <b>Input / Output</b>.  On the right pane, set <b>Embed Manifest</b> to <b>No</b><p>
-
 <li> <p> Push <b>F5</b> to compile and run this default program.  If Visual Studio and G3D are installed 
 correctly, Visual Studio will automatically link your program against all libraries needed.  When run,
  the sample program will have the camera floating in space near a set of colored axes.  Hold down the <b>right mouse button</b> and use
