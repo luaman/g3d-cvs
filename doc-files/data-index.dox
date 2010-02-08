@@ -434,9 +434,15 @@ Load with \link G3D::Sky Sky\endlink and \link G3D::Texture Texture\endlink.
 <br>test/testcube_*.jpg</a></center></td>
 <td><center><a href="../data/cubemap/uffizi/"><img src="../data/cubemap/uffizi/uffizi+x.jpg" height=100>
 <br>uffizi/uffizi*.jpg</a></center></td>
-
 <td><center><a href="../data/cubemap/interstellar/"><img src="../data/cubemap/interstellar/interstellarup.png" height=100>
 <br>interstellar/interstellar*.png</a></center></td>
+<td><center><a href="../data/cubemap/mpa116/"><img src="../data/cubemap/mpa116/mpa116ft.png" height=100>
+<br>mpa116/mpa116*.png</a></center></td>
+</tr>
+
+<tr>
+<td><center><a href="../data/cubemap/sky_skylab_01/"><img src="../data/cubemap/sky_skylab_01/sky_skylab_01ft.jpg" height=100>
+<br>sky_skylab_01/sky_skylab_01*.jpg</a></center></td>
 </tr>
 
 </table>

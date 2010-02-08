@@ -41,7 +41,7 @@ the build scripts that call them.
 
 To create and install all of G3D, at the command line execute:
 
-    buildg3d --install all
+    buildg3d --install update
 
 You can build just the libraries (much faster) with:
 
