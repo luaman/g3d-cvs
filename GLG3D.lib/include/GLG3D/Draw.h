@@ -83,7 +83,7 @@ public:
     static void lighting(LightingRef lighting, RenderDevice* rd, bool showEffectSpheres = false);
 
     /** Render a skybox using \a cubeMap, and the set of 6 cube map faces in \a texture if \a cubeMap is NULL. */
-    static void skyBox(RenderDevice* renderDevice, Texture::Ref& cubeMap, Texture::Ref* texture = NULL);
+    static void skyBox(RenderDevice* renderDevice, const Texture::Ref& cubeMap, const Texture::Ref* texture = NULL);
 
     /**
      Set the solid color or wire color to Color4::clear() to

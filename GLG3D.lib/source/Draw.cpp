@@ -68,7 +68,7 @@ static void skyVertex(RenderDevice* renderDevice,
 }
 
 
-void Draw::skyBox(RenderDevice* renderDevice, Texture::Ref& cubeMap, Texture::Ref* texture) {
+void Draw::skyBox(RenderDevice* renderDevice, const Texture::Ref& cubeMap, const Texture::Ref* texture) {
     enum Direction {UP = 0, LT = 1, RT = 2, BK = 3, FT = 4, DN = 5};
     renderDevice->pushState();
 
