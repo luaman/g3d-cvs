@@ -28,9 +28,9 @@ The Linux and FreeBSD builds require the following library packages:
 * Distribution specific x11-dev (x11/xorg development libraries + headers)
 
 
-The OSX, Linux and FreeBSD builds will install an internal version of FFmpeg
-(http://ffmpeg.org/) to the G3D installation directory so be careful not 
-to overwrite a previously installed version unintentionally.
+The OSX and Linux builds will install an internal version of FFmpeg
+(http://ffmpeg.org/) to the G3D installation directory so be careful
+not to overwrite a previously installed version unintentionally.
 
 It is possible to build the library on Windows using the Visual
 Studio IDE, however documentation, headers, demos, and other aspects
@@ -38,6 +38,7 @@ of the full build will be missing.  The G3D team DOES NOT SUPPORT
 direct use of the Visual Studio project files.  We only support
 the build scripts that call them.
 
+--------------------------------------------------------------------
 
 To create and install all of G3D, at the command line execute:
 
@@ -47,8 +48,11 @@ You can build just the libraries (much faster) with:
 
     buildg3d --install lib
 
+If you chose to specify the optional install directory for the build,
+set your G3DDATA directory to that directory + G3D/data
+
 (On Unix-like operating systems you may need to first execute
-"chmod a+x buildg3d" and run this command as "./buildg3d all",
+"chmod a+x buildg3d" and run this command as "./buildg3d",
 depending on your system configuration.)
 
 Run "buildg3d help" for more information about the build sytem.
