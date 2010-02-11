@@ -274,8 +274,9 @@ Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(f
 
 
 Vector2 Win32Window::screenSize() {
-    int width  = GetSystemMetrics(SM_CXFULLSCREEN);
-    int height = GetSystemMetrics(SM_CYFULLSCREEN);
+    int width  = GetSystemMetrics(SM_CXSCREEN);
+    int height = GetSystemMetrics(SM_CYSCREEN);
+//	logPrintf("Win32Window::screenSize(): %dx%d\n", width, height);
     return G3D::Vector2( width, height );
 }
 
