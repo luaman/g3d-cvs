@@ -89,12 +89,7 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
 
         CFrame cframe;
         if (entityArgs.size() == 1) {
-            const Any& c = entityArgs[0];
-            if (toLower(c.name()) == "vector3") {
-                cframe = Vector3(c);
-            } else {
-                cframe = c;
-            }
+            cframe = entityArgs[0];
         }            
 
         s->m_entityArray.append(Entity::create(cframe, *model));

@@ -68,6 +68,8 @@ public:
         - CFrame((matrix3 expr), (vector3 expr))
         - CFrame::fromXYZYPRDegrees(#, #, #, #, #, #)
         - CFrame {  rotation = (matrix3 expr), translation = (vector3 expr) }
+        - Vector3( ... )
+        - Matrix3( ... )
         */
     CoordinateFrame(const Any& any);
     

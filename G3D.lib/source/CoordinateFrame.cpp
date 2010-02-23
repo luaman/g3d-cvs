@@ -30,8 +30,15 @@
 namespace G3D {
 
 CoordinateFrame::CoordinateFrame(const Any& any) {
-    any.verifyName("CFrame");
-    if (toUpper(any.name()) == "CFRAME") {
+    *this = CFrame();
+
+    const std::string& n = toUpper(any.name());
+
+    if (beginsWith(n, "VECTOR3")) {
+        translation = any;
+    } else if (beginsWith(n, "MATRIX3")) {
+        rotation = any;
+    } else if (n == "CFRAME") {
         any.verifyType(Any::TABLE, Any::ARRAY);
         if (any.type() == Any::TABLE) {
             rotation    = any["rotation"];

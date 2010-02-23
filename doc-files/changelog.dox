@@ -35,6 +35,7 @@
      <li> G3D::GFont::nativeSize
      <li> G3D::fileExists now caches results by default; see new optional argument and G3D::clearFileSystemCache
      <li> G3D::Surface::AlphaMode
+     <li> G3D::Shader now appends the shader source to the error message
      <li> G3D::fileExists now allows wildcards
      <li> Tuned bloom appearance under G3D::Film
      <li> G3D::SuperShader::configureSingleLightShaderArgs
@@ -160,6 +161,7 @@
      <li> Fix: G3D::System::cpuid() now correct on all gcc systems.  Previously the vendor string (e.g., GenuineIntel, AuthenticAMD) was sometimes corrupt. [Shawn]
      <li> Fix: RenderDevice now allows depth write without depth test  
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards
+     <li> Fix: Material::configure only sets bumpMapBias and scale when PARALLAXSTEPS > 0
      <li> Fix: G3D::iswspace now considers '\\r' as whitespace
      <li> Fix: G3D::System::appName now removes the 'd' that icompile appends
      <li> Fix: G3D::System::getCurrentProgramFilename now works on OS X

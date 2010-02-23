@@ -1,0 +1,22 @@
+// -*- c++ -*-
+/**
+  \file SS_GBufferPosition.pix
+  \author Morgan McGuire, http://graphics.cs.williams.edu
+ */
+#define LAMBERTIANCONSTANT
+#define LAMBERTIANMAP
+#include "SS_Globals.pix"
+
+void main(void) {
+#include "SS_LambertianComponent.pix"
+
+#   if (defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP))
+        if (lambertianColor.a < 0.5) {
+            // Alpha masking
+            discard;
+        }
+#   endif
+
+    gl_FragData[0].rgb = wsPosition;
+    gl_FragData[0].a = 1.0;
+}

@@ -1,18 +1,19 @@
 // -*- c++ -*-
 /**
-  @file SS_Globals.pix
-  @author Morgan McGuire morgan@cs.williams.edu
+  \file SS_Globals.pix
+  \author Morgan McGuire, http://graphics.cs.williams.edu
 
   For use with G3D::SuperShader.
   This file is included into SS_NonShadowedPass.pix and SS_ShadowMappedLightPass.pix.
 
-  @edited  2009-07-30
-  @created 2007-12-18
+  \edited  2010-02-25
+  \created 2007-12-18
  */
 
 /** Surface position in world space */
 varying vec3        wsPosition;
 
+#ifndef NO_LIGHT
 /** World space light position */
 uniform vec4        lightPosition0;
 
@@ -24,6 +25,7 @@ uniform vec3        lightDirection0;
 
 /** w element is the spotlight cutoff angle*/
 uniform vec4        lightAttenuation0;
+#endif
 
 #ifdef CUSTOMCONSTANT
     uniform vec4        customConstant;
@@ -93,3 +95,5 @@ float square(in float x) {
 float unpackSpecularExponent(in float e) {
     return square((e * 255.0 - 1.0) * (1.0 / 253.0)) * 1024.0 + 1.0;
 }
+/* End SS_Globals.pix */
+

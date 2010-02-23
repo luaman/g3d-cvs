@@ -33,6 +33,18 @@ static bool glossyReflectiveFF(const SuperBSDF::Ref& bsdf) {
 }
 
 
+void SuperSurface::sortFrontToBack(Array<SuperSurface::Ref>& a, const Vector3& v) {
+    Array<Surface::Ref> s;
+    s.resize(a.size());
+    for (int i = 0; i < s.size(); ++i) {
+        s[i] = a[i];
+    }
+    Surface::sortFrontToBack(s, v);
+    for (int i = 0; i < s.size(); ++i) {
+        a[i] = s[i].downcast<SuperSurface>();
+    }
+}
+
 SuperSurface::Ref SuperSurface::create
 (const std::string&       name,
  const CFrame&            frame, 

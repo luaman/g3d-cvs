@@ -18,4 +18,5 @@
 #   else
         vec3 wsE = BLACK;
 #   endif
+/* end SS_Components.pix */
 

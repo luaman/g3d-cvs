@@ -7,6 +7,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/ReferenceCount.h"
+#include "G3D/ImageFormat.h"
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/Shader.h"
@@ -22,83 +23,120 @@ class RenderDevice;
 
     Used for rendering a G3D::SuperBSDF with deferred shading. 
 
-    Requires GBuffer.pix and GBuffer.vrt at runtime, which can be found
-    in the G3D/data-files/SuperShader directory of the G3D distribution.
-
-    \beta This build of G3D only supports SuperSurface with GBuffer.
-
-    Requires glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT) >= 5 and 
-    pixel and vertex shaders.
+    Requires SS_GBuffer.pix, SS_GBufferPosition.pix, and
+    SS_NonShadowedPass.vrt at runtime, which can be found in the
+    G3D/data-files/SuperShader directory of the G3D distribution.
 */
 class GBuffer : public ReferenceCountedObject {
 public:
 
-    typedef ReferenceCountedPointer<GBuffer> Ref;
+    class Specification {
+    public:
+        /** World space shading normal in RGB (after bump mapping). */
+        bool                  normal;
+        bool                  lambertian;
+        bool                  specular;
+        bool                  transmissive;
+        bool                  emissive;
 
-    /**
-       Storage method 
-     */
-    enum Mode {
-        /**
-           Channels are packed into RGBA8 textures as follows:
+        /** World space triangle normal in RGB. */
+        bool                  faceNormal;
 
-           24-bit fixed point camera space depth:
+        /** Packed camera space depth */
+        bool                  packedDepth;
 
-           Decode the camera space z by:
-           <pre>
-           z = -dot(zpack.rgb, vec3(256.0, 1.0, 1.0/256.0))
-           </pre>
+        /** The Material "custom" channel */
+        bool                  custom;
 
-           It was encoded as: (TODO:need to use the last bit...)
-           <pre>
-           z = -z
-           b = frac(z); z = (z - b) / 256;
-           g = frac(z); z = (z - g) / 256;
-           r = min(1.0, z);
-           </pre>
- 
-           <table>
-           <tr><td>Texture</td><td colspan=4>Channels</td></tr>
-           <tr><td></td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
-           <td>zpack</td><td>z<sub>2</sub></td><td>z<sub>1</sub></td><td>z<sub>0</sub></td><td>u</td></tr>
-           <td>normal</td><td colspan=3>n<sub>x,y,z</sub></td><td>v</td></tr>
+        /** World space position in RGB. */
+        bool                  position;
 
-           <td>reflect</td><td>diffuse</td><td>glossy</td><td>specular</td><td>log<sub>1024</sub>(glossyExp)</td></tr>
-           <td>spectrum</td><td>spectrum<sub>r,g,b</sub></td><td>metalicity</td></tr>
+        /** Must contain four channels */
+        const ImageFormat*    format;
 
-           <td>transmit</td><td>transmit<sub>r,g,b</sub></td><td>eta</td></tr>
-           <td>emit</td><td>emit<sub>r,g,b</sub></td><td><i>reserved</i></td></tr>
-           </table>
+        const ImageFormat*    depthFormat;
 
-           Depth stores a depth buffer in the requested format.
-           
-           Normals can be specified in either either camera or world
-           space and are always unit length.           
-           
-           (u, v) is the texture coordinate.
-         */
-        PACKED_RGBA8_MODE,
+        /** Must have at least three channels */
+        const ImageFormat*    positionFormat;
 
-        FLAT16F_MODE
+        Specification() : 
+            normal(true),
+            lambertian(true),
+            specular(true),
+            transmissive(false),
+            emissive(false),
+            faceNormal(false),
+            packedDepth(true),
+            custom(false),
+            position(false),
+            format(ImageFormat::RGBA8()),
+            depthFormat(ImageFormat::DEPTH24()), 
+            positionFormat(ImageFormat::RGB16F()) {
+        }
+
+        size_t hashCode() const {
+            return 
+                int(normal) |
+                (int(lambertian)  << 1) |
+                (int(specular)    << 2) |
+                (int(transmissive) << 4) |
+                (int(emissive)    << 5) |
+                (int(faceNormal)  << 6) |
+                (int(packedDepth) << 7) |
+                (int(position)    << 8);
+                (int(custom)      << 9);
+        }
+
+        /** Can be used with G3D::Table as an Equals function */
+        class Similar {
+        public:
+            static bool equals(const Specification& a, const Specification& b) {
+                return hashCode(a) == hashCode(b);
+            }
+            static size_t hashCode(const Specification& s) {
+                return s.hashCode();
+            }
+        };
     };
 
-    enum Space {CAMERA_SPACE, WORLD_SPACE};
+    typedef ReferenceCountedPointer<GBuffer> Ref;
 
 private:
 
+    class Indices {
+    public:
+        int L;
+        int s;
+        int t;
+        int e;
+        int n;
+        int f;
+        int z;
+        int c;
+
+        int numAttach;
+        
+        /** Indices of the FBO fields.  */
+        Indices(const Specification& spec);
+        std::string computeDefines() const;
+    };
+
     std::string                 m_name;
 
-    const ImageFormat*          m_format;
-    const ImageFormat*          m_depthFormat;
+    const Specification         m_specification;
 
-    /** Renders the SuperSurface Material SuperBSDF coefficients
-      to the color attachments. */
-    Shader::Ref                 m_shader;
+    const Indices               m_indices;
+
+    Shader::Ref                 m_positionShader;
+    
+    mutable GCamera             m_camera;
 
     /** The other buffers are permanently bound to this framebuffer */
     Framebuffer::Ref            m_framebuffer;
 
-    /** RGB = diffuse reflectance (Fresnel is not applied), A = undefined */
+    Framebuffer::Ref            m_positionFramebuffer;
+
+    /** RGB = diffuse reflectance (Fresnel is not applied), A = alpha */
     Texture::Ref                m_lambertian;
 
     /** RGB = F0, A = \f$\sigma\f$ (packed glossy exponent).  Fresnel
@@ -108,32 +146,36 @@ private:
     /** RGB = T0, A = eta.  Fresnel is not applied */
     Texture::Ref                m_transmissive;
 
-    /** World-space position */
-    Texture::Ref                m_position;
+    Texture::Ref                m_emissive;
 
     /** World-space unit normal. */
     Texture::Ref                m_normal;
 
+    Texture::Ref                m_faceNormal;
+
+    Texture::Ref                m_packedDepth;
+
+    /** World-space position */
+    Texture::Ref                m_position;
+
     /** Depth texture. */
     Texture::Ref                m_depth;
 
-    GBuffer(const std::string& name, const ImageFormat* depthFormat, const ImageFormat* otherFormat);
+    /** Returns the appropriate shader for this combination of
+        specification and material, checking against a cache of
+        previously compiled shaders.  The shader is not yet configured
+        for the material.*/
+    static Shader::Ref getShader(const Specification& specificiation, const Indices& indices, const Material::Ref& material);
+
+    GBuffer(const std::string& name, const Specification& specification);
 
     void computeGeneric
     (RenderDevice* rd, 
      const SuperSurface::Ref& model) const;
 
-    void computeNonGeneric
-    (RenderDevice* rd, 
-     const Surface::Ref& model) const;
-
     void computeGenericArray
     (RenderDevice* rd, 
      const Array<SuperSurface::Ref>& model) const;
-
-    void computeNonGenericArray
-    (RenderDevice* rd, 
-     const Array<Surface::Ref>& model) const;
 
 public:
 
@@ -141,9 +183,8 @@ public:
     static bool supported();
 
     static Ref create
-    (const std::string& name,
-     const ImageFormat* depthFormat = ImageFormat::DEPTH24(),     
-     const ImageFormat* otherFormat = ImageFormat::RGBA16F());
+    (const std::string& name = "GBuffer",
+     const Specification& specification = Specification());
 
     virtual ~GBuffer();
 
@@ -154,42 +195,67 @@ public:
     Rect2D rect2DBounds() const;
 
     /** The other buffers are permanently bound to this framebuffer */
-    inline Framebuffer::Ref framebuffer() const {
+    Framebuffer::Ref framebuffer() const {
         return m_framebuffer;
     }
 
-    /** RGB = diffuse reflectance (Fresnel is not applied), A = undefined */
-    inline Texture::Ref lambertian() const {
+    Framebuffer::Ref positionFramebuffer() const {
+        return m_positionFramebuffer;
+    }
+
+    /** The camera from which these buffers were rendered */
+    const GCamera& camera() const {
+        return m_camera;
+    }
+
+    /** RGB = diffuse reflectance (Fresnel is not applied), A =
+        partial coverage. */
+    Texture::Ref lambertian() const {
         return m_lambertian;
     }
 
     /** RGB = F0, A = \f$\sigma\f$ (packed glossy exponent).  Fresnel
         is not applied */
-    inline Texture::Ref specular() const {
+    Texture::Ref specular() const {
         return m_specular;
     }
 
     /** RGB = T0, A = eta.  Fresnel is not applied */
-    inline Texture::Ref transmissive() const {
+    Texture::Ref transmissive() const {
         return m_transmissive;
     }
 
+    /** RGB = T0, A = eta.  */
+    Texture::Ref emissive() const {
+        return m_emissive;
+    }
+
     /** World-space position */
-    inline Texture::Ref position() const {
+    Texture::Ref position() const {
         return m_position;
     }
 
-    /** World-space unit normal. */
-    inline Texture::Ref normal() const {
+    /** World-space unit shading normal, after bump mapping. */
+    Texture::Ref normal() const {
         return m_normal;
     }
 
+    /** Geometric normal */
+    Texture::Ref faceNormal() const {
+        return m_faceNormal;
+    }
+
+    /** Camera space depth */
+    Texture::Ref packedDepth() const {
+        return m_packedDepth;
+    }
+
     /** Depth texture. */
-    inline Texture::Ref depth() const {
+    Texture::Ref depth() const {
         return m_depth;
     }
 
-    inline const std::string& name() const {
+    const std::string& name() const {
         return m_name;
     }
 
@@ -202,17 +268,15 @@ public:
         Assumes that \a modelArray has already been culled and sorted
         for the camera.
 
-        Performs alpha testing using Lambertian.a.
+        Performs binary alpha testing using Lambertian.a.
 
-        Elements of \a modelArray that are not SuperSurface
-        will be rendered twice to extract their lambertian component
-        and will have no other components.  SuperSurface instances
-        render efficiently and will have full BSDF components.
+        Only renders elements of \a modelArray that are SuperSurface
+        instances.
     */
     void compute
     (RenderDevice*                  rd, 
      const GCamera&                 camera,
-     const Array<Surface::Ref>&  modelArray) const;
+     const Array<Surface::Ref>&      modelArray) const;
 };
 
 } // namespace G3D

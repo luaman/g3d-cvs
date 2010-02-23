@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2008-11-12
-  @edited  2009-03-30
+  @edited  2010-02-22
 */
 #ifndef G3D_SuperSurface_h
 #define G3D_SuperSurface_h
@@ -351,6 +351,8 @@ public:
     virtual bool renderSuperShaderPass(
         RenderDevice* rd, 
         const SuperShader::PassRef& pass) const;
+
+    static void sortFrontToBack(Array<SuperSurface::Ref>& a, const Vector3& v);
 };
 
 const char* toString(SuperSurface::GraphicsProfile p);

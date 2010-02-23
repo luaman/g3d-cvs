@@ -64,6 +64,8 @@ private:
     /** Horizontal or Vertical */
     FOVDirection                m_direction;
 
+    Vector2                     m_pixelOffset;
+
 public:
 
     /** Must be of the format produced by the Any cast, e.g.,
@@ -117,6 +119,18 @@ public:
         return m_cframe;
     }
 
+    /** Displacement from the upper left added in pixels in screen
+        space to the projection matrix.  This is useful for shifting
+        the sampled location from the pixel center (OpenGL convention)
+        to other locations, such as the upper-left.*/
+    void setPixelOffset(const Vector2& p) {
+        m_pixelOffset = p;
+    }
+
+    const Vector2& pixelOffset() const {
+        return m_pixelOffset;
+    }
+    
     /** Sets c to the camera's coordinate frame */
     void getCoordinateFrame(CoordinateFrame& c) const;
 

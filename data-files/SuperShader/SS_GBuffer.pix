@@ -1,0 +1,134 @@
+// -*- c++ -*-
+/**
+  \file GBuffer.pix
+  \author Morgan McGuire, http://graphics.cs.williams.edu
+
+  The _INDEX macros are the output index of each draw buffer.  These
+  are -1 for buffers that aren't bound.
+ */
+#include "SS_Globals.pix"
+
+// Turn off terms we don't need for a GBuffer
+
+#if (CUSTOM_INDEX < 0)
+// We don't need these terms, so disable them
+#   ifdef CUSTOMMAP
+#       undef CUSTOMMAP
+#   endif
+#   ifdef CUSTOMCONSTANT
+#       undef CUSTOMCONSTANT
+#   endif
+#endif
+
+#if (SPECULAR_INDEX < 0)
+#   ifdef SPECULARMAP
+#       undef SPECULARMAP
+#   endif
+#   ifdef SPECULARCONSTANT
+#       undef SPECULARCONSTANT
+#   endif
+#endif
+
+#if (EMISSIVE_INDEX >= 0)
+#    ifdef EMISSIVECONSTANT
+        uniform vec3        emissiveConstant;
+#   endif
+
+#   ifdef EMISSIVEMAP
+        uniform sampler2D   emissiveMap;
+#   endif
+#endif
+
+#if (TRANSMISSIVE_INDEX >= 0)
+#    ifdef TRANSMISSIVECONSTANT
+        uniform vec3        transmissiveConstant;
+#    endif
+
+#    ifdef TRANSMISSIVEMAP
+        uniform sampler2D   transmissiveMap;
+#   endif
+#endif
+
+#include "SS_BumpMap.pix"
+
+void main(void) {
+#include "SS_LambertianComponent.pix"
+
+#   if (defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP))
+        if (lambertianColor.a < 0.5) {
+            // Alpha masking
+            discard;
+        }
+#   else
+        vec4 lambertianColor = vec4(vec3(0.0), 1.0);
+#   endif
+
+#   if (LAMBERTIAN_INDEX >= -1)
+        gl_FragData[LAMBERTIAN_INDEX].rgba = lambertianColor.rgba;
+#   endif
+
+#   if (SPECULAR_INDEX >= 0)
+        gl_FragData[SPECULAR_INDEX] =
+#       if defined(SPECULARCONSTANT)
+            specularConstant
+#           ifdef SPECULARMAP
+                * texture2D(specularMap, offsetTexCoord)
+#           endif
+#       elif defined(SPECULARMAP)
+            texture2D(specularMap, offsetTexCoord)
+#       else
+            vec4(0.0);
+#       endif
+        ;
+#   endif
+
+
+#   if (TRANSMISSIVE_INDEX >= 0)
+        gl_FragData[TRANSMISSIVE_INDEX].a = eta;
+
+        gl_FragData[TRANSMISSIVE_INDEX].rgb =
+#       if defined(TRANSMISSIVECONSTANT)
+            transmissiveConstant
+#           ifdef TRANSMISSIVEMAP
+                * texture2D(transmissiveMap, offsetTexCoord).rgb
+#           endif
+#       elif defined(TRANSMISSIVEMAP)
+            texture2D(transmissiveMap, offsetTexCoord).rgb
+#       else
+            vec3(0.0);
+#       endif
+        ;
+#   endif
+
+
+#   if (EMISSIVE_INDEX >= 0)
+        gl_FragData[EMISSIVE_INDEX].rgb =
+#       if defined(EMISSIVECONSTANT)
+            emissiveConstant
+#           ifdef EMISSIVEMAP
+                * texture2D(emissiveMap, offsetTexCoord).rgb
+#           endif
+#       elif defined(EMISSIVEMAP)
+            texture2D(emissiveMap, offsetTexCoord).rgb
+#       else
+            vec3(0.0);
+#       endif
+        ;
+#   endif
+
+
+#   if (NORMAL_INDEX >= 0)
+        gl_FragData[NORMAL_INDEX].xyz = wsN * 0.5 + vec3(0.5);
+#   endif
+
+
+#   if (FACE_NORMAL_INDEX >= 0)
+        vec3 faceNormal = normalize(cross(dFdy(wsPosition), dFdx(wsPosition)));
+        gl_FragData[FACE_NORMAL_INDEX].xyz = faceNormal * 0.5 + vec3(0.5);        
+#   endif
+
+
+#   if (PACKED_DEPTH_INDEX >= 0)
+        gl_FragData[PACKED_DEPTH_INDEX].rgba = TODO
+#   endif
+}

@@ -466,7 +466,7 @@ void VertexAndPixelShader::GPUShader::init
                 debugPrintf("\n[Line numbers in the following shader errors are shifted by %d.]\n", shifted);
             }
             logPrintf("Broken shader:\n%s\n", _code.c_str());
-            debugPrintf("%s", messages().c_str());
+            debugPrintf("%s\nin:\n%s\n", messages().c_str(), _code.c_str());
             alwaysAssertM(ok(), messages());
         }
     }

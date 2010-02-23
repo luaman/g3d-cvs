@@ -64,7 +64,6 @@
         wsN = (dot(wsN, wsN) > 0.001) ? wsN : tan_Z;
      }
 
-
 #   else
 
     /**
@@ -172,3 +171,4 @@
     }
 #   endif // Parallax Steps > 1
 #endif
+/* End SS_BumpMap.pix */

@@ -1,54 +1,109 @@
 /**
-  @file GBuffer.cpp
-  @author Morgan McGuire, http://graphics.cs.williams.edu
+  \file GBuffer.cpp
+  \author Morgan McGuire, http://graphics.cs.williams.edu
+
+  TODO: detect surfaces that need alpha testing and compile a special
+  shader for them.  Do this for shadow maps as well.
+
+  TODO: packed z
  */
 #include "GLG3D/GBuffer.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/SuperBSDF.h"
+#include "G3D/fileutils.h"
 
 namespace G3D {
 
+GBuffer::Indices::Indices(const GBuffer::Specification& spec) 
+    : L(-1), s(-1), t(-1), e(-1), n(-1), f(-1), z(-1), c(-1) {
+
+    int i = 0;
+
+    if (spec.lambertian) {    L = i;  ++i;   }
+    if (spec.specular) {      s = i;  ++i;   }
+    if (spec.transmissive) {  t = i;  ++i;   }
+    if (spec.emissive) {      e = i;  ++i;   }
+    if (spec.normal) {        n = i;  ++i;   }
+    if (spec.faceNormal) {    f = i;  ++i;   }
+    if (spec.packedDepth) {   z = i;  ++i;   }
+    if (spec.custom) {        c = i;  ++i;   }
+
+    numAttach = i;
+
+    int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
+    alwaysAssertM(maxAttach >= i, 
+        format("GBuffer requires a GL_MAX_COLOR_ATTACHMENTS value >= %d for this specification "
+               "(%d color attachments on this GPU)", i, maxAttach));
+}
+
+std::string GBuffer::Indices::computeDefines() const {
+    return
+        format("#define LAMBERTIAN_INDEX (%d)\n"
+               "#define SPECULAR_INDEX (%d)\n"
+               "#define TRANSMISSIVE_INDEX (%d)\n"
+               "#define EMISSIVE_INDEX (%d)\n"
+               "#define NORMAL_INDEX (%d)\n"
+               "#define FACE_NORMAL_INDEX (%d)\n"
+               "#define PACKED_DEPTH_INDEX (%d)\n" 
+               "#define CUSTOM_INDEX (%d)\n", 
+               L, s, t, e, n, f, z, c);
+}
+
+
 GBuffer::Ref GBuffer::create
-(const std::string& name,
- const ImageFormat* depthFormat,
- const ImageFormat* format) {
-    return new GBuffer(name, depthFormat, format);
+(const std::string&   name,
+ const Specification& specification) {
+    return new GBuffer(name, specification);
 }
 
 
 bool GBuffer::supported() {
-    int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
-    return (maxAttach >= 5) && 
-        Shader::supportsVertexShaders() && 
-        Shader::supportsPixelShaders();
+    return Shader::supportsVertexShaders() && Shader::supportsPixelShaders();
 }
 
 
-GBuffer::GBuffer(const std::string& name, const ImageFormat* depthFmt, const ImageFormat* otherFormat) : 
+Shader::Ref GBuffer::getShader(const GBuffer::Specification& specification, const GBuffer::Indices& indices, const Material::Ref& material) {
+    typedef Table<Material::Ref, Shader::Ref, Material::SimilarHashCode, Material::SimilarTo> ShaderCache;
+    typedef Table<Specification, ShaderCache, Specification::Similar, Specification::Similar> CacheTable;
+
+    static CacheTable cacheTable;
+    
+    ShaderCache& cache  = cacheTable.getCreate(specification);
+    Shader::Ref& shader = cache.getCreate(material);
+
+    if (shader.isNull()) {
+        const std::string vertexCode = readWholeFile(System::findDataFile("SS_NonShadowedPass.vrt"));
+        const std::string pixelCode  = readWholeFile(System::findDataFile("SS_GBuffer.pix"));
+        std::string s;
+        material->computeDefines(s);
+        std::string prefix = s + indices.computeDefines();
+        shader = Shader::fromStrings(prefix + vertexCode, prefix + pixelCode);
+        shader->setPreserveState(false);
+    }
+
+    return shader;
+}
+
+
+GBuffer::GBuffer(const std::string& name, const Specification& specification) :
     m_name(name),
-    m_format(otherFormat),
-    m_depthFormat(depthFmt) {
+    m_specification(specification),
+    m_indices(specification) {
 
-    int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
-    alwaysAssertM(maxAttach >= 5, 
-        format("GBuffer requires a GL_MAX_COLOR_ATTACHMENTS value >= 5 "
-               "(%d color attachments on this GPU)", maxAttach));
-
-    alwaysAssertM(Shader::supportsVertexShaders() && Shader::supportsPixelShaders(),
-        "GBuffer requires pixel and vertex shaders.");
+    alwaysAssertM(supported(), "GBuffer requires pixel and vertex shaders.");
 
     // Keep a cached copy of the shader
-    static WeakReferenceCountedPointer<Shader> globalShader;
+    static WeakReferenceCountedPointer<Shader> globalPositionShader;
 
-    m_shader = globalShader.createStrongPtr();
+    m_positionShader = globalPositionShader.createStrongPtr();
 
-    if (m_shader.isNull()) {
-        m_shader = Shader::fromFiles
-            (System::findDataFile("GBuffer.vrt"), 
-             System::findDataFile("GBuffer.pix"));
-        m_shader->setPreserveState(false);
-        m_shader->args.set("backside", 1.0f);
-        globalShader = m_shader;
+    if (m_positionShader.isNull()) {
+        m_positionShader = 
+            Shader::fromFiles(System::findDataFile("SS_NonShadowedPass.vrt"), 
+                              System::findDataFile("SS_GBufferPosition.pix"));
+        m_positionShader->setPreserveState(false);
+        m_positionShader->args.set("backside", 1.0f);
+        globalPositionShader = m_positionShader;
     }
 }
 
@@ -60,6 +115,8 @@ GBuffer::~GBuffer() {
 int GBuffer::width() const {
     if (m_framebuffer.notNull()) {
         return m_framebuffer->width();
+    } else if (m_positionFramebuffer.notNull()) {
+        return m_positionFramebuffer->width();
     } else {
         return 0;
     }
@@ -69,6 +126,8 @@ int GBuffer::width() const {
 int GBuffer::height() const {
     if (m_framebuffer.notNull()) {
         return m_framebuffer->height();
+    } else if (m_positionFramebuffer.notNull()) {
+        return m_positionFramebuffer->height();
     } else {
         return 0;
     }
@@ -78,6 +137,8 @@ int GBuffer::height() const {
 Rect2D GBuffer::rect2DBounds() const {
     if (m_framebuffer.notNull()) {
         return m_framebuffer->rect2DBounds();
+    } else if (m_positionFramebuffer.notNull()) {
+        return m_positionFramebuffer->rect2DBounds();
     } else {
         return Rect2D::xywh(0, 0, 0, 0);
     }
@@ -91,9 +152,19 @@ void GBuffer::resize(int w, int h) {
     }
 
     if (m_framebuffer.isNull()) {
-        m_framebuffer = Framebuffer::create(m_name);
+        if (m_indices.numAttach > 0) {
+            m_framebuffer = Framebuffer::create(m_name);
+        }
     } else {
         m_framebuffer->clear();
+    }
+
+    if (m_specification.position) {
+        if (m_positionFramebuffer.isNull()) {
+            m_positionFramebuffer = Framebuffer::create(m_name + " position");
+        } else {
+            m_positionFramebuffer->clear();
+        }
     }
 
     // Discard old textures, allowing them to be garbage collected
@@ -101,27 +172,38 @@ void GBuffer::resize(int w, int h) {
     m_specular     = NULL;
     m_transmissive = NULL;
     m_position     = NULL;
+    m_emissive     = NULL;
+    m_packedDepth  = NULL;
     m_normal       = NULL;
+    m_faceNormal   = NULL;
     m_depth        = NULL;
 
     Texture::Settings settings = Texture::Settings::buffer();
 
-    // All color buffers have to be in the same format
-    m_lambertian   = Texture::createEmpty("Lambertian",   w, h, m_format, Texture::DIM_2D_NPOT, settings);
-    m_specular     = Texture::createEmpty("Specular",     w, h, m_format, Texture::DIM_2D_NPOT, settings);
-    m_transmissive = Texture::createEmpty("Transmissive", w, h, m_format, Texture::DIM_2D_NPOT, settings);
-    m_position     = Texture::createEmpty("Position",     w, h, m_format, Texture::DIM_2D_NPOT, settings);
-    m_normal       = Texture::createEmpty("Normal",       w, h, m_format, Texture::DIM_2D_NPOT, settings);
-    m_depth        = Texture::createEmpty("Depth",        w, h, m_depthFormat, Texture::DIM_2D_NPOT, settings);
+#   define BUFFER(buf, ind)\
+    if (m_indices.ind >= 0) {\
+        m_##buf   = Texture::createEmpty(#buf, w, h, m_specification.format, Texture::DIM_2D_NPOT, settings);\
+        m_framebuffer->set(Framebuffer::AttachmentPoint(Framebuffer::COLOR0 + m_indices.ind), m_##buf); \
+    }
 
-    // Lambertian must be attachment 0 because alpha test is keyed off of it.
-    m_framebuffer->set(Framebuffer::COLOR0, m_lambertian);
-    m_framebuffer->set(Framebuffer::COLOR1, m_specular);
-    m_framebuffer->set(Framebuffer::COLOR2, m_transmissive);
-    m_framebuffer->set(Framebuffer::COLOR3, m_position);
-    m_framebuffer->set(Framebuffer::COLOR4, m_normal);
+    BUFFER(lambertian, L);
+    BUFFER(specular, s);
+    BUFFER(transmissive, t);
+    BUFFER(emissive, e);
+    BUFFER(normal, n);
+    BUFFER(faceNormal, f);
+    BUFFER(packedDepth, z);
 
-    m_framebuffer->set(Framebuffer::DEPTH,  m_depth);
+#   undef BUFFER
+
+    m_depth = Texture::createEmpty("Depth", w, h, m_specification.depthFormat, Texture::DIM_2D_NPOT, settings);
+    m_framebuffer->set(Framebuffer::DEPTH, m_depth);
+
+    if (m_specification.position) {
+        m_position     = Texture::createEmpty("Position", w, h, m_specification.positionFormat, Texture::DIM_2D_NPOT, settings);
+        m_positionFramebuffer->set(Framebuffer::COLOR0, m_position);
+        m_positionFramebuffer->set(Framebuffer::DEPTH, m_depth);
+    }
 }
 
 
@@ -130,8 +212,9 @@ void GBuffer::compute
  const GCamera&                 camera,
  const Array<Surface::Ref>&     modelArray) const {
 
-    Array<SuperSurface::Ref> genericArray;
-    Array<Surface::Ref> nonGenericArray;
+    m_camera = camera;
+    Array<SuperSurface::Ref>  genericArray;
+    Array<Surface::Ref>       nonGenericArray;
 
     for (int m = 0; m < modelArray.size(); ++m) {
         const SuperSurface::Ref& model = 
@@ -143,28 +226,69 @@ void GBuffer::compute
             nonGenericArray.append(modelArray[m]);
         }
     }
-
-
-    rd->pushState(m_framebuffer);
-    {
-        rd->setProjectionAndCameraMatrix(camera);
     
-        rd->setColorClearValue(Color4::zero());
-        
-        // Only clear depth if we're allowed to render to the depth
-        // buffer.  This ensures that the m_eyeBuffer's depth does not
-        // get wiped after the early z.
-        rd->clear(true, rd->depthWrite(), false);
-        
-        rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5f);
+    SuperSurface::sortFrontToBack(genericArray, camera.coordinateFrame().lookVector());
 
-        if (nonGenericArray.size() > 0) {
-            computeNonGenericArray(rd, nonGenericArray);
+    if (m_indices.numAttach > 0) {
+        rd->pushState(m_framebuffer);
+        {
+            rd->setProjectionAndCameraMatrix(camera);
+            
+            rd->setColorClearValue(Color4::zero());
+            
+            // Only clear depth if we're allowed to render to the depth
+            // buffer.  This ensures that the m_eyeBuffer's depth does not
+            // get wiped after the early z.
+            rd->clear(true, rd->depthWrite(), false);
+            
+            computeGenericArray(rd, genericArray);
         }
-
-        computeGenericArray(rd, genericArray);
+        rd->popState();
     }
-    rd->popState();
+
+    if (m_specification.position) {
+        rd->pushState(m_positionFramebuffer);
+        {
+            // Only clear depth if it was not previously written 
+            bool d = rd->depthWrite() && (m_indices.numAttach == 0);
+            rd->setColorClearValue(Color4::zero());
+            rd->clear(true, d, false);
+            rd->setDepthWrite(d);
+
+            rd->setProjectionAndCameraMatrix(camera);
+            
+            // Render front faces
+            rd->setShader(m_positionShader);
+            rd->beginIndexedPrimitives();
+            for (int i = 0; i < genericArray.size(); ++i) {
+                const SuperSurface::Ref& model = genericArray[i];
+                const SuperSurface::GPUGeom::Ref& geom = model->gpuGeom();
+                const SuperBSDF::Ref& bsdf = geom->material->bsdf();
+
+                m_positionShader->args.set("lambertianConstant", bsdf->lambertian().constant());
+                m_positionShader->args.set("lambertianMap", Texture::blackIfNull(bsdf->lambertian().texture()));
+
+                rd->setObjectToWorldMatrix(model->coordinateFrame());
+                rd->setVARs(geom->vertex, geom->normal, geom->texCoord0, geom->packedTangent);
+                rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
+            
+                if (geom->twoSided) {
+                    // Configure for backfaces
+                    rd->setCullFace(RenderDevice::CULL_FRONT);
+                    m_positionShader->args.set("backside", -1.0f);
+                    
+                    // Render backfaces
+                    rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
+                    
+                    // Restore backface state
+                    rd->setCullFace(RenderDevice::CULL_BACK);
+                    m_positionShader->args.set("backside", 1.0f);
+                }
+            } // for each
+            rd->endIndexedPrimitives();
+        }
+        rd->popState();
+    }
 }
 
 
@@ -172,46 +296,14 @@ void GBuffer::computeGenericArray
 (RenderDevice* rd, 
  const Array<SuperSurface::Ref>& genericArray) const {
    
-    rd->setShader(m_shader);
     rd->beginIndexedPrimitives();
     for (int m = 0; m < genericArray.size(); ++m) {
         computeGeneric(rd, genericArray[m]);
     }
-    rd->endIndexedPrimitives(); 
+    rd->endIndexedPrimitives();
 }
 
 
-void GBuffer::computeNonGenericArray
-(RenderDevice* rd,
- const Array<Surface::Ref>& nonGenericArray) const {
-    debugAssertM(false, "Not implemented in this G3D build");
-    return;
-    rd->pushState();
-    {
-        // TODO: Disable BSDF coefficients
-        
-        // Render once to get position and normal information
-        for (int m = 0; m < nonGenericArray.size(); ++m) {
-            computeNonGeneric(rd, nonGenericArray[m]);
-        }
-
-        // TODO: Disable everything except lambertian, configure
-        // ambient only.
-
-        // Render again to generate lambertian
-        for (int m = 0; m < nonGenericArray.size(); ++m) {
-            computeNonGeneric(rd, nonGenericArray[m]);
-        }
-    }
-    rd->popState();
-}
-
-
-void GBuffer::computeNonGeneric
-(RenderDevice* rd,
- const Surface::Ref& model) const {
-    
-}
 
 
 void GBuffer::computeGeneric
@@ -224,18 +316,19 @@ void GBuffer::computeGeneric
     const SuperSurface::GPUGeom::Ref& geom = model->gpuGeom();
 
     const SuperBSDF::Ref& bsdf = geom->material->bsdf();
-    m_shader->args.set("lambertianMap",      Texture::whiteIfNull(bsdf->lambertian().texture()));
-    m_shader->args.set("lambertianConstant", bsdf->lambertian().constant().rgb());
-    m_shader->args.set("specularMap",        Texture::whiteIfNull(bsdf->specular().texture()));
-    m_shader->args.set("specularConstant",   bsdf->specular().constant());
-    m_shader->args.set("transmissiveMap",    Texture::whiteIfNull(bsdf->transmissive().texture()));
-    m_shader->args.set("transmissiveConstant", bsdf->transmissive().constant());
+    Shader::Ref shader = getShader(m_specification, m_indices, geom->material);
+    geom->material->configure(shader->args);
 
-    // Ensure that the GPU never sees a divide by zero, even in a
-    // speculative branch that won't be taken
-    m_shader->args.set("eta",                max(1.0f, bsdf->etaTransmit()));
+    if (m_indices.t >= 0) {
+        shader->args.set("transmissiveMap",      Texture::whiteIfNull(bsdf->transmissive().texture()));
+        shader->args.set("transmissiveConstant", bsdf->transmissive().constant());
+        shader->args.set("eta",                  max(0.01f, bsdf->etaTransmit()));
+    }
+
+    shader->args.set("backside", 1.0f);
 
     // Render front faces
+    rd->setShader(shader);
     rd->setObjectToWorldMatrix(model->coordinateFrame());
     rd->setVARs(geom->vertex, geom->normal, geom->texCoord0, geom->packedTangent);
     rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
@@ -243,14 +336,14 @@ void GBuffer::computeGeneric
     if (geom->twoSided) {
         // Configure for backfaces
         rd->setCullFace(RenderDevice::CULL_FRONT);
-        m_shader->args.set("backside", -1.0f);
+        shader->args.set("backside", -1.0f);
 
         // Render backfaces
         rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
 
         // Restore backface state
         rd->setCullFace(RenderDevice::CULL_BACK);
-        m_shader->args.set("backside", 1.0f);
+        shader->args.set("backside", 1.0f);
     }
 }
 
