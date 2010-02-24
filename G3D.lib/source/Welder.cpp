@@ -74,7 +74,7 @@ namespace G3D { namespace _internal {
 
 class WeldHelper {
 private:
-    /** Used by getIndex and updateTriLists */
+    /** Used by getIndex and updateTriLists. Deallocating this is slow. */
     PointHashGrid<VNTi>     weldGrid;
 
     Array<Vector3>*         outputVertexArray;
@@ -366,8 +366,9 @@ public:
     }
 
     WeldHelper(float vertRadius) :
-        weldGrid(vertRadius),
-        vertexWeldRadius(vertRadius) {}
+        weldGrid(vertRadius, AreaMemoryManager::create()),
+        vertexWeldRadius(vertRadius) {
+    }
 
 };
 } // Internal
