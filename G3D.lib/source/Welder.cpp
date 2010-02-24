@@ -230,14 +230,15 @@ private:
         const Array<Vector3>& vertexArray, 
         const Array<Vector3>& normalArray, 
         Array<Vector3>&       smoothNormalArray) {
-
-        // Create an area memory manager for fast deallocation
-        MemoryManager::Ref mm = AreaMemoryManager::create(iRound(sizeof(VN) * normalArray.size() * 1.5));
         
         if (normalSmoothingAngle <= 0) {
             smoothNormalArray = normalArray;
             return;
         }
+
+        
+        // Create an area memory manager for fast deallocation
+        MemoryManager::Ref mm = AreaMemoryManager::create(iRound(sizeof(VN) * normalArray.size() * 1.5));
 
         const float cosThresholdAngle = (float)cos(normalSmoothingAngle);
 
@@ -250,6 +251,7 @@ private:
             grid.insert(VN(vertexArray[v], normalArray[v]));
         }
 
+        // TODO: this step could be done on multiple threads
         for (int v = 0; v < normalArray.size(); ++v) {            
             // Compute the sum of all nearby normals within the cutoff angle.
             // Search within the vertexWeldRadius, since those are the vertices
@@ -383,6 +385,7 @@ void Welder::weld(
     _internal::WeldHelper(settings.vertexWeldRadius).process(
         vertexArray, texCoordArray, normalArray, indexArrayArray, 
         settings.normalSmoothingAngle, settings.textureWeldRadius, settings.normalWeldRadius);
+        
 }
 
 

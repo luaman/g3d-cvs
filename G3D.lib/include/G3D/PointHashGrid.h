@@ -41,7 +41,9 @@ template<class Value,
 class PointHashGrid {
 private:
 
-#define ThisType PointHashGrid<Value, PosFunc, EqualsFunc, HashFunc>
+#   define expectedCellSize (3)
+
+#   define ThisType PointHashGrid<Value, PosFunc, EqualsFunc, HashFunc>
 
     /** A value annotated with precomputed position and hash code.*/
     class Entry {
@@ -51,7 +53,7 @@ private:
     };
 
     /** One cell of the grid. */
-    typedef Array<Entry> Cell;
+    typedef SmallArray<Entry, expectedCellSize> Cell;
     typedef Table<Vector3int32, Cell, HashFunc> CellTable;
 
     /** The cube of +/-1 along each dimension. Initialized by initOffsetArray.*/

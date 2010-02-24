@@ -2,9 +2,9 @@
   @file SmallArray.h
   
   @created 2009-04-26
-  @edited  2009-04-26
+  @edited  2010-02-26
 
-  Copyright 2000-2009, Morgan McGuire, http://graphics.cs.williams.edu
+  Copyright 2000-2010, Morgan McGuire, http://graphics.cs.williams.edu
   All rights reserved.
  */
 #ifndef G3D_SmallArray_h
@@ -12,6 +12,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
+#include "G3D/MemoryManager.h"
 
 namespace G3D {
 
@@ -44,6 +45,11 @@ public:
 
     void clear(bool shrinkIfNecessary = true) {
         resize(0, shrinkIfNecessary);
+    }
+
+    void clearAndSetMemoryManager(MemoryManager::Ref& m) {
+        clear();
+        m_rest.clearAndSetMemoryManager(m);
     }
 
     inline T& operator[](int i) {
