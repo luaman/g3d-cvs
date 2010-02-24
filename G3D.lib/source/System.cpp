@@ -339,40 +339,6 @@ void getG3DVersion(std::string& s) {
     s = cstr;
 }
 
-#if 0 // TODO: delete
-struct Directory {
-    std::string          path;
-    Array<std::string>   contents;
-};
-
-static bool maybeAddDirectory(const std::string& newPath, Array<Directory>& directoryArray, bool recurse = true) {
-    if (fileExists(newPath)) {
-        Directory& d = directoryArray.next();
-        d.path = newPath;
-        getFiles(pathConcat(newPath, "*"), d.contents);
-        Array<std::string> dirs;
-        getDirs(pathConcat(newPath, "*"), dirs);
-        d.contents.append(dirs);
-
-        if (recurse) {
-            // Look for subdirectories
-            static const std::string subdirs[] = 
-            {"font", "gui", "SuperShader", "cubemap", "icon", "material", "image", "md2", "md3", "ifs", "3ds", "sky", ""};
-
-            for (int j = 0; j < dirs.size(); ++j) {
-                for (int i = 0; ! subdirs[i].empty(); ++i) {
-                    if (dirs[j] == subdirs[i]) {
-                        maybeAddDirectory(pathConcat(newPath, dirs[j]), directoryArray, false);
-                    }
-                }
-            }
-        }
-        return true;
-    } else {
-        return false;
-    }
-}
-#endif
 
 std::string System::findDataFile
 (const std::string&  full,
@@ -479,6 +445,8 @@ std::string demoFindData(bool errorIfNotFound) {
     } else if (fileExists("../data-files")) {
         // G3D source on Windows
         return "../data-files";
+    } else if (fileExists("c:/libraries/G3D/data")) {
+        return "c:/libraries/G3D/data";
 #   else
     } else if (fileExists("../../../../data")) {
         // G3D install on Unix
@@ -486,6 +454,8 @@ std::string demoFindData(bool errorIfNotFound) {
     } else if (fileExists("../../../../data-files")) {
         // G3D source on Unix
         return "../../../../data-files";
+    } else if (fileExists("/usr/local/G3D/data")) {
+        return "/usr/local/G3D/data";
 #   endif
     } else {
         return "";

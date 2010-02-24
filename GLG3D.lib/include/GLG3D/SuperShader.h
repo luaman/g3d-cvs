@@ -234,7 +234,7 @@ public:
         RenderDevice::CullFace c = RenderDevice::CULL_CURRENT);
 
     /**
-      Clears the static cache of SuperShader::Pass to clean up memory.
+      Clears the static cache of SuperShader::Pass to clean up memory or allow reloading.
      */
     static void purgeCache();
 };

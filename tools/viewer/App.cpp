@@ -10,7 +10,6 @@
  \edited  2010-01-04
  */
 #include "App.h"
-#include "IFSViewer.h"
 #include "ArticulatedViewer.h"
 #include "TextureViewer.h"
 #include "FontViewer.h"

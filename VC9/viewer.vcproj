@@ -209,10 +209,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\tools\Viewer\IFSViewer.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\tools\Viewer\main.cpp"
 				>
 			</File>
@@ -260,10 +256,6 @@
 			</File>
 			<File
 				RelativePath="..\tools\viewer\IconSetViewer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tools\Viewer\IFSViewer.h"
 				>
 			</File>
 			<File
