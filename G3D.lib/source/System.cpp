@@ -384,6 +384,19 @@ std::string System::findDataFile
         }
 
         const char* g3dPath = getenv("G3DDATA");
+#       ifdef G3D_WIN32
+        if (g3dPath == NULL) {
+            // If running the demos under visual studio from the G3D.sln file,
+            // this will locate the data directory.
+            const char* paths[] = {"../data-files/", "../../data-files/", "../../../data-files/", NULL};
+            for (int i = 0; paths[i]; ++i) {
+                if (fileExists(pathConcat(paths[i], "G3D-DATA-README.TXT"))) {
+                    g3dPath = paths[i];
+                    break;
+                }
+            }
+        }
+#       endif
 
         if (g3dPath && (initialAppDataDir != g3dPath)) {
             baseDirArray.append(g3dPath);

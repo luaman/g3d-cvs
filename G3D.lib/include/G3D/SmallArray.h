@@ -83,7 +83,7 @@ public:
         push(v);
     }
 
-    void fastRemove(int i) {
+    void fastRemove(int i, bool shrinkIfNecessary = false) {
         debugAssert(i < m_size && i >= 0);
         if (i < N) {
             if (m_size <= N) {
@@ -95,7 +95,7 @@ public:
             }
         } else {
             // Removing from the rest array
-            m_rest.fastRemove(i - N);
+            m_rest.fastRemove(i - N, shrinkIfNecessary);
         }
         --m_size;
     }
