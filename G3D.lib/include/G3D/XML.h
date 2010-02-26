@@ -50,7 +50,7 @@ end with "-->" e.g.,
   <!-- a comment -->
 </pre>
 
-\sa G3D::Any
+\sa G3D::Any, http://www.grinninglizard.com/tinyxml/
 
 <pre>
 <foo key0="value0" key1="value1">
