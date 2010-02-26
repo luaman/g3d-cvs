@@ -89,11 +89,13 @@ public:
 
     /** \param tagType Must be XML::TAG to dismbiguate from the string constructor */
     XML(Type tagType, const std::string& name, const AttributeTable& at, const Array<XML>& ch = Array<XML>()) : m_type(TAG), m_name(name), m_attribute(at), m_child(ch) {
+        (void)tagType;
         debugAssert(tagType == TAG);
     }
 
     /** \param tagType Must be XML::TAG to dismbiguate from the string constructor */
-    XML(Type tagType, const std::string& name, const Array<XML>& ch = Array<XML>()) : m_type(TAG), m_name(name), m_child(ch) {       
+    XML(Type tagType, const std::string& name, const Array<XML>& ch = Array<XML>()) : m_type(TAG), m_name(name), m_child(ch) {
+        (void)tagType;
         debugAssert(tagType == TAG);
     }
 

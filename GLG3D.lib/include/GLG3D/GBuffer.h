@@ -177,6 +177,9 @@ private:
     (RenderDevice* rd, 
      const Array<SuperSurface::Ref>& model) const;
 
+    // Intentionally unimplemented
+    GBuffer& operator=(const GBuffer&);
+
 public:
 
     /** \brief Returns true if GBuffer is supported on this GPU */
@@ -276,7 +279,7 @@ public:
     void compute
     (RenderDevice*                  rd, 
      const GCamera&                 camera,
-     const Array<Surface::Ref>&      modelArray) const;
+     const Array<Surface::Ref>&     modelArray) const;
 };
 
 } // namespace G3D

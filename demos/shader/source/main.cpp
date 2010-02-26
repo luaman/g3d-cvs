@@ -48,7 +48,7 @@ void App::onInit() {
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
     // automatically caught.
-    sky = Sky::fromFile(dataDir + "sky/");
+    sky = Sky::fromFile(pathConcat(dataDir, "sky/"));
 
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
