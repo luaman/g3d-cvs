@@ -27,7 +27,7 @@ App::App(const GApp::Settings& settings, const std::string& file) :
     filename(file) {
 
     shadowMap = ShadowMap::create("Shadow Map", 2048);
-    shadowMap->setBias(0.02f);
+    shadowMap->setBias(0.01f);
     setDesiredFrameRate(60);
 }
 
