@@ -544,6 +544,10 @@
 				RelativePath="..\G3D.lib\source\WinMain.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\G3D.lib\source\XML.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1016,6 +1020,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\WrapMode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\XML.h"
 				>
 			</File>
 		</Filter>

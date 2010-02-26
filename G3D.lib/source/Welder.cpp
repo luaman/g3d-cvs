@@ -214,8 +214,9 @@ private:
             const Vector3& e1 = vertexArray[v + 2] - vertexArray[v];
 
             // Note that the length may be zero in the case of sliver polygons, e.g.,
-            // those correcting a T-junction.
-            const Vector3& n  = e0.cross(e1).directionOrZero(); 
+            // those correcting a T-junction.  Scale up by 256 to avoid underflow when
+            // multiplying very small edges
+            const Vector3& n  = (e0.cross(e1 * 256.0f)).directionOrZero();
 
             // Append the normal once per vertex.
             faceNormalArray.append(n, n, n);
@@ -267,8 +268,8 @@ private:
                 const float cosAngle = N.dot(original);
 
                 if (cosAngle > cosThresholdAngle) {
-                    // This normal is close enough to consider
-                    sum += N;
+                    // This normal is close enough to consider.  Avoid underflow by scaling up
+                    sum += (N * 256.0f);
                 }
                 ++it;
             }
