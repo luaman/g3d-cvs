@@ -83,10 +83,20 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 
         // Transform parts in-place
         for (int partIndex = 0; partIndex < m_model->partArray.length(); ++partIndex) {
-            MeshAlg::Geometry& geom = m_model->partArray[partIndex].geometry;
+            ArticulatedModel::Part& part = m_model->partArray[partIndex];
+
+            MeshAlg::Geometry& geom = part.geometry;
+
+            // Transform cframes
+            if (part.parent == -1) {
+                // Translate the root(s)
+                part.cframe.translation -= center;
+            }
+
+            part.cframe.translation *= scale;
             
             for (int vertIndex = 0; vertIndex < geom.vertexArray.length(); ++vertIndex) {
-                geom.vertexArray[vertIndex] = (geom.vertexArray[vertIndex] - center) * scale;
+                geom.vertexArray[vertIndex] = geom.vertexArray[vertIndex] * scale;
             }
             
             m_model->partArray[partIndex].computeBounds();
