@@ -384,6 +384,7 @@ href="classes.html">Classes</a>.
         \link G3D::Token Token\endlink,
         \link G3D::TextInput::WrongTokenType TextInput::WrongTokenType\endlink,
         \link G3D::writeWholeFile writeWholeFile\endlink,
+        \link G3D::XML XML\endlink,
         \link G3D::zipfileExists zipfileExists\endlink,
         \link G3D::zipClose zipClose\endlink,
         \link G3D::zipRead zipRead\endlink

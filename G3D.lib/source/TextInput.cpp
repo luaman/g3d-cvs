@@ -33,36 +33,45 @@ Token TextInput::readSignificant() {
 
 double Token::number() const {
     if (_type == NUMBER) {
-        std::string s = toLower(_string);
-        if (s == "-1.#ind00") {
-            return nan();
-        }
-
-        if (s == "1.#inf00") {
-            return inf();
-        }
-
-        if (s == "-1.#inf00") {
-            return -inf();
-        }
-
-        double n;
-        if ((_string.length() > 2) &&
-            (_string[0] == '0') &&
-            (_string[1] == 'x')) {
-            // Hex
-            uint32 i;
-            sscanf(_string.c_str(), "%x", &i);
-            n = i;
-        } else {
-            sscanf(_string.c_str(), "%lg", &n);
-        }
-        return n;
+        return TextInput::parseNumber(_string);
     } else {
         return 0.0;
     }
 }
 
+
+bool TextInput::parseBoolean(const std::string& _string) {
+     return toLower(_string) == "true";
+}
+
+double TextInput::parseNumber(const std::string& _string) {
+    std::string s = toLower(_string);
+    if (s == "-1.#ind00") {
+        return nan();
+    }
+    
+    if (s == "1.#inf00") {
+        return inf();
+    }
+    
+    if (s == "-1.#inf00") {
+        return -inf();
+    }
+    
+    double n;
+    if ((_string.length() > 2) &&
+        (_string[0] == '0') &&
+        (_string[1] == 'x')) {
+        // Hex
+        uint32 i;
+        sscanf(_string.c_str(), "%x", &i);
+        n = i;
+    } else {
+        sscanf(_string.c_str(), "%lg", &n);
+    }
+
+    return n;
+}
 
 TextInput::Settings::Settings () :
     cppBlockComments(true),
@@ -607,8 +616,7 @@ numLabel:
                     }
                     if (test != 'I') {
                         throw BadMSVCSpecial
-                            (
-                             "Incorrect floating-point special (inf or nan) "
+                            ("Incorrect floating-point special (inf or nan) "
                              "format.",
                             t.line(), charNumber);
                     }

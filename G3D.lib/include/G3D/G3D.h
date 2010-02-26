@@ -118,6 +118,7 @@ template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/ThreadSet.h"
 #include "G3D/RegistryUtil.h"
 #include "G3D/Any.h"
+#include "G3D/XML.h"
 #include "G3D/PointHashGrid.h"
 #include "G3D/Map2D.h"
 #include "G3D/Image1.h"

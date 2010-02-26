@@ -5,7 +5,7 @@
  @maintainer Morgan McGuire
   
  @created 2006-06-11
- @edited  2009-12-16
+ @edited  2010-02-16
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
@@ -108,6 +108,19 @@ Vector3::Vector3(const Any& any) {
         z = any["z"];
     }
 }
+</pre>
+
+It is often convenient to iterate through the table portion:
+
+<pre>
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& k = toLower(it->key);
+        if (key == "hello") {
+           ...
+        } else if (key == "goodbye") {
+           ...
+        } else ... 
+    }
 </pre>
 
 \section BNF

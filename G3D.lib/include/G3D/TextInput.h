@@ -8,9 +8,9 @@
  @cite Based on a lexer written by Aaron Orenstein. 
 
  @created 2002-11-27
- @edited  2009-11-24
+ @edited  2010-02-24
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
  */
 
@@ -212,6 +212,12 @@ public:
  */
 class TextInput {
 public:
+    /** Includes MSVC specials parsing */
+    static double parseNumber(const std::string& _string);
+
+    /** toLower(_string) == "true" */
+    static bool parseBoolean(const std::string& _string);
+
 
     /** Tokenizer configuration options.  */
     class Settings {

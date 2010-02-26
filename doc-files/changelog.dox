@@ -32,9 +32,11 @@
      <li> G3D::Any replaces G3D::AnyVal
      <li> System::findDataFile no longer scans all disk drives; instead it checks the G3DDATA environment variable
      <li> G3D::Texture::createColor
+     <li> G3D::TextInput::parseNumber
      <li> G3D::GFont::nativeSize
      <li> G3D::fileExists now caches results by default; see new optional argument and G3D::clearFileSystemCache
      <li> G3D::Surface::AlphaMode
+     <li> G3D::XML
      <li> G3D::Shader now appends the shader source to the error message
      <li> G3D::fileExists now allows wildcards
      <li> Tuned bloom appearance under G3D::Film
