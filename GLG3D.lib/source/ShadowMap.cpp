@@ -19,7 +19,8 @@ ShadowMap::ShadowMap(const std::string& name) :
     m_polygonOffset(0.001f), 
     m_backfacePolygonOffset(-0.1f),
     m_lastRenderDevice(NULL), 
-    m_colorDepthTextureIsDirty(true) {
+    m_colorDepthTextureIsDirty(true),
+    m_bias(0.001f) {
 }
 
 
@@ -118,7 +119,11 @@ void ShadowMap::updateDepth
  const Array<Surface::Ref>&      shadowCaster,
  float                           biasDepth,
  RenderDevice::CullFace          cullFace) {
-    
+
+    if (biasDepth < 0) {
+        biasDepth = m_bias;
+    }
+
     m_lightProjection  = lightProjectionMatrix;
     m_lightFrame       = lightCFrame;
     m_lastRenderDevice = renderDevice;

@@ -3,7 +3,6 @@
  
  Viewer for .3ds models
  
- @maintainer Eric Muller 09edm@williams.edu
  @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
  @created 2007-05-31

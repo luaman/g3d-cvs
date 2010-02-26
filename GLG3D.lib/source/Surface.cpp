@@ -178,7 +178,7 @@ void Surface::sortAndRender
 
             Surface::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
             Surface::sortFrontToBack(lightVisible, lightFrame.coordinateFrame().lookVector());
-            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightVisible, 0.001f);
+            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightVisible);
 
             lightVisible.fastClear();
         }
