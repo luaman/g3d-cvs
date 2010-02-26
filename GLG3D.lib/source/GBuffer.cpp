@@ -102,7 +102,6 @@ GBuffer::GBuffer(const std::string& name, const Specification& specification) :
             Shader::fromFiles(System::findDataFile("SS_NonShadowedPass.vrt"), 
                               System::findDataFile("SS_GBufferPosition.pix"));
         m_positionShader->setPreserveState(false);
-        m_positionShader->args.set("backside", 1.0f);
         globalPositionShader = m_positionShader;
     }
 }
@@ -275,14 +274,12 @@ void GBuffer::compute
                 if (geom->twoSided) {
                     // Configure for backfaces
                     rd->setCullFace(RenderDevice::CULL_FRONT);
-                    m_positionShader->args.set("backside", -1.0f);
                     
                     // Render backfaces
                     rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
                     
                     // Restore backface state
                     rd->setCullFace(RenderDevice::CULL_BACK);
-                    m_positionShader->args.set("backside", 1.0f);
                 }
             } // for each
             rd->endIndexedPrimitives();
