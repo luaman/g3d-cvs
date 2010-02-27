@@ -27,7 +27,7 @@ App::App(const GApp::Settings& settings, const std::string& file) :
     filename(file) {
 
     shadowMap = ShadowMap::create("Shadow Map", 2048);
-    shadowMap->setBias(0.01f);
+    shadowMap->setPolygonOffset(1.0, 2.0);
     setDesiredFrameRate(60);
 }
 
@@ -37,7 +37,7 @@ void App::onInit() {
     window()->setCaption(filenameBaseExt(filename) + " - G3D Viewer");
 
     sky = Sky::fromFile(System::findDataFile("sky"));
-    skyParameters = SkyParameters( G3D::toSeconds(11, 00, 00, AM) );
+    skyParameters = SkyParameters( G3D::toSeconds(10, 00, 00, AM) );
     lighting = Lighting::fromSky( sky, skyParameters, Color3::white() );
     lighting->ambientTop = Color3::white() * 0.3f;
     lighting->ambientBottom = Color3::white() * 0.1f;
