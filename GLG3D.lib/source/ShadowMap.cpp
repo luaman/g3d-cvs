@@ -16,11 +16,11 @@ namespace G3D {
 
 ShadowMap::ShadowMap(const std::string& name) :
     m_name(name), 
-    m_polygonOffset(0.001f), 
-    m_backfacePolygonOffset(-0.1f),
+    m_polygonOffset(1.0f), 
+    m_backfacePolygonOffset(1.0f),
     m_lastRenderDevice(NULL), 
     m_colorDepthTextureIsDirty(true),
-    m_bias(0.001f) {
+    m_bias(0.002f) {
 }
 
 

@@ -187,7 +187,7 @@ public:
      const Matrix4&                lightProjectionMatrix,
      const Array< ReferenceCountedPointer<Surface> >& shadowCaster,
      float                         biasDepth = -1,
-     RenderDevice::CullFace        cullFace = RenderDevice::CULL_FRONT);
+     RenderDevice::CullFace        cullFace = RenderDevice::CULL_BACK);
 
     /** Model-View-Projection matrix that maps world space to the
         shadow map pixels; used for rendering the shadow map itself.  Note that

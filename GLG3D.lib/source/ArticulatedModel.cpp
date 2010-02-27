@@ -254,8 +254,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Preprocess& pr
     Matrix3 R = xform.upper3x3();
 
     for (int p = 0; p < load.objectArray.size(); ++p) {
-//        const // TODO
-            Load3DS::Object& object = load.objectArray[p];
+        Load3DS::Object& object = load.objectArray[p];
 
         Part& part = partArray[p];
 
@@ -288,6 +287,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Preprocess& pr
         partNameToIndex.set(part.name, p);
 
         // All 3DS parts are promoted to the root in the current implementation.
+        // TODO: this makes good animation impossible
         part.parent = -1;
 
         //debugPrintf("%s %d %d\n", object.name.c_str(), object.hierarchyIndex, object.nodeID);

@@ -7,7 +7,7 @@
  @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
  @created 2007-05-31
- @edited  2007-06-08
+ @edited  2010-02-26
  */
 #ifndef APP_H
 #define APP_H
@@ -18,14 +18,11 @@ class Viewer;
 
 class App : public GApp {
 private:
-    LightingRef	       lighting;
+    Lighting::Ref	   lighting;
     SkyParameters      skyParameters;
     SkyRef             sky;
-    Viewer*	       viewer;
+    Viewer*	           viewer;
     std::string	       filename;
-
-
-    //ThirdPersonManipulatorRef	modelController;
 	
 public:
     /** Used by GUIViewer */
