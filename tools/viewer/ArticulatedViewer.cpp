@@ -129,6 +129,21 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
     
     m_model->pose(posed3D);
     Surface::sortAndRender(rd, app->defaultCamera, posed3D, lighting, app->shadowMap);
+
+    for (int p = 0; p < posed3D.size(); ++p) {
+        SuperSurface::Ref s = posed3D[p].downcast<SuperSurface>();
+        if (m_selectedGeom == s->gpuGeom()) {
+            rd->pushState();
+                rd->setObjectToWorldMatrix(s->coordinateFrame());
+                rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
+                rd->setPolygonOffset(-1.0f);
+                rd->setColor(Color3::green() * 0.8f);
+                rd->setTexture(0, NULL);
+                s->sendGeometry(rd);
+            rd->popState();
+            break;
+        }
+    }
     posed3D.fastClear();
     
     screenPrintf("Model Faces: %d,  Vertices: %d\n", m_numFaces, m_numVertices);
