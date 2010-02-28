@@ -20,6 +20,9 @@ ArticulatedViewer::ArticulatedViewer() :
 
 void ArticulatedViewer::onInit(const std::string& filename) {
 
+    m_selectedPartIndex = -1;
+    m_selectedTriListIndex = -1;
+
     ArticulatedModel::Preprocess preprocess;
     m_model = ArticulatedModel::fromFile(filename, preprocess);
     Array<Surface::Ref> arrayModel;
@@ -111,8 +114,7 @@ static void printHierarchy
  const std::string&           indent) {
     
     const ArticulatedModel::Part& part = model->partArray[index];
-    screenPrintf("%s`%s'\n", indent.c_str(), 
-                 part.name.c_str());
+    screenPrintf("%s`%s'\n", indent.c_str(), part.name.c_str());
 
     for (int i = 0; i < part.subPartArray.size(); ++i) {
         printHierarchy(model, part.subPartArray[i], indent + "  ");
@@ -129,8 +131,12 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
     Surface::sortAndRender(rd, app->defaultCamera, posed3D, lighting, app->shadowMap);
     posed3D.fastClear();
     
-    screenPrintf("Faces: %d", m_numFaces);
-    screenPrintf("Vertices: %d", m_numVertices);
+    screenPrintf("Model Faces: %d,  Vertices: %d\n", m_numFaces, m_numVertices);
+    if (m_selectedGeom.notNull()) {
+        screenPrintf(" Selected `%s' partArray[%d].triList[%d]\n", 
+            m_model->partArray[m_selectedPartIndex].name.c_str(),
+            m_selectedPartIndex, m_selectedTriListIndex);
+    }
 
     screenPrintf("Hierarchy:");
     // Hierarchy: find roots
@@ -142,3 +148,36 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
 }
 
 
+bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
+    if (e.type == GEventType::MOUSE_BUTTON_CLICK) {
+        // Intersect all tri lists with the ray from the camera
+        const Ray& ray = app->defaultCamera.worldRay(e.button.x, e.button.y, 
+            app->renderDevice->viewport());
+
+        float distance = inf();
+        m_selectedGeom = NULL;
+        m_selectedPartIndex = -1;
+        m_selectedTriListIndex = -1;
+
+        for (int i = 0; i < m_model->partArray.size(); ++i) {
+            const ArticulatedModel::Part& part = m_model->partArray[i];
+            alwaysAssertM(part.parent == -1, "Not implemented for parts with hierarchy");
+
+            for (int t = 0; t < part.triList.size(); ++t) {
+                ArticulatedModel::Part::TriList::Ref triList = part.triList[t];
+
+                Sphere wsSphere = part.cframe.toWorldSpace(triList->sphereBounds);
+                float test = ray.intersectionTime(wsSphere, true);
+                if (test < distance) {
+                    m_selectedGeom = triList;
+                    m_selectedPartIndex = i;
+                    m_selectedTriListIndex = t;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}

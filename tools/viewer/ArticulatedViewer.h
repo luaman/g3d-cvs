@@ -1,16 +1,15 @@
 /**
- @file ArticulatedViewer.h
+ \file ArticulatedViewer.h
  
- Viewer for .3ds models
+ Viewer for files that can be loaded by ArticulatedModel
+
+ \author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
- @maintainer Eric Muller 09edm@williams.edu
- @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
- 
- @created 2007-05-31
- @edited  2007-06-08
+ \created 2007-05-31
+ \edited  2010-02-26
  */
-#ifndef ARTICULATEDVIEWER_H
-#define ARTICULATEDVIEWER_H
+#ifndef ArticulatedViewer_h
+#define ArticulatedViewer_h
 
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
@@ -19,16 +18,21 @@
 class ArticulatedViewer : public Viewer {
 private:
 
-	ArticulatedModel::Ref	m_model;
-	int						m_numEdges;
-	int						m_numFaces;
-	int						m_numVertices;
+	ArticulatedModel::Ref	    m_model;
+	int						    m_numEdges;
+	int						    m_numFaces;
+	int						    m_numVertices;
+
+    int                         m_selectedPartIndex;
+    int                         m_selectedTriListIndex;
+    SuperSurface::GPUGeom::Ref  m_selectedGeom;
 
 
 public:
 	ArticulatedViewer();
 	virtual void onInit(const std::string& filename);
-    virtual void onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting);
+    virtual bool onEvent(const GEvent& e, App* app);
+    virtual void onGraphics(RenderDevice* rd, App* app, const Lighting::Ref& lighting);
 
 };
 

@@ -801,6 +801,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                         b->readUInt16(); 
                         b->readUInt16();
                         int hierarchyIndex = b->readUInt16();
+                        // hierarchyIndex == -1 (0xFFFF) means "root object"
                         //logPrintf("\n\"%s\", %d\n\n", name.c_str(), hierarchyIndex);
 
                         // Find the current object

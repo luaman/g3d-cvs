@@ -72,7 +72,11 @@ bool App::onEvent(const GEvent& e) {
     default:;
     }
     
-    return false;
+    if (viewer != NULL) {
+        return viewer->onEvent(e, this);
+    } else {
+        return false;
+    }
 }
 
 

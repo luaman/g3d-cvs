@@ -16,7 +16,7 @@
  The version number of G3D in the form: MmmBB -> 
  version M.mm [beta BB]
  */
-#define G3D_VER 80004
+#define G3D_VER 80005
 
 // fatal error for unsupported architectures
 #if defined(__powerpc__)
