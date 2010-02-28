@@ -192,6 +192,7 @@ public:
 
         Map                 texture1;
         Map                 texture2;
+        Map                 bumpMap;
 
         /** 1 = flat, 2 = gouraud, 3 = phong, 4 = metal */
         int					materialType;
@@ -493,6 +494,10 @@ void Load3DS::processMaterialChunk(
 
         case MATTEXTUREMAP2:
             processMapChunk(material.texture2, curChunkHeader);
+            break;
+
+        case MATBUMPMAP:
+            processMapChunk(material.bumpMap, curChunkHeader);
             break;
 
         default:
