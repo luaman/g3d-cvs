@@ -4,7 +4,7 @@
     name = "Crates",
    
     models = {
-       ground = ArticulatedModel::Specification {
+       groundModel = ArticulatedModel::Specification {
             filename = "ifs/crate.ifs",
             preprocess = ArticulatedModel::Preprocess {
                 xform = Matrix4::scale(6.0, 1.0, 6.0),
@@ -17,19 +17,10 @@
             }
        },   
         
-       metalCrate = ArticulatedModel::Specification {            
+       crateModel = ArticulatedModel::Specification {            
             filename = "ifs/crate.ifs",
             preprocess = ArticulatedModel::Preprocess {
-                materialOverride = 
-                //             #include("material/metalcrate/metalcrate.txt")
-                
-                Material::Specification {
-                    lambertian = "material/metalcrate/metalcrate-L.png",
-                    specular = "material/metalcrate/metalcrate-G.png",
-                    shininess = glossyExponent(30),
-                    bump = "material/metalcrate/metalcrate-B.png",
-                }
-              
+                materialOverride =  #include("material/metalcrate/metalcrate.txt")              
             }
        },
     },
@@ -54,12 +45,12 @@
         } 
     },
     
-    entities = (
-        metalCrate(Vector3(1.0, 0.5, 0.0)),
-        metalCrate(CFrame::fromXYZYPRDegrees(0.6f, 0.5f, -1.8f, 30.0f)),
+    entities = {
+        c0 = crateModel(Vector3(1.0, 0.5, 0.0)),
+        c1 = crateModel(CFrame::fromXYZYPRDegrees(0.6f, 0.5f, -1.8f, 30.0f)),
 
-        ground(Vector3(0, -0.5, 0))
-    ),
+        ground = groundModel(Vector3(0, -0.5, 0))
+    },
     
     camera = GCamera {
         coordinateFrame = CFrame::fromXYZYPRDegrees( -0.8f,   0.6f,  2.4f,  339.5f, 0.6),

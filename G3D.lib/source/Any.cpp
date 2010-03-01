@@ -928,6 +928,9 @@ void Any::deserialize(TextInput& ti, Token& token) {
             "File ended without a properly formed Any");
     }
 
+    // Do we need to read one more token after the end? 
+    bool needRead = true;
+
     switch (token.type()) {
     case Token::STRING:
         m_type = STRING;
@@ -1015,6 +1018,7 @@ void Any::deserialize(TextInput& ti, Token& token) {
                 ensureData();
                 m_data->name = name;
             }
+            needRead = false;
         } // if NONE
         break;
 
@@ -1029,7 +1033,7 @@ void Any::deserialize(TextInput& ti, Token& token) {
         m_data->comment = comment;
     }
 
-    if (m_type != ARRAY && m_type != TABLE) {
+    if (needRead) {
         // Array and table already consumed their last token
         token = ti.read();
     }

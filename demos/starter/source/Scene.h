@@ -10,18 +10,29 @@
     might begin to structure one to get you started.
 */
 class Entity : public ReferenceCountedObject {
+public:
+    typedef ReferenceCountedPointer<Entity> Ref;
+
 protected:
+
+    std::string             m_name;
+    CFrame                  m_frame;
+    ArticulatedModel::Ref   m_model;
+    ArticulatedModel::Pose  m_pose;
 
     Entity();
 
 public:
 
-    typedef ReferenceCountedPointer<Entity> Ref;
+    const CFrame& frame() const {
+        return m_frame;
+    }
 
-    CFrame                  frame;
-    ArticulatedModel::Ref   model;
+    const std::string& name() const {
+        return m_name;
+    }
 
-    static Entity::Ref create(const CFrame& c, const ArticulatedModel::Ref& m);
+    static Entity::Ref create(const std::string& n, const CFrame& c, const ArticulatedModel::Ref& m);
 
     virtual void onPose(Array<Surface::Ref>& surfaceArray);
 };

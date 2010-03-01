@@ -4,16 +4,17 @@ using namespace G3D::units;
 
 Entity::Entity() {}
 
-Entity::Ref Entity::create(const CFrame& c, const ArticulatedModel::Ref& m) {
+Entity::Ref Entity::create(const std::string& n, const CFrame& c, const ArticulatedModel::Ref& m) {
     Ref e = new Entity();
-    e->frame = c;
-    e->model = m;
+    e->m_name  = n;
+    e->m_frame = c;
+    e->m_model = m;
     return e;
 }
 
 
 void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
-    model->pose(surfaceArray, frame);
+    m_model->pose(surfaceArray, m_frame, m_pose);
 }
 
 
@@ -77,22 +78,21 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
 
     // Instance the models
     Any entities = any["entities"];
-    entities.verifyType(Any::ARRAY);
-    for (int e = 0; e < entities.size(); ++e) {
-        // Entities look like functions whose name is the model and whose arguments
-        // are the CFrames
-        const Any& entityArgs = entities[e];
-        entityArgs.verifyType(Any::ARRAY);
-        const ArticulatedModel::Ref* model = modelTable.getPointer(entityArgs.name());
-        entityArgs.verify((model != NULL), 
-            "Can't instantiate undefined model named " + entityArgs.name() + ".");
+    for (Table<std::string, Any>::Iterator it = entities.table().begin(); it.hasMore(); ++it) {
+        const std::string& name = it->key;
+        const Any& modelArgs = it->value;
+
+        modelArgs.verifyType(Any::ARRAY);
+        const ArticulatedModel::Ref* model = modelTable.getPointer(modelArgs.name());
+        modelArgs.verify((model != NULL), 
+            "Can't instantiate undefined model named " + modelArgs.name() + ".");
 
         CFrame cframe;
-        if (entityArgs.size() == 1) {
-            cframe = entityArgs[0];
-        }            
+        if (modelArgs.size() == 1) {
+            cframe = modelArgs[0];
+        }
 
-        s->m_entityArray.append(Entity::create(cframe, *model));
+        s->m_entityArray.append(Entity::create(name, cframe, *model));
     }
 
     // Load the camera
