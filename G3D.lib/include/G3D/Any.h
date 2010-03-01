@@ -34,11 +34,14 @@ class TextOutput;
 /** 
 \brief Easy loading and saving of human-readable configuration files.
 
-Encodes typed, structured data and can serialize it to a human
+Any encodes typed, structured data and can serialize it to a human
 readable format that is very similar to the Python language's data
-syntax.  Well-suited for quickly creating human-readable file formats,
-especially since deserialization and serialization preserve comments and
-an Any can tell you what file and line it came from.
+syntax.  It is well-suited for quickly creating human-readable file
+formats, especially since deserialization and serialization preserve
+comments and an Any can tell you what file and line it came from.  The
+syntax allows most C++ editors to properly highlight Any files, and
+makes it easy to design little ad-hoc C-like languages in
+configuration files.
 
 The class is designed so that copying Anys generally is fast, even if
 it is a large array or table.  This is because data is shared between
@@ -58,7 +61,7 @@ Sample File:
 }
 </pre>
 
-Sample code using:
+Sample code using Any:
 <pre>
 Any x;
 x.load("ball.txt");
@@ -139,20 +142,31 @@ number      ::= <legal C printf number format>
 string      ::= <legal C double-quoted string; backslashes must be escaped>
 boolean     ::= "True" | "False"
 none        ::= "None"
-array       ::= "(" [value ("," value)*] ")"
+array       ::= ("(" | "[") [ value (separator value)* [separator] ] (")" | "]")
 pair        ::= (identifier | string) "=" value
-table       ::= "{" [pair (separator pair)*] "}"
-named-array ::= identifier-exp tuple
-named-table ::= identifier-exp dict
+table       ::= "{" [ pair (separator pair)* [separator] ] "}"
+named-array ::= identifier-exp array
+named-table ::= identifier-exp table
+include     ::= "#" "include" "(" string ")"
 
-value       ::= [comment] (none | number | boolean | string | array | table | named-array | named-table)
+value       ::= [comment] (none | number | boolean | string | array | table | named-array | named-table | include)
 </pre>
 
 Except for single-line comments, whitespace is not significant.  
 All parsing is case-insensitive.
 
+The include expression pastes the contents of the named file in as if
+they appeared in the original source.  Note that an include expression
+can only appear in the locations where a value is expected.  This means
+that it cannot yield more than one element of an array and cannot serve
+as the pair in a table.
+
 The deserializer allows the substitution of [] for () when writing
-tuples and ";" for ",".
+tuples and ";" for ",".  These are convenient when mimicing a
+programming language, e.g., <code>"[ printf("hello world."); clearScreen();]"</code> 
+parses as an array containing two named arrays within it. The 
+deserializer also allows a trailing comma inside any array or table,
+which also convenient when commenting out the last element.
 
 The serializer indents four spaces for each level of nesting. 
 Tables are written with the keys in alphabetic order.

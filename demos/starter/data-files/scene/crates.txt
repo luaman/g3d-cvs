@@ -20,12 +20,16 @@
        metalCrate = ArticulatedModel::Specification {            
             filename = "ifs/crate.ifs",
             preprocess = ArticulatedModel::Preprocess {
-                materialOverride = Material::Specification {
+                materialOverride = 
+                #include("material/metalcrate/metalcrate.txt")
+                /*
+Material::Specification {
                     lambertian = "material/metalcrate/metalcrate-L.png",
                     specular = "material/metalcrate/metalcrate-G.png",
                     shininess = glossyExponent(30),
                     bump = "material/metalcrate/metalcrate-B.png",
                 }
+*/              
             }
        },
     },
