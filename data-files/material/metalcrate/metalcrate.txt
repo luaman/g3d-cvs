@@ -1,0 +1,9 @@
+// Load this with the Material::Specification(const Any&) constructor or
+// #include() inside another Any file.
+
+Material::Specification {
+    lambertian = "material/metalcrate/metalcrate-L.png",
+    specular = "material/metalcrate/metalcrate-G.png",
+    shininess = glossyExponent(30),
+    bump = "material/metalcrate/metalcrate-B.png",
+}

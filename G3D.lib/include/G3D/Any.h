@@ -135,7 +135,7 @@ identifier-op ::= "::" | "->" | "."
 
 identifier-exp ::= [identifier-op] identifier (identifier-op identifier)*
 
-comment     ::= "#" <any characters> "\n"
+comment     ::= C++ single or multi-line comments
 separator   ::= "," | ";"
 
 number      ::= <legal C printf number format>

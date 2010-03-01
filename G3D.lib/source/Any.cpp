@@ -15,6 +15,7 @@
 #include "G3D/TextOutput.h"
 #include "G3D/TextInput.h"
 #include "G3D/stringutils.h"
+#include "G3D/fileutils.h"
 #include <deque>
 #include <iostream>
 
@@ -676,7 +677,6 @@ static void getDeserializeSettings(TextInput::Settings& settings) {
     settings.cppBlockComments = true;
     settings.cppLineComments = true;
     settings.otherLineComments = true;
-    settings.otherCommentCharacter = '#';
     settings.generateCommentTokens = true;
     settings.singleQuotedStrings = false;
     settings.msvcSpecials = false;
@@ -951,8 +951,41 @@ void Any::deserialize(TextInput& ti, Token& token) {
         break;
 
     case Token::SYMBOL:
-        // Named Array, Named Table, Array, Table, or NONE
-        if (toUpper(token.string()) == "NONE") {
+        // Pragma, Named Array, Named Table, Array, Table, or NONE
+        if (token.string() == "#") {
+            // Pragma
+            
+            // Currently, "include" is the only pragma allowed
+            token = ti.read();
+            if (! ((token.type() == Token::SYMBOL) &&
+                   (token.string() == "include"))) {
+                throw ParseError(ti.filename(), token.line(), token.character(),
+                                 "Expected 'include' pragma after '#'");
+            }
+            
+            ti.readSymbol("(");
+            const std::string& includeName = ti.readString();
+
+            // Find the include file
+            const std::string& myPath = filenamePath(ti.filename());
+            std::string t = pathConcat(myPath, includeName);
+
+            if (! fileExists(t)) {
+                // Try and find it, starting with cwd
+                t = System::findDataFile(includeName);
+            }
+
+            // Read the included file
+            load(t);
+
+            // Update the source information
+            ensureData();
+            m_data->source.filename += 
+                format(" [included from %s:%d(%d)]", ti.filename(), token.line(), token.character());
+            
+            ti.readSymbol(")");
+
+        } else if (toUpper(token.string()) == "NONE") {
             // Nothing left to do; we initialized to NONE originally
             ensureData();
             m_data->source.set(ti, token);
