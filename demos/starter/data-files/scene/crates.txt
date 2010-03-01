@@ -20,7 +20,11 @@
        crateModel = ArticulatedModel::Specification {            
             filename = "ifs/crate.ifs",
             preprocess = ArticulatedModel::Preprocess {
-                materialOverride =  #include("material/metalcrate/metalcrate.txt")              
+                // You can #include a material file, or simply put all of the
+                // options here as was done for groundModel.  #include can be
+                // used to replace any Any value, including a whole 
+                // ArticulatedModel::Specification.
+                materialOverride = #include("material/metalcrate/metalcrate.txt")              
             }
        },
     },
