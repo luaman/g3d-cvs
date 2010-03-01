@@ -981,7 +981,7 @@ void Any::deserialize(TextInput& ti, Token& token) {
             // Update the source information
             ensureData();
             m_data->source.filename += 
-                format(" [included from %s:%d(%d)]", ti.filename(), token.line(), token.character());
+                format(" [included from %s:%d(%d)]", ti.filename().c_str(), token.line(), token.character());
             
             ti.readSymbol(")");
 
