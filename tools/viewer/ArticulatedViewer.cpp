@@ -164,7 +164,7 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
 
 
 bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
-    if (e.type == GEventType::MOUSE_BUTTON_CLICK) {
+    if ((e.type == GEventType::MOUSE_BUTTON_CLICK) && (e.button.button == 0)) {
         // Intersect all tri lists with the ray from the camera
         const Ray& ray = app->defaultCamera.worldRay(e.button.x, e.button.y, 
             app->renderDevice->viewport());
@@ -181,8 +181,8 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
             for (int t = 0; t < part.triList.size(); ++t) {
                 ArticulatedModel::Part::TriList::Ref triList = part.triList[t];
 
-                Sphere wsSphere = part.cframe.toWorldSpace(triList->sphereBounds);
-                float test = ray.intersectionTime(wsSphere, true);
+                const Box& wsBox = part.cframe.toWorldSpace(triList->boxBounds);
+                float test = ray.intersectionTime(wsBox);
                 if (test < distance) {
                     m_selectedGeom = triList;
                     m_selectedPartIndex = i;
