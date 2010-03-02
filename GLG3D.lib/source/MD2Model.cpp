@@ -447,13 +447,7 @@ void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
 }
 
 
-Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose) {
-    return new PosedMD2Model(this, cframe, pose, false, GMaterial());
-}
-
-
 Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const Material::Ref& mat) {
-    //return new PosedMD2Model(this, cframe, pose, true, mat);
 
     // Keep a back pointer so that the index array can't be deleted
     SuperSurface::Ref surface = SuperSurface::create(name(), cframe, SuperSurface::GPUGeom::create(), 
@@ -739,101 +733,6 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
 #endif
 
 
-//////////////////////////////////////////////////////////////////////////
-
-MD2Model::PosedMD2Model::PosedMD2Model(
-    MD2Model::Ref               _model,
-    const CoordinateFrame&      _cframe,
-    const Pose&                 _pose,
-    bool                        _useMat,
-    const GMaterial&            _mat) :
-     model(_model), 
-     cframe(_cframe),
-     pose(_pose),
-     useMaterial(_useMat),
-     material(_mat) {
-}
-
-const Array<Vector2>& MD2Model::PosedMD2Model::texCoords() const {
-    return model->_texCoordArray;
-}
-
-bool MD2Model::PosedMD2Model::hasTexCoords() const {
-    return true;
-}
-
-std::string MD2Model::PosedMD2Model::name() const {
-    return model->name();
-}
-
-
-void MD2Model::PosedMD2Model::getCoordinateFrame(CoordinateFrame& c) const {
-    c = cframe;
-}
-
-
-const MeshAlg::Geometry& MD2Model::PosedMD2Model::objectSpaceGeometry() const {
-    if (geometry.vertexArray.size() == 0) {
-        model->getGeometry(pose, const_cast<PosedMD2Model*>(this)->geometry);
-    }
-
-    return geometry;
-}
-
-
-const Array<int>& MD2Model::PosedMD2Model::triangleIndices() const {
-    return model->indexArray;
-}
-
-
-const Array<MeshAlg::Face>& MD2Model::PosedMD2Model::faces() const {
-    return model->faceArray;
-}
-
-
-const Array<MeshAlg::Edge>& MD2Model::PosedMD2Model::edges() const {
-    return model->edgeArray;
-}
-
-
-const Array<MeshAlg::Vertex>& MD2Model::PosedMD2Model::vertices() const {
-    return model->vertexArray;
-}
-
-
-const Array<MeshAlg::Face>& MD2Model::PosedMD2Model::weldedFaces() const {
-    return model->weldedFaceArray;
-}
-
-
-const Array<MeshAlg::Edge>& MD2Model::PosedMD2Model::weldedEdges() const {
-    return model->weldedEdgeArray;
-}
-
-
-const Array<MeshAlg::Vertex>& MD2Model::PosedMD2Model::weldedVertices() const {
-    return model->weldedVertexArray;
-}
-
-
-void MD2Model::PosedMD2Model::getObjectSpaceBoundingSphere(Sphere& s) const {
-    s = model->animationBoundingSphere[iAbs(pose.animation)];
-}
-
-
-void MD2Model::PosedMD2Model::getObjectSpaceBoundingBox(AABox& b) const {
-    b = model->animationBoundingBox[iAbs(pose.animation)];
-}
-
-
-int MD2Model::PosedMD2Model::numBoundaryEdges() const {
-    return model->numBoundaryEdges;
-}
-
-
-int MD2Model::PosedMD2Model::numWeldedBoundaryEdges() const {
-    return model->numWeldedBoundaryEdges;
-}
 
 void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const {
     getGeometry(pose, interpolatedFrame);
@@ -897,34 +796,6 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
         }
         glFrontFace(GL_CCW);
     }
-}
-
-
-void MD2Model::PosedMD2Model::sendGeometry(RenderDevice* renderDevice) const {
-    model->sendGeometry(renderDevice, pose);
-}
-
-
-void MD2Model::PosedMD2Model::render(RenderDevice* renderDevice) const {
-    renderDevice->pushState();
-        renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
-        renderDevice->setObjectToWorldMatrix(coordinateFrame());
-        if (useMaterial && renderDevice->colorWrite()) {
-            material.configure(renderDevice);
-        }
-        model->render(renderDevice, pose);
-    renderDevice->popState();
-}
-
-
-const Array<Vector3>& MD2Model::PosedMD2Model::objectSpaceFaceNormals(bool normalize) const {
-    (void)normalize;
-    if (faceNormals.size() == 0) {
-        MeshAlg::computeFaceNormals(objectSpaceGeometry().vertexArray, faces(), 
-            const_cast<PosedMD2Model*>(this)->faceNormals, true);
-    }
-
-    return faceNormals;
 }
 
 

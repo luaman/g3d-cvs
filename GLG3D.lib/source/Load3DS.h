@@ -500,6 +500,11 @@ void Load3DS::processMaterialChunk(
             processMapChunk(material.bumpMap, curChunkHeader);
             break;
 
+        case MATSPECULARMAP:
+            //processMapChunk(material.specMap, curChunkHeader);
+            break;
+
+
         default:
             //debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
             ;

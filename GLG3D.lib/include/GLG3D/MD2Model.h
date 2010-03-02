@@ -198,54 +198,6 @@ public:
 
 protected:
 
-    class PosedMD2Model : public Surface {
-    public:
-        inline static void* operator new(size_t size) {
-            return System::malloc(size);
-        }
-
-        inline static void operator delete(void* p) {
-            System::free(p);
-        }
-
-        MD2Model::Ref           model;
-        CoordinateFrame         cframe;
-        Pose                    pose;
-        bool                    useMaterial;
-        GMaterial               material;
-
-        /** Filled out the first time objectSpaceGeometry is called */
-        MeshAlg::Geometry       geometry;
-
-        /** Computed on the first call to objectSpaceFaceNormals */
-        Array<Vector3>          faceNormals;
-
-        PosedMD2Model(MD2Model::Ref _model, const CoordinateFrame& _cframe, const Pose& _pose,
-            bool _useMat, const GMaterial& _mat);
-        virtual ~PosedMD2Model() {}
-        virtual std::string name() const;
-        virtual void getCoordinateFrame(CoordinateFrame&) const;
-        virtual const MeshAlg::Geometry& objectSpaceGeometry() const;
-        virtual const Array<MeshAlg::Face>& faces() const;
-        virtual const Array<MeshAlg::Edge>& edges() const;
-        virtual const Array<MeshAlg::Vertex>& vertices() const;
-        virtual const Array<MeshAlg::Face>& weldedFaces() const;
-        virtual const Array<MeshAlg::Edge>& weldedEdges() const;
-        virtual const Array<MeshAlg::Vertex>& weldedVertices() const;
-        virtual const Array<int>& triangleIndices() const;
-        virtual void getObjectSpaceBoundingSphere(Sphere&) const;
-        virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const;
-        virtual void getObjectSpaceBoundingBox(AABox&) const;
-        virtual void render(RenderDevice* renderDevice) const;
-        virtual int numBoundaryEdges() const; 
-        virtual int numWeldedBoundaryEdges() const; 
-        virtual const Array<Vector2>& texCoords() const;
-        virtual bool hasTexCoords() const;
-        virtual void sendGeometry(RenderDevice* rd) const;
-    };
-
-    friend class PosedMD2Model;
-
     class PackedGeometry {
     public:        
         Array<Vector3>          vertexArray;
