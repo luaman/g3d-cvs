@@ -164,6 +164,7 @@
      <li> Fix: RenderDevice now allows depth write without depth test  
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards
      <li> Fix: Material::configure only sets bumpMapBias and scale when PARALLAXSTEPS > 0
+     <li> Fix: Matrix2::inverse [Dan Lispa]
      <li> Fix: G3D::iswspace now considers '\\r' as whitespace
      <li> Fix: G3D::System::appName now removes the 'd' that icompile appends
      <li> Fix: G3D::System::getCurrentProgramFilename now works on OS X
