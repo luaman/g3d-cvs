@@ -249,7 +249,7 @@ protected:
         We cycle through multiple VARAreas because the models are so small
         that we can send data to the card faster than it can be rendered
         and we end up spending all of our time waiting on the GPU.*/
-    static VertexBufferRef            varArea[NUM_VAR_AREAS];
+    static VertexBufferRef      varArea[NUM_VAR_AREAS];
 
     /**
      When NONE_ALLOCATED, the vertex arrays have not been allocated. 
@@ -380,8 +380,6 @@ public:
     static MD2Model::Ref fromFile(const std::string& filename, float scale = 1.0f);
 
     virtual ~MD2Model() {}
-
-    Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose);
 
     Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose, const Material::Ref& mat);
 

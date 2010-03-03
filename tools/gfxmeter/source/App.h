@@ -36,7 +36,7 @@ public:
         cframe2.translation.y -= 1.7f;
         rd->setColor(Color3(.9f, .9f, 1));
 
-        Surface::Ref m = model->pose(cframe2, pose);
+        Surface::Ref m = model->pose(cframe2, pose, material);
 
         // Intentionally render a lot of shadows to gauge rendering performance
         for (int i = 0; i < 20; ++i) {
