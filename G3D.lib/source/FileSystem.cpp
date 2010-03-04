@@ -23,6 +23,8 @@
 
     // Needed for _findfirst
 #   include <io.h>
+
+#define stat64 _stat64
 #else
 #   include <dirent.h>
 #   include <fnmatch.h>
@@ -159,13 +161,13 @@ const FileSystem::Dir& FileSystem::getContents(const std::string& path, bool for
                     _findclose(handle);
 
 #               else
-                    struct DIR* listing = opendir(path.c_str());
+                    DIR* listing = opendir(path.c_str());
                     struct dirent* entry = readdir(listing);
                     while (entry != NULL) {
-                        if (! strcmp(entry.d_name, "..") &&
-                            ! strcmp(entry.d_name, ".")) {
+                        if (! strcmp(entry->d_name, "..") &&
+                            ! strcmp(entry->d_name, ".")) {
 
-                            dir.nodeArray.append(toLower(entry.d_name));
+                            dir.nodeArray.append(toLower(entry->d_name));
                         }
                         entry = readdir(listing);
                     }
@@ -416,8 +418,8 @@ bool FileSystem::isNewer(const std::string& src, const std::string& dst) {
 
 
 int64 FileSystem::size(const std::string& filename) {
-    struct __stat64 st;
-    int result = _stat64(filename.c_str(), &st);
+    struct stat64 st;
+    int result = stat64(filename.c_str(), &st);
     
     if (result == -1) {
 		std::string zip, contents;
