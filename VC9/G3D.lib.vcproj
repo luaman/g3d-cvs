@@ -269,6 +269,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\FileSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\fileutils.cpp"
 				>
 			</File>
@@ -692,6 +696,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\EqualsTrait.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\FileSystem.h"
 				>
 			</File>
 			<File

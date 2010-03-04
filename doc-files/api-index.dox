@@ -356,6 +356,8 @@ href="classes.html">Classes</a>.
         \link G3D::setFailureHook setFailureHook\endlink
 
      <Li><b>Files</b> &nbsp; &nbsp;
+        \link G3D::FileSystem FileSystem\endlink,
+        \link G3D::FilePath FilePath\endlink,
         \link G3D::BinaryInput BinaryInput\endlink,
         \link G3D::BinaryOutput BinaryOutput\endlink,
         \link G3D::copyFile copyFile\endlink,
