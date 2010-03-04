@@ -71,7 +71,7 @@ GCamera::operator Any() const {
 
 GCamera::GCamera() {
     setNearPlaneZ(-0.2f);
-    setFarPlaneZ(-100.0f);
+    setFarPlaneZ(-150.0f);
     setFieldOfView((float)toRadians(90.0f), HORIZONTAL);
 }
 

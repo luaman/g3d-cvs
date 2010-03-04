@@ -444,7 +444,17 @@ bool GLCaps::supports(const ImageFormat* fmt) {
 }
 
 
+bool GLCaps::hasBug_R11G10B10F() {
+    // TODO: make a better test, actually trying to render to this format
+    return GLCaps::enumVendor() == ATI;
+}
+
+
 bool GLCaps::supportsTexture(const ImageFormat* fmt) {
+
+    if (fmt == ImageFormat::R11G11B10F() && hasBug_R11G10B10F()) {
+        return false;
+    }
 
     // First, check if we've already tested this format
     if (! _supportedImageFormat().containsKey(fmt)) {

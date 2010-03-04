@@ -284,6 +284,8 @@ href="classes.html">Classes</a>.
      <LI><B>String</B> &nbsp; &nbsp;
        \link G3D::beginsWith beginsWith\endlink,
         \link G3D::endsWith endsWith\endlink,
+        \link G3D::findSlash findSlash\endlink,
+        \link G3D::findLastSlash findSlash\endlink,
         \link G3D::format format\endlink,
         \link G3D::isSlash isSlash\endlink,
         \link G3D::isWhiteSpace isWhiteSpace\endlink,
@@ -373,6 +375,7 @@ href="classes.html">Classes</a>.
         \link G3D::getFiles getFiles\endlink, 
         \link G3D::getDirs getDirs\endlink,
         \link G3D::isDirectory isDirectory\endlink,
+        \link G3D::isFileSystemRoot isFileSystemRoot\endlink,
         \link G3D::isZipfile isZipfile\endlink
         \link G3D::parseFilename parseFilename\endlink, 
         \link G3D::ParseError ParseError\endlink,

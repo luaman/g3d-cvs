@@ -268,6 +268,9 @@ public:
      */
     static bool hasBug_glMultiTexCoord3fvARB();
 
+    /** Some ATI cards claim to support ImageFormat::R11G10B10F but render to it incorrectly. */
+    static bool hasBug_R11G10B10F();
+
     /**
      Returns true if cube map support has a specific known bug on this card that
      prevents correct normal map coordinate generation, i.e.,
