@@ -267,25 +267,6 @@ public:
      Array<std::string>& path,
      std::string&        base,
      std::string&        ext);
-
-
-    /**
-      std::string version of function fnmatch() as specified in POSIX 1003.2-1992, section B.6.
-      Compares a filename or pathname to a pattern.
-
-    The fnmatch() function checks whether the string argument matches the pattern argument, which is a shell wildcard pattern.
-    The flags argument modifies the behaviour; it is the bitwise OR of zero or more of the following flags:
-
-    - FNM_NOESCAPE If this flag is set, treat backslash as an ordinary character, instead of an escape character.
-    - FNM_PATHNAME If this flag is set, match a slash in string only with a slash in pattern and not by an asterisk (*) or a question mark (?) metacharacter, nor by a bracket expression ([]) containing a slash.
-    - FNM_PERIOD If this flag is set, a leading period in string has to be matched exactly by a period in pattern. A period is considered to be leading if it is the first character in string, or if both FNM_PATHNAME is set and the period immediately follows a slash.
-    - FNM_FILE_NAME This is a GNU synonym for FNM_PATHNAME.
-    - FNM_LEADING_DIR If this flag (a GNU extension) is set, the pattern is considered to be matched if it matches an initial segment of string which is followed by a slash. This flag is mainly for the internal use of glibc and is only implemented in certain cases.
-    - FNM_CASEFOLD If this flag (a GNU extension) is set, the pattern is matched case-insensitively.
-
-    \return Zero if \a string matches \a pattern, FNM_NOMATCH if there is no match or another non-zero value if there is an error
-     */
-    bool matches(const std::string& path, const std::string& pattern, int flags = 0);
 };
 
 } // namespace G3D

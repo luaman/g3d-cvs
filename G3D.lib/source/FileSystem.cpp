@@ -14,7 +14,6 @@
 #include <sys/types.h>
 #include "zip.h"
 #include <sys/types.h> 
-#include "G3D/g3dfnmatch.h"
 
 #ifdef G3D_WIN32
     // Needed for _getcwd
@@ -578,11 +577,6 @@ std::string FilePath::parentPath(const std::string& path) {
 
 bool FilePath::containsWildcards(const std::string& filename) {
     return (filename.find('*') != std::string::npos) || (filename.find('?') != std::string::npos);
-}
-
-
-bool FilePath::matches(const std::string& path, const std::string& pattern, int flags) {
-    return g3dfnmatch(path.c_str(), pattern.c_str(), flags) == 0;
 }
 
 
