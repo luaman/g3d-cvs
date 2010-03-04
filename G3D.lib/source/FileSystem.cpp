@@ -167,7 +167,7 @@ const FileSystem::Dir& FileSystem::getContents(const std::string& path, bool for
                         if (! strcmp(entry->d_name, "..") &&
                             ! strcmp(entry->d_name, ".")) {
 
-                            dir.nodeArray.append(toLower(entry->d_name));
+                            dir.nodeArray.append(entry->d_name);
                         }
                         entry = readdir(listing);
                     }
@@ -422,26 +422,26 @@ int64 FileSystem::size(const std::string& filename) {
     int result = stat64(filename.c_str(), &st);
     
     if (result == -1) {
-		std::string zip, contents;
-		if (zipfileExists(filename, zip, contents)) {
-			int64 requiredMem;
-
+        std::string zip, contents;
+        if (zipfileExists(filename, zip, contents)) {
+            int64 requiredMem;
+            
             struct zip *z = zip_open( zip.c_str(), ZIP_CHECKCONS, NULL );
             debugAssertM(z != NULL, zip + ": zip open failed.");
-			{
+            {
                 struct zip_stat info;
                 zip_stat_init( &info );    // Docs unclear if zip_stat_init is required.
                 int success = zip_stat( z, contents.c_str(), ZIP_FL_NOCASE, &info );
                 debugAssertM(success == 0, zip + ": " + contents + ": zip stat failed.");
                 requiredMem = info.size;
-			}
+            }
             zip_close(z);
-			return requiredMem;
-		} else {
+            return requiredMem;
+        } else {
             return -1;
-		}
+        }
     }
-
+    
     return st.st_size;
 }
 
