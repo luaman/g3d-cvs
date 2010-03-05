@@ -53,7 +53,7 @@ Sample File:
 {
    shape = "round",
 
-   # in meters
+   // in meters
    radius = 3.7,
 
    position = Vector3(1.0, -1.0, 0.0),
