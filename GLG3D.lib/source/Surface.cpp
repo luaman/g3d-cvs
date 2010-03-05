@@ -627,7 +627,7 @@ void Surface::renderTranslucent
             Material::Ref material = gmodel->gpuGeom()->material;
             const float eta = material->bsdf()->etaTransmit();
 
-            if ((eta > 1.01f) && 
+            if ((eta > 1.001f) && 
                 (material->refractionHint() >= RefractionQuality::DYNAMIC_FLAT) &&
                 (material->refractionHint() <= RefractionQuality::DYNAMIC_FLAT_MULTILAYER) &&
                 (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
