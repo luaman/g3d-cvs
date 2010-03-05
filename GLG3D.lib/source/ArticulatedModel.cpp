@@ -375,8 +375,9 @@ void ArticulatedModel::init3DS(const std::string& filename, const Preprocess& pr
 }
 
 
-static std::string find3DSTexture(std::string filename, const std::string& path) {    
-    if (filename != "") {
+static std::string find3DSTexture(std::string _filename, const std::string& path) {    
+    if (_filename != "") {
+        std::string filename = _filename;
         if (endsWith(toUpper(filename), "GIF")) {
             // Load PNG instead of GIF, since we can't load GIF
             filename = filename.substr(0, filename.length() - 3) + "png";
@@ -390,10 +391,12 @@ static std::string find3DSTexture(std::string filename, const std::string& path)
         filename = System::findDataFile(filename, false);
         
         if (filename == "") {
-            logPrintf("Could not locate 3DS file texture '%s'\n", filename.c_str());
+            logPrintf("Could not locate 3DS file texture '%s'\n", _filename.c_str());
         }
+        return filename;
+    } else {
+        return "";
     }
-    return filename;
 }
 
 Material::Settings ArticulatedModel::compute3DSMaterial
