@@ -82,9 +82,11 @@ float pow5(in float x) {
     return x2 * x2 * x;
 }
 
-/** Compute Schlick's approximation of the Fresnel coefficient */
+/** Compute Schlick's approximation of the Fresnel coefficient.  The original goes to 1.0
+    at glancing angles, which makes objects appear to glow, so we clamp it.
+    */
 vec3 computeF(in vec3 F0, in float cos_i) {
-    return F0 + (vec3(1.0) - F0) * max(0.0, pow5(1.0 - cos_i));
+  return F0 + (vec3(1.0) - F0) * clamp(pow5(1.0 - cos_i), 0.0, 0.3);
 }
 
 float square(in float x) {

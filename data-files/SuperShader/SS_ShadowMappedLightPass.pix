@@ -109,9 +109,6 @@ void main(void) {
         vec3 F0;
         vec3 specularColor;
         float cos_i = dot(wsN, wsE);
-        // If 1.0, mirror reflect
-        // If 0.0, no specular
-        // Otherwise exponent = shininess * 127 + 1. 
         {        
             vec4 temp =
 #           ifdef SPECULARCONSTANT
