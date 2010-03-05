@@ -61,6 +61,22 @@ FileSystem::FileSystem() : m_cacheLifetime(10) {}
 
 /////////////////////////////////////////////////////////////
 
+bool FileSystem::Dir::contains(const std::string& f) const {
+    
+    for (int i = 0; i < nodeArray.size(); ++i) {
+#       ifdef G3D_WIN32
+            if (stricmp(f.c_str(), nodeArray[i].name.c_str()) == 0) {
+                return true;
+            }
+#       else
+            if (f == nodeArray[i].name) {
+                return true;
+            }
+#       endif
+    }
+    return false;
+}
+    
 void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::string& pathInsideZipfile) {
     struct zip* z = zip_open( zipfile.c_str(), ZIP_CHECKCONS, NULL );
     debugAssert(z);
@@ -111,7 +127,7 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
 }
 
 
-const FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpdate) {
+FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpdate) {
     const std::string& key = 
 #   if defined(G3D_WIN32)
         toLower(path);
@@ -230,7 +246,6 @@ bool FileSystem::inZipfile(const std::string& path, std::string& z) {
 
     z = "";
     return false;
-
 }
 
 
@@ -239,26 +254,25 @@ bool FileSystem::isZipfile(const std::string& filename) {
         return false;
     }
     
-	FILE* f = fopen(filename.c_str(), "r");
-	if (f == NULL) {
-		return false;
-	}
-	uint8 header[4];
-	fread(header, 4, 1, f);
-	
-	const uint8 zipHeader[4] = {0x50, 0x4b, 0x03, 0x04};
-	for (int i = 0; i < 4; ++i) {
-		if (header[i] != zipHeader[i]) {
-			fclose(f);
-			return false;
-		}
-	}
-
-	fclose(f);
-	return true;
+    FILE* f = fopen(filename.c_str(), "r");
+    if (f == NULL) {
+        return false;
+    }
+    uint8 header[4];
+    fread(header, 4, 1, f);
+    
+    const uint8 zipHeader[4] = {0x50, 0x4b, 0x03, 0x04};
+    for (int i = 0; i < 4; ++i) {
+        if (header[i] != zipHeader[i]) {
+            fclose(f);
+            return false;
+        }
+    }
+    
+    fclose(f);
+    return true;
 }
-
-
+    
 
 void FileSystem::flushCache() {
     m_cache.clear();
@@ -272,12 +286,12 @@ void FileSystem::setCacheLifetime(float t) {
 
 void FileSystem::createDirectory(const std::string& dir) {
     
-	if (dir == "") {
-		return;
-	}
-
+    if (dir == "") {
+        return;
+    }
+    
     std::string d;
-
+    
     // Add a trailing / if there isn't one.
     switch (dir[dir.size() - 1]) {
     case '/':
@@ -315,9 +329,9 @@ void FileSystem::createDirectory(const std::string& dir) {
             // where as unix also requires the permissions.
 #           ifndef G3D_WIN32
                 mkdir(p.c_str(), 0777);
-#	        else
+#           else
                 _mkdir(p.c_str());
-#	        endif
+#           endif
         }
     }
 
@@ -348,12 +362,7 @@ bool FileSystem::exists(const std::string& f, bool trustCache) {
 
     const Dir& entry = getContents(parentPath, ! trustCache);
 
-    if (entry.exists) {
-        // See if the entry contains f.
-        // TODO
-    }
-
-    return false;
+    return entry.exists && entry.contains(FilePath::baseExt(path));
 }
 
 
@@ -447,7 +456,41 @@ int64 FileSystem::size(const std::string& filename) {
 
 
 void FileSystem::list(const std::string& spec, Array<std::string>& result, bool files, bool directories, bool includeParentPath) {
-    // TODO
+    std::string shortSpec = FilePath::baseExt(spec);
+    std::string parentPath = FilePath::parentPath(spec);
+
+    Dir& dir = getContents(parentPath, false);
+    if (dir.exists) {
+        for (int i = 0; i < dir.nodeArray.size(); ++i) {
+            Entry& entry = dir.nodeArray[i];
+            
+#           ifdef G3D_WIN32
+                static const int flags = FNM_CASEFOLD;
+#           else
+                static const int flags = 0;
+#           endif
+
+            // See if it matches the spec
+            if (FilePath::matches(entry.name, shortSpec, flags)) {
+
+                if ((entry.type == UNKNOWN) && ! (files && directories)) {
+                    // Update the type
+                    entry.type = isDirectory(FilePath::concat(parentPath, entry.name)) ? DIR_TYPE : FILE_TYPE;
+                }
+                
+                if ((files && directories) ||
+                    (files && (entry.type == FILE_TYPE)) ||
+                    (directories && (entry.type == DIR_TYPE))) {
+                    
+                    if (includeParentPath) {
+                        result.append(FilePath::concat(parentPath, entry.name));
+                    } else {
+                        result.append(entry.name);
+                    }
+                }
+            } // match
+        } // for
+    }
 }
 
 

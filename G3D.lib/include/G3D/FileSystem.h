@@ -28,6 +28,8 @@ namespace G3D {
 
  The extension requirement allows G3D to quickly identify whether a path could enter a
  zipfile without forcing it to open all parent directories for reading.
+
+ TODO: make threadsafe!
 */
 class FileSystem {
 private:
@@ -69,6 +71,9 @@ private:
         /** When this entry was last updated */
         double                  lastChecked;
 
+        /** Case-independent comparison on Windows */
+        bool contains(const std::string& child) const;
+
         /** Compute the contents of nodeArray from this zipfile. */
         void computeZipListing(const std::string& zipfile, const std::string& pathInsideZipfile);
 
@@ -81,7 +86,7 @@ private:
 
     /** Update the cache entry for path if it is not already present.
      \param forceUpdate If true, always override the current cache value.*/
-    const Dir& getContents(const std::string& path, bool forceUpdate);
+    Dir& getContents(const std::string& path, bool forceUpdate);
 
     /** Don't allow public construction. */
     FileSystem();
@@ -285,7 +290,7 @@ public:
 
     \return Zero if \a string matches \a pattern, FNM_NOMATCH if there is no match or another non-zero value if there is an error
      */
-    bool matches(const std::string& path, const std::string& pattern, int flags = 0);
+    static bool matches(const std::string& path, const std::string& pattern, int flags = 0);
 };
 
 } // namespace G3D
