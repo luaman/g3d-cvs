@@ -180,6 +180,7 @@ FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpda
 
 #               else
                     DIR* listing = opendir(path.c_str());
+                    debugAssertM(listing, "opendir failed on '" + path + "'");
                     struct dirent* entry = readdir(listing);
                     while (entry != NULL) {
                         if (! strcmp(entry->d_name, "..") &&
