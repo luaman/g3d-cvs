@@ -249,7 +249,7 @@ bool FileSystem::inZipfile(const std::string& path, std::string& z) {
 }
 
 
-bool FileSystem::isZipfile(const std::string& filename) {
+bool FileSystem::_isZipfile(const std::string& filename) {
     if (FilePath::ext(filename).empty()) {
         return false;
     }
@@ -274,17 +274,17 @@ bool FileSystem::isZipfile(const std::string& filename) {
 }
     
 
-void FileSystem::flushCache() {
+void FileSystem::_flushCache() {
     m_cache.clear();
 }
 
 
-void FileSystem::setCacheLifetime(float t) {
+void FileSystem::_setCacheLifetime(float t) {
     m_cacheLifetime = t;
 }
 
 
-void FileSystem::createDirectory(const std::string& dir) {
+void FileSystem::_createDirectory(const std::string& dir) {
     
     if (dir == "") {
         return;
@@ -324,7 +324,7 @@ void FileSystem::createDirectory(const std::string& dir) {
     // Create any intermediate that doesn't exist
     for (int i = 0; i < path.size(); ++i) {
         p += "/" + path[i];
-        if (! exists(p)) {
+        if (! _exists(p)) {
             // Windows only requires one argument to mkdir,
             // where as unix also requires the permissions.
 #           ifndef G3D_WIN32
@@ -335,11 +335,11 @@ void FileSystem::createDirectory(const std::string& dir) {
         }
     }
 
-    flushCache();
+    _flushCache();
 }
 
 
-void FileSystem::copyFile(const std::string& source, const std::string& dest) {
+void FileSystem::_copyFile(const std::string& source, const std::string& dest) {
 #   ifdef G3D_WIN32
         // TODO: handle case where srcPath is in a zipfile
         CopyFileA(source.c_str(), dest.c_str(), FALSE);
@@ -355,7 +355,7 @@ void FileSystem::copyFile(const std::string& source, const std::string& dest) {
 }
 
 
-bool FileSystem::exists(const std::string& f, bool trustCache) {
+bool FileSystem::_exists(const std::string& f, bool trustCache) {
 
     std::string path = FilePath::removeTrailingSlash(f);
     std::string parentPath = FilePath::parentPath(path);
@@ -366,7 +366,7 @@ bool FileSystem::exists(const std::string& f, bool trustCache) {
 }
 
 
-bool FileSystem::isDirectory(const std::string& filename) {
+bool FileSystem::_isDirectory(const std::string& filename) {
     // TODO: work with zipfiles and cache
     struct _stat st;
     const bool exists = _stat(FilePath::removeTrailingSlash(filename).c_str(), &st) != -1;
@@ -374,7 +374,7 @@ bool FileSystem::isDirectory(const std::string& filename) {
 }
 
 
-std::string FileSystem::resolve(const std::string& filename) {
+std::string FileSystem::_resolve(const std::string& filename) {
     if (filename.size() >= 1) {
         if (isSlash(filename[0])) {
             // Already resolved
@@ -405,7 +405,7 @@ std::string FileSystem::resolve(const std::string& filename) {
 }
 
 
-std::string FileSystem::currentDirectory() {
+std::string FileSystem::_currentDirectory() {
     static const int N = 2048;
     char buffer[N];
 
@@ -414,7 +414,7 @@ std::string FileSystem::currentDirectory() {
 }
 
 
-bool FileSystem::isNewer(const std::string& src, const std::string& dst) {
+bool FileSystem::_isNewer(const std::string& src, const std::string& dst) {
     // TODO: work with cache and zipfiles
     struct _stat sts;
     bool sexists = _stat(src.c_str(), &sts) != -1;
@@ -426,7 +426,7 @@ bool FileSystem::isNewer(const std::string& src, const std::string& dst) {
 }
 
 
-int64 FileSystem::size(const std::string& filename) {
+int64 FileSystem::_size(const std::string& filename) {
     struct stat64 st;
     int result = stat64(filename.c_str(), &st);
     
@@ -455,7 +455,7 @@ int64 FileSystem::size(const std::string& filename) {
 }
 
 
-void FileSystem::list(const std::string& spec, Array<std::string>& result, bool files, bool directories, bool includeParentPath) {
+void FileSystem::_list(const std::string& spec, Array<std::string>& result, bool files, bool directories, bool includeParentPath) {
     std::string shortSpec = FilePath::baseExt(spec);
     std::string parentPath = FilePath::parentPath(spec);
 
@@ -496,7 +496,7 @@ void FileSystem::list(const std::string& spec, Array<std::string>& result, bool 
 
 
 #ifdef G3D_WIN32
-const Array<std::string>& FileSystem::drives() {
+const Array<std::string>& FileSystem::_drives() {
     if (m_winDrive.length() == 0) {
         // See http://msdn.microsoft.com/en-us/library/aa364975(VS.85).aspx
         static const size_t bufSize = 5000;

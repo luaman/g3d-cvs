@@ -29,6 +29,7 @@ namespace G3D {
  The extension requirement allows G3D to quickly identify whether a path could enter a
  zipfile without forcing it to open all parent directories for reading.
 
+ \sa FilePath
  TODO: make threadsafe!
 */
 class FileSystem {
@@ -96,27 +97,59 @@ private:
     bool inZipfile(const std::string& path, std::string& zipsubpath);
 
 public:
+    
+    static FileSystem& instance();
+
+    /** Create the common instance. */
+    static void init();
+
+    /** Destroy the common instance. */
+    static void cleanup();
 
 #   ifdef G3D_WIN32
     /** On Windows, the drive letters that form the file system roots.*/
-    const Array<std::string>& drives();
+    const Array<std::string>& _drives();
+    /** \copydoc _drives */
+    static const Array<std::string>& drives() {
+        return instance()._drives();
+    }
 #   endif
 
     /** Flushes the cache */
-    void flushCache();
+    void _flushCache();
+
+    /** \copydoc _flushCache */
+    static void flushCache() {
+        instance()._flushCache();
+    }
 
     /** Returns true if \a path is a file that is a zipfile. Note that G3D requires zipfiles to have
         some extension, although it is not required to be "zip" */
-    bool isZipfile(const std::string& path);
+    bool _isZipfile(const std::string& path);
+
+    /** \copydoc isZipfile */
+    static bool isZipfile(const std::string& path) {
+        return instance()._isZipfile(path);
+    }
 
     /** Set the cacheLifetime().
        \param t in seconds */
-    void setCacheLifetime(float t);
+    void _setCacheLifetime(float t);
+
+    /** \copydoc _setCacheLifetime */
+    void setCacheLifetime(float t) {
+        instance()._setCacheLifetime(t);
+    }
 
     /** A cache is used to optimize repeated calls.  A cache entry is considered
         valid for this many seconds after it has been checked. */
-    float cacheLifetime() const {
+    float _cacheLifetime() const {
         return m_cacheLifetime;
+    }
+
+    /** \copydoc _cacheLifetime */
+    static float cacheLifetime() {
+        return instance()._cacheLifetime();
     }
 
     /** Creates the directory named, including any subdirectories 
@@ -126,10 +159,20 @@ public:
 
         Flushes the cache.
      */
-    void createDirectory(const std::string& path);
+    void _createDirectory(const std::string& path);
+
+    /** \copydoc _createDirectory */
+    static void createDirectory(const std::string& path) {
+        instance()._createDirectory(path);
+    }
 
     /** The current working directory (cwd).  Only ends in a slash if this is the root of the file system. */
-    std::string currentDirectory();
+    std::string _currentDirectory();
+
+    /** \copydoc _currentDirectory */
+    static std::string currentDirectory() {
+        return instance()._currentDirectory();
+    }
 
     /**
     \param srcPath Must name a file.
@@ -137,38 +180,73 @@ public:
 
     Flushes the cache.
     */
-    void copyFile(const std::string& srcPath, const std::string& dstPath);
+    void _copyFile(const std::string& srcPath, const std::string& dstPath);
+
+    /** \copydoc _copyFile */
+    static void copyFile(const std::string& srcPath, const std::string& dstPath) {
+        instance()._copyFile(srcPath, dstPath);
+    }
 
     /** Returns true if a node named \a f exists.
 
         \param trustCache If true, uses the cache for optimizing repeated calls 
         in the same parent directory. 
      */
-    bool exists(const std::string& f, bool trustCache = true);
+    bool _exists(const std::string& f, bool trustCache = true);
+
+    /** \copydoc _exists */
+    static bool exists(const std::string& f, bool trustCache = true) {
+        return instance()._exists(f, trustCache);
+    }
 
     /** Known bug: does not work inside zipfiles */
-    bool isDirectory(const std::string& path);
+    bool _isDirectory(const std::string& path);
+    
+    /** \copydoc _isDirectory */
+    static bool isDirectory(const std::string& path) {
+        return instance()._isDirectory(path);
+    }
 
     /** Known bug: does not work inside zipfiles */
-    bool isFile(const std::string& path) {
+    bool _isFile(const std::string& path) {
         return ! isDirectory(path);
     }
     
+    /** \copydoc _isFile */
+    static bool isFile(const std::string& path) {
+        return instance()._isFile(path);
+    }
+
     /** Fully qualifies a filename.
 
         The filename may contain wildcards, in which case the wildcards will be preserved in the returned value.
     */
-    std::string resolve(const std::string& path);
+    std::string _resolve(const std::string& path);
+
+    /** \copydoc _resolve */
+    static std::string resolve(const std::string& path) {
+        return instance()._resolve(path);
+    }
 
     /** Returns true if \param dst does not exist or \param src is newer than \param dst,
        according to their time stamps.
        
        Known bug: does not work inside zipfiles.
        */
-    bool isNewer(const std::string& src, const std::string& dst);
+    bool _isNewer(const std::string& src, const std::string& dst);
+
+    /** \copydoc _isNewer */
+    static bool isNewer(const std::string& src, const std::string& dst) {
+        return instance()._isNewer(src, dst);
+    }
 
     /** Returns the length of the file in bytes, or -1 if the file could not be opened. */
-    int64 size(const std::string& path);
+    int64 _size(const std::string& path);
+
+    /** \copydoc _size */
+    static int64 size(const std::string& path) {
+        return instance()._size(path);
+    }
 
     /** Appends all nodes matching \a spec to the \a result array.
 
@@ -179,26 +257,34 @@ public:
       is fully qualified (can be done with resolveFilename). 
       
      */
-    void list(const std::string& spec, Array<std::string>& result,
+    void _list(const std::string& spec, Array<std::string>& result,
         bool files = true, bool directories = true, bool includeParentPath = false);
 
+    /** \copydoc _list */
+    static void list(const std::string& spec, Array<std::string>& result,
+        bool files = true, bool directories = true, bool includeParentPath = false) {
+        return instance()._list(spec, result, files, directories, includeParentPath);
+    }
+
     /** list() files */
-    void getFiles(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
-        list(spec, result, true, false, includeParentPath);
+    void _getFiles(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
+        _list(spec, result, true, false, includeParentPath);
+    }
+
+    /** \copydoc _getFiles */
+    static void getFiles(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
+        return instance()._getFiles(spec, result, includeParentPath);
     }
 
     /** list() directories */
-    void getDirectories(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
-        list(spec, result, false, true, includeParentPath);
+    void _getDirectories(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
+        _list(spec, result, false, true, includeParentPath);
     }
 
-    static FileSystem& instance();
-
-    /** Create the common instance. */
-    static void init();
-
-    /** Destroy the common instance. */
-    static void cleanup();
+    /** \copydoc getDirectories */
+    static void getDirectories(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
+        return instance()._getDirectories(spec, result, includeParentPath);
+    }
 };
 
 
