@@ -12,6 +12,7 @@
 #include "G3D/ThreadSet.h"
 #include "GLG3D/GLCaps.h"
 #include "G3D/Any.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
         
@@ -181,7 +182,7 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, fl
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Preprocess& preprocess, const Settings& settings) {
-    alwaysAssertM(fileExists(filename),
+    alwaysAssertM(FileSystem::exists(filename),
         filename + " cannot be loaded by ArticulatedModel because it does not exist.");
 
     ArticulatedModel* model = new ArticulatedModel();
@@ -220,7 +221,7 @@ static std::string findAnyImage(const std::string& filename) {
     // TODO: Case sensitivity
     for (int i = 0; ext[i][0] != '\0'; ++i) {
         std::string tmp = filename + "." + ext[i];
-        if (fileExists(tmp)) {
+        if (FileSystem::exists(tmp)) {
             return tmp;
         }
     }
@@ -383,7 +384,7 @@ static std::string find3DSTexture(std::string _filename, const std::string& path
             filename = filename.substr(0, filename.length() - 3) + "png";
         }
 
-        if (! fileExists(filename) && fileExists(pathConcat(path, filename))) {
+        if (! FileSystem::exists(filename) && FileSystem::exists(pathConcat(path, filename))) {
             filename = pathConcat(path, filename);
         }
 

@@ -20,6 +20,7 @@
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/RenderDevice.h"
+#include "G3D/FileSystem.h"
 
 #ifdef verify
 #undef verify
@@ -284,13 +285,13 @@ Texture::Dimension Texture::defaultDimension() {
 Texture::CubeMapConvention Texture::determineCubeConvention(const std::string& filename) {
     std::string filenameBase, filenameExt;
     Texture::splitFilenameAtWildCard(filename, filenameBase, filenameExt);
-    if (fileExists(filenameBase + "east" + filenameExt)) {
+    if (FileSystem::exists(filenameBase + "east" + filenameExt)) {
         return Texture::CUBE_UNREAL;
-    } else if (fileExists(filenameBase + "lf" + filenameExt)) {
+    } else if (FileSystem::exists(filenameBase + "lf" + filenameExt)) {
         return Texture::CUBE_QUAKE;
-    } else if (fileExists(filenameBase + "+x" + filenameExt)) {
+    } else if (FileSystem::exists(filenameBase + "+x" + filenameExt)) {
         return Texture::CUBE_G3D;
-    } else if (fileExists(filenameBase + "PX" + filenameExt)) {
+    } else if (FileSystem::exists(filenameBase + "PX" + filenameExt)) {
         return Texture::CUBE_DIRECTX;
     }
     throw std::string("File not found");
@@ -1484,7 +1485,7 @@ void Texture::splitFilenameAtWildCard(
 
 bool Texture::isSupportedImage(const std::string& filename) {
 	// Reminder: this looks in zipfiles as well
-	if (!fileExists(filename)) {
+	if (! FileSystem::exists(filename)) {
 		return false;
 	}
 

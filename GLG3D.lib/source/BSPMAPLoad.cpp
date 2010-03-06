@@ -6,12 +6,13 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-05-25
-  @edited  2009-02-30
+  @edited  2010-02-30
  */ 
 
 #include "GLG3D/BSPMAP.h"
 #include "G3D/fileutils.h"
 #include "G3D/Log.h"
+#include "G3D/FileSystem.h"
 
 #define TESSELLATION_LEVEL 5
 #define G3D_LOAD_SCALE (0.03f)
@@ -186,7 +187,7 @@ MapRef Map::fromFile(const std::string& path, const std::string& fileName, float
                      const std::string& defaultTextureFile) {
     if (altLoad == "") {
         altLoad = System::findDataFile("pak0.pk3", false);
-        if (! fileExists(altLoad)) {
+        if (! FileSystem::exists(altLoad)) {
             altLoad = System::findDataFile("mini-pak0.pk3", false);
         }
     }
@@ -214,14 +215,14 @@ bool Map::load(
 
     std::string full = resPath + "maps/" + filename;
 
-    if ((defaultTextureFile != "") && fileExists(defaultTextureFile)) {
+    if ((defaultTextureFile != "") && FileSystem::exists(defaultTextureFile)) {
         defaultTexture = loadBrightTexture(defaultTextureFile);
     } else {
         defaultTexture = Texture::white();
     }
 
-    if (! fileExists(full)) {
-        debugAssertM(fileExists(full), "Could not find " + full);
+    if (! FileSystem::exists(full)) {
+        debugAssertM(FileSystem::exists(full), "Could not find " + full);
         return false;
     }
 
@@ -571,7 +572,7 @@ Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& alt
             for (int i = 0; i < numExt; ++i) {
                 const std::string& full = pathConcat(path[p], filename) + ext[i];
                 
-                if (fileExists(full)) {
+                if (FileSystem::exists(full)) {
                     Texture::Ref t = loadBrightTexture(full, brighten);
 
                     if (defaultTexture.isNull()) {

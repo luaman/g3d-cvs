@@ -244,7 +244,7 @@ bool FileSystem::_inZipfile(const std::string& path, std::string& z) {
         }
 
         z = path.substr(0, s); 
-        if (isZipfile(z)) {
+        if (_isZipfile(z)) {
             return true;
         }
         

@@ -41,7 +41,7 @@ static bool allCubeMapFacesExist(const std::string& base, const std::string& ext
 
 	// See if all faces exist
 	for (int faceIndex = 0; faceIndex < Texture::NUM_CUBEFACES; ++faceIndex) {
-		if (!fileExists(wildcardBase + info.face[faceIndex].suffix + "." + ext)) {
+		if (! FileSystem::exists(wildcardBase + info.face[faceIndex].suffix + "." + ext)) {
 			success = false;
 			break;
 		}

@@ -1,16 +1,17 @@
 /**
  @file BinaryOutput.cpp
  
- @author Morgan McGuire, graphics3d.com
- Copyright 2002-2007, Morgan McGuire, All rights reserved.
+ @author Morgan McGuire, http://graphics.cs.williams.edu
+ Copyright 2002-2010, Morgan McGuire, All rights reserved.
  
  @created 2002-02-20
- @edited  2008-01-07
+ @edited  2010-02-07
  */
 
 #include "G3D/platform.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/fileutils.h"
+#include "G3D/FileSystem.h"
 #include "G3D/stringutils.h"
 #include "G3D/Array.h"
 #include <zlib.h>
@@ -317,8 +318,8 @@ void BinaryOutput::commit(bool flush) {
     parseFilename(m_filename, root, pathArray, base, ext); 
 
     path = root + stringJoin(pathArray, '/');
-    if (! fileExists(path, false)) {
-        createDirectory(path);
+    if (! FileSystem::exists(path, false)) {
+        FileSystem::createDirectory(path);
     }
 
     const char* mode = (m_alreadyWritten > 0) ? "ab" : "wb";

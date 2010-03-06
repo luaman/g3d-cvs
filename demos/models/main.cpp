@@ -17,13 +17,13 @@ int main(int argc, char** argv) {
     settings.window.height      = 600;
 
 #   ifdef G3D_WIN32
-        if (! fileExists("G3D-logo-tiny-alpha.tga", false)) {
+        if (! FileSystem::exists("G3D-logo-tiny-alpha.tga", false)) {
             // Running under visual studio from the wrong directory
             chdir("../demos/models/data-files");
         }
 #   endif
 
-    alwaysAssertM(fileExists("G3D-logo-tiny-alpha.tga", false), 
+    alwaysAssertM(FileSystem::exists("G3D-logo-tiny-alpha.tga", false), 
         "Cannot find runtime data files.");
 
     // Uncomment the next line to see what articulated model will look like

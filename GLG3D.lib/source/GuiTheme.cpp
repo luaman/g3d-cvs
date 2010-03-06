@@ -3,7 +3,7 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2008-01-01
- \edited  2010-01-04
+ \edited  2010-03-04
 
  Copyright 2000-2010, Morgan McGuire
  All rights reserved
@@ -17,6 +17,7 @@
 #include "G3D/fileutils.h"
 #include "G3D/Image3.h"
 #include "G3D/Log.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -55,7 +56,7 @@ GuiTheme::GuiTheme(const std::string& filename,
         const Color4&       fallbackColor, 
         const Color4&       fallbackOutlineColor) : delayedTextCount(0), inRendering(false){
 
-    alwaysAssertM(fileExists(filename), "Cannot find " + filename);
+    alwaysAssertM(FileSystem::exists(filename), "Cannot find " + filename);
 
     BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
     m_textStyle.font = fallbackFont;
@@ -1573,7 +1574,7 @@ void GuiTheme::TextStyle::deserialize(const std::string& path, const std::string
                 // Try to load the font
                 std::string fontFilename = t.readString();
 
-                if (fileExists(fontFilename)) {
+                if (FileSystem::exists(fontFilename)) {
                     font = GFont::fromFile(fontFilename);
                 } else {
                     std::string x = System::findDataFile(fontFilename);

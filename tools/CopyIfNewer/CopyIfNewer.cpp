@@ -34,12 +34,12 @@ void copyIfNewer(
 
     destspec = maybeAddSlash(destspec);
 
-    if (G3D::fileExists(destspec, false, false) && ! G3D::isDirectory(destspec)) {
+    if (FileSystem::exists(destspec, false) && ! FileSystem::isDirectory(destspec)) {
         printf("A file already exists named %s.  Target must be a directory.", 
             destspec.c_str());
         exit(-2);
     }
-    createDirectory(destspec);
+    FileSystem::createDirectory(destspec);
 
     for (int f = 0; f < fileArray.length(); ++f) {
         if (! excluded(exclusions, superExclusions, fileArray[f])) {

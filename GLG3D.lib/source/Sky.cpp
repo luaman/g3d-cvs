@@ -17,6 +17,7 @@
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -97,7 +98,7 @@ SkyRef Sky::fromFile(
         // First look relative to the current directory
         Texture::splitFilenameAtWildCard(fullFilename, filenameBase, filenameExt);
 
-        if (! fileExists(filenameBase + "up" + filenameExt)) {
+        if (! FileSystem::exists(filenameBase + "up" + filenameExt)) {
             // Look relative to the specified directory
             filenameBase = directory + filenameBase;
         }
@@ -227,7 +228,7 @@ Sky::Sky(
         int i = 0;
 
 	    // If file exists, load the real starfield
-        if (fileExists(directory + "real.str")) {
+        if (FileSystem::exists(directory + "real.str")) {
             BinaryInput in(directory + "real.str", G3D_LITTLE_ENDIAN, true);
             int16 numStars;
 		    float32 x, y, z;

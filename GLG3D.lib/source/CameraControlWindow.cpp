@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2007-06-01
-  @edited  2010-02-01
+  @edited  2010-03-01
 */
 #include "G3D/platform.h"
 #include "G3D/GCamera.h"
@@ -15,6 +15,8 @@
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/FileDialog.h"
 #include "GLG3D/GuiPane.h"
+#include "G3D/FileSystem.h"
+
 
 namespace G3D {
 
@@ -468,7 +470,7 @@ void CameraControlWindow::setBookmarkFile(const std::string& filename) {
     m_bookmarkName.clear();
     m_bookmarkFilename = filename;
 
-    if (fileExists(m_bookmarkFilename)) {
+    if (FileSystem::exists(m_bookmarkFilename)) {
         // Load bookmarks
         AnyVal all;
         try {
@@ -543,7 +545,7 @@ void CameraControlWindow::setRect(const Rect2D& r) {
 void CameraControlWindow::updateTrackFiles() {
     trackFileArray.fastClear();
     trackFileArray.append(noSpline);
-    getFiles("*.trk", trackFileArray);
+    FileSystem::getFiles("*.trk", trackFileArray);
 
     // Element 0 is <unsaved>, so skip it
     for (int i = 1; i < trackFileArray.size(); ++i) {
@@ -687,7 +689,7 @@ void CameraControlWindow::loadSpline(const std::string& filename) {
         return;
     }
 
-    if (! fileExists(filename)) {
+    if (! FileSystem::exists(filename)) {
         trackManipulator->clear();
         return;
     }

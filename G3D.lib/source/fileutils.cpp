@@ -17,6 +17,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/Set.h"
 #include "G3D/g3dfnmatch.h"
+#include "G3D/FileSystem.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -102,9 +103,10 @@ std::string readWholeFile(
     std::string s;
 
     debugAssert(filename != "");
-    if (fileExists(filename, false)) {
+    debugAssertM(FileSystem::exists(filename), filename + " not found");
 
-        int64 length = fileLength(filename);
+    if (! FileSystem::inZipfile(filename)) {
+        int64 length = FileSystem::size(filename);
 
         char* buffer = (char*)System::alignedMalloc(length + 1, 16);
         debugAssert(buffer);
@@ -132,8 +134,6 @@ std::string readWholeFile(
         buffer[length] = '\0';
         s = std::string(buffer);
         System::alignedFree(buffer);
-    } else {
-        debugAssertM(false, filename + " not found");
     }
 
     return s;
@@ -333,8 +333,8 @@ void writeWholeFile(
     parseFilename(filename, root, pathArray, base, ext); 
 
     path = root + stringJoin(pathArray, '/');
-    if (! fileExists(path, false)) {
-        createDirectory(path);
+    if (! FileSystem::exists(path, false)) {
+        FileSystem::createDirectory(path);
     }
 
     FILE* file = fopen(filename.c_str(), "wb");
@@ -376,7 +376,7 @@ void createDirectory(
     }
 
     // If it already exists, do nothing
-    if (fileExists(d.substr(0, d.size() - 1)), false) {
+    if (FileSystem::exists(d.substr(0, d.size() - 1))) {
         return;
     }
 
@@ -396,125 +396,18 @@ void createDirectory(
     // Create any intermediate that doesn't exist
     for (int i = 0; i < path.size(); ++i) {
         p += "/" + path[i];
-        if (! fileExists(p, false)) {
+        if (! FileSystem::exists(p)) {
             // Windows only requires one argument to mkdir,
             // where as unix also requires the permissions.
 #           ifndef G3D_WIN32
                 mkdir(p.c_str(), 0777);
-#	    else
+#	        else
                 _mkdir(p.c_str());
-#	    endif
+#	        endif
         }
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-class FileSystemCache {
-private:
-
-    Table<std::string, Array<std::string> > m_files;
-
-public:
-
-    bool fileExists(const std::string& filename) {
-        const std::string& path = resolveFilename(filenamePath(filename));
-        const std::string& name = filenameBaseExt(filename);
-        
-        bool neverBeforeSeen = false;
-        Array<std::string>& fileList = m_files.getCreate(path, neverBeforeSeen);
-        if (neverBeforeSeen) {
-            if (! G3D::fileExists(path, true, false)) {
-                // The path itself doesn't exist... back out our insertion (which makes fileList& invalid) 
-                m_files.remove(path);
-                return false;
-            }
-
-            std::string spec = pathConcat(path, "*");
-
-            // Will automatically recurse into zipfiles
-            getFiles(spec, fileList);
-            getDirs(spec, fileList);
-
-#           ifdef G3D_WIN32 
-            {
-                // Case insensitive
-                for (int i = 0; i < fileList.size(); ++i) {
-                    fileList[i] = toLower(fileList[i]);
-                }
-            }
-#           endif
-        }
-
-        if (filenameContainsWildcards(name)) {
-            // See if anything matches
-            for (int i = 0; i < fileList.size(); ++i) {
-                if (g3dfnmatch(name.c_str(), fileList[i].c_str(), 0) == 0) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            // On windows, this is a lower-lower comparison, so it is case insensitive
-            return fileList.contains(name);
-        }
-    }
-
-    void clear() {
-        m_files.clear();
-    }
-
-    static FileSystemCache& instance() {
-        static FileSystemCache i;
-        return i;
-    }
-};
-
-
-void clearFileSystemCache() {
-    FileSystemCache::instance().clear();
-}
-
-bool fileExists
-(const std::string&	_filename,
- bool                   lookInZipfiles,
- bool                   trustCache) {
-    
-    if (_filename.empty()) {
-        return false;
-    }
-
-    // Remove trailing slash from directories
-    const std::string& filename = (endsWith(_filename, "/") || endsWith(_filename, "\\")) ? _filename.substr(0, _filename.length() - 1) : _filename;
-
-    if (trustCache && lookInZipfiles) {
-#       ifdef G3D_WIN32
-            // Case insensitive
-            return FileSystemCache::instance().fileExists(toLower(filename));
-#       else
-            return FileSystemCache::instance().fileExists(filename);
-#       endif
-    }
-
-    // Useful for debugging
-    //char curdir[1024]; _getcwd(curdir, 1024); 
-
-    struct _stat st;
-    int ret = _stat(filename.c_str(), &st);
-
-    // _stat returns zero on success
-    bool exists = (ret == 0);
-
-    if (! exists && lookInZipfiles) {
-		// Does not exist standalone, but might exist in a zipfile
-
-		// These output arguments will be ignored
-		std::string zipDir, internalPath;
-		return zipfileExists(filename, zipDir, internalPath);
-    } else {
-    	return exists;
-    }
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -597,12 +490,12 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
             return false;
         }
         
-        if (fileExists(zipfile, false)) {
+        if (FileSystem::exists(zipfile)) {
             // test if it actually is a zipfile
             // if not, return false, a bad
             // directory structure has been given,
             // not a .zip
-            if (isZipfile(zipfile)){
+            if (FileSystem::isZipfile(zipfile)){
                 
                 if (_zip_zipContains(zipfile, infile)){
                     outZipfile = zipfile;
@@ -631,7 +524,7 @@ std::string generateFilenameBase(const std::string& prefix, const std::string& s
 
     // Note "template" is a reserved word in C++
     std::string templat = prefix + System::currentDateString() + "_";
-    getFiles(templat + "*", exist);
+    FileSystem::getFiles(templat + "*", exist);
     
     // Remove extensions
     for (int i = 0; i < exist.size(); ++i) {
@@ -992,8 +885,8 @@ static void determineFileOrDirList(
         path = path.substr(0, path.length() -1);
     }
     
-    if ((path == "") || fileExists(path, false)) {
-        if ((path != "") && isZipfile(path)) {
+    if ((path == "") || FileSystem::exists(path)) {
+        if ((path != "") && FileSystem::isZipfile(path)) {
             // .zip should only work if * is specified as the Base + Ext
             // Here, we have been asked for the root's contents
             debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");

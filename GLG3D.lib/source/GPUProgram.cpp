@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-04-13
-  @edited  2006-10-24
+  @edited  2010-03-24
 */
 
 #include "GLG3D/GPUProgram.h"
@@ -14,6 +14,7 @@
 #include "G3D/prompt.h"
 #include "G3D/platform.h"
 #include "G3D/fileutils.h"
+#include "G3D/FileSystem.h"
 #include "G3D/Log.h"
 #include "GLG3D/RenderDevice.h"
 
@@ -287,7 +288,7 @@ void GPUProgram::reload(const std::string& _code) {
 LOADSHADER:
 
     if (reloadFromFile) {
-        alwaysAssertM(fileExists(filename), std::string("Cannot locate file \"") + filename + "\" to reload it.");
+        alwaysAssertM(FileSystem::exists(filename), std::string("Cannot locate file \"") + filename + "\" to reload it.");
         code = readWholeFile(filename);
     }
 
@@ -350,15 +351,15 @@ LOADSHADER:
         #ifdef G3D_WIN32
         {
             // Print the error message in MSVC format
-            std::string fullFilename = resolveFilename(filename);
+            std::string fullFilename = FileSystem::resolve(filename);
             debugPrintf("%s%s(%d) : GPU Program Error : %s%s%s",
                    NEWLINE, fullFilename.c_str(), line, msg, NEWLINE, NEWLINE);
         }
         #endif
 
         #ifndef _DEBUG
-            Log::common()->print("\n******************************\n");
-            Log::common()->print(text);
+            logLazyPrintf("\n******************************\n");
+            logPrintf("%s\n", text.c_str());
             exit(-1);
         #endif
 

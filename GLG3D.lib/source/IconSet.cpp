@@ -4,13 +4,14 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2010-01-04
-  @edited  2010-01-04
+  @edited  2010-03-04
 */
 
 #include "GLG3D/IconSet.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/fileutils.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
     
@@ -51,7 +52,7 @@ IconSet::Ref IconSet::fromFile(const std::string& filename) {
 
 void IconSet::findImages(const std::string& baseDir, const std::string& sourceDir, Array<Source>& sourceArray) {
     Array<std::string> filenameArray;
-    getFiles(pathConcat(pathConcat(baseDir, sourceDir), "*"), filenameArray);
+    FileSystem::getFiles(pathConcat(pathConcat(baseDir, sourceDir), "*"), filenameArray);
     for (int i = 0; i < filenameArray.size(); ++i) {
         if (GImage::supportedFormat(filenameExt(filenameArray[i]))) {
             std::string f = pathConcat(sourceDir, filenameArray[i]);
@@ -65,7 +66,7 @@ void IconSet::findImages(const std::string& baseDir, const std::string& sourceDi
     }
 
     Array<std::string> dirArray;
-    getDirs(pathConcat(pathConcat(baseDir, sourceDir), "*"), dirArray);
+    FileSystem::getDirectories(pathConcat(pathConcat(baseDir, sourceDir), "*"), dirArray);
     for (int i = 0; i < dirArray.size(); ++i) {
         if (dirArray[i] != ".svn" && dirArray[i] != "CVS") {
             findImages(baseDir, pathConcat(sourceDir, dirArray[i]), sourceArray);

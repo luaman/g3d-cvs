@@ -2,10 +2,10 @@
  @file GLG3D/GuiTextureBox.cpp
 
  @created 2009-09-11
- @edited  2009-09-19
+ @edited  2010-03-19
 
  G3D Library http://g3d.sf.net
- Copyright 2000-2010, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2000-2010, Morgan McGuire http://graphics.cs.williams.edu
  All rights reserved.
 */
 #include "GLG3D/GuiTextureBox.h"
@@ -15,6 +15,7 @@
 #include "GLG3D/Draw.h"
 #include "GLG3D/FileDialog.h"
 #include "G3D/fileutils.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -211,7 +212,7 @@ void GuiTextureBox::save() {
 
     // Make sure this filename doesn't exist
     int i = 0;
-    while (fileExists(format("%s-%d.png", filename.c_str(), i))) {
+    while (FileSystem::exists(format("%s-%d.png", filename.c_str(), i))) {
         ++i;
     }
     filename = format("%s-%d.png", filename.c_str(), i);

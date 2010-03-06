@@ -10,6 +10,7 @@
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
 #include "G3D/TextInput.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -294,8 +295,7 @@ void GConsole::generateFilenameCompletions(Array<string>& files) {
 
     string filespec = m_currentLine.substr(i, m_cursorPos - i + 1) + "*";
 
-    getFiles(filespec, files, false);
-    getDirs(filespec, files, false);
+    FileSystem::list(filespec, files, true, true);
 }
 
 

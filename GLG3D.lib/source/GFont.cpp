@@ -19,6 +19,7 @@
 #include "G3D/WeakCache.h"
 #include "G3D/TextInput.h"
 #include "G3D/Log.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -30,7 +31,7 @@ static WeakCache<std::string, GFontRef>& fontCache() {
 
 GFontRef GFont::fromFile(const std::string& filename) {
 
-    if (! fileExists(filename)) {
+    if (! FileSystem::exists(filename)) {
         debugAssertM(false, format("Could not load font: %s", filename.c_str()));
         return NULL;
     }
@@ -661,8 +662,8 @@ Vector2 GFont::bounds(
 
 
 void GFont::makeFont(int charsetSize, const std::string& infileBase, std::string outfile) {
-    debugAssert(fileExists(infileBase + ".raw"));
-    debugAssert(fileExists(infileBase + ".ini"));
+    debugAssert(FileSystem::exists(infileBase + ".raw"));
+    debugAssert(FileSystem::exists(infileBase + ".ini"));
     debugAssert(charsetSize == 128 || charsetSize == 256);
 
     if (outfile == "") {

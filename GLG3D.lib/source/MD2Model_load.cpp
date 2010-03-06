@@ -5,7 +5,7 @@
 
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2003-08-07
- @edited  2006-02-24
+ @edited  2010-03-10
 
  */
 
@@ -13,6 +13,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/Log.h"
 #include "G3D/fileutils.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 Vector3 MD2Model::normalTable[162];
@@ -94,7 +95,7 @@ void MD2Model::load(const std::string& filename, float resize) {
     // If models are being reloaded it is dangerous to trust the interpolation cache.
     interpolatedModel = NULL;
 
-    alwaysAssertM(fileExists(filename), std::string("Can't find \"") + filename + "\"");
+    alwaysAssertM(FileSystem::exists(filename), std::string("Can't find \"") + filename + "\"");
 
     setNormalTable();
 

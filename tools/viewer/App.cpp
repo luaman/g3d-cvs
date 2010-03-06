@@ -186,18 +186,7 @@ void App::setViewer(const std::string& newFilename) {
         
         // First, try for a .bsp map
         std::string search = filename + "/maps/*";
-        getFiles(search, files, true);
-
-        if (files.length() == 0) {
-            // Try another case
-            search = filename + "/Maps/*";
-            getFiles(search, files, true);
-        }
-        if (files.length() == 0) {
-            // Try another case
-            search = filename + "/MAPS/*";
-            getFiles(search, files, true);
-        }
+        FileSystem::getFiles(search, files, true);
 
         for (int t = 0; t < files.length(); ++t) {
             

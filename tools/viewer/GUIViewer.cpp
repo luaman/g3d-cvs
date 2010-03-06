@@ -13,12 +13,12 @@
 
 GUIViewer::GUIViewer(App* app) : parentApp(app) {
 
-    if (fileExists("background1.jpg")) {
+    if (FileSystem::exists("background1.jpg")) {
         background1 = Texture::fromFile("background1.jpg", ImageFormat::AUTO(),
                                         Texture::DIM_2D_NPOT, Texture::Settings::video());
     }
     
-    if (fileExists("background2.jpg")) {
+    if (FileSystem::exists("background2.jpg")) {
         background2 = Texture::fromFile("background2.jpg", ImageFormat::AUTO(),
                                         Texture::DIM_2D_NPOT, Texture::Settings::video());
     }

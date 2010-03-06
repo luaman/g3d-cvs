@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-11-03
- @edited  2009-11-12
+ @edited  2010-03-12
  */
 
 #include "G3D/platform.h"
@@ -23,6 +23,8 @@
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/VideoRecordDialog.h"
 #include "G3D/ParseError.h"
+#include "G3D/FileSystem.h"
+
 
 namespace G3D {
 
@@ -102,7 +104,7 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     }
     System::setAppDataDir(dataDir);
 
-    if (settings.writeLicenseFile && ! fileExists("g3d-license.txt", false)) {
+    if (settings.writeLicenseFile && ! FileSystem::exists("g3d-license.txt")) {
         writeLicense();
     }
 
@@ -248,7 +250,7 @@ void GApp::setExitCode(int code) {
 
 void GApp::loadFont(const std::string& fontName) {
     std::string filename = System::findDataFile(fontName);
-    if (fileExists(filename)) {
+    if (FileSystem::exists(filename)) {
         debugFont = GFont::fromFile(filename);
     } else {
         logPrintf(
@@ -511,9 +513,9 @@ Lighting::Ref GApp::defaultLighting() {
     // Perform our own search first, since we have a better idea of where this directory might be
     // than the general System::findDataFile.  This speeds up loading of the starter app.
     std::string cubePath = "cubemap";
-    if (! fileExists(cubePath)) {
+    if (! FileSystem::exists(cubePath)) {
         cubePath = "../data-files/cubemap";
-        if (! fileExists(cubePath)) {
+        if (! FileSystem::exists(cubePath)) {
             cubePath = System::findDataFile("cubemap");
         }
     }

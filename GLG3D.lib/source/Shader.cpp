@@ -14,6 +14,7 @@
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/TextInput.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -362,7 +363,7 @@ void VertexAndPixelShader::GPUShader::init
     checkForSupport();
     
     if (fromFile) {
-        if (fileExists(_name)) {
+        if (FileSystem::exists(_name)) {
             _code = readWholeFile(_name);
         } else {
             _ok = false;

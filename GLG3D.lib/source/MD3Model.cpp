@@ -10,7 +10,7 @@
 #include "G3D/HashTrait.h"
 #include "G3D/TextInput.h"
 #include "GLG3D/MD3Model.h"
-
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -337,7 +337,7 @@ void MD3Part::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
         const std::string& shaderName = filenameBaseExt(shaderPath);
 
         // Ignore empty shader names for now (filled in with .skin file)
-        if (! shaderName.empty() && fileExists(m_modelDir + shaderName)) {
+        if (! shaderName.empty() && FileSystem::exists(m_modelDir + shaderName)) {
             surfaceData.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
         }
     }
@@ -508,7 +508,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
 
     // Load weapon (if it exists, optional)
     filename = pathConcat(modelDir, "weapon.md3");
-    if (!fileExists(filename)) {
+    if (! FileSystem::exists(filename)) {
         return;
     }
 
@@ -579,7 +579,7 @@ void MD3Model::loadAllSkins(const std::string& skinDir) {
         const std::string& filespec = pathConcat(skinDir, skinNameMask[partIndex]);
 
         Array<std::string> filenames;
-        getFiles(filespec, filenames, true);
+        FileSystem::getFiles(filespec, filenames, true);
 
         if (filenames.length() > 0) {
             m_parts[partIndex]->m_defaultSkin = filenameBase(filenames[0]);
@@ -624,7 +624,7 @@ void MD3Model::loadSkin(const std::string& filename, PartSkin& partSkin) {
         std::string textureFilename = pathConcat(filenamePath(filename), shaderName);
 
         // Verify texture exists, but do not load yet.  Textures will be loaded on use.
-        if (fileExists(textureFilename)) {
+        if (FileSystem::exists(textureFilename)) {
 
             SkinValue skinValue;
             skinValue.filename = textureFilename;
@@ -803,7 +803,7 @@ void MD3Model::skinNames(PartType partType, Array<std::string>& names) const {
     const std::string& filespec = pathConcat(m_parts[partType]->m_modelDir, skinNameMask[partType]);
 
     Array<std::string> filenames;
-    getFiles(filespec, filenames, false);
+    FileSystem::getFiles(filespec, filenames, false);
 
     for (int fileIndex = 0; fileIndex < filenames.length(); ++fileIndex) {
         names.append(filenameBase(filenames[fileIndex]));

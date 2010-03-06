@@ -27,6 +27,7 @@
 #include "G3D/Table.h"
 #include "G3D/GMutex.h"
 #include "G3D/units.h"
+#include "G3D/FileSystem.h"
 #include <time.h>
 
 #include <cstring>
@@ -350,14 +351,14 @@ std::string System::findDataFile
 
     // First check if the file exists as requested.  This will go
     // through the FileSystemCache, so most calls do not touch disk.
-    if (fileExists(full)) {
+    if (FileSystem::exists(full)) {
         return full;
     }
 
     // Now check where we previously found this file.
     std::string* last = lastFound.getPointer(full);
     if (last != NULL) {
-        if (fileExists(*last)) {
+        if (FileSystem::exists(*last)) {
             // Even if cwd has changed the file is still present.
             // We won't notice if it has been deleted, however.
             return *last;
@@ -390,7 +391,7 @@ std::string System::findDataFile
             // this will locate the data directory.
             const char* paths[] = {"../data-files/", "../../data-files/", "../../../data-files/", NULL};
             for (int i = 0; paths[i]; ++i) {
-                if (fileExists(pathConcat(paths[i], "G3D-DATA-README.TXT"))) {
+                if (FileSystem::exists(pathConcat(paths[i], "G3D-DATA-README.TXT"))) {
                     g3dPath = paths[i];
                     break;
                 }
@@ -406,11 +407,11 @@ std::string System::findDataFile
             {"font", "gui", "SuperShader", "cubemap", "icon", "material", "image", "md2", "md3", "ifs", "3ds", "sky", ""};
         for (int j = 0; j < baseDirArray.size(); ++j) {
             std::string d = baseDirArray[j];
-            if ((d == "") || fileExists(d)) {
+            if ((d == "") || FileSystem::exists(d)) {
                 directoryArray.append(d);
                 for (int i = 0; ! subdirs[i].empty(); ++i) {
                     const std::string& p = pathConcat(d, subdirs[i]);
-                    if (fileExists(p)) {
+                    if (FileSystem::exists(p)) {
                         directoryArray.append(p);
                     }
                 }
@@ -422,7 +423,7 @@ std::string System::findDataFile
 
     for (int i = 0; i < directoryArray.size(); ++i) {
         const std::string& p = pathConcat(directoryArray[i], full);
-        if (fileExists(p)) {
+        if (FileSystem::exists(p)) {
             lastFound.set(full, p);
             return p;
         }
@@ -452,22 +453,22 @@ std::string demoFindData(bool errorIfNotFound) {
     if (g3dPath) {
         return g3dPath;
 #   ifdef G3D_WIN32
-    } else if (fileExists("../data")) {
+    } else if (FileSystem::exists("../data")) {
         // G3D install on Windows
         return "../data";
-    } else if (fileExists("../data-files")) {
+    } else if (FileSystem::exists("../data-files")) {
         // G3D source on Windows
         return "../data-files";
-    } else if (fileExists("c:/libraries/G3D/data")) {
+    } else if (FileSystem::exists("c:/libraries/G3D/data")) {
         return "c:/libraries/G3D/data";
 #   else
-    } else if (fileExists("../../../../data")) {
+    } else if (FileSystem::exists("../../../../data")) {
         // G3D install on Unix
         return "../../../../data";
-    } else if (fileExists("../../../../data-files")) {
+    } else if (FileSystem::exists("../../../../data-files")) {
         // G3D source on Unix
         return "../../../../data-files";
-    } else if (fileExists("/usr/local/G3D/data")) {
+    } else if (FileSystem::exists("/usr/local/G3D/data")) {
         return "/usr/local/G3D/data";
 #   endif
     } else {

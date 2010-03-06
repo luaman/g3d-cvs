@@ -54,12 +54,12 @@ void MD2Viewer::onInit(const std::string& filename) {
 		}
 		validWeapon = false;
 	} else {
-		getFiles(resourceDir + "*.pcx", files, true);
-		getFiles(resourceDir + "*.jpg", files, true);
-		getFiles(resourceDir + "*.tga", files, true);
-		getFiles(resourceDir + "*.png", files, true);
+		FileSystem::getFiles(resourceDir + "*.pcx", files, true);
+		FileSystem::getFiles(resourceDir + "*.jpg", files, true);
+		FileSystem::getFiles(resourceDir + "*.tga", files, true);
+		FileSystem::getFiles(resourceDir + "*.png", files, true);
 		for(int f = 0; f < files.length(); ++f){
-			if(fileLength(desiredTexture) < fileLength(files[f])){
+            if (FileSystem::size(desiredTexture) < FileSystem::size(files[f])){
 				if (beginsWith(filenameBaseExt(files[f]), "w_") || beginsWith(filenameBaseExt(files[f]), "weapon")){
 					//desired texture is unchanged
 				} else {
@@ -67,7 +67,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 				}
 			}
 		}
-		if (fileExists(resourceDir + "weapon.md2") && (filename != (resourceDir + "weapon.md2"))) {
+        if (FileSystem::exists(resourceDir + "weapon.md2") && (filename != (resourceDir + "weapon.md2"))) {
 			validWeapon = true;
 		} else {
 			validWeapon = false;
@@ -94,7 +94,7 @@ void MD2Viewer::onInit(const std::string& filename) {
         materials.push(Material::createDiffuse(Color3::white()));
 	}
 
-	if (fileExists(resourceDir + "weapon.pcx") && validWeapon){
+	if (FileSystem::exists(resourceDir + "weapon.pcx") && validWeapon){
         Any lamb(Any::TABLE, "Texture::Specification");
         lamb["filename"] = resourceDir + "weapon.pcx";
         lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");

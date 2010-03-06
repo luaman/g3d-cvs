@@ -5,7 +5,7 @@
  @author Shawn Yarbrough
   
  @created 2006-06-11
- @edited  2009-11-15
+ @edited  2010-03-01
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -16,6 +16,7 @@
 #include "G3D/TextInput.h"
 #include "G3D/stringutils.h"
 #include "G3D/fileutils.h"
+#include "G3D/FileSystem.h"
 #include <deque>
 #include <iostream>
 
@@ -973,7 +974,7 @@ void Any::deserialize(TextInput& ti, Token& token) {
             const std::string& myPath = filenamePath(ti.filename());
             std::string t = pathConcat(myPath, includeName);
 
-            if (! fileExists(t)) {
+            if (! FileSystem::exists(t)) {
                 // Try and find it, starting with cwd
                 t = System::findDataFile(includeName);
             }

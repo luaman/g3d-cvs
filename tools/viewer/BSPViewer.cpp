@@ -20,7 +20,7 @@ void BSPViewer::onInit(const std::string& filename) {
 	std::string path = filenamePath(filename);
 	std::string mapName = filenameBaseExt(filename);
 
-	std::string resourceDir = path + "../";
+    std::string resourceDir = FilePath::parentPath(FileSystem::resolve(path));
 
 	map = BSPMap::fromFile(resourceDir, mapName);
 
