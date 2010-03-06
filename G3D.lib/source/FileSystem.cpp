@@ -179,8 +179,8 @@ FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpda
                     _findclose(handle);
 
 #               else
-                    DIR* listing = opendir(path.c_str());
-                    debugAssertM(listing, "opendir failed on '" + path + "'");
+                    DIR* listing = opendir(key.c_str());
+                    debugAssertM(listing, "opendir failed on '" + key + "'");
                     struct dirent* entry = readdir(listing);
                     while (entry != NULL) {
                         if (! strcmp(entry->d_name, "..") &&
