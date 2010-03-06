@@ -238,6 +238,11 @@ bool FileSystem::inZipfile(const std::string& path, std::string& z) {
         // Look forward for the next slash
         int s = findSlash(path, current);
 
+        if (s == -1) {
+            // No more slashes
+            return false;
+        }
+
         z = path.substr(0, s); 
         if (isZipfile(z)) {
             return true;

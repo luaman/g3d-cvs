@@ -131,6 +131,15 @@ public:
         instance()._flushCache();
     }
 
+    bool _inZipfile(const std::string& path) {
+        std::string ignore;
+        return inZipfile(path, ignore);
+    }
+
+    static bool inZipfile(const std::string& path) {
+        return instance()._inZipfile(path);
+    }
+
     /** Returns true if \a path is a file that is a zipfile. Note that G3D requires zipfiles to have
         some extension, although it is not required to be "zip" */
     bool _isZipfile(const std::string& path);

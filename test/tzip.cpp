@@ -5,7 +5,7 @@ using G3D::uint64;
 
 
 static bool isZipfileTest(const std::string& filename) {
-	return isZipfile(filename);
+    return FileSystem::isZipfile(filename);
 }
 
 
@@ -95,21 +95,21 @@ void testZip() {
 
 	// fileLength() - normal
 	bool normalLength = false;
-	if (fileLength("TestDir/Test.txt") == 69) {
+    if (FileSystem::size("TestDir/Test.txt") == 69) {
 		normalLength = true;
 	}
 	debugAssertM(normalLength, "Normal fileLength failed.");
 
 	// fileLength() - nonexistent
 	bool noLength = false;
-	if (fileLength("Grawk") == -1) {
+	if (FileSystem::size("Grawk") == -1) {
 		noLength = true;
 	}
 	debugAssertM(noLength, "Nonexistent fileLength failed.");
 
 	// fileLength() - zip
 	bool zipLength = false;
-	if(fileLength("apiTest.zip/Test.txt") == 69) {
+	if(FileSystem::size("apiTest.zip/Test.txt") == 69) {
 		zipLength = true;
 	}
 	debugAssertM(zipLength, "Zip fileLength failed.");
@@ -124,7 +124,7 @@ void testZip() {
 	// Read correct results
 	const char* filename = "TestDir/Test.txt";
 	FILE* file = fopen(filename, "r");
-	length = fileLength(filename);
+    length = FileSystem::size(filename);
 	debugAssert(file);
 	void* correct = System::alignedMalloc(length, 16);
 	fread(correct, 1, length, file);
