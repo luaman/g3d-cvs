@@ -676,7 +676,7 @@ bool Any::operator!=(const Any& x) const {
 static void getDeserializeSettings(TextInput::Settings& settings) {
     settings.cppBlockComments = true;
     settings.cppLineComments = true;
-    settings.otherLineComments = true;
+    settings.otherLineComments = false;
     settings.generateCommentTokens = true;
     settings.singleQuotedStrings = false;
     settings.msvcSpecials = false;
