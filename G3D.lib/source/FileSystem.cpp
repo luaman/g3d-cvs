@@ -78,10 +78,11 @@ bool FileSystem::Dir::contains(const std::string& f) const {
 }
     
 void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::string& pathInsideZipfile) {
-    struct zip* z = zip_open( zipfile.c_str(), ZIP_CHECKCONS, NULL );
+    struct zip* z = zip_open( FilePath::removeTrailingSlash(zipfile).c_str(), ZIP_CHECKCONS, NULL );
     debugAssert(z);
 
     int count = zip_get_num_files( z );
+    Set<std::string> alreadyAdded;
     for (int i = 0; i < count; ++i) {
         struct zip_stat info;
         zip_stat_init( &info );    // TODO: Docs unclear if zip_stat_init is required.
@@ -90,7 +91,6 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
         // Fully-qualified name of a file inside zipfile
         std::string name = info.name;
 
-        Set<std::string> alreadyAdded;
         if (beginsWith(name, pathInsideZipfile)) {
             // We found something inside the directory we were looking for,
             // so the directory itself must exist                        
@@ -99,8 +99,10 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
             // For building the cached directory listing, extract only elements that do not contain 
             // additional subdirectories.
 
-            // TODO: check that the +1 character offset is correct in this code.
-            int start = pathInsideZipfile.size() + 1;
+            int start = pathInsideZipfile.size();
+            if ((int(name.length()) > start) && isSlash(name[start])) {
+                ++start;
+            }
             int end = findSlash(name, start);
             if (end == -1) {
                 // There are no more slashes; add this name
@@ -254,7 +256,7 @@ bool FileSystem::_isZipfile(const std::string& filename) {
         return false;
     }
     
-    FILE* f = fopen(filename.c_str(), "r");
+    FILE* f = fopen(FilePath::removeTrailingSlash(filename).c_str(), "r");
     if (f == NULL) {
         return false;
     }
