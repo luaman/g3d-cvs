@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2001-08-25
- @edited  2010-01-30
+ @edited  2010-03-01
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
@@ -57,6 +57,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/prompt.h"
 #include "G3D/Table.h"
+#include "G3D/FileSystem.h"
 #include "G3D/Set.h"
 #include "G3D/GUniqueID.h"
 #include "G3D/BinaryFormat.h"

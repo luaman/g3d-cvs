@@ -10,7 +10,7 @@
 
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2002-01-01
- @edited  2009-11-03
+ @edited  2010-03-03
  */
 
 #include "G3D/G3D.h"
@@ -43,6 +43,8 @@ void testArray();
 void testSmallArray();
 
 void testMatrix();
+
+void testFileSystem();
 
 void testMatrix3();
 void perfMatrix3();
@@ -727,7 +729,8 @@ int main(int argc, char* argv[]) {
 
     printf("\n\nTests:\n\n");
 
-    
+    testFileSystem();
+
     testCollisionDetection();  
 
     testTextInput();

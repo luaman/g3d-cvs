@@ -130,9 +130,9 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
 FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpdate) {
     const std::string& key = 
 #   if defined(G3D_WIN32)
-        toLower(path);
+        FilePath::removeTrailingSlash(toLower(FilePath::canonicalize(resolve(path))));
 #   else
-        path;
+        FilePath::removeTrailingSlash(FilePath::canonicalize(resolve(path)));
 #   endif
     
     RealTime now = System::time();
@@ -145,7 +145,7 @@ FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpda
         dir.lastChecked = now;
 
         struct _stat st;
-        const bool exists = _stat(path.c_str(), &st) != -1;
+        const bool exists = _stat(key.c_str(), &st) != -1;
         const bool isDirectory = (st.st_mode & S_IFDIR) != 0;
 
         // Does this path exist on the real filesystem?
@@ -153,23 +153,23 @@ FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpda
 
             // Is this path actually a directory?
             if (isDirectory) {
-                // Is this path to a zipfile?
                 dir.exists = true;
-
                 // Update contents
 #               ifdef G3D_WIN32
-                    const std::string& filespec = FilePath::concat(path, "*");
+                    const std::string& filespec = FilePath::concat(key, "*");
                     struct _finddata_t fileinfo;
                     intptr_t handle = _findfirst(filespec.c_str(), &fileinfo);
                     debugAssert(handle != -1);
                     int result = 0;
                     do {
-                        Entry& e = dir.nodeArray.next();
-                        e.name = fileinfo.name;
-                        if ((fileinfo.attrib & _A_SUBDIR) != 0) {
-                            e.type = DIR_TYPE;
-                        } else {
-                            e.type = FILE_TYPE;
+                        if ((strcmp(fileinfo.name, ".") != 0) && (strcmp(fileinfo.name, "..") != 0)) {
+                            Entry& e = dir.nodeArray.next();
+                            e.name = fileinfo.name;
+                            if ((fileinfo.attrib & _A_SUBDIR) != 0) {
+                                e.type = DIR_TYPE;
+                            } else {
+                                e.type = FILE_TYPE;
+                            }
                         }
 
                         result = _findnext(handle, &fileinfo);
@@ -630,7 +630,18 @@ bool FilePath::containsWildcards(const std::string& filename) {
 
 
 bool FilePath::matches(const std::string& path, const std::string& pattern, int flags) {
-    return g3dfnmatch(path.c_str(), pattern.c_str(), flags) == 0;
+    return g3dfnmatch(pattern.c_str(), path.c_str(), flags) == 0;
+}
+
+
+static int fixslash(int c) {
+    return (c == '\\') ? '/' : c;
+}
+
+
+std::string FilePath::canonicalize(std::string x) {
+    std::transform(x.begin(), x.end(), x.begin(), fixslash);
+    return x;
 }
 
 

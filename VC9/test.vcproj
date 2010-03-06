@@ -220,6 +220,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test\tFileSystem.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\test\tfilter.cpp"
 				>
 			</File>

@@ -1,3 +1,11 @@
+/**
+ @file FileSystem.h
+ 
+ @author Morgan McGuire, http://graphics.cs.williams.edu
+ 
+ @author  2002-06-06
+ @edited  2010-02-05
+ */
 #ifndef G3D_FileSystem_h
 #define G3D_FileSystem_h
 
@@ -327,6 +335,9 @@ public:
 
     /** Returns true if '*' or '?' appear in the filename */
     static bool containsWildcards(const std::string& p);
+
+    /** Convert all slashes to '/' */
+    static std::string canonicalize(std::string x);
 
     /**
       Parses a filename into four useful pieces.

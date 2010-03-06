@@ -52,11 +52,7 @@ inline int findLastSlash(const std::string& f, int start = -1) {
 
     int i = f.rfind('/', start);
     int j = f.rfind('\\', start);
-    if (i != -1 && i < j) {
-        return i;
-    } else {
-        return j;
-    }
+    return max(i, j);
 }
 
 /**
