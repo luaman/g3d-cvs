@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
         // On unix-like operating systems, icompile automatically
         // copies data files.  On Windows, we just run from the data
         // directory.
-        if (fileExists("data-files")) {
+		if (FileSystem::exists("data-files")) {
             chdir("data-files");
         }
 #   endif

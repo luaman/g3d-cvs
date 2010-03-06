@@ -59,7 +59,7 @@ void App::onInit() {
     setDesiredFrameRate(60);
 
 #   ifdef G3D_WIN32
-        if (! fileExists("phong.pix", false) && fileExists("G3D.sln", false)) {
+	if (! FileSystem::exists("phong.pix", false) && FileSystem::exists("G3D.sln", false)) {
             // Running in the solution directory
             chdir("../demos/shader/data-files");
         }

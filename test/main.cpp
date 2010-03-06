@@ -654,7 +654,7 @@ int main(int argc, char* argv[]) {
     char x[2000];
     getcwd(x, sizeof(x));
     
-    debugAssertM(fileExists("apiTest.zip", false), 
+	debugAssertM(FileSystem::exists("apiTest.zip", false), 
         format("Tests are being run from the wrong directory.  cwd = %s", x));
 
     RenderDevice* renderDevice = NULL;

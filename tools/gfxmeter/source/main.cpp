@@ -667,10 +667,10 @@ int main(int argc, char** argv) {
     settings.window.defaultIconFilename = "g3d.ico";
 
 #   ifdef G3D_WIN32
-    if (!fileExists(settings.window.defaultIconFilename)) {
+	if (!FileSystem::exists(settings.window.defaultIconFilename)) {
         // We are probably running in the debugger and launched from the wrong directory
         chdir("../build/win-i386-vc9.0/bin/gfxmeter");
-        debugAssert(fileExists(settings.window.defaultIconFilename));
+		debugAssert(FileSystem::exists(settings.window.defaultIconFilename));
     }
 #   endif
 

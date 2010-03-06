@@ -32,7 +32,7 @@ void testZip() {
 	// getFiles() - normal
 	bool normalFiles = true;
 	Array<std::string> files;
-	getFiles("TestDir/*", files);
+	FileSystem::getFiles("TestDir/*", files);
 
 	if (files.length() != 1) {
 		normalFiles = false;
@@ -46,7 +46,7 @@ void testZip() {
 
 	// getDirs() - normal
 	Array<std::string> dirs;
-	getDirs("TestDir/*", dirs);
+	FileSystem::getDirectories("TestDir/*", dirs);
 
 	bool normalDirs = 	(dirs.length() == 1 && dirs[0] == "Folder") ||
 		(dirs.length() == 2 && (dirs[0] == "Folder" || dirs[1] == "Folder"));
@@ -55,8 +55,8 @@ void testZip() {
 
 	// getFiles() + getDirs() - invalid
 	Array<std::string> emptyTest;
-	getFiles("nothing", emptyTest);
-	getDirs("nothing", emptyTest);
+	FileSystem::getFiles("nothing", emptyTest);
+	FileSystem::getDirectories("nothing", emptyTest);
 	bool noFile = emptyTest.length() == 0;
 	debugAssertM(noFile, "Improper response to a file that does not exist.");
 
@@ -65,7 +65,7 @@ void testZip() {
 	std::string zipDir = "apiTest.zip/*";
 	Array<std::string> zFiles;
 
-	getFiles(zipDir, zFiles);
+	FileSystem::getFiles(zipDir, zFiles);
 
 	if (zFiles.length() != 1) {
 		zipFiles = false;
@@ -81,7 +81,7 @@ void testZip() {
 	bool zipDirs = true;
 	Array<std::string> zDirs;
 
-	getDirs(zipDir, zDirs);
+	FileSystem::getDirectories(zipDir, zDirs);
 
 	if (zDirs.length() != 1) {
 		zipDirs = false;

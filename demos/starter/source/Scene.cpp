@@ -25,7 +25,7 @@ static Table<std::string, std::string>& filenameTable() {
     if (filenameTable.size() == 0) {
         // Create a table mapping scene names to filenames
         Array<std::string> filenameArray;
-        getFiles("scene/*.txt", filenameArray);
+		FileSystem::getFiles("scene/*.txt", filenameArray);
         for (int i = 0; i < filenameArray.size(); ++i) {
             Any a;
             a.load(pathConcat("scene", filenameArray[i]));

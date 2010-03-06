@@ -5,7 +5,7 @@ using G3D::uint64;
 
 void testHugeBinaryIO() {
     printf("BinaryOutput Large Files\n");
-    if (fileExists("huge.bin", false)) {
+	if (FileSystem::exists("huge.bin", false)) {
 #if defined(G3D_WIN32)
         system("del huge.bin");
 #elif defined(G3D_LINUX)
@@ -41,7 +41,7 @@ void testHugeBinaryIO() {
 
     delete giantBuffer;
 
-    if (fileExists("huge.bin", false)) {
+	if (FileSystem::exists("huge.bin", false)) {
 #if defined(G3D_WIN32)
         system("del huge.bin");
 #elif defined(G3D_LINUX)

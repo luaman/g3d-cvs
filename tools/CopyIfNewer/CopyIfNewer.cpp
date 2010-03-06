@@ -16,49 +16,49 @@ void copyIfNewer(
     std::string sourcespec,
     std::string destspec) {
 
-    if (G3D::isDirectory(sourcespec)) {
-        // Copy an entire directory.  Change the arguments so that
-        // we copy the *contents* of the directory.
+	if (FileSystem::isDirectory(sourcespec)) {
+		// Copy an entire directory.  Change the arguments so that
+		// we copy the *contents* of the directory.
 
-        sourcespec = maybeAddSlash(sourcespec);
-        sourcespec = sourcespec + "*";
-    }
+		sourcespec = maybeAddSlash(sourcespec);
+		sourcespec = sourcespec + "*";
+	}
 
-    std::string path = filenamePath(sourcespec);
+	std::string path = filenamePath(sourcespec);
 
-    Array<std::string> fileArray;
-    Array<std::string> dirArray;
+	Array<std::string> fileArray;
+	Array<std::string> dirArray;
 
-    getDirs(sourcespec, dirArray);
-    getFiles(sourcespec, fileArray);
+	FileSystem::getDirectories(sourcespec, dirArray);
+	FileSystem::getFiles(sourcespec, fileArray);
 
-    destspec = maybeAddSlash(destspec);
+	destspec = maybeAddSlash(destspec);
 
-    if (FileSystem::exists(destspec, false) && ! FileSystem::isDirectory(destspec)) {
-        printf("A file already exists named %s.  Target must be a directory.", 
-            destspec.c_str());
-        exit(-2);
-    }
-    FileSystem::createDirectory(destspec);
+	if (FileSystem::exists(destspec, false) && ! FileSystem::isDirectory(destspec)) {
+		printf("A file already exists named %s.  Target must be a directory.", 
+			destspec.c_str());
+		exit(-2);
+	}
+	FileSystem::createDirectory(destspec);
 
-    for (int f = 0; f < fileArray.length(); ++f) {
-        if (! excluded(exclusions, superExclusions, fileArray[f])) {
-            std::string s = path + fileArray[f];
-            std::string d = destspec + fileArray[f];
-            if (fileIsNewer(s, d)) {
-                printf("copy %s %s\n", s.c_str(), d.c_str());
-                copyFile(s, d);
-            }
-        }
-    }
+	for (int f = 0; f < fileArray.length(); ++f) {
+		if (! excluded(exclusions, superExclusions, fileArray[f])) {
+			std::string s = path + fileArray[f];
+			std::string d = destspec + fileArray[f];
+			if (FileSystem::isNewer(s, d)) {
+				printf("copy %s %s\n", s.c_str(), d.c_str());
+				FileSystem::copyFile(s, d);
+			}
+		}
+	}
 
-    // Directories just get copied; we don't check their dates.
-    // Recurse into the directories
-    for (int d = 0; d < dirArray.length(); ++d) {
-        if (! excluded(exclusions, superExclusions, dirArray[d])) {
-            copyIfNewer(exclusions, superExclusions, path + dirArray[d], destspec + dirArray[d]);
-        }
-    }
+	// Directories just get copied; we don't check their dates.
+	// Recurse into the directories
+	for (int d = 0; d < dirArray.length(); ++d) {
+		if (! excluded(exclusions, superExclusions, dirArray[d])) {
+			copyIfNewer(exclusions, superExclusions, path + dirArray[d], destspec + dirArray[d]);
+		}
+	}
 }
 
 

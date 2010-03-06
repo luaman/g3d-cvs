@@ -14,9 +14,9 @@ int main(int argc, char** argv) {
 #   ifdef G3D_WIN32
         // On Unix operating systems, icompile automatically copies data files.  
         // On Windows, we just run from the data directory.
-        if (fileExists("data-files")) {
+		if (FileSystem::exists("data-files")) {
             chdir("data-files");
-        } else if (fileExists("../demos/geometryShader/data-files")) {
+        } else if (FileSystem::exists("../demos/geometryShader/data-files")) {
             chdir("../demos/geometryShader/data-files");
         }
 

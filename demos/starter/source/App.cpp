@@ -14,10 +14,10 @@ int main(int argc, char** argv) {
     settings.window.height      = 600;
 
 #   ifdef G3D_WIN32
-        if (fileExists("data-files", false, false)) {
+	if (FileSystem::exists("data-files", false)) {
             // Running on Windows, building inside the starter directory
             chdir("data-files");
-        } else if (fileExists("../demos/starter/data-files", false, false)) {
+        } else if (FileSystem::exists("../demos/starter/data-files", false)) {
             // Running on Windows, building from the G3D.sln project
             chdir("../demos/starter/data-files");
         }
