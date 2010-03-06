@@ -100,12 +100,8 @@ private:
     /** Don't allow public construction. */
     FileSystem();
 
-    /** Returns true if some sub-path of this one is a zipfile. 
-       If the path itself is a zipfile, returns false.*/
-    bool inZipfile(const std::string& path, std::string& zipsubpath);
-
 public:
-    
+
     static FileSystem& instance();
 
     /** Create the common instance. */
@@ -122,6 +118,19 @@ public:
         return instance()._drives();
     }
 #   endif
+
+
+    /** Returns true if some sub-path of \a path is a zipfile. 
+        
+       If the path itself is a zipfile, returns false.
+       
+       \param zipfile The part of \a path that was the zipfile */
+    bool _inZipfile(const std::string& path, std::string& zipfile);
+
+    /** \copydoc _inZipfile */
+    static bool inZipfile(const std::string& path, std::string& zipfile) {
+        return instance()._inZipfile(path, zipfile);
+    }
 
     /** Flushes the cache */
     void _flushCache();

@@ -218,7 +218,7 @@ FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpda
 }
 
 
-bool FileSystem::inZipfile(const std::string& path, std::string& z) {
+bool FileSystem::_inZipfile(const std::string& path, std::string& z) {
     // Reject trivial cases before parsing
     if (path.find('.') == std::string::npos) {
         // There is no zipfile possible, since G3D requires
@@ -613,8 +613,8 @@ std::string FilePath::base(const std::string& path) {
 }
 
 
-std::string FilePath::parentPath(const std::string& path) {
-    int i = findLastSlash(path);
+std::string FilePath::parentPath(const std::string& path) {    
+    int i = findLastSlash(removeTrailingSlash(path));
 
 #   ifdef G3D_WIN32
         int j = path.rfind(":");
