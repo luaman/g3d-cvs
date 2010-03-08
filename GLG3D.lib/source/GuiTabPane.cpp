@@ -37,6 +37,10 @@ void GuiTabPane::setRect(const Rect2D& rect) {
 
 
 void GuiTabPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
+    if (! m_rect.contains(mouse) || ! m_visible) {
+        return;
+    }
+
     m_viewPane->findControlUnderMouse(mouse - rect().x0y0(), control);
     m_tabButtonPane->findControlUnderMouse(mouse - rect().x0y0(), control);
 }
@@ -66,6 +70,9 @@ GuiPane* GuiTabPane::addTab(const GuiText& label, int id) {
 
 
 void GuiTabPane::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
+    if (! m_visible) {
+        return;
+    }
     // Make the active tab visible
     for (int i = 0; i < m_contentPaneArray.size(); ++i) {
         m_contentPaneArray[i]->setVisible(*m_indexPtr == m_contentIDArray[i]);
