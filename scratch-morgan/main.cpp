@@ -13,6 +13,8 @@ public:
 
     Lighting::Ref lighting;
 
+    int x;
+
     ArticulatedModel::Ref model;
     ArticulatedModel::Ref glassModel;
 
@@ -106,6 +108,9 @@ void App::onInit() {
 
     debugPane->addButton("Foo");
 
+    x = 5;
+    debugPane->addNumberBox("x=", &x, "", GuiTheme::LINEAR_SLIDER, 0, 16, 0);
+
     GuiTabPane* t = debugPane->addTabPane();
 
     GuiPane* p0 = t->addTab("Alpha");
@@ -113,6 +118,7 @@ void App::onInit() {
     GuiPane* p2 = t->addTab("Very long long long tab");
 
     p0->addButton("Hello");
+    p0->addNumberBox("x=", &x, "", GuiTheme::LINEAR_SLIDER, 0, 16, 0);
     p0->addButton("There");
     p0->addButton("There");
     p0->addButton("There");

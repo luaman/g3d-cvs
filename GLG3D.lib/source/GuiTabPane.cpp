@@ -33,7 +33,7 @@ void GuiTabPane::setRect(const Rect2D& rect) {
     m_rect = rect;
     float y = m_tabButtonPane->rect().height() - OVERLAP;
     m_viewPane->setRect(Rect2D::xywh(0, y, rect.width(), rect.height() - y));
-    m_clientRect = m_viewPane->rect() + rect.x0y0();
+    m_clientRect = m_rect;//m_viewPane->rect() + rect.x0y0();
 }
 
 

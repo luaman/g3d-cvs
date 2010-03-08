@@ -113,7 +113,7 @@ Material::Specification::Specification(const Any& any) {
         } else if (key == "extinctionreflect") {
             m_extinctionReflect = it->value;
         } else if (key == "customshaderprefix") {
-            m_customShaderPrefix = it->value;
+            m_customShaderPrefix = it->value.string();
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }

@@ -78,8 +78,6 @@ private:
      */
     void init(const Rect2D& rect);
 
-    virtual bool onEvent(const GEvent& event) { (void)event; return false; }
-
     /** Finds the next vertical position for a control relative to the client rect. */
     Vector2 nextControlPos(bool isTool = false) const;
 

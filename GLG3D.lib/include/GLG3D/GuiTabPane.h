@@ -32,6 +32,10 @@ protected:
     Array<GuiPane*>     m_contentPaneArray;
     Pointer<int>        m_indexPtr;
 
+    /** Events are only delivered to a control when the control that
+        control has the key focus (which is transferred during a mouse
+        down) */
+    virtual bool onEvent(const GEvent& event) { (void)event; return false; }
 public:
 
     /** For use by GuiPane.  Call GuiPane::addTabPane to create */

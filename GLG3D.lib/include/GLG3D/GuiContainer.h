@@ -36,6 +36,8 @@ public:
     enum {TOOL_BUTTON_WIDTH =  50};
 
 protected:
+
+    /** Position to which all child controls are relative.*/
     Rect2D              m_clientRect;
 
     GuiContainer(class GuiWindow* gui, const class GuiText& text);
