@@ -100,7 +100,7 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr><td></td><td>\link G3D::GApp::onEvent <b>GApp::onEvent</b>\endlink, \link G3D::GApp::onUserInput<b>GApp::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
 <tr><td></td><td>\link G3D::BackgroundWidget BackgroundWidget\endlink</td><td>\copybrief G3D::BackgroundWidget</td></tr>
 <tr><td></td><td>\link G3D::UserInput UserInput\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
-<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiDropDownList GuiDropDownList\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink, \link G3D::GuiTextureBox GuiTextureBox\endlink</td><td>GUI controls created by GuiPanel </td></tr>
+<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiDropDownList GuiDropDownList\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink, \link G3D::GuiTextureBox GuiTextureBox\endlink, \link G3D::GuiTabPane GuiTabPane\endlink</td><td>GUI controls created by GuiPanel </td></tr>
 <tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
 <tr><td></td><td>\link G3D::Surface2D Surface2D\endlink</td><td>2D object scene graph, used by Widgets for rendering</td></tr>
 <tr><td></td><td>\link G3D::Manipulator Manipulator\endlink</td><td>\copybrief G3D::Manipulator</td></tr>

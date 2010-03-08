@@ -34,11 +34,12 @@ protected:
 
 public:
 
-    GuiTabPane(GuiWindow* window, const Pointer<int>& index = NULL);
+    /** For use by GuiPane.  Call GuiPane::addTabPane to create */
+    GuiTabPane(GuiContainer* parent, const Pointer<int>& index = NULL);
 
     /** \param id If -1 (default), set to the integer corresponding to the number of panes already in existence. Useful 
         for cases where you want the index to correspond to an enum.*/
-    GuiPane* addTabPane(const GuiText& label, int id = -1);
+    GuiPane* addTab(const GuiText& label, int id = -1);
 
     virtual void findControlUnderMouse(Vector2 mouse, GuiControl*& control) const;
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;

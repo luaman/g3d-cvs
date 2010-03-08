@@ -36,7 +36,7 @@ namespace G3D {
 // forward declare heavily dependent classes
 class RenderDevice;
 class GuiButton;
-
+class GuiTabPane;
 
 /**
  Sub-rectangle of a window.  Created by GuiWindow::addPane().
@@ -155,7 +155,7 @@ public:
                                  const GuiTextureBox::Settings&  s = GuiTextureBox::Settings(),
                                  bool embedded = false);
 
-//    GuiTabPane* addTabPane();
+    GuiTabPane* addTabPane(const Pointer<int>& index = NULL);
 
     /**
        <pre>

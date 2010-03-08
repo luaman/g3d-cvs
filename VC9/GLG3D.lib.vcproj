@@ -340,6 +340,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GuiTabPane.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GuiText.cpp"
 				>
 			</File>
@@ -699,6 +703,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiTabPane.h"
 				>
 			</File>
 			<File

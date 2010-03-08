@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2007-06-02
- @edited  2009-09-11
+ @edited  2010-03-11
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiPane.h"
@@ -12,6 +12,7 @@
 #include "GLG3D/GuiLabel.h"
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiCheckBox.h"
+#include "GLG3D/GuiTabPane.h"
 
 namespace G3D {
 
@@ -262,6 +263,13 @@ GuiFunctionBox* GuiPane::addFunctionBox(const GuiText& text, Spline<float>* spli
     return control;
 }
 
+
+GuiTabPane* GuiPane::addTabPane(const Pointer<int>& index) {
+    GuiTabPane* p = new GuiTabPane(this, index);
+    containerArray.append(p);
+    increaseBounds(p->rect().x1y1());
+    return p;
+}
 
 GuiPane* GuiPane::addPane(const GuiText& text, GuiTheme::PaneStyle style) {
     Rect2D minRect = theme()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), text, style);

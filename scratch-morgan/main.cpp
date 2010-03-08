@@ -7,6 +7,7 @@
 
 #define HISTOGRAM 0
 
+
 class App : public GApp {
 public:
 
@@ -84,7 +85,7 @@ void App::onInit() {
 
 //    setDesiredFrameRate(30);
 
-    {
+    if (false) {
         model = ArticulatedModel::createHeightfield("c:/temp/test.png");
         Material::Specification spec;
         spec.setLambertian("c:/temp/shades.png");
@@ -101,7 +102,20 @@ void App::onInit() {
         glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), p);
     }
 
-    debugPane->addTextureBox("", m_colorBuffer0)->zoomToFit();
+//    debugPane->addTextureBox("", m_colorBuffer0)->zoomToFit();
+
+    GuiTabPane* t = debugPane->addTabPane();
+
+    GuiPane* p0 = t->addTab("Alpha");
+    GuiPane* p1 = t->addTab("Beta");
+
+    p0->addButton("Hello");
+    p0->addButton("There");
+    p0->addButton("There");
+    p0->addButton("There");
+    p0->addButton("There");
+    p0->addLabel("There");
+    p1->addLabel("Second pane");
 
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));

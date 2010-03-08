@@ -16,8 +16,8 @@ namespace G3D {
 // How far the buttons overlap the content
 static const float OVERLAP = 10;
 
-GuiTabPane::GuiTabPane(GuiWindow* window, const Pointer<int>& index) : 
-    GuiContainer(window, ""), m_internalIndex(0), m_indexPtr(index) {
+GuiTabPane::GuiTabPane(GuiContainer* parent, const Pointer<int>& index) : 
+    GuiContainer(parent, ""), m_internalIndex(0), m_indexPtr(index) {
 
     if (m_indexPtr.isNull()) {
         m_indexPtr = &m_internalIndex;
@@ -35,13 +35,14 @@ void GuiTabPane::setRect(const Rect2D& rect) {
     m_clientRect = m_viewPane->rect() + rect.x0y0();
 }
 
+
 void GuiTabPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
-    m_viewPane->findControlUnderMouse(mouse, control);
-    m_tabButtonPane->findControlUnderMouse(mouse, control);
+    m_viewPane->findControlUnderMouse(mouse - rect().x0y0(), control);
+    m_tabButtonPane->findControlUnderMouse(mouse - rect().x0y0(), control);
 }
 
 
-GuiPane* GuiTabPane::addTabPane(const GuiText& label, int id) {
+GuiPane* GuiTabPane::addTab(const GuiText& label, int id) {
     if (id == -1) {
         id = m_contentPaneArray.size();
     }
@@ -65,6 +66,8 @@ GuiPane* GuiTabPane::addTabPane(const GuiText& label, int id) {
 
 
 void GuiTabPane::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
+    // TODO: offset by my rect
+
     // Make the active tab visible
     for (int i = 0; i < m_contentPaneArray.size(); ++i) {
         m_contentPaneArray[i]->setVisible(*m_indexPtr == m_contentIDArray[i]);
