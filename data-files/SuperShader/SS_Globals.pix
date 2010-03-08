@@ -59,7 +59,7 @@ varying vec2        texCoord;
 varying vec3        tan_Z;
 
 #ifdef NORMALBUMPMAP
-#   if PARALLAXSTEPS > 0
+#   if (PARALLAXSTEPS > 0)
         /** Multiplier for bump map.  Typically on the range [0, 0.05]
           This increases with texture scale and bump height. */
         uniform float       bumpMapScale;

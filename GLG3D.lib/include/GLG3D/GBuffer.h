@@ -66,7 +66,7 @@ public:
             transmissive(false),
             emissive(false),
             faceNormal(false),
-            packedDepth(true),
+            packedDepth(false),
             custom(false),
             position(false),
             format(ImageFormat::RGBA8()),
@@ -76,14 +76,14 @@ public:
 
         size_t hashCode() const {
             return 
-                int(normal) |
+                 int(normal) |
                 (int(lambertian)  << 1) |
                 (int(specular)    << 2) |
-                (int(transmissive) << 4) |
+                (int(transmissive)<< 4) |
                 (int(emissive)    << 5) |
                 (int(faceNormal)  << 6) |
                 (int(packedDepth) << 7) |
-                (int(position)    << 8);
+                (int(position)    << 8) |
                 (int(custom)      << 9);
         }
 

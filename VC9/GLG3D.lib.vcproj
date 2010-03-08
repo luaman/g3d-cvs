@@ -898,6 +898,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\data-files\SuperShader\SS_GBuffer.pix"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\SS_GBufferPosition.pix"
+				>
+			</File>
+			<File
 				RelativePath="..\data-files\SuperShader\SS_Globals.pix"
 				>
 			</File>

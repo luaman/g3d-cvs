@@ -42,7 +42,7 @@
      */
     void applyBumpMap(out vec3 wsN, out vec2 offsetTexCoord) {
         // Convert bumps to a world space distance
-        float bump = (texture2D(normalBumpMap, texCoord).w - 0.5) * bumpMapScale;
+        float bump = (texture2D(normalBumpMap, texCoord).w - 0.5 + bumpMapBias) * bumpMapScale;
 
         vec3 tsE = normalize(_tsE);
 

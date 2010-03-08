@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
 
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
+    catchCommonExceptions = false;
 }
 
 

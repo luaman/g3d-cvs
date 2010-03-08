@@ -67,16 +67,18 @@ ShaderRef Pass::getConfiguredShader(
 
     // First try to load from the cache
 
-    Shader::Ref shader = cache.getSimilar(key, material);
+    std::string macros;
+    material.computeDefines(macros);
+    macros += extraDefines;
+
+    Shader::Ref shader = cache.getSimilar(key, macros);
 
     if (shader.isNull()) {
         // Load
-        std::string defines;
-        material.computeDefines(defines);
-        shader = loadShader(vertexFilename, pixelFilename, defines + extraDefines);
+        shader = loadShader(vertexFilename, pixelFilename, macros);
 
         // Put into the cache
-        cache.add(key, material, shader);
+        cache.add(key, macros, shader);
     }
 
     material.configure(shader->args);
@@ -111,7 +113,7 @@ void Pass::primeCodeCache(const std::string& originalFilename) {
 }
 
 
-ShaderRef Pass::loadShader(
+Shader::Ref Pass::loadShader(
     const std::string& vertexFilename,
     const std::string& pixelFilename,
     const std::string& defines) {
@@ -184,30 +186,25 @@ ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::Cull
 Pass::Cache Pass::cache;
 
 
-void Pass::Cache::add(const std::string& key, const Material& mat, const ShaderRef& shader) {
-
-    if (! table.containsKey(key)) {
-        const ShaderTable newTable;
-        table.set(key, newTable);
-    }
-
-    ShaderTable& shaderTable = table[key];
-
-    shaderTable.set(mat, shader);
+void Pass::Cache::add(const std::string& key, const std::string& macros, const ShaderRef& shader) {
+    ShaderTable& shaderTable = table.getCreate(key);
+    shaderTable.set(macros, shader);
 }
 
 
-ShaderRef Pass::Cache::getSimilar(const std::string& key, const Material& mat) const {
+ShaderRef Pass::Cache::getSimilar(const std::string& key, const std::string& macros) const {
+    const ShaderTable* shaderTable = table.getPointer(key);
     
-    if (! table.containsKey(key)) {
+    if (! shaderTable) {
         return NULL;
     }
-
-    const ShaderTable& shaderTable = table[key];
-    if (! shaderTable.containsKey(mat)) {
-        return NULL;
+    
+    Shader::Ref* shader = shaderTable->getPointer(macros);
+   
+    if (shader) {
+        return *shader;
     } else {
-        return shaderTable[mat];
+        return NULL;
     }
 }
     

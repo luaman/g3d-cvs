@@ -183,6 +183,10 @@ protected:
 
     public:
 
+        const std::string& code() const {
+            return _code;
+        }
+
         /** True if this shader uses the g3d_Index extension and
             therefore needs double-compilation to resolve
             dependencies. */

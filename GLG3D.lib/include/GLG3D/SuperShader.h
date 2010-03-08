@@ -106,20 +106,6 @@ void configureSingleLightShaderArgs(
    VertexAndPixelShader::ArgList&  args, 
    bool shadowMapPass = false);
 
-
-/** Creates the non-shadow casting and shadow casting shaders
-    appropriate for this material.  These may come from a
-    pre-compiled cache. 
-
-    @deprecated
-
-    @sa NonShadowedSuperShader, ShadowMappedSuperShader
-    */
-void createShaders(
-    const Material&   material,
-    Shader::Ref&      nonShadowedShader,
-    Shader::Ref&      shadowMappedShader);
-
 typedef ReferenceCountedPointer<class Pass>            PassRef;
 typedef ReferenceCountedPointer<class NonShadowedPass> NonShadowedPassRef;
 typedef ReferenceCountedPointer<class ExtraLightPass>  ExtraLightPassRef;
@@ -134,7 +120,8 @@ private:
     static void primeCodeCache(const std::string& originalFilename);
 
     class Cache {
-        typedef Table<Material, ShaderRef, Material::SimilarHashCode, Material::SimilarTo> ShaderTable;
+        /** Maps macros (defines) to the shader compiled with them set this way */
+        typedef Table<std::string, Shader::Ref> ShaderTable;
 
         /** Maps concatenated vertex+pixel filename to cached shaders */
         typedef Table<std::string, ShaderTable> MaterialTable;
@@ -147,13 +134,15 @@ private:
 
         /** Adds a shader to the list of cached ones.  Only call when 
             getSimilar returned NULL.
-            @param key vertexFilename + pixelFilename*/
-        void add(const std::string& key, const Material& mat, const ShaderRef& shader);
+            @param key vertexFilename + pixelFilename
+            \param macros: Material.computeDefines() + extraDefines */
+        void add(const std::string& key, const std::string& macros, const ShaderRef& shader);
 
         /** Returns the shader for a similar material or 
             NULL if one does not exist. 
-            @param key vertexFilename + pixelFilename */
-        ShaderRef getSimilar(const std::string& key, const Material& mat) const;
+            @param key vertexFilename + pixelFilename 
+            \param macros: Material.computeDefines() + extraDefines */
+        ShaderRef getSimilar(const std::string& key, const std::string& macros) const;
 
         void clear() {
             table.clear();
@@ -167,11 +156,13 @@ private:
     static Table<std::string, std::string> shaderTextCache;
 
     /** Loads a shader with the specified defines prepended onto
-        its body. Called from getConfiguredShader. */
-    static ShaderRef loadShader(
-        const std::string& vertexFilename,
-        const std::string& pixelFilename,
-        const std::string& defines);
+        its body. Called from getConfiguredShader. 
+        
+        Caches source code from files to avoid touching disk.*/
+    static Shader::Ref loadShader
+     (const std::string& vertexFilename,
+      const std::string& pixelFilename,
+      const std::string& defines);
 
 protected:
 

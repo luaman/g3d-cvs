@@ -11,6 +11,7 @@
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/SuperBSDF.h"
 #include "G3D/fileutils.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -72,13 +73,26 @@ Shader::Ref GBuffer::getShader(const GBuffer::Specification& specification, cons
     Shader::Ref& shader = cache.getCreate(material);
 
     if (shader.isNull()) {
-        const std::string vertexCode = readWholeFile(System::findDataFile("SS_NonShadowedPass.vrt"));
-        const std::string pixelCode  = readWholeFile(System::findDataFile("SS_GBuffer.pix"));
+
+        const std::string& path = FilePath::parentPath(System::findDataFile("SS_NonShadowedPass.vrt"));
+        const std::string& currentPath = FileSystem::currentDirectory();
+
+        if (path != currentPath) {
+            // We have to be in the right directory for #includes inside the shaders to work correctly.
+            chdir(path.c_str());
+        }
+
+        const std::string vertexCode = readWholeFile("SS_NonShadowedPass.vrt");
+        const std::string pixelCode  = readWholeFile("SS_GBuffer.pix");
         std::string s;
         material->computeDefines(s);
         std::string prefix = s + indices.computeDefines();
         shader = Shader::fromStrings(prefix + vertexCode, prefix + pixelCode);
         shader->setPreserveState(false);
+
+        if (path != currentPath) {
+            chdir(currentPath.c_str());
+        }
     }
 
     return shader;
@@ -98,11 +112,22 @@ GBuffer::GBuffer(const std::string& name, const Specification& specification) :
     m_positionShader = globalPositionShader.createStrongPtr();
 
     if (m_positionShader.isNull()) {
-        m_positionShader = 
-            Shader::fromFiles(System::findDataFile("SS_NonShadowedPass.vrt"), 
-                              System::findDataFile("SS_GBufferPosition.pix"));
+
+        const std::string& path = FilePath::parentPath(System::findDataFile("SS_NonShadowedPass.vrt"));
+        const std::string& currentPath = FileSystem::currentDirectory();
+
+        if (path != currentPath) {
+            // We have to be in the right directory for #includes inside the shaders to work correctly.
+            chdir(path.c_str());
+        }
+
+        m_positionShader = Shader::fromFiles("SS_NonShadowedPass.vrt", "SS_GBufferPosition.pix");
         m_positionShader->setPreserveState(false);
         globalPositionShader = m_positionShader;
+
+        if (path != currentPath) {
+            chdir(currentPath.c_str());
+        }
     }
 }
 

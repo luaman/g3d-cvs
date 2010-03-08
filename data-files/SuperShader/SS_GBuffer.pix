@@ -129,6 +129,7 @@ void main(void) {
 
 
 #   if (PACKED_DEPTH_INDEX >= 0)
-        gl_FragData[PACKED_DEPTH_INDEX].rgba = TODO
+#error "Unimplemented"
+//        gl_FragData[PACKED_DEPTH_INDEX].rgba = TODO
 #   endif
 }

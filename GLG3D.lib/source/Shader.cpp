@@ -1185,6 +1185,15 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
                     // Put into a string so that it is visible in the debugger
                     std::string msg = "Extra VertexAndPixelShader uniform variable provided at runtime: " +
                          arg->key + ".";
+#if 0
+// Debugging code for particularly tricky shader errors
+debugPrintf("%s \n\n %s\n", vertexShader.code().c_str(), pixelShader.code().c_str());
+debugPrintf("Uniform args found in the shader:\n");
+for (int u = 0; u < uniformArray.size(); ++u) {
+     debugPrintf(" %s\n", uniformArray[u].name.c_str());
+}
+#endif
+
                     throw ArgumentError(msg);
                 }
             }
