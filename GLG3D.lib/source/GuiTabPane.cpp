@@ -23,8 +23,9 @@ GuiTabPane::GuiTabPane(GuiContainer* parent, const Pointer<int>& index) :
         m_indexPtr = &m_internalIndex;
     }
 
-    m_tabButtonPane = new GuiPane(this, "", Rect2D::xywh(0,0,0,0), GuiTheme::NO_PANE_STYLE);
-    m_viewPane      = new GuiPane(this, "", Rect2D::xywh(0,0,0,0), GuiTheme::ORNATE_PANE_STYLE);
+    m_tabButtonPane = new GuiPane(this, "", Rect2D::xywh(0,0,0,CONTROL_HEIGHT), GuiTheme::NO_PANE_STYLE);
+    m_viewPane      = new GuiPane(this, "", Rect2D::xywh(0,0,10,CONTROL_HEIGHT), GuiTheme::ORNATE_PANE_STYLE);
+    setRect(Rect2D::xywh(0, 0, CONTROL_WIDTH, CONTROL_HEIGHT + OVERLAP));
 }
 
 

@@ -208,7 +208,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID,
     GuiTheme::RadioButtonStyle style) {
     
     GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, ptr, style));
-
+    
     Vector2 size((float)BUTTON_WIDTH, (float)CONTROL_HEIGHT);
 
     // Ensure that the button is wide enough for the caption
@@ -220,6 +220,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID,
     } else if (style == GuiTheme::BUTTON_RADIO_BUTTON_STYLE) {
         c->setSize(Vector2(max((float)BUTTON_WIDTH, bounds.x), CONTROL_HEIGHT));
     }
+
     return c;
 }
 
