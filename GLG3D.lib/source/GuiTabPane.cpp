@@ -66,8 +66,6 @@ GuiPane* GuiTabPane::addTab(const GuiText& label, int id) {
 
 
 void GuiTabPane::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
-    // TODO: offset by my rect
-
     // Make the active tab visible
     for (int i = 0; i < m_contentPaneArray.size(); ++i) {
         m_contentPaneArray[i]->setVisible(*m_indexPtr == m_contentIDArray[i]);
@@ -78,9 +76,12 @@ void GuiTabPane::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
 
     m_viewPane->setPosition(Vector2(0, m_tabButtonPane->rect().height() - OVERLAP));
 
-    // TODO: Offset
-    m_viewPane->render(rd, theme);
-    m_tabButtonPane->render(rd, theme);
+    theme->pushClientRect(m_rect);
+    {
+        m_viewPane->render(rd, theme);
+        m_tabButtonPane->render(rd, theme);
+    }
+    theme->popClientRect();
 }
 
 }
