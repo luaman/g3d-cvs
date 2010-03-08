@@ -370,7 +370,33 @@ bool FileSystem::_exists(const std::string& f, bool trustCache) {
 
     const Dir& entry = getContents(parentPath, ! trustCache);
 
-    return entry.exists && entry.contains(FilePath::baseExt(path));
+    if (FilePath::containsWildcards(f)) {
+        if (! entry.exists) {
+            // The directory didn't exist, so neither do its contents
+            return false;
+        } 
+
+        const std::string& pattern = FilePath::baseExt(path);
+
+#       ifdef G3D_WIN32
+            static const int flags = FNM_CASEFOLD;
+#       else
+            static const int flags = 0;
+#       endif
+
+        // See if any element of entry matches the wild card
+        for (int i = 0; i < entry.nodeArray.size(); ++i) {
+            if (FilePath::matches(entry.nodeArray[i].name, pattern, flags)) {
+                return true;
+            }
+        }
+
+        // Could not find a match
+        return false;
+
+    } else {
+        return entry.exists && entry.contains(FilePath::baseExt(path));
+    }
 }
 
 

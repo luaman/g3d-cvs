@@ -144,6 +144,10 @@ private:
 
     /** Returns true if a node named \a f exists.
 
+        \param f If \a f contains wildcards, the function returns true if any file 
+        matches those wildcards.  Wildcards may only appear in the base or ext, not the
+        path.
+
         \param trustCache If true, uses the cache for optimizing repeated calls 
         in the same parent directory. 
      */
