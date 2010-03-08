@@ -54,6 +54,8 @@ GuiPane* GuiTabPane::addTab(const GuiText& label, int id) {
     debugAssertM(! m_contentIDArray.contains(id), format("id %d already in use", id));
 
     GuiPane* p = m_viewPane->addPane("", GuiTheme::NO_PANE_STYLE);
+    p->setPosition(Vector2(0,0));
+    m_viewPane->pack();
     GuiRadioButton* b = m_tabButtonPane->addRadioButton(label, id, m_indexPtr, GuiTheme::TOOL_RADIO_BUTTON_STYLE);
     (void)b;
 

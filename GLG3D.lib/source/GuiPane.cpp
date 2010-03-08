@@ -266,10 +266,15 @@ GuiFunctionBox* GuiPane::addFunctionBox(const GuiText& text, Spline<float>* spli
 
 GuiTabPane* GuiPane::addTabPane(const Pointer<int>& index) {
     GuiTabPane* p = new GuiTabPane(this, index);
+    
+    Vector2 pos = nextControlPos();
+    p->moveBy(pos);
+
     containerArray.append(p);
     increaseBounds(p->rect().x1y1());
     return p;
 }
+
 
 GuiPane* GuiPane::addPane(const GuiText& text, GuiTheme::PaneStyle style) {
     Rect2D minRect = theme()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), text, style);

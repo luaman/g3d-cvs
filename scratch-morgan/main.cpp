@@ -104,6 +104,8 @@ void App::onInit() {
 
 //    debugPane->addTextureBox("", m_colorBuffer0)->zoomToFit();
 
+    debugPane->addButton("Foo");
+
     GuiTabPane* t = debugPane->addTabPane();
 
     GuiPane* p0 = t->addTab("Alpha");
