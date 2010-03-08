@@ -79,6 +79,8 @@ public:
         Texture::Specification m_emissive;
         Color3          m_emissiveConstant;
 
+        std::string     m_customShaderPrefix;
+
         BumpMap::Specification m_bump;
 
         Component4 loadLambertian() const;
@@ -110,6 +112,10 @@ public:
 
         /** Load from a file created by save(). */
         void load(const std::string& filename);
+
+        void setCustomShaderPrefix(const std::string& s) {
+            m_customShaderPrefix = s;
+        }
 
         /** Filename of Lambertian (diffuse) term, empty if none. The
             alpha channel is a mask that will be applied to all maps
@@ -251,6 +257,11 @@ protected:
         shaders if finite.*/
     Color4                      m_customConstant;
 
+    /** For experimentation.  This code (typically macro definitions) is injected into the
+        shader code after the material constants.
+      */
+    std::string                 m_customShaderPrefix;
+
     /** Preferred level of refraction quality. The actual level available depends on the renderer.*/
     RefractionQuality           m_refractionHint;
 
@@ -273,7 +284,8 @@ public:
         const Component3&                   emissive        = Component3(),
         const BumpMap::Ref&                 bump            = NULL,
         const MapComponent<Image4>::Ref&    customMap       = NULL,
-        const Color4&                       customConstant  = Color4::inf());
+        const Color4&                       customConstant  = Color4::inf(),
+        const std::string&                  customShaderPrefix = "");
 
     /**
        Caches previously created Materials, and the textures 
@@ -294,22 +306,19 @@ public:
     void setStorage(ImageStorage s) const;
 
     /** Never NULL */
-    inline SuperBSDF::Ref bsdf() const {
+    SuperBSDF::Ref bsdf() const {
         return m_bsdf;
     }
 
     /** May be NULL */
-    inline BumpMap::Ref bump() const {
+    BumpMap::Ref bump() const {
         return m_bump;
     }
 
-#if 0
-    /** @beta Materials serialized by this version of G3D may not be 
-       compatible with future versions. This is intended primarily 
-       for caching data and not as an interchange format */
-    void serialize(BinaryOutput& b) const;
-    void deserialize(BinaryInput& b);
-#endif
+    /** \copydoc m_customShaderPrefix */
+    const std::string& customShaderPrefix() const {
+        return m_customShaderPrefix;
+    }
 
     /** An emission function.
 

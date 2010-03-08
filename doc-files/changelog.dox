@@ -32,6 +32,7 @@
      <li> G3D::Any replaces G3D::AnyVal
      <li> System::findDataFile no longer scans all disk drives; instead it checks the G3DDATA environment variable
      <li> G3D::Texture::createColor
+     <li> G3D::Material::customShaderPrefix
      <li> G3D::TextInput::parseNumber
      <li> G3D::GuiTabPane, GuiPane::addTabPane
      <li> G3D::GFont::nativeSize

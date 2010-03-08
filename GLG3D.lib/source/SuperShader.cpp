@@ -60,7 +60,8 @@ ShadowedPassRef    Pass::shadowedInstance;
 ShaderRef Pass::getConfiguredShader(
     const std::string&  vertexFilename,
     const std::string&  pixelFilename,
-    const Material&     material) {
+    const Material&     material,
+    const std::string&  extraDefines) {
 
     const std::string& key = vertexFilename + pixelFilename;
 
@@ -72,7 +73,7 @@ ShaderRef Pass::getConfiguredShader(
         // Load
         std::string defines;
         material.computeDefines(defines);
-        shader = loadShader(vertexFilename, pixelFilename, defines);
+        shader = loadShader(vertexFilename, pixelFilename, defines + extraDefines);
 
         // Put into the cache
         cache.add(key, material, shader);
@@ -156,7 +157,7 @@ PassRef Pass::fromFiles(const std::string& vertexFilename, const std::string& pi
 }
 
 
-ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::CullFace c) {
+ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::CullFace c, const std::string& extraDefines) {
 
     if (c != RenderDevice::CULL_CURRENT) {
         float f = 1.0f;
@@ -167,7 +168,7 @@ ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::Cull
     }
 
     // Get the shader from the cache
-    const Shader::Ref& s = getConfiguredShader(m_vertexFilename, m_pixelFilename, material);
+    const Shader::Ref& s = getConfiguredShader(m_vertexFilename, m_pixelFilename, material, extraDefines);
 
     // Merge arguments
     s->args.set(args);
@@ -311,12 +312,13 @@ void NonShadowedPass::setLighting(const LightingRef& lighting) {
 
 
 ShaderRef NonShadowedPass::getConfiguredShader(
-    const Material& material,
-    RenderDevice::CullFace c) {
+    const Material&         material,
+    RenderDevice::CullFace  c,
+    const std::string&      extraDefines) {
 
-    const Shader::Ref& s = Pass::getConfiguredShader(material, c);
+    const Shader::Ref& s = Pass::getConfiguredShader(material, c, extraDefines);
 
-    s->args.set("emissiveConstant",    material.emissive().constant()* m_emissiveScale, OPTIONAL);
+    s->args.set("emissiveConstant",    material.emissive().constant() * m_emissiveScale, OPTIONAL);
     s->args.set("environmentMapScale", m_environmentMapColor, OPTIONAL);
 
     return s;

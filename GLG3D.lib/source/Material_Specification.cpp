@@ -112,6 +112,8 @@ Material::Specification::Specification(const Any& any) {
             m_etaReflect = it->value;
         } else if (key == "extinctionreflect") {
             m_extinctionReflect = it->value;
+        } else if (key == "customshaderprefix") {
+            m_customShaderPrefix = it->value;
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }
@@ -286,7 +288,9 @@ bool Material::Specification::operator==(const Specification& s) const {
         (m_extinctionReflect == s.m_extinctionReflect) &&
 
         (m_refractionHint == s.m_refractionHint) &&
-        (m_mirrorHint == s.m_mirrorHint);
+        (m_mirrorHint == s.m_mirrorHint) &&
+        
+        (m_customShaderPrefix == s.m_customShaderPrefix);
 }
 
 
@@ -307,7 +311,9 @@ size_t Material::Specification::hashCode() const {
         HashTrait<std::string>::hashCode(m_emissive.filename) ^
         m_emissiveConstant.hashCode() ^
 
-        HashTrait<std::string>::hashCode(m_bump.texture.filename);
+        HashTrait<std::string>::hashCode(m_bump.texture.filename) ^
+        
+        HashTrait<std::string>::hashCode(m_customShaderPrefix);
 }
 
 

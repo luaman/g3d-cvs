@@ -48,6 +48,9 @@ void GuiTabPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) cons
 
 
 void GuiTabPane::pack() {
+    for (int i = 0; i < m_contentPaneArray.size(); ++i) {
+        m_contentPaneArray[i]->pack();
+    }
     m_viewPane->pack();
     setRect(Rect2D::xywh(m_rect.x0y0(), m_viewPane->rect().x0y0() + m_viewPane->rect().wh()));
 }

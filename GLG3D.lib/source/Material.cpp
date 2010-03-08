@@ -2,7 +2,7 @@
  @file   Material.cpp
  @author Morgan McGuire, http://graphics.cs.williams.edu
  @created  2009-03-19
- @edited   2010-01-19
+ @edited   2010-03-19
 */
 #include "GLG3D/Material.h"
 #include "G3D/Table.h"
@@ -24,7 +24,8 @@ Material::Ref Material::create
  const Component3&                   emissive,
  const BumpMap::Ref&                 bump,
  const MapComponent<Image4>::Ref&    customMap,
- const Color4&                       customConstant) {
+ const Color4&                       customConstant,
+ const std::string&                  customShaderPrefix) {
 
     Material::Ref m = Material::createEmpty();
 
@@ -33,6 +34,7 @@ Material::Ref Material::create
     m->m_bump = bump;
     m->m_customMap = customMap;
     m->m_customConstant = customConstant;
+    m->m_customShaderPrefix = customShaderPrefix;
 
     return m;
 }
@@ -55,9 +57,9 @@ static MaterialCache& globalCache() {
 }
 
 
-Material::Ref Material::create(const Specification& settings) {
+Material::Ref Material::create(const Specification& specification) {
     MaterialCache& cache = globalCache();
-    Material::Ref value = cache[settings];
+    Material::Ref value = cache[specification];
 
     if (value.isNull()) {
         // Construct the appropriate material
@@ -65,27 +67,28 @@ Material::Ref Material::create(const Specification& settings) {
 
         value->m_bsdf =
             SuperBSDF::create(
-                settings.loadLambertian(),
-                settings.loadSpecular(),
-                settings.loadTransmissive(),
-                settings.m_etaTransmit,
-                settings.m_extinctionTransmit,
-                settings.m_etaReflect,
-                settings.m_extinctionReflect);
+                specification.loadLambertian(),
+                specification.loadSpecular(),
+                specification.loadTransmissive(),
+                specification.m_etaTransmit,
+                specification.m_extinctionTransmit,
+                specification.m_etaReflect,
+                specification.m_extinctionReflect);
 
-        value->m_refractionHint = settings.m_refractionHint;
-        value->m_mirrorHint = settings.m_mirrorHint;
+        value->m_customShaderPrefix = specification.m_customShaderPrefix;
+        value->m_refractionHint = specification.m_refractionHint;
+        value->m_mirrorHint = specification.m_mirrorHint;
 
         // load emission map
-        value->m_emissive = settings.loadEmissive();
+        value->m_emissive = specification.loadEmissive();
 
         // load bump map
-        if (! settings.m_bump.texture.filename.empty()) {
-            value->m_bump = BumpMap::create(settings.m_bump);
+        if (! specification.m_bump.texture.filename.empty()) {
+            value->m_bump = BumpMap::create(specification.m_bump);
         }
 
         // Update the cache
-        cache.set(settings, value);
+        cache.set(specification, value);
     }
 
     return value;
@@ -207,6 +210,8 @@ void Material::computeDefines(std::string& defines) const {
     if (m_customMap.notNull()) {
         defines += "#define CUSTOMMAP\n";
     }
+
+    defines += m_customShaderPrefix;
 }
 
 
@@ -217,7 +222,8 @@ bool Material::similarTo(const Material& other) const {
         (m_customMap.notNull() == other.m_customMap.notNull()) &&
         (m_customConstant.isFinite() == other.m_customConstant.isFinite()) &&
         (m_bump.isNull() == other.m_bump.isNull()) &&
-        (m_bump.isNull() || m_bump->similarTo(other.m_bump));
+        (m_bump.isNull() || m_bump->similarTo(other.m_bump)) &&
+        (m_customShaderPrefix == other.m_customShaderPrefix);
 }
 
 
@@ -227,7 +233,8 @@ size_t Material::SimilarHashCode::hashCode(const G3D::Material& mat) {
         (mat.m_bsdf->specular().factors() << 4) ^
         (mat.m_bsdf->transmissive().factors() << 3) ^
         (int)(mat.m_bump.isNull()) ^
-        (mat.m_emissive.factors() << 20);
+        (mat.m_emissive.factors() << 20) ^
+        HashTrait<std::string>::hashCode(mat.m_customShaderPrefix);
 }
 
 

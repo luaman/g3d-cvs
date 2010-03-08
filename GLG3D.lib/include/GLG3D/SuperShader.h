@@ -5,12 +5,12 @@
   efficiently.
 
   @created 2005-01-01
-  @edited  2009-03-27
+  @edited  2010-03-27
   @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 
-#ifndef G3D_SUPERSHADER_H
-#define G3D_SUPERSHADER_H
+#ifndef GLG3D_SuperShader_h
+#define GLG3D_SuperShader_h
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Table.h"
@@ -116,7 +116,7 @@ void configureSingleLightShaderArgs(
     @sa NonShadowedSuperShader, ShadowMappedSuperShader
     */
 void createShaders(
-    const Material& material,
+    const Material&   material,
     Shader::Ref&      nonShadowedShader,
     Shader::Ref&      shadowMappedShader);
 
@@ -186,11 +186,16 @@ protected:
 
     /** Returns a shader (perhaps from the cache) 
         with arguments and \#defines configured for 
-        this material. */
+        this material. 
+        
+        \param extraDefines Code to insert after the material 
+         macros; typically compile-time parameters defined by macros.
+        */
     static ShaderRef getConfiguredShader(
         const std::string&  vertexFilename,
         const std::string&  pixelFilename,
-        const Material&     material);
+        const Material&     material,
+        const std::string&  extraDefines = "");
 
     std::string m_vertexFilename;
     std::string m_pixelFilename;
@@ -228,10 +233,14 @@ public:
 
         @param c
         Affects the subsequent calls to getConfiguredShader by setting the
-        backside argument.  If CULL_CURRENT, the current state is unmodified.*/
+        backside argument.  If CULL_CURRENT, the current state is unmodified.
+        
+        \param extraDefines Code to insert after the material 
+         macros; typically compile-time parameters defined by macros.*/
     virtual ShaderRef getConfiguredShader(
-        const Material& material,
-        RenderDevice::CullFace c = RenderDevice::CULL_CURRENT);
+        const Material&         material,
+        RenderDevice::CullFace  c = RenderDevice::CULL_CURRENT,
+        const std::string&      extraDefines = "");
 
     /**
       Clears the static cache of SuperShader::Pass to clean up memory or allow reloading.
@@ -279,9 +288,11 @@ public:
      */
     void setLighting(const LightingRef& lighting);
 
+    /** Overrides the default because it requires emissive arguments */
     virtual ShaderRef getConfiguredShader(
-        const Material& material,
-        RenderDevice::CullFace c = RenderDevice::CULL_CURRENT);
+        const Material&             material,
+        RenderDevice::CullFace      c               = RenderDevice::CULL_CURRENT,
+        const std::string&          extraDefines    = "");
 };
 
 
