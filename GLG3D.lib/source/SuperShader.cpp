@@ -61,7 +61,7 @@ ShaderRef Pass::getConfiguredShader(
     const std::string&  vertexFilename,
     const std::string&  pixelFilename,
     const Material&     material,
-    const std::string&  extraDefines) {
+    const std::string&  customShaderPrefix) {
 
     const std::string& key = vertexFilename + pixelFilename;
 
@@ -69,7 +69,7 @@ ShaderRef Pass::getConfiguredShader(
 
     std::string macros;
     material.computeDefines(macros);
-    macros += extraDefines;
+    macros += customShaderPrefix;
 
     Shader::Ref shader = cache.getSimilar(key, macros);
 
@@ -159,7 +159,7 @@ PassRef Pass::fromFiles(const std::string& vertexFilename, const std::string& pi
 }
 
 
-ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::CullFace c, const std::string& extraDefines) {
+ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::CullFace c) {
 
     if (c != RenderDevice::CULL_CURRENT) {
         float f = 1.0f;
@@ -170,7 +170,7 @@ ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::Cull
     }
 
     // Get the shader from the cache
-    const Shader::Ref& s = getConfiguredShader(m_vertexFilename, m_pixelFilename, material, extraDefines);
+    const Shader::Ref& s = getConfiguredShader(m_vertexFilename, m_pixelFilename, material, customShaderPrefix);
 
     // Merge arguments
     s->args.set(args);
@@ -308,12 +308,11 @@ void NonShadowedPass::setLighting(const LightingRef& lighting) {
 }
 
 
-ShaderRef NonShadowedPass::getConfiguredShader(
-    const Material&         material,
-    RenderDevice::CullFace  c,
-    const std::string&      extraDefines) {
+Shader::Ref NonShadowedPass::getConfiguredShader
+(const Material&         material,
+ RenderDevice::CullFace  c) {
 
-    const Shader::Ref& s = Pass::getConfiguredShader(material, c, extraDefines);
+    const Shader::Ref& s = Pass::getConfiguredShader(material, c);
 
     s->args.set("emissiveConstant",    material.emissive().constant() * m_emissiveScale, OPTIONAL);
     s->args.set("environmentMapScale", m_environmentMapColor, OPTIONAL);

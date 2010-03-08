@@ -182,11 +182,11 @@ protected:
         \param extraDefines Code to insert after the material 
          macros; typically compile-time parameters defined by macros.
         */
-    static ShaderRef getConfiguredShader(
-        const std::string&  vertexFilename,
-        const std::string&  pixelFilename,
-        const Material&     material,
-        const std::string&  extraDefines = "");
+    static ShaderRef getConfiguredShader
+     (const std::string&  vertexFilename,
+      const std::string&  pixelFilename,
+      const Material&     material,
+      const std::string&  extraDefines);
 
     std::string m_vertexFilename;
     std::string m_pixelFilename;
@@ -198,9 +198,9 @@ protected:
 
 public:
 
-    /** These will be merged with the material-based args when applied to the shader.
-        These arguments will override the material ones if there are duplicates
-        (although it is not recommended to override material properties here.)
+    /** These will be merged with the Material-based args when applied to the shader.
+        These arguments will override the Material ones if there are duplicates
+        (although it is not recommended to override Material properties here.)
 
         Subclasses contain helper methods for automatically filling
         out these arguments, but you can always directly access the
@@ -209,6 +209,9 @@ public:
         args.clear().
       */
     VertexAndPixelShader::ArgList args;
+
+    /** This will be added after the Material-based customShaderPrefix when getting the configured the shader.*/
+    std::string customShaderPrefix;
 
     /** 
      Constructs a new SuperShader pass from the specified vertex and pixel shaders.   
@@ -230,8 +233,7 @@ public:
          macros; typically compile-time parameters defined by macros.*/
     virtual ShaderRef getConfiguredShader(
         const Material&         material,
-        RenderDevice::CullFace  c = RenderDevice::CULL_CURRENT,
-        const std::string&      extraDefines = "");
+        RenderDevice::CullFace  c = RenderDevice::CULL_CURRENT);
 
     /**
       Clears the static cache of SuperShader::Pass to clean up memory or allow reloading.
@@ -282,8 +284,7 @@ public:
     /** Overrides the default because it requires emissive arguments */
     virtual ShaderRef getConfiguredShader(
         const Material&             material,
-        RenderDevice::CullFace      c               = RenderDevice::CULL_CURRENT,
-        const std::string&          extraDefines    = "");
+        RenderDevice::CullFace      c       = RenderDevice::CULL_CURRENT);
 };
 
 
