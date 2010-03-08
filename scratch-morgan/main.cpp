@@ -110,6 +110,7 @@ void App::onInit() {
 
     GuiPane* p0 = t->addTab("Alpha");
     GuiPane* p1 = t->addTab("Beta");
+    GuiPane* p2 = t->addTab("Very long long long tab");
 
     p0->addButton("Hello");
     p0->addButton("There");

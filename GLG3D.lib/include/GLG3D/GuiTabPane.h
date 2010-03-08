@@ -44,6 +44,7 @@ public:
     virtual void findControlUnderMouse(Vector2 mouse, GuiControl*& control) const;
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
     virtual void setRect(const Rect2D& rect);
+    virtual void pack();
 
 };
 

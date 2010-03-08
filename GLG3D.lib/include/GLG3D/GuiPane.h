@@ -207,17 +207,7 @@ public:
 
     GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
         const Pointer<int>& ptr, 
-        GuiTheme::RadioButtonStyle style) {
-        
-        // Turn enums into ints to allow this to always act as a pointer to an int
-        GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, ptr, style));
-        if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
-            c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
-        } else if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
-            c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
-        }
-        return c;
-    }
+        GuiTheme::RadioButtonStyle style);
 
     template<typename EnumOrInt, class T>
     GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
@@ -226,19 +216,9 @@ public:
         void (T::*set)(EnumOrInt), 
         GuiTheme::RadioButtonStyle style) {
         
-        // Turn enums into ints to allow this to always act as a pointer to an int
-        GuiRadioButton* c = addControl(new GuiRadioButton
-                          (this, text, myID, 
-                           Pointer<int>(object, 
+            return addRadioButton(text, myID, Pointer<int>(object, 
                                         reinterpret_cast<int (T::*)() const>(get), 
-                                        reinterpret_cast<void (T::*)(int)>(set)), 
-                           style));
-        if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
-            c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
-        } else if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
-            c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
-        }
-        return c;
+                                        reinterpret_cast<void (T::*)(int)>(set)), style);
     }
 
     /** Provide the default clamp bounds for addNumberBox.*/

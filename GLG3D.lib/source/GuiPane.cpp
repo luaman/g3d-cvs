@@ -203,6 +203,27 @@ GuiControl* GuiPane::addCustom(GuiControl* c) {
 }
 
 
+GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID,  
+    const Pointer<int>& ptr, 
+    GuiTheme::RadioButtonStyle style) {
+    
+    GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, ptr, style));
+
+    Vector2 size((float)BUTTON_WIDTH, (float)CONTROL_HEIGHT);
+
+    // Ensure that the button is wide enough for the caption
+    const Vector2& bounds = theme()->minButtonSize(text, 
+        (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) ? GuiTheme::TOOL_BUTTON_STYLE : GuiTheme::NORMAL_BUTTON_STYLE);
+
+    if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
+        c->setSize(Vector2(max((float)TOOL_BUTTON_WIDTH, bounds.x), CONTROL_HEIGHT));
+    } else if (style == GuiTheme::BUTTON_RADIO_BUTTON_STYLE) {
+        c->setSize(Vector2(max((float)BUTTON_WIDTH, bounds.x), CONTROL_HEIGHT));
+    }
+    return c;
+}
+
+
 GuiButton* GuiPane::addButton(const GuiText& text, GuiTheme::ButtonStyle style) {
     return addButton(text, GuiButton::Callback(), style);
 }
@@ -216,7 +237,7 @@ GuiButton* GuiPane::addButton(const GuiText& text, const GuiControl::Callback& c
     Vector2 size((float)BUTTON_WIDTH, (float)CONTROL_HEIGHT);
 
     // Ensure that the button is wide enough for the caption
-    Vector2 bounds = theme()->minButtonSize(text, style);
+    const Vector2& bounds = theme()->minButtonSize(text, style);
     if (style == GuiTheme::NORMAL_BUTTON_STYLE) {
         size = size.max(bounds);
     } else {

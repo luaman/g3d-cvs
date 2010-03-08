@@ -167,7 +167,7 @@ GuiTextureBox::GuiTextureBox
 
     setCaptionSize(h);
     float aspect = 1440.0f / 900.0f;
-    setSize(Vector2(190, 190 / aspect));
+    setSize(Vector2(240 * aspect, 240));
 
     zoomToFit();
 }
