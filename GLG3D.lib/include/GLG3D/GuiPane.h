@@ -108,7 +108,7 @@ private:
 
 public:
 
-    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& theme) const;
 
     virtual void findControlUnderMouse(Vector2 mouse, GuiControl*& control) const;
 
@@ -154,6 +154,9 @@ public:
     GuiTextureBox* addTextureBox(const Texture::Ref& t,
                                  const GuiTextureBox::Settings&  s = GuiTextureBox::Settings(),
                                  bool embedded = false);
+
+//    GuiTabPane* addTabPane();
+
     /**
        <pre>
        bool enabled;
@@ -201,6 +204,20 @@ public:
      */
     GuiDropDownList* addDropDownList(const GuiText& caption, const Array<std::string>& list, const Pointer<int>& indexPointer = NULL, const GuiControl::Callback& actionCallback = GuiControl::Callback());
     GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list = Array<GuiText>(), const Pointer<int>& indexPointer = NULL, const GuiControl::Callback& actionCallback = GuiControl::Callback());
+
+    GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
+        const Pointer<int>& ptr, 
+        GuiTheme::RadioButtonStyle style) {
+        
+        // Turn enums into ints to allow this to always act as a pointer to an int
+        GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, ptr, style));
+        if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
+            c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
+        } else if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
+            c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
+        }
+        return c;
+    }
 
     template<typename EnumOrInt, class T>
     GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
