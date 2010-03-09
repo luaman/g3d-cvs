@@ -16,6 +16,7 @@ import ice.doxygen
 doxygen = 'doxygen'
 icompileConfig = []
 distribDir = None
+verbosity = 1
 
 # G3D version.  Update this when the library version changes.
 class Version:
@@ -94,7 +95,7 @@ def initOS():
             else:
                 icompileConfig = []
 
-        icompileConfig += ['--verbosity', '2']
+        icompileConfig += ['--verbosity', verbosity]
         print 'Adding iCompile options: ', icompileConfig
 
     if windows:
