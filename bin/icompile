@@ -3,7 +3,7 @@
 #
 # See manual.html for documentation.  http://ice.sf.net
 #
-# Copyright 2003-2009 Morgan McGuire
+# Copyright 2003-2010 Morgan McGuire
 # All rights reserved.
 #
 # morgan@cs.williams.edu
@@ -14,12 +14,11 @@
 # EDIT ice.txt AND ~/.icompile TO CUSTOMIZE YOUR PROJECT CONFIGURATION.
 #**********************************************************************
 
-version = [0, 5, 9]
+version = [0, 5, 10]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time, copy, threading, platform
 
-from sets import Set
 from platform import machine
 from string import ljust
 
@@ -36,7 +35,7 @@ from ice.copyifnewer import copyIfNewer
 from ice.topsort import *
 
 if int(sys.version[:string.find(sys.version, '.')]) < 2:
-    print ('iCompile requires Python 2.5 or later.  You are running Python '
+    print ('iCompile requires Python 2.6 or later.  You are running Python '
            + sys.version)
     sys.exit(-10)
 
@@ -301,7 +300,7 @@ def getLinkerOptions(state, allFiles):
         opt += ['-L' + path]
         
     # Set of canonically named libraries to link against
-    libraries        = Set(state.usesLibrariesList)
+    libraries        = set(state.usesLibrariesList)
 
     # Compute a list of all libraries needed from the headers
     for path in allFiles:
@@ -516,7 +515,7 @@ def buildBinary(state):
     cfiles = listCFiles(state.rootDir, state.excludeFromCompilation)
     
     # All files on which something depends
-    dependencySet = Set()
+    dependencySet = set()
 
     dependencies = {}
     parents = {}

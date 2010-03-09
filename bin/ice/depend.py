@@ -13,7 +13,6 @@
 
 from utils import *
 from variables import *
-from sets import Set
 from library import *
 from doticompile import *
 from help import *

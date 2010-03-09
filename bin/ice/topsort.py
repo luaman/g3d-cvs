@@ -3,7 +3,6 @@
 # General Topological Sort
 
 import sys
-from sets import Set
 
 ##############################################################################
 #                            Topological Sort                                #
@@ -102,14 +101,14 @@ def dictionaryToPairs(dict):
    Returns Vertices, (indexed) Edges
 """
 def pairsToVertexEdgeGraph(pairs):
-    V = Set()
+    V = set()
 
     # Make a list of unique vertices.
     for x, y in pairs:
 	V.add(x)
         V.add(y)
 
-    # Convert the Set to a list
+    # Convert the set to a list
     V = [v for v in V]
   
     # Make a fast index lookup table
