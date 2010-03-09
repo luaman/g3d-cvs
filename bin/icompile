@@ -810,6 +810,9 @@ def configureGpp(state):
         # directory.  By the time we're compiling, they are already in
         # the build directory (and have been rebased)
         state.addLibraryPath(state.binaryDir)
+
+        # Suppress linker warnings, which on OS X include warnings about anonymous symbols
+        state.linkerOptions += ['-Wl,-w']
         
         state.compilerOptions += ['-D__cdecl=', '-D__stdcall=', '-D__fastcall=']
 

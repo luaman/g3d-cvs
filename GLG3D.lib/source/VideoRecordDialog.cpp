@@ -40,10 +40,10 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     m_enableMotionBlur(false),
     m_motionBlurFrames(10),
     m_screenshotPending(false),
+    m_quality(1.0),
     m_framesBox(NULL),
     m_captureGUI(true),
-    m_showCursor(false),
-    m_quality(1.0){
+    m_showCursor(false) {
 
     m_hotKey = GKey::F6;
     m_hotKeyMod = GKeyMod::NONE;
