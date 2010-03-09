@@ -114,8 +114,9 @@ private:
        \param zipfile The part of \a path that was the zipfile */
     bool _inZipfile(const std::string& path, std::string& zipfile);
 
-    /** Flushes the cache */
-    void _flushCache();
+    /** Clears old cache entries so that exists() and list() will reflect recent changes to the file system.
+       \param path Clear only \a path and its subdirectories ("" means clear the entire cache) */
+    void _clearCache(const std::string& path);
 
     bool _inZipfile(const std::string& path) {
         std::string ignore;
@@ -214,6 +215,10 @@ private:
         _list(spec, result, false, true, includeParentPath);
     }
 
+    /** Same as the C standard library fopen, but updates the file cache
+    to acknowledge the new file on a write operation. */
+    FILE* _fopen(const char* filename, const char* mode);
+
 public:
 
 
@@ -235,9 +240,18 @@ public:
         return instance()._inZipfile(path, zipfile);
     }
 
-    /** \copydoc _flushCache */
-    static void flushCache() {
-        instance()._flushCache();
+    /** \copydoc _clearCache */
+    static void clearCache(const std::string& path = "") {
+        instance()._clearCache(path);
+    }
+
+    /** \copydoc _fopen */
+    static FILE* fopen(const char* filename, const char* mode) {
+        return instance()._fopen(filename, mode);
+    }
+
+    static void fclose(FILE* f) {
+        ::fclose(f);
     }
 
     static bool inZipfile(const std::string& path) {

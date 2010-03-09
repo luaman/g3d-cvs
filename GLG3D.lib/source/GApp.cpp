@@ -66,10 +66,10 @@ void debugDraw(const Shape::Ref& shape, const Color4& solidColor,
 
 /** Attempt to write license file */
 static void writeLicense() {
-    FILE* f = fopen("g3d-license.txt", "wt");
+    FILE* f = FileSystem::fopen("g3d-license.txt", "wt");
     if (f != NULL) {
         fprintf(f, "%s", license().c_str());
-        fclose(f);
+        FileSystem::fclose(f);
     }
 }
 

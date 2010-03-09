@@ -241,86 +241,6 @@ static int isFileGood(FILE* f) {
 	return 1;
 }
 
-FILE* createTempFile() {
-    FILE* t = NULL;
-
-//#   ifdef G3D_WIN32
-        t = tmpfile();
-//#   else
-//        // On Unix, tmpfile generates a warning for any code that links against it.
-//        const char* tempfilename = "/tmp/g3dtemp.XXXXXXXX";
-//        mktemp(tempfilename);
-//        t = fopen(tempfilename, "w");    
-//#   endif
-
-#	ifdef _WIN32
-		char* n = NULL;
-#	endif
-	char name[256];
-
-    if (isFileGood(t)) {
-        return t;
-    }
-
-#   ifdef G3D_WIN32
-    /* tmpfile failed; try the tmpnam routine */
-    t = fopen(tmpnam(NULL), "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-
-    n = _tempnam("c:/tmp/", "t");
-    /* Try to create something in C:\tmp */
-    t = fopen(n, "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-
-    /* Try c:\temp */
-    n = _tempnam("c:/temp/", "t");
-    t = fopen(n, "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-
-    /* try the current directory */
-    n = _tempnam("./", "t");
-    t = fopen(n, "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-
-    sprintf(name, "%s/tmp%d", "c:/temp", rand());
-    t = fopen(name, "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-
-    /* Try some hardcoded paths */
-    sprintf(name, "%s/tmp%d", "c:/tmp", rand());
-    t = fopen(name, "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-#   else
-    sprintf(name, "%s/tmp%d", "/tmp", rand());
-    t = fopen(name, "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-#endif
-
-    sprintf(name, "tmp%d", rand());
-    t = fopen(name, "w+");
-    if (isFileGood(t)) {
-        return t;
-    }
-
-    fprintf(stderr, "Unable to create a temporary file; robustTmpfile returning NULL\n");
-
-    return NULL;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 void writeWholeFile(
     const std::string&          filename,
@@ -337,7 +257,7 @@ void writeWholeFile(
         FileSystem::createDirectory(path);
     }
 
-    FILE* file = fopen(filename.c_str(), "wb");
+    FILE* file = FileSystem::fopen(filename.c_str(), "wb");
 
     debugAssert(file);
 
@@ -346,7 +266,8 @@ void writeWholeFile(
     if (flush) {
         fflush(file);
     }
-    fclose(file);
+
+    FileSystem::fclose(file);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

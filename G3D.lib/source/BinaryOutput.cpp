@@ -156,7 +156,7 @@ void BinaryOutput::reserveBytesWhenOutOfMemory(size_t bytes) {
         //debugPrintf("Writing %d bytes to disk\n", writeBytes);
 
         const char* mode = (m_alreadyWritten > 0) ? "ab" : "wb";
-        FILE* file = fopen(m_filename.c_str(), mode);
+        FILE* file = FileSystem::fopen(m_filename.c_str(), mode);
         debugAssert(file);
 
         size_t count = fwrite(m_buffer, 1, writeBytes, file);

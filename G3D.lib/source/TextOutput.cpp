@@ -397,13 +397,13 @@ void TextOutput::commit(bool flush) {
         FileSystem::createDirectory(p);
     }
 
-    FILE* f = fopen(filename.c_str(), "wb");
+    FILE* f = FileSystem::fopen(filename.c_str(), "wb");
     debugAssertM(f, "Could not open \"" + filename + "\"");
     fwrite(data.getCArray(), 1, data.size(), f);
     if (flush) {
         fflush(f);
     }
-    fclose(f);
+    FileSystem::fclose(f);
 }
 
 

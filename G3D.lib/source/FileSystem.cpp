@@ -298,10 +298,35 @@ bool FileSystem::_isZipfile(const std::string& filename) {
     fclose(f);
     return true;
 }
-    
 
-void FileSystem::_flushCache() {
-    m_cache.clear();
+
+FILE* FileSystem::_fopen(const char* filename, const char* mode) {
+    for (const char* m = mode; *m != '\0'; ++m) {
+        if (*m == 'w') {
+            // Purge the cache entry for the parent of this directory
+            _clearCache(FilePath::parentPath(_resolve(filename)));
+            break;
+        }
+    }
+    return ::fopen(filename, mode);
+}
+
+
+void FileSystem::_clearCache(const std::string& path) {
+    if ((path == "") || FilePath::isRoot(path)) {
+        m_cache.clear();
+    } else {
+        Array<std::string> keys;
+        m_cache.getKeys(keys);
+
+        const std::string& prefix = FilePath::removeTrailingSlash(_resolve(path));
+
+        for (int k = 0; k < keys.size(); ++k) {
+            if (beginsWith(keys[k], prefix)) {
+                m_cache.remove(keys[k]);
+            }
+        }
+    }
 }
 
 
@@ -316,17 +341,16 @@ void FileSystem::_createDirectory(const std::string& dir) {
         return;
     }
     
-    std::string d;
+    std::string d = _resolve(dir);
     
     // Add a trailing / if there isn't one.
-    switch (dir[dir.size() - 1]) {
+    switch (d[d.size() - 1]) {
     case '/':
     case '\\':
-        d = dir;
         break;
 
     default:
-        d = dir + "/";
+        d += "/";
     }
 
     // If it already exists, do nothing
@@ -361,7 +385,7 @@ void FileSystem::_createDirectory(const std::string& dir) {
         }
     }
 
-    _flushCache();
+    _clearCache(FilePath::parentPath(FilePath::removeTrailingSlash(d)));
 }
 
 
@@ -369,15 +393,14 @@ void FileSystem::_copyFile(const std::string& source, const std::string& dest) {
 #   ifdef G3D_WIN32
         // TODO: handle case where srcPath is in a zipfile
         CopyFileA(source.c_str(), dest.c_str(), FALSE);
+        _clearCache(FilePath::parentPath(_resolve(dest)));
 #   else
         // Read it all in, then dump it out
         BinaryInput  in(source, G3D_LITTLE_ENDIAN);
         BinaryOutput out(dest, G3D_LITTLE_ENDIAN);
         out.writeBytes(in.getCArray(), in.size());
         out.commit(false);
-#   endif
-        
-    flushCache();
+#   endif        
 }
 
 
