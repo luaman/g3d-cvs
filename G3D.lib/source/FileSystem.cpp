@@ -183,10 +183,28 @@ FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpda
                     debugAssertM(listing, "opendir failed on '" + key + "'");
                     struct dirent* entry = readdir(listing);
                     while (entry != NULL) {
-                        if (! strcmp(entry->d_name, "..") &&
-                            ! strcmp(entry->d_name, ".")) {
+                        if ((strcmp(entry->d_name, "..") != 0) && (strcmp(entry->d_name, ".") != 0)) {
+                            Entry& e = dir.nodeArray.next();
+                            e.name = entry->d_name;
 
-                            dir.nodeArray.append(entry->d_name);
+#                           ifdef _DIRENT_HAVE_D_TYPE
+                                // Not all POSIX systems support this field
+                                // http://www.delorie.com/gnu/docs/glibc/libc_270.html
+                                switch (entry->d_type) {
+                                case DT_DIR:
+                                    e.type = DIR_TYPE;
+                                    break;
+                                    
+                                case DT_REG:
+                                    e.type = FILE_TYPE;
+                                    break;
+                                    
+                                case DT_UNKNOWN:
+                                default:
+                                    e.type = UNKNOWN;
+                                    break;
+                                }
+#                           endif
                         }
                         entry = readdir(listing);
                     }
@@ -312,7 +330,7 @@ void FileSystem::_createDirectory(const std::string& dir) {
     }
 
     // If it already exists, do nothing
-    if (exists(d.substr(0, d.size() - 1))) {
+    if (_exists(d.substr(0, d.size() - 1))) {
         return;
     }
 

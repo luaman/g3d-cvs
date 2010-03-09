@@ -16,7 +16,7 @@ import ice.doxygen
 doxygen = 'doxygen'
 icompileConfig = []
 distribDir = None
-verbosity = 1
+verbosity = '1' # for icompile
 
 # G3D version.  Update this when the library version changes.
 class Version:
