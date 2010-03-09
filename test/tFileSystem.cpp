@@ -7,8 +7,10 @@ void testFileSystem() {
     debugAssert(FilePath::matches("hello", "*"));
     debugAssert(FilePath::matches("hello", "*", FNM_CASEFOLD));
 
+    chdir("TestDir");
     std::string cwd = FileSystem::currentDirectory();
-    debugAssert(endsWith(cwd, "build"));
+    debugAssert(endsWith(cwd, "TestDir"));
+    chdir("..");
 
     // Directory listing
     Array<std::string> files;
@@ -33,7 +35,7 @@ void testFileSystem() {
     debugAssert(FileSystem::exists("apiTest.zip/Test.txt"));
     debugAssert(! FileSystem::exists("apiTest.zip/no.txt"));
 
-    debugAssert(FileSystem::size("Any-load.txt") == 158);
+    debugAssert(FileSystem::size("apiTest.zip") == 488);
 
     printf("passed\n");
 }
