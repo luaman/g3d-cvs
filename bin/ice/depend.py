@@ -175,6 +175,10 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
     if ' error:' in raw:
         print raw
         sys.exit(-1)
+
+    if raw.startswith('cc1plus: warning:'):
+        # Remove the first line
+        raw = raw.split('\n', 1)[1]
         
     if raw.startswith('In file included from'):
         # If there was an error, the output will have the form
