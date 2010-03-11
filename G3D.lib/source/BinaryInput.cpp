@@ -473,6 +473,42 @@ std::string BinaryInput::readString() {
     return readString(n);
 }
 
+static bool isNewline(char c) {
+    return c == '\n' || c == '\r';
+}
+
+std::string BinaryInput::readStringNewline() {
+    int64 n = 0;
+
+    if ((m_pos + m_alreadyRead + n) < (m_length - 1)) {
+        prepareToRead(1);
+    }
+
+    if ( ((m_pos + m_alreadyRead + n) < (m_length - 1)) &&
+         ! isNewline(m_buffer[m_pos + n])) {
+
+        ++n;
+        while ( ((m_pos + m_alreadyRead + n) < (m_length - 1)) &&
+                ! isNewline(m_buffer[m_pos + n])) {
+
+            prepareToRead(1);
+            ++n;
+        }
+    }
+
+    const std::string s = readString(n);
+
+    // Consume the newline
+    char firstNLChar = readUInt8();
+
+    // Consume the 2nd newline
+    if (isNewline(m_buffer[m_pos + 1]) && (m_buffer[m_pos + 1] != firstNLChar)) {
+        readUInt8();
+    }
+
+    return s;
+}
+
 
 std::string BinaryInput::readStringEven() {
     std::string x = readString();
