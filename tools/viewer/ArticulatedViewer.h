@@ -27,6 +27,8 @@ private:
     int                         m_selectedTriListIndex;
     SuperSurface::GPUGeom::Ref  m_selectedGeom;
 
+    float                       m_scale;
+
 
 public:
 	ArticulatedViewer();

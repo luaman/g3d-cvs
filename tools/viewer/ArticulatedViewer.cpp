@@ -79,6 +79,8 @@ void ArticulatedViewer::onInit(const std::string& filename) {
             scale = 1;
         }
 
+        m_scale = scale;
+
         if (! center.isFinite()) {
             center = Vector3();
         }
@@ -145,6 +147,8 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
         }
     }
     posed3D.fastClear();
+
+    screenPrintf("(Shown scaled by %f)\n", m_scale);
     
     screenPrintf("Model Faces: %d,  Vertices: %d\n", m_numFaces, m_numVertices);
     if (m_selectedGeom.notNull()) {
