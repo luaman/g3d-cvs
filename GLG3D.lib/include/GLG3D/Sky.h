@@ -95,7 +95,7 @@ public:
       end in a trailing slash.  This is the location of the real.str file
       and the sun, moon, etc. files.
 
-     @param filename A filename with "*" in place of {up, lt, rt, bk, ft, dn}.
+     @param filename A filename with "*" in place of {up, lf, rt, bk, ft, dn},
       The filename can be either fully qualified, relative to the current
       directory, or relative to <I>directory</I>.
 
