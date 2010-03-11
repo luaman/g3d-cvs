@@ -18,6 +18,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/TextInput.h"
+#include "G3D/FileSystem.h"
 
 namespace G3D {
 
@@ -244,7 +245,8 @@ void IFSModel::load(
     Array<Vector2>&			texCoord) {
 
 
-    if (filenameExt(filename) == "ifs" ) {
+    const std::string& ext = toLower(FilePath::ext(filename));
+    if (ext == "ifs" ) {
         BinaryInput bi(filename, G3D_LITTLE_ENDIAN);
         
         if (bi.getLength() == 0) {
@@ -307,7 +309,7 @@ void IFSModel::load(
                 }
             }
         }
-    } else if ("off" == filenameExt(filename)) {
+    } else if ("off" == ext) {
 
         TextInput ti(filename);
 
@@ -353,7 +355,7 @@ void IFSModel::load(
             }
         }
 
-    } else if ("ply2" == filenameExt(filename)) {	
+    } else if ("ply2" == ext) {	
         
         TextInput ti(filename);
         
@@ -383,7 +385,199 @@ void IFSModel::load(
             index[3*i + 1] = iFloor(ti.readNumber());
             index[3*i + 2] = iFloor(ti.readNumber());
         }
+
+    } else if (ext == "ply") {
+        // Assume binary little endian, change as needed
+        BinaryInput b(filename, G3D_LITTLE_ENDIAN);
         
+        // Read header
+        const std::string& hdr = b.readStringNewline();
+        if (hdr != "ply") {
+            debugAssertM(false, format("Bad PLY header: \"%s\"", hdr.c_str()));
+            return;
+        }
+
+        const std::string& fmt = b.readStringNewline();
+        if (fmt == "format binary_little_endian 1.0") {
+            // Default format, nothing to do
+        } else if (fmt == "format binary_big_endian 1.0") {
+            // Flip the endian
+            b.setEndian(G3D_BIG_ENDIAN);
+        } else if (fmt == "format ascii 1.0") {
+            debugAssertM(false, "ASCII format is not supported in this release.");
+            return;
+        } else {
+            debugAssertM(false, "Unsupported PLY format: " + fmt);
+            return;
+        }
+
+        std::string line;
+        enum Element {VERTEX, TRISTRIP, FACE, NONE};
+        PrimitiveType faceType = PrimitiveType::TRIANGLE_FAN;
+        int numVertices = 0;
+
+        // number of faces, or tri strips
+        int numFaces = 0;
+
+        enum Format {UCHAR, INT};
+        Format faceListLengthFmt = INT;
+        Format faceListIndexFmt = INT;
+
+        int facePrefixBytes = 0;
+        int facePostfixBytes = 0;
+        // Have we already seen the vertex list while parsing the face portion of the header?
+        bool sawList = false;
+
+        Element currentElement = NONE;
+        do {
+            line = b.readStringNewline();
+            TextInput t(TextInput::FROM_STRING, line);
+            const std::string& tok = t.readSymbol();
+
+            if (tok == "comment") {
+                // Ignore
+            } else if (tok == "element") {
+                const std::string& elt = t.readSymbol();
+                int count = t.readNumber();
+                if (elt == "vertex") {
+                    currentElement = VERTEX;
+                    numVertices = count;
+                } else if (elt == "tristrips") {
+                    faceType = PrimitiveType::TRIANGLE_STRIP;
+                    currentElement = TRISTRIP;
+                    numFaces = count;
+                } else if (elt == "face") {
+                    currentElement = TRISTRIP;
+                    faceType = PrimitiveType::TRIANGLE_FAN;
+                    numFaces = count;
+                } else {
+                    // Some unknown element
+                    currentElement = NONE;
+                }
+            } else if (tok == "property") {
+                switch (currentElement) {
+                case VERTEX:
+                    {
+                        const std::string& fmt = t.readSymbol();
+                        const std::string& field = t.readSymbol();
+                        if (! ((fmt == "float") && (field == "x" || field == "y" || field == "z")) ) {
+                            debugAssertM(false, "Unsupported vertex format");
+                            return;
+                        }
+                    }
+                    break;
+
+                case TRISTRIP:
+                case FACE:
+                    {
+                        const std::string& propType = t.readSymbol();
+
+                        if (propType == "list") {
+                            sawList = true;
+                            std::string cfmt = t.readSymbol();
+                            if (cfmt == "uchar") {
+                                faceListLengthFmt = UCHAR;
+                            } else if (cfmt == "int") {
+                                faceListLengthFmt = INT;
+                            } else {
+                                debugAssertM(false, "Unsupported list length format");
+                            }
+                            std::string ifmt = t.readSymbol();
+                            if (ifmt == "uchar") {
+                                faceListIndexFmt = UCHAR;
+                            } else if (ifmt == "int") {
+                                faceListIndexFmt = INT;
+                            } else {
+                                debugAssertM(false, "Unsupported list index format");
+                            }
+                            t.readSymbol("vertex_indices");
+                        } else {
+                            // Count the number of bytes from non-list fields so that we can skip them.
+                            std::string fmt = t.readSymbol();
+                            int bytes = 0;
+                            if (fmt == "uchar") {
+                                bytes = 1;
+                            } else if (fmt == "short") {
+                                bytes = 2;
+                            } else if (fmt == "int") {
+                                bytes = 4;
+                            } else if (fmt == "float") {
+                                bytes = 4;
+                            }
+                            if (sawList) {
+                                facePostfixBytes += bytes;
+                            } else {
+                                facePrefixBytes += bytes;
+                            }
+                        }
+                    }
+                    break;
+                default:;
+                }
+            }
+        } while (line != "end_header");
+
+        // Read the vertices
+        vertex.resize(numVertices);
+        const int numDimensions = 3;
+        for (int i = 0; i < numVertices; ++i) {
+            for (int c = 0; c < numDimensions; ++c) {
+                vertex[i][c] = b.readFloat32();
+            }
+        }
+
+        // Read the faces
+        Array<int> vindex;
+        for (int i = 0; i < numFaces; ++i) {            
+            int n = 0;
+
+            b.skip(facePrefixBytes);
+            
+            switch (faceListLengthFmt) {
+            case UCHAR:
+                n = b.readUInt8();
+                break;
+            case INT:
+                n = b.readInt32();
+                break;
+            }
+
+            // Read the indices
+            vindex.fastClear();
+            for (int i = 0; i < n; ++i) {
+
+                int idx = 0;
+
+                switch (faceListIndexFmt) {
+                case UCHAR:
+                    idx = b.readUInt8();
+                    break;
+                case INT:
+                    idx = b.readInt32();
+                    break;
+                }
+                debugAssert(idx < numVertices);
+
+                if ((idx == -1) && (faceType == PrimitiveType::TRIANGLE_STRIP))  {
+                    // -1 means "start next tri strip"
+                    // Convert this face into indices
+                    MeshAlg::toIndexedTriList(vindex, faceType, index);
+                    vindex.fastClear();
+                } else {
+                    debugAssertM(idx >= 0, "Negative triangle index");
+                    vindex.append(idx);
+                }
+            }
+
+            // Convert this face (or remaining tristrip) into indices
+            if (vindex.size() > 0) {
+                MeshAlg::toIndexedTriList(vindex, faceType, index);
+            }
+
+            b.skip(facePostfixBytes);
+        }
+
+
     } else {
         alwaysAssertM(false,  format("unsupported filename type %s", filenameExt(filename).c_str()));
     }

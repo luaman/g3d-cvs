@@ -29,7 +29,7 @@ class Any;
  correct transparency. Use a custom SuperShader::Pass to add new
  effects.
  
- Loads 3DS, PLY2, OFF, and IFS files (Articulatedmodel::fromFile), or
+ Loads 3DS, PLY2, PLY, OFF, and IFS files (Articulatedmodel::fromFile), or
  you can create models (ArticulatedModel::createEmpty) from code at
  run time.  You can also load a model and then adjust the materials
  explicitly.  See ArticulatedModel::Preprocess and

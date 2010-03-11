@@ -25,9 +25,11 @@ typedef ReferenceCountedPointer<class IFSModel> IFSModelRef;
 
 
 /**
- Loads the IFS, PLY2, and OFF research file formats.
+ Loads the IFS, PLY2, PLY, and OFF research file formats.
  You can also load these using ArticulatedModel, which provides more sophisticated 
  rendering mechanisms.
+
+ The PLY loader does not support vertex normals or colors, or ASCII format.
 
  \deprecated
  */

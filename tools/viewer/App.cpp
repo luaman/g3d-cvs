@@ -145,7 +145,8 @@ void App::setViewer(const std::string& newFilename) {
     if ((ext == "3ds") ||
         (ext == "ifs") ||
         (ext == "ply2") ||
-        (ext == "off")) {
+        (ext == "off") ||
+        (ext == "ply")) {
         
         shadowMap->setSize(2048);
         

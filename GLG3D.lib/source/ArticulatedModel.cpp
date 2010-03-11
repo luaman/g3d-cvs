@@ -192,7 +192,7 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
 
     if (ext == "3ds") {
         model->init3DS(filename, preprocess);
-    } else if ((ext == "ifs") || (ext == "ply2") || (ext == "off")) {
+    } else if ((ext == "ifs") || (ext == "ply2") || (ext == "off") || (ext == "ply")) {
         model->initIFS(filename, preprocess.xform);
     }
 
