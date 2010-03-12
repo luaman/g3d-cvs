@@ -250,6 +250,7 @@ void GLCaps::init() {
     DECLARE_EXT(GL_SGIS_generate_mipmap);
 #undef DECLARE_EXT
 
+
 void GLCaps::loadExtensions(Log* debugLog) {
     // This is here to prevent a spurrious warning under gcc
     glIgnore(0);
@@ -268,7 +269,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
     alwaysAssertM(glGetCurrentContext(), "Unable to load OpenGL extensions without a current context.");
 
     // Initialize statically cached strings
-	vendor();
+    vendor();
     renderer();
     glVersion();
     driverVersion();
@@ -561,8 +562,18 @@ const std::string& GLCaps::driverVersion() {
 
 const std::string& GLCaps::vendor() {
     alwaysAssertM(m_loadedExtensions, "Cannot call GLCaps::vendor before GLCaps::init().");
-    static std::string _driverVendor = (char*)glGetString(GL_VENDOR);
-	return _driverVendor;
+    const static std::string _driverVendor = 
+
+        // For debuging, force a specific vendor:
+        //"ATI Technologies Inc.";
+        //"NVIDIA Corporation";
+        
+
+        (char*)glGetString(GL_VENDOR);
+
+
+
+    return _driverVendor;
 }
 
 

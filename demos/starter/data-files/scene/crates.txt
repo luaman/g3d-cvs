@@ -9,10 +9,10 @@
             preprocess = ArticulatedModel::Preprocess {
                 xform = Matrix4::scale(6.0, 1.0, 6.0),
                 materialOverride = Material::Specification {
-                    lambertian = "material/asphalt/asphalt-L.jpg",
-                    specular = "material/asphalt/asphalt-G.jpg",
-                    shininess = glossyExponent(20),
-                    bump = "material/asphalt/asphalt-L.jpg",
+                    lambertian   = "material/asphalt/asphalt-L.jpg",
+                    specular     = "material/asphalt/asphalt-G.jpg",
+                    shininess    = glossyExponent(20),
+                    bump         = "material/asphalt/asphalt-L.jpg",
                 }
             }
        },   
@@ -41,11 +41,11 @@
         ),
 
         environmentMap = Texture::Specification {
-            filename = "cubemap/noonclouds/noonclouds_*.jpg",
+            filename      = "cubemap/noonclouds/noonclouds_*.jpg",
             desiredFormat = "RGB8",
-            dimension = "DIM_CUBE_MAP",
-            settings = Texture::Settings::cubeMap(),
-            preprocess = Texture::Preprocess::gamma(2.1f)
+            dimension     = "DIM_CUBE_MAP",
+            settings      = Texture::Settings::cubeMap(),
+            preprocess    = Texture::Preprocess::gamma(2.1f)
         } 
     },
     
