@@ -30,13 +30,13 @@ Scene::Ref Scene::create() {
 
         Material::Settings mat;
         std::string base = pathConcat(materialPath, "asphalt/asphalt-");
-        mat.setLambertian(base + "L.jpg");
-        mat.setSpecular(base + "G.jpg");
+        mat.setLambertian(base + "L.png");
+        mat.setSpecular(base + "G.png");
         mat.setGlossyExponentShininess(20);
 
         BumpMap::Settings b;
         b.iterations = 0;
-        mat.setBump(base + "L.jpg", b, -0.005f);
+        mat.setBump(base + "L.png", b, -0.006f);
         
         model->partArray[0].triList[0]->material = Material::create(mat);
 

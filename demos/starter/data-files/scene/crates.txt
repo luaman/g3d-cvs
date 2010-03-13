@@ -5,15 +5,20 @@
    
     models = {
        groundModel = ArticulatedModel::Specification {
-            filename = "ifs/crate.ifs",
+            filename = "ifs/squarex8.ifs",
             preprocess = ArticulatedModel::Preprocess {
-                xform = Matrix4::scale(6.0, 1.0, 6.0),
+                xform = Matrix4(12, 0, 0,  0,
+                                0,  0,12, 0,
+                                0,-12, 0,  0,
+                                0,  0, 0,  1),
+
                 materialOverride = Material::Specification {
-                    lambertian   = "material/asphalt/asphalt-L.jpg",
-                    specular     = "material/asphalt/asphalt-G.jpg",
+                    lambertian   = "material/asphalt/asphalt-L.png",
+                    specular     = "material/asphalt/asphalt-G.png",
                     shininess    = glossyExponent(20),
-                    bump         = "material/asphalt/asphalt-L.jpg",
+                    bump         = "material/asphalt/asphalt-L.png",
                 }
+
             }
        },   
         
@@ -53,7 +58,7 @@
         c0 = crateModel(Vector3(1.0, 0.5, 0.0)),
         c1 = crateModel(CFrame::fromXYZYPRDegrees(0.6f, 0.5f, -1.8f, 30.0f)),
 
-        ground = groundModel(Vector3(0, -0.5, 0))
+        ground = groundModel(Vector3(0, 0, 0))
     },
     
     camera = GCamera {
