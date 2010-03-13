@@ -202,7 +202,10 @@ void GuiTheme::deserialize(const std::string& path, BinaryInput& b) {
     GImage image;
     image.decode(b, GImage::TGA);
 
-    texture = Texture::fromGImage(b.getFilename(), image, ImageFormat::RGBA8(), Texture::DIM_2D, Texture::Settings::video());
+    Texture::Preprocess p;
+    p.computeMinMaxMean = false;
+    
+    texture = Texture::fromGImage(b.getFilename(), image, ImageFormat::RGBA8(), Texture::DIM_2D, Texture::Settings::video(), p);
 
     toGLMatrix(Matrix4(1.0f / texture->width(), 0, 0, 0,
             0, 1.0f / texture->height(), 0, 0,

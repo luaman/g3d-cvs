@@ -520,7 +520,7 @@ Lighting::Ref GApp::defaultLighting() {
         }
     }
     lighting->environmentMap = 
-        Texture::fromFile(pathConcat(cubePath, "noonclouds/noonclouds_*.jpg"), 
+        Texture::fromFile(pathConcat(cubePath, "nooncloudspng/noonclouds_*.jpg"), 
                           TextureFormat::RGB8(), Texture::DIM_CUBE_MAP,
                           Texture::Settings::cubeMap(), 
                           Texture::Preprocess::gamma(2.1f));

@@ -375,7 +375,7 @@ public:
 
         /** 
           Useful defaults for video/image processing.
-          BILINEAR_NO_MIPMAP / CLAMP / DEPTH_NORMAL / 1.0 / false
+          BILINEAR_NO_MIPMAP / CLAMP / DEPTH_NORMAL / 1.0 / automipmap =false
         */
         static const Settings& video();
 
