@@ -4,10 +4,7 @@
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
 
-static Stopwatch timer;
-
 int main(int argc, char** argv) {
-    timer.after("main");
     (void)argc; (void)argv;
     GApp::Settings settings;
     
@@ -25,18 +22,6 @@ int main(int argc, char** argv) {
             chdir("../demos/starter/data-files");
         }
 #   endif
-        /*
-    std::string name;
-    Array< int > index;
-    Array< Vector3 > vertex;
-    Array< Vector2 > texCoord;
-    IFSModel::load("/Volumes/McGuire/Projects/data/ifs/square2.ifs", name, index, vertex, texCoord);
-    for (int i = 0; i < texCoord.size(); ++i) {
-        texCoord[i] *= 8;
-    }
-    IFSModel::save("/Volumes/McGuire/Projects/G3D/data-files/ifs/squarex8.ifs", "Square with 8x tiling", index, vertex, texCoord);
-    ::exit(0);
-        */
 
     return App(settings).run();
 }
@@ -131,8 +116,6 @@ void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surfa
 
 
 void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
-    //timer.after("Graphics3D");
-    //::exit(0);
     if (m_scene->lighting()->environmentMap.notNull()) {
         Draw::skyBox(rd, m_scene->lighting()->environmentMap);
     }

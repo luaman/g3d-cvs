@@ -4,7 +4,7 @@
  @author Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2001-02-28
- @edited  2010-01-18
+ @edited  2010-03-18
 */
 #include "G3D/Log.h"
 #include "G3D/Any.h"
@@ -21,6 +21,7 @@
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/FileSystem.h"
+#include "G3D/ThreadSet.h"
 
 #ifdef verify
 #undef verify
@@ -588,6 +589,20 @@ Texture::Ref Texture::create(const Specification& s) {
     return Texture::fromFile(s.filename, s.desiredFormat, s.dimension, s.settings, s.preprocess);
 }
 
+class ImageLoaderThread : public GThread {
+private:
+    std::string         m_filename;
+    GImage&             m_image;
+public:
+    
+    ImageLoaderThread(const std::string& filename, GImage& im) : 
+        GThread(filename), m_filename(filename), m_image(im) {}
+
+    void threadMain() {
+        m_image.load(m_filename);
+    }
+};
+
 Texture::Ref Texture::fromFile(
     const std::string               filename[6],
     const class ImageFormat*        desiredFormat,
@@ -674,13 +689,30 @@ Texture::Ref Texture::fromFile(
     // The six cube map faces, or the one texture and 5 dummys.
     GImage image[6];
 
-    for (int f = 0; f < numFaces; ++f) {
-        if (toLower(realFilename[f]) == "<white>") {
-            image[f].resize(1, 1, 4, false);
-            image[f].pixel4(0, 0) = Color4uint8(255, 255, 255, 255);
+    if (numFaces == 1) {
+        if (toLower(realFilename[0]) == "<white>") {
+            image[0].resize(1, 1, 4, false);
+            image[0].pixel4(0, 0) = Color4uint8(255, 255, 255, 255);
         } else {
-            image[f].load(realFilename[f]);
+            image[0].load(realFilename[0]);
         }
+    } else {
+        // Load each cube face on a different thread to overlap compute and I/O
+        ThreadSet threadSet;
+
+        for (int f = 0; f < numFaces; ++f) {
+            if (toLower(realFilename[f]) == "<white>") {
+                image[f].resize(1, 1, 4, false);
+                image[f].pixel4(0, 0) = Color4uint8(255, 255, 255, 255);
+            } else {
+                threadSet.insert(new ImageLoaderThread(realFilename[f], image[f]));
+            }
+        }
+        threadSet.start(GThread::USE_CURRENT_THREAD);
+        threadSet.waitForCompletion();
+    }
+
+    for (int f = 0; f < numFaces; ++f) {
         //debugPrintf("Loading %s\n", realFilename[f].c_str());
         alwaysAssertM(image[f].width() > 0, "Image not found");
         alwaysAssertM(image[f].height() > 0, "Image not found");
