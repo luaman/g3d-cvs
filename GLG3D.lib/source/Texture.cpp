@@ -1472,8 +1472,8 @@ void Texture::splitFilenameAtWildCard(
 
     const std::string splitter = "*";
 
-    int i = filename.rfind(splitter);
-	if (i != std::string::npos) {
+    size_t i = filename.rfind(splitter);
+    if (i != std::string::npos) {
         filenameBase = filename.substr(0, i);
         filenameExt  = filename.substr(i + 1, filename.size() - i - splitter.length()); 
     } else {
@@ -1653,6 +1653,9 @@ void Texture::getCubeMapRotation(CubeFace face, Matrix3& outMatrix) {
     case Texture::CUBE_NEG_Z:
         outMatrix = Matrix3::identity();
         break;
+
+    default:
+        alwaysAssertM(false, "");
     }
     
     // GL's cube maps are "inside out" (they are the outside of a box,
@@ -1983,44 +1986,49 @@ void computeStats
     switch (bytesActualFormat) {
     case GL_RGB8:
         {
-            Color3 min3 = Color3::one();
-            Color3 max3 = Color3::zero();
-            Color3 mean3 = Color3::zero();
+            Color3uint8 mn(255,255,255);
+            Color3uint8 mx(0,0,0);
             // Compute mean along rows to avoid overflow
             for (int y = 0; y < height; ++y) {
                 const Color3uint8* ptr = ((const Color3uint8*)rawBytes) + (y * width);
-                Color3 rowsum = Color3::zero();
+                uint32 r = 0, g = 0, b = 0;
                 for (int x = 0; x < width; ++x) {
-                    Color3 c = ptr[x];
-                    rowsum += c;
-                    min3 = min3.min(c);
-                    max3 = max3.max(c);
+                    const Color3uint8 i = ptr[x];
+                    const Color3 c(i);
+                    mn = mn.min(i);
+                    mx = mx.max(i);
+                    r += i.r; g += i.g; b += i.b;
                 }
-                mean3 += rowsum / width;
+                meanval += Color4(float(r) / width, float(g) / width, float(b) / width, 1.0);
             }
-            minval  = Color4(min3, 1.0f);
-            maxval  = Color4(max3, 1.0f);
-            meanval = Color4(mean3 / height, 1.0f);
+            minval  = Color4(Color3(mn), 1.0f);
+            maxval  = Color4(Color3(mx), 1.0f);
+            meanval /= height;
         }
         break;
 
     case GL_RGBA8:
         {
-            minval = Color4::one();
-            maxval = Color4::zero();
+            // TODO: rewrite using SIMD PMAXUB and PMINUB to try and increase performance
+
             meanval = Color4::zero();
+            Color4uint8 mn(255,255,255,255);
+            Color4uint8 mx(0,0,0,0);
             // Compute mean along rows to avoid overflow
             for (int y = 0; y < height; ++y) {
                 const Color4uint8* ptr = ((const Color4uint8*)rawBytes) + (y * width);
-                Color4 rowsum = Color4::zero();
+                uint32 r = 0, g = 0, b = 0, a = 0;
                 for (int x = 0; x < width; ++x) {
-                    Color4 c = ptr[x];
-                    rowsum += c;
-                    minval = minval.min(c);
-                    maxval = maxval.max(c);
+                    const Color4uint8 i = ptr[x];
+                    const Color4 c(i);
+                    mn = mn.min(i);
+                    mx = mx.min(i);
+                    r += i.r; g += i.g; b += i.b; a += i.a;
                 }
-                meanval += rowsum / width;
+                meanval += Color4(float(r) / width, float(g) / width, float(b) / width, float(a) / width);
             }
+            minval = mn;
+            maxval = mx;
             meanval = meanval / height;
         }
         break;
