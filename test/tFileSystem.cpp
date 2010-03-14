@@ -18,6 +18,12 @@ void testFileSystem() {
     debugAssert(files.contains("Any-load.txt"));
     debugAssert(files.contains("apiTest.zip"));
 
+    // Directory listing
+    files.clear();
+    FileSystem::getFiles("*.zip", files);
+    debugAssert(files.contains("apiTest.zip"));
+    debugAssert(files.size() == 1);
+
     // Directory listing inside zipfile
     files.clear();
     debugAssert(FileSystem::exists("apiTest.zip"));
