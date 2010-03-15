@@ -3,9 +3,11 @@
 void testFileSystem() {
     printf("FileSystem...");
 
+    debugAssert(g3dfnmatch("*.zip", "hello.not", FNM_PERIOD | FNM_NOESCAPE | FNM_PATHNAME) == FNM_NOMATCH);
+    debugAssert(g3dfnmatch("*.zip", "hello.zip", FNM_PERIOD | FNM_NOESCAPE | FNM_PATHNAME) == 0);
 
-    debugAssert(FilePath::matches("hello", "*"));
-    debugAssert(FilePath::matches("hello", "*", FNM_CASEFOLD));
+    debugAssert(FilePath::matches("hello", "*", false));
+    debugAssert(FilePath::matches("hello", "*", true));
 
     chdir("TestDir");
     std::string cwd = FileSystem::currentDirectory();

@@ -704,7 +704,11 @@ bool FilePath::containsWildcards(const std::string& filename) {
 }
 
 
-bool FilePath::matches(const std::string& path, const std::string& pattern, int flags) {
+bool FilePath::matches(const std::string& path, const std::string& pattern, bool caseSensitive) {
+    int flags = FNM_PERIOD | FNM_NOESCAPE | FNM_PATHNAME;
+    if (!  caseSensitive) {
+        flags |= FNM_CASEFOLD;
+    }
     return g3dfnmatch(pattern.c_str(), path.c_str(), flags) == 0;
 }
 
