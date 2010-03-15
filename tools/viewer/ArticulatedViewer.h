@@ -28,6 +28,7 @@ private:
     SuperSurface::GPUGeom::Ref  m_selectedGeom;
 
     float                       m_scale;
+    Vector3                     m_offset;
 
 
 public:

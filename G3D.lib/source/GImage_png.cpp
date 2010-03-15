@@ -184,7 +184,7 @@ void GImage::decodePNG(
     int bit_depth, color_type, interlace_type;
     // this will validate the data it extracts from info_ptr
     png_get_IHDR(png_ptr, info_ptr, &png_width, &png_height, &bit_depth, &color_type,
-       &interlace_type, int_p_NULL, int_p_NULL);
+       &interlace_type, NULL, NULL);
 
     if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
@@ -206,7 +206,7 @@ void GImage::decodePNG(
 
     //Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel
     if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
-        png_set_gray_1_2_4_to_8(png_ptr);
+        png_set_expand(png_ptr);
     }
 
     //Expand paletted or RGB images with transparency to full alpha channels
@@ -253,7 +253,7 @@ void GImage::decodePNG(
     for (uint32 pass = 0; pass < number_passes; ++pass) {
         for (uint32 y = 0; y < (uint32)m_height; ++y) {
             png_bytep rowPointer = &m_byte[m_width * m_channels * y]; 
-            png_read_rows(png_ptr, &rowPointer, png_bytepp_NULL, 1);
+            png_read_rows(png_ptr, &rowPointer, NULL, 1);
         }
     }
 

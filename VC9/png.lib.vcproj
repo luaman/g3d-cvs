@@ -103,10 +103,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\png.lib\source\pnggccrd.c"
-				>
-			</File>
-			<File
 				RelativePath="..\png.lib\source\pngget.c"
 				>
 			</File>
@@ -116,6 +112,10 @@
 			</File>
 			<File
 				RelativePath="..\png.lib\source\pngpread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\png.lib\source\pngpriv.h"
 				>
 			</File>
 			<File
@@ -140,10 +140,6 @@
 			</File>
 			<File
 				RelativePath="..\png.lib\source\pngtrans.c"
-				>
-			</File>
-			<File
-				RelativePath="..\png.lib\source\pngvcrd.c"
 				>
 			</File>
 			<File

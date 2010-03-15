@@ -36,6 +36,8 @@ void ArticulatedViewer::onInit(const std::string& filename) {
         m_numFaces += ((partArray[y].indexArray.size())/3);
     }
     
+    m_scale = 1;
+    m_offset = Vector3::zero();
     bool overwrite = true;
     
     // Find the size of the bounding box of the entire model
@@ -80,6 +82,7 @@ void ArticulatedViewer::onInit(const std::string& filename) {
         }
 
         m_scale = scale;
+        m_offset = -scale * center;
 
         if (! center.isFinite()) {
             center = Vector3();
@@ -148,7 +151,7 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
     }
     posed3D.fastClear();
 
-    screenPrintf("(Shown scaled by %f)\n", m_scale);
+    screenPrintf("[Shown scaled by %f and offset by (%f, %f, %f)]\n", m_scale, m_offset.x, m_offset.y, m_offset.z);
     
     screenPrintf("Model Faces: %d,  Vertices: %d\n", m_numFaces, m_numVertices);
     if (m_selectedGeom.notNull()) {
