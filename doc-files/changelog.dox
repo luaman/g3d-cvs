@@ -11,7 +11,7 @@
 <hr>
    Highlights of 8.00:
      <ul>
-       <li> Fully supports hardware OpenGL 1.3 through 3.2, plus software rendering via Mesa and ray tracing
+       <li> Fully supports hardware OpenGL 1.3 through 4.0, plus software rendering via Mesa and ray tracing
        <li> New MD3 model import
        <li> Built-in screen capture and video playback
        <li> Built-in tone mapping and bloom
@@ -39,6 +39,7 @@
      <li> G3D::FileSystem
      <li> G3D::FilePath
      <li> Upgraded to libpng 1.4.1
+     <li> Upgraded to glew 1.5.3
      <li> G3D::BinaryInput::readStringNewline
      <li> G3D::fileExists now caches results by default; see new optional argument and G3D::clearFileSystemCache
      <li> G3D::Surface::AlphaMode
@@ -48,7 +49,6 @@
      <li> Tuned bloom appearance under G3D::Film
      <li> G3D::SuperShader::configureSingleLightShaderArgs
      <li> G3D::VideoRecordDialog now exposes quality setting in both GUI and code
-     <li> Upgraded to GLEW 1.5.2
      <li> G3D::Texture enums now have to/from string methods for parsing
      <li> G3D::ArticulatedModel::createHeightfield
      <li> G3D::GuiWindow with NO_WINDOW_STYLE now stays in the background when focused.
