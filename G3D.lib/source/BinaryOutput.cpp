@@ -5,7 +5,7 @@
  Copyright 2002-2010, Morgan McGuire, All rights reserved.
  
  @created 2002-02-20
- @edited  2010-02-07
+ @edited  2010-03-17
  */
 
 #include "G3D/platform.h"
@@ -15,6 +15,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/Array.h"
 #include <zlib.h>
+#include "G3D/Log.h"
 
 #include <cstring>
 
@@ -326,6 +327,9 @@ void BinaryOutput::commit(bool flush) {
 
     FILE* file = FileSystem::fopen(m_filename.c_str(), mode);
 
+    if (! file) {
+        logPrintf("Error %d while trying to open \"%s\"\n", errno, m_filename.c_str());
+    }
     m_ok = (file != NULL) && m_ok;
 
     if (m_ok) {
