@@ -373,7 +373,7 @@ TextureRef Texture::white() {
 }
 
 
-TextureRef Texture::black() {
+TextureRef Texture::zero() {
     static WeakReferenceCountedPointer<Texture> cache;
     
     TextureRef t = cache.createStrongPtr();
@@ -381,7 +381,23 @@ TextureRef Texture::black() {
         // Cache is empty                                                                                      
         GImage im(8, 8, 4);
         System::memset(im.byte(), 0x00, im.width() * im.height() * im.channels());
-        t = Texture::fromGImage("Black", im);
+        t = Texture::fromGImage("Zero", im);
+        
+        cache = t;
+    }
+    
+    return t;
+}
+
+TextureRef Texture::opaqueBlack() {
+    static WeakReferenceCountedPointer<Texture> cache;
+    
+    TextureRef t = cache.createStrongPtr();
+    if (t.isNull()) {
+        // Cache is empty                                                                                      
+        GImage im(8, 8, 4);
+        System::memset(im.byte(), 0x00, im.width() * im.height() * im.channels());
+        t = Texture::fromGImage("Opaque Black", im);
         
         cache = t;
     }
@@ -390,15 +406,17 @@ TextureRef Texture::black() {
 }
 
 
-TextureRef Texture::gray() {
+TextureRef Texture::opaqueGray() {
     static WeakReferenceCountedPointer<Texture> cache;
     
     TextureRef t = cache.createStrongPtr();
     if (t.isNull()) {
         // Cache is empty                                                                                      
         GImage im(8, 8, 4);
-        System::memset(im.byte(), 0x7F, im.width() * im.height() * im.channels());
-        t = Texture::fromGImage("Black", im);
+        for (int i = 0; i < im.width() * im.height(); ++i) {
+            im.pixel4()[i] = Color4uint8(0x7f, 0x7f, 0x7f, 0xff);
+        }
+        t = Texture::fromGImage("Gray", im);
         
         cache = t;
     }

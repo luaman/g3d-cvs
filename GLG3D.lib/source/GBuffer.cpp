@@ -333,7 +333,7 @@ void GBuffer::compute
                 const SuperBSDF::Ref& bsdf = geom->material->bsdf();
 
                 m_positionShader->args.set("lambertianConstant", bsdf->lambertian().constant());
-                m_positionShader->args.set("lambertianMap", Texture::blackIfNull(bsdf->lambertian().texture()));
+                m_positionShader->args.set("lambertianMap", Texture::opaqueBlackIfNull(bsdf->lambertian().texture()));
 
                 rd->setObjectToWorldMatrix(model->coordinateFrame());
                 rd->setVARs(geom->vertex, geom->normal, geom->texCoord0, geom->packedTangent);

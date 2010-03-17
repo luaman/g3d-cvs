@@ -269,17 +269,23 @@ public:
         or future calls will return the mutated texture as well. */
     static Texture::Ref white();
 
-    /** @brief Returns a small all-black (0,0,0,0) texture.  
+    /** @brief Returns a small opaque all-black (0,0,0,1) texture.  
     
         The result is memoized and shared. Do not mutate this texture
         or future calls will return the mutated texture as well. */
-    static Texture::Ref black();
+    static Texture::Ref opaqueBlack();
 
-    /** @brief Returns a small all-grayk (0.5,0.5,0.5,0.5) texture.  
+    /** @brief Returns a small, all zero Color4(0,0,0,0) texture.  
     
         The result is memoized and shared. Do not mutate this texture
         or future calls will return the mutated texture as well. */
-    static Texture::Ref gray();
+    static Texture::Ref zero();
+
+    /** @brief Returns a small all-gray (0.5,0.5,0.5,1) texture.  
+    
+        The result is memoized and shared. Do not mutate this texture
+        or future calls will return the mutated texture as well. */
+    static Texture::Ref opaqueGray();
 
     /** Creates a new 1x1 texture in this color. Colors are not cached.*/
     static Texture::Ref createColor(const Color3uint8& c);
@@ -301,19 +307,28 @@ public:
         }
     }
 
-    /** Returns \a t if it is non-NULL, or white() if \a t is NULL */
-    inline static Texture::Ref blackIfNull(const Texture::Ref& t) {
+    /** Returns \a t if it is non-NULL, or opaqueBlack() if \a t is NULL */
+    inline static Texture::Ref opaqueBlackIfNull(const Texture::Ref& t) {
         if (t.isNull()) {
-            return black();
+            return opaqueBlack();
+        } else {
+            return t;
+        }
+    }
+
+    /** Returns \a t if it is non-NULL, or zero() if \a t is NULL */
+    inline static Texture::Ref zeroIfNull(const Texture::Ref& t) {
+        if (t.isNull()) {
+            return zero();
         } else {
             return t;
         }
     }
 
     /** Returns \a t if it is non-NULL, or gray() if \a t is NULL */
-    inline static Texture::Ref grayIfNull(const Texture::Ref& t) {
+    inline static Texture::Ref opaqueGrayIfNull(const Texture::Ref& t) {
         if (t.isNull()) {
-            return gray();
+            return opaqueGray();
         } else {
             return t;
         }
