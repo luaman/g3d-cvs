@@ -396,7 +396,9 @@ TextureRef Texture::opaqueBlack() {
     if (t.isNull()) {
         // Cache is empty                                                                                      
         GImage im(8, 8, 4);
-        System::memset(im.byte(), 0x00, im.width() * im.height() * im.channels());
+        for (int i = 0; i < im.width() * im.height(); ++i) {
+            im.pixel4()[i] = Color4uint8(0, 0, 0, 0xff);
+        }
         t = Texture::fromGImage("Opaque Black", im);
         
         cache = t;
