@@ -136,7 +136,11 @@ private:
         int csP;
         int wsP;
 
-        int numAttach;
+        /** For the primary pass, which includes normals */
+        int numPrimaryAttach;
+
+        /** For the position pass */
+        int numPositionAttach;
         
         /** Indices of the FBO fields.  */
         Indices(const Specification& spec);

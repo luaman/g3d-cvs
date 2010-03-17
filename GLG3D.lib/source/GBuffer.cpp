@@ -30,18 +30,18 @@ GBuffer::Indices::Indices(const GBuffer::Specification& spec)
     if (spec.wsFaceNormal) {  wsF = i;  ++i;   }
     if (spec.packedDepth) {   z = i;    ++i;   }
     if (spec.custom) {        c = i;    ++i;   }
-
+    numPrimaryAttach = i;
 
     int j = 0;
     if (spec.wsPosition) {   wsP = j;    ++j;   }
     if (spec.csPosition) {   csP = j;    ++j;   }
 
-    numAttach = max(i, j);
+    numPositionAttach = j;
 
     int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
-    alwaysAssertM(maxAttach >= i, 
+    alwaysAssertM(max(numPrimaryAttach, numPositionAttach) >= i, 
         format("GBuffer requires a GL_MAX_COLOR_ATTACHMENTS value >= %d for this specification "
-               "(%d color attachments on this GPU)", i, maxAttach));
+               "(%d color attachments on this GPU)", i, max(numPrimaryAttach, numPositionAttach)));
 }
 
 std::string GBuffer::Indices::computeDefines() const {
@@ -205,14 +205,14 @@ void GBuffer::resize(int w, int h) {
     }
 
     if (m_framebuffer.isNull()) {
-        if (m_indices.numAttach > 0) {
+        if (m_indices.numPrimaryAttach > 0) {
             m_framebuffer = Framebuffer::create(m_name);
         }
     } else {
         m_framebuffer->clear();
     }
 
-    if (m_specification.wsPosition || m_specification.csPosition) {
+    if (m_indices.numPositionAttach > 0) {
         if (m_positionFramebuffer.isNull()) {
             m_positionFramebuffer = Framebuffer::create(m_name + " position");
         } else {
@@ -295,7 +295,7 @@ void GBuffer::compute
     
     SuperSurface::sortFrontToBack(genericArray, camera.coordinateFrame().lookVector());
 
-    if (m_indices.numAttach > 0) {
+    if (m_indices.numPrimaryAttach > 0) {
         rd->pushState(m_framebuffer);
         {
             rd->setProjectionAndCameraMatrix(camera);
@@ -312,11 +312,11 @@ void GBuffer::compute
         rd->popState();
     }
 
-    if (m_specification.wsPosition || m_specification.csPosition) {
+    if (m_indices.numPositionAttach > 0) {
         rd->pushState(m_positionFramebuffer);
         {
             // Only clear depth if it was not previously written 
-            bool d = rd->depthWrite() && (m_indices.numAttach == 0);
+            bool d = rd->depthWrite() && (m_indices.numPrimaryAttach == 0);
             rd->setColorClearValue(Color4::zero());
             rd->clear(true, d, false);
             rd->setDepthWrite(d);
