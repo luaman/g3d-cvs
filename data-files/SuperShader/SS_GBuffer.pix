@@ -63,7 +63,7 @@ void main(void) {
         vec4 lambertianColor = vec4(vec3(0.0), 1.0);
 #   endif
 
-#   if (LAMBERTIAN_INDEX >= -1)
+#   if (LAMBERTIAN_INDEX >= 0)
         gl_FragData[LAMBERTIAN_INDEX].rgba = lambertianColor.rgba;
 #   endif
 
