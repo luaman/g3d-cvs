@@ -324,7 +324,7 @@ void BinaryOutput::commit(bool flush) {
 
     const char* mode = (m_alreadyWritten > 0) ? "ab" : "wb";
 
-    FILE* file = fopen(m_filename.c_str(), mode);
+    FILE* file = FileSystem::fopen(m_filename.c_str(), mode);
 
     m_ok = (file != NULL) && m_ok;
 
@@ -341,7 +341,7 @@ void BinaryOutput::commit(bool flush) {
         if (flush) {
             fflush(file);
         }
-        fclose(file);
+        FileSystem::fclose(file);
         file = NULL;
     }
 }

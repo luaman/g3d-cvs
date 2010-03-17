@@ -39,7 +39,7 @@ void App::onInit() {
 
     m_scene = Scene::create();
 
-    m_gbuffer = GBuffer::create("GBuffer");
+    m_gbuffer = GBuffer::create("GBuffer", spec);
     m_gbuffer->resize((window()->width() - 4) / 2, window()->height() - GUI_HEIGHT - 2);
 
     GuiTheme::Ref theme = debugWindow->theme();

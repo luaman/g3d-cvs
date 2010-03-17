@@ -354,7 +354,7 @@ void FileSystem::_createDirectory(const std::string& dir) {
     }
 
     // If it already exists, do nothing
-    if (_exists(d.substr(0, d.size() - 1))) {
+    if (_exists(FilePath::removeTrailingSlash(d))) {
         return;
     }
 
@@ -405,6 +405,15 @@ void FileSystem::_copyFile(const std::string& source, const std::string& dest) {
 
 
 bool FileSystem::_exists(const std::string& f, bool trustCache) {
+
+    if (FilePath::isRoot(f)) {
+#       ifdef G3D_WIN32
+            const std::string& winname = toLower(f.substr(0, 1)) + ":\\";
+            return _drives().contains(winname);
+#       else
+            return true;
+#       endif
+    }
 
     std::string path = FilePath::removeTrailingSlash(f);
     std::string parentPath = FilePath::parentPath(path);
@@ -581,7 +590,7 @@ const Array<std::string>& FileSystem::_drives() {
         // Drive list is a series of NULL-terminated strings, itself terminated with a NULL.
         for (int i = 0; bufData[i] != '\0'; ++i) {
             const char* thisString = bufData + i;
-            m_winDrive.append(thisString);
+            m_winDrive.append(toLower(thisString));
             i += strlen(thisString) + 1;
         }
     }

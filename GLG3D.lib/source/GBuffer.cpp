@@ -128,7 +128,7 @@ GBuffer::GBuffer(const std::string& name, const Specification& specification) :
 
 
 Shader::Ref GBuffer::makePositionShader() {
-        // Compute the position shader
+    // Compute the position shader
     typedef Table<std::string, Shader::Ref> ShaderCache;
 
     static ShaderCache shaderCache;
@@ -147,8 +147,8 @@ Shader::Ref GBuffer::makePositionShader() {
             chdir(path.c_str());
         }
 
-        const std::string vertexCode = readWholeFile("SS_NonShadowedPass.vrt");
-        const std::string pixelCode  = readWholeFile("SS_GBufferPosition.pix");
+        const std::string& vertexCode = readWholeFile("SS_NonShadowedPass.vrt");
+        const std::string& pixelCode  = readWholeFile("SS_GBufferPosition.pix");
         shader = Shader::fromStrings(macros + vertexCode, macros + pixelCode);
         shader->setPreserveState(false);
 
@@ -159,6 +159,7 @@ Shader::Ref GBuffer::makePositionShader() {
 
     return shader;
 }
+
 
 GBuffer::~GBuffer() {
 }

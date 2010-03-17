@@ -132,7 +132,7 @@ private:
         int wsF;
         int z;
         int c;
-
+        
         int csP;
         int wsP;
 
