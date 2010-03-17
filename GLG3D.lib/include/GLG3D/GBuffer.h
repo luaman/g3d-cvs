@@ -32,24 +32,35 @@ public:
 
     class Specification {
     public:
-        /** World space shading normal in RGB (after bump mapping). */
-        bool                  normal;
+
+        /** World-space shading normal in RGB (after bump mapping). */
+        bool                  wsNormal;
+
+        /** Camera-space shading normal in RGB (after bump mapping). */
+        bool                  csNormal;
+
         bool                  lambertian;
         bool                  specular;
         bool                  transmissive;
         bool                  emissive;
 
-        /** World space triangle normal in RGB. */
-        bool                  faceNormal;
+        /** World-space triangle normal in RGB. */
+        bool                  wsFaceNormal;
 
-        /** Packed camera space depth */
+        /** Camera-space triangle normal in RGB. */
+        bool                  csFaceNormal;
+
+        /** Packed camera-space depth. */
         bool                  packedDepth;
 
-        /** The Material "custom" channel */
+        /** The G3D::Material "custom" channel */
         bool                  custom;
 
-        /** World space position in RGB. */
-        bool                  position;
+        /** World-space position in RGB. */
+        bool                  wsPosition;
+
+        /** Camera-space position in RGB. */
+        bool                  csPosition;
 
         /** Must contain four channels */
         const ImageFormat*    format;
@@ -60,15 +71,18 @@ public:
         const ImageFormat*    positionFormat;
 
         Specification() : 
-            normal(true),
+            wsNormal(true),
+            csNormal(false),
             lambertian(true),
             specular(true),
             transmissive(false),
             emissive(false),
-            faceNormal(false),
+            csFaceNormal(false),
+            wsFaceNormal(false),
             packedDepth(false),
             custom(false),
-            position(false),
+            csPosition(false),
+            wsPosition(false),
             format(ImageFormat::RGBA8()),
             depthFormat(ImageFormat::DEPTH24()), 
             positionFormat(ImageFormat::RGB16F()) {
@@ -76,15 +90,18 @@ public:
 
         size_t hashCode() const {
             return 
-                 int(normal) |
-                (int(lambertian)  << 1) |
-                (int(specular)    << 2) |
-                (int(transmissive)<< 4) |
-                (int(emissive)    << 5) |
-                (int(faceNormal)  << 6) |
-                (int(packedDepth) << 7) |
-                (int(position)    << 8) |
-                (int(custom)      << 9);
+                 int(wsNormal)           |
+                (int(csNormal)    << 1)  |
+                (int(lambertian)  << 2)  |
+                (int(specular)    << 3)  |
+                (int(transmissive)<< 4)  |
+                (int(emissive)    << 5)  |
+                (int(csFaceNormal)<< 6)  |
+                (int(wsFaceNormal)<< 7)  |
+                (int(packedDepth) << 8)  |
+                (int(custom)      << 9)  |
+                (int(csPosition)  << 10) |
+                (int(wsPosition)  << 11);
         }
 
         /** Can be used with G3D::Table as an Equals function */
@@ -109,16 +126,26 @@ private:
         int s;
         int t;
         int e;
-        int n;
-        int f;
+        int csN;
+        int wsN;
+        int csF;
+        int wsF;
         int z;
         int c;
+
+        int csP;
+        int wsP;
 
         int numAttach;
         
         /** Indices of the FBO fields.  */
         Indices(const Specification& spec);
+
+        /** For the primary pass */
         std::string computeDefines() const;
+
+        /** For the position pass */
+        std::string computePositionDefines() const;
     };
 
     std::string                 m_name;
@@ -148,15 +175,17 @@ private:
 
     Texture::Ref                m_emissive;
 
-    /** World-space unit normal. */
-    Texture::Ref                m_normal;
+    Texture::Ref                m_csNormal;
+    Texture::Ref                m_wsNormal;
 
-    Texture::Ref                m_faceNormal;
+    Texture::Ref                m_wsFaceNormal;
+    Texture::Ref                m_csFaceNormal;
 
     Texture::Ref                m_packedDepth;
 
     /** World-space position */
-    Texture::Ref                m_position;
+    Texture::Ref                m_wsPosition;
+    Texture::Ref                m_csPosition;
 
     /** Depth texture. */
     Texture::Ref                m_depth;
@@ -169,11 +198,14 @@ private:
 
     GBuffer(const std::string& name, const Specification& specification);
 
-    void computeGeneric
+    /** Called from the constructor */
+    Shader::Ref makePositionShader();
+
+    void compute
     (RenderDevice* rd, 
      const SuperSurface::Ref& model) const;
 
-    void computeGenericArray
+    void computeArray
     (RenderDevice* rd, 
      const Array<SuperSurface::Ref>& model) const;
 
@@ -234,18 +266,33 @@ public:
     }
 
     /** World-space position */
-    Texture::Ref position() const {
-        return m_position;
+    Texture::Ref wsPosition() const {
+        return m_wsPosition;
+    }
+
+    /** Camera-space position */
+    Texture::Ref csPosition() const {
+        return m_csPosition;
+    }
+
+    /** Camera-space unit shading normal, after bump mapping. */
+    Texture::Ref csNormal() const {
+        return m_csNormal;
     }
 
     /** World-space unit shading normal, after bump mapping. */
-    Texture::Ref normal() const {
-        return m_normal;
+    Texture::Ref wsNormal() const {
+        return m_wsNormal;
     }
 
-    /** Geometric normal */
-    Texture::Ref faceNormal() const {
-        return m_faceNormal;
+    /** World-space geometric normal */
+    Texture::Ref wsFaceNormal() const {
+        return m_wsFaceNormal;
+    }
+
+    /** World-space geometric normal */
+    Texture::Ref csFaceNormal() const {
+        return m_csFaceNormal;
     }
 
     /** Camera space depth */

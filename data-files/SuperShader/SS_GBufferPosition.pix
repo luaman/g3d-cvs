@@ -17,6 +17,13 @@ void main(void) {
         }
 #   endif
 
-    gl_FragData[0].rgb = wsPosition;
+#   if (WS_POSITION_INDEX >= 0)
+        gl_FragData[WS_POSITION_INDEX].rgb = wsPosition;
+#   endif
+
+#   if (CS_POSITION_INDEX >= 0)
+        gl_FragData[CS_POSITION_INDEX].rgb = (g3d_WorldToCameraMatrix * vec4(wsPosition, 1.0)).xyz;
+#   endif
+
     gl_FragData[0].a = 1.0;
 }

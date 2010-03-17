@@ -16,20 +16,27 @@
 namespace G3D {
 
 GBuffer::Indices::Indices(const GBuffer::Specification& spec) 
-    : L(-1), s(-1), t(-1), e(-1), n(-1), f(-1), z(-1), c(-1) {
+    : L(-1), s(-1), t(-1), e(-1), wsN(-1), csN(-1), csF(-1), wsF(-1), z(-1), c(-1), csP(-1), wsP(-1) {
 
     int i = 0;
 
-    if (spec.lambertian) {    L = i;  ++i;   }
-    if (spec.specular) {      s = i;  ++i;   }
-    if (spec.transmissive) {  t = i;  ++i;   }
-    if (spec.emissive) {      e = i;  ++i;   }
-    if (spec.normal) {        n = i;  ++i;   }
-    if (spec.faceNormal) {    f = i;  ++i;   }
-    if (spec.packedDepth) {   z = i;  ++i;   }
-    if (spec.custom) {        c = i;  ++i;   }
+    if (spec.lambertian) {    L = i;    ++i;   }
+    if (spec.specular) {      s = i;    ++i;   }
+    if (spec.transmissive) {  t = i;    ++i;   }
+    if (spec.emissive) {      e = i;    ++i;   }
+    if (spec.csNormal) {      csN = i;  ++i;   }
+    if (spec.wsNormal) {      wsN = i;  ++i;   }
+    if (spec.csFaceNormal) {  csF = i;  ++i;   }
+    if (spec.wsFaceNormal) {  wsF = i;  ++i;   }
+    if (spec.packedDepth) {   z = i;    ++i;   }
+    if (spec.custom) {        c = i;    ++i;   }
 
-    numAttach = i;
+
+    int j = 0;
+    if (spec.wsPosition) {   wsP = j;    ++j;   }
+    if (spec.csPosition) {   csP = j;    ++j;   }
+
+    numAttach = max(i, j);
 
     int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
     alwaysAssertM(maxAttach >= i, 
@@ -43,11 +50,20 @@ std::string GBuffer::Indices::computeDefines() const {
                "#define SPECULAR_INDEX (%d)\n"
                "#define TRANSMISSIVE_INDEX (%d)\n"
                "#define EMISSIVE_INDEX (%d)\n"
-               "#define NORMAL_INDEX (%d)\n"
-               "#define FACE_NORMAL_INDEX (%d)\n"
+               "#define CS_NORMAL_INDEX (%d)\n"
+               "#define WS_NORMAL_INDEX (%d)\n"
+               "#define CS_FACE_NORMAL_INDEX (%d)\n"
+               "#define WS_FACE_NORMAL_INDEX (%d)\n"
                "#define PACKED_DEPTH_INDEX (%d)\n" 
-               "#define CUSTOM_INDEX (%d)\n", 
-               L, s, t, e, n, f, z, c);
+               "#define CUSTOM_INDEX (%d)\n",
+               L, s, t, e, csN, wsN, csF, wsF, z, c);
+}
+
+
+std::string GBuffer::Indices::computePositionDefines() const {
+    return 
+        format("#define WS_POSITION_INDEX (%d)\n"
+               "#define CS_POSITION_INDEX (%d)\n", wsP, csP);
 }
 
 
@@ -106,12 +122,22 @@ GBuffer::GBuffer(const std::string& name, const Specification& specification) :
 
     alwaysAssertM(supported(), "GBuffer requires pixel and vertex shaders.");
 
-    // Keep a cached copy of the shader
-    static WeakReferenceCountedPointer<Shader> globalPositionShader;
+    m_positionShader = makePositionShader();
 
-    m_positionShader = globalPositionShader.createStrongPtr();
+}
 
-    if (m_positionShader.isNull()) {
+
+Shader::Ref GBuffer::makePositionShader() {
+        // Compute the position shader
+    typedef Table<std::string, Shader::Ref> ShaderCache;
+
+    static ShaderCache shaderCache;
+    
+    const std::string& macros = m_indices.computePositionDefines();
+
+    Shader::Ref& shader = shaderCache.getCreate(macros);
+
+    if (shader.isNull()) {
 
         const std::string& path = FilePath::parentPath(System::findDataFile("SS_NonShadowedPass.vrt"));
         const std::string& currentPath = FileSystem::currentDirectory();
@@ -121,16 +147,18 @@ GBuffer::GBuffer(const std::string& name, const Specification& specification) :
             chdir(path.c_str());
         }
 
-        m_positionShader = Shader::fromFiles("SS_NonShadowedPass.vrt", "SS_GBufferPosition.pix");
-        m_positionShader->setPreserveState(false);
-        globalPositionShader = m_positionShader;
+        const std::string vertexCode = readWholeFile("SS_NonShadowedPass.vrt");
+        const std::string pixelCode  = readWholeFile("SS_GBufferPosition.pix");
+        shader = Shader::fromStrings(macros + vertexCode, macros + pixelCode);
+        shader->setPreserveState(false);
 
         if (path != currentPath) {
             chdir(currentPath.c_str());
         }
     }
-}
 
+    return shader;
+}
 
 GBuffer::~GBuffer() {
 }
@@ -183,7 +211,7 @@ void GBuffer::resize(int w, int h) {
         m_framebuffer->clear();
     }
 
-    if (m_specification.position) {
+    if (m_specification.wsPosition || m_specification.csPosition) {
         if (m_positionFramebuffer.isNull()) {
             m_positionFramebuffer = Framebuffer::create(m_name + " position");
         } else {
@@ -195,11 +223,14 @@ void GBuffer::resize(int w, int h) {
     m_lambertian   = NULL;
     m_specular     = NULL;
     m_transmissive = NULL;
-    m_position     = NULL;
+    m_wsPosition   = NULL;
+    m_csPosition   = NULL;
     m_emissive     = NULL;
     m_packedDepth  = NULL;
-    m_normal       = NULL;
-    m_faceNormal   = NULL;
+    m_csNormal     = NULL;
+    m_wsNormal     = NULL;
+    m_csFaceNormal = NULL;
+    m_wsFaceNormal = NULL;
     m_depth        = NULL;
 
     Texture::Settings settings = Texture::Settings::buffer();
@@ -214,8 +245,10 @@ void GBuffer::resize(int w, int h) {
     BUFFER(specular, s);
     BUFFER(transmissive, t);
     BUFFER(emissive, e);
-    BUFFER(normal, n);
-    BUFFER(faceNormal, f);
+    BUFFER(csNormal, csN);
+    BUFFER(wsNormal, wsN);
+    BUFFER(csFaceNormal, csF);
+    BUFFER(wsFaceNormal, wsF);
     BUFFER(packedDepth, z);
 
 #   undef BUFFER
@@ -223,9 +256,17 @@ void GBuffer::resize(int w, int h) {
     m_depth = Texture::createEmpty("Depth", w, h, m_specification.depthFormat, Texture::DIM_2D_NPOT, settings);
     m_framebuffer->set(Framebuffer::DEPTH, m_depth);
 
-    if (m_specification.position) {
-        m_position     = Texture::createEmpty("Position", w, h, m_specification.positionFormat, Texture::DIM_2D_NPOT, settings);
-        m_positionFramebuffer->set(Framebuffer::COLOR0, m_position);
+    if (m_specification.wsPosition || m_specification.csPosition) {
+
+        if (m_indices.wsP >= 0) {
+            m_wsPosition     = Texture::createEmpty("wsPosition", w, h, m_specification.positionFormat, Texture::DIM_2D_NPOT, settings);
+            m_positionFramebuffer->set(Framebuffer::AttachmentPoint(Framebuffer::COLOR0 + m_indices.wsP), m_wsPosition);
+        }
+        if (m_indices.csP >= 0) {
+            m_csPosition     = Texture::createEmpty("csPosition", w, h, m_specification.positionFormat, Texture::DIM_2D_NPOT, settings);
+            m_positionFramebuffer->set(Framebuffer::AttachmentPoint(Framebuffer::COLOR0 + m_indices.csP), m_csPosition);
+        }
+
         m_positionFramebuffer->set(Framebuffer::DEPTH, m_depth);
     }
 }
@@ -265,12 +306,12 @@ void GBuffer::compute
             // get wiped after the early z.
             rd->clear(true, rd->depthWrite(), false);
             
-            computeGenericArray(rd, genericArray);
+            computeArray(rd, genericArray);
         }
         rd->popState();
     }
 
-    if (m_specification.position) {
+    if (m_specification.wsPosition || m_specification.csPosition) {
         rd->pushState(m_positionFramebuffer);
         {
             // Only clear depth if it was not previously written 
@@ -314,13 +355,13 @@ void GBuffer::compute
 }
 
 
-void GBuffer::computeGenericArray
+void GBuffer::computeArray
 (RenderDevice* rd, 
  const Array<SuperSurface::Ref>& genericArray) const {
    
     rd->beginIndexedPrimitives();
     for (int m = 0; m < genericArray.size(); ++m) {
-        computeGeneric(rd, genericArray[m]);
+        compute(rd, genericArray[m]);
     }
     rd->endIndexedPrimitives();
 }
@@ -328,7 +369,7 @@ void GBuffer::computeGenericArray
 
 
 
-void GBuffer::computeGeneric
+void GBuffer::compute
 (RenderDevice* rd,
  const SuperSurface::Ref& model) const {
 

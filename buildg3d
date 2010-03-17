@@ -462,7 +462,12 @@ def docTarget():
     # replace reference counted pointer links in documentation
     remapper = ice.doxygen.DoxygenRefLinkRemapper()
     remapper.remap('build/manual', 'build/manual')
+    
+    return dataTarget()
 
+##################################################################################
+
+def dataTarget():
     # Generate demos and support
     copyIfNewer('data-files', 'build/data')
     copyIfNewer('../data', 'build/data')
@@ -770,8 +775,10 @@ update     lib + tools + doc + jar
 lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers. Also build
            all dependencies (e.g., zlib, libpng)
 
+data       Copy over data-files (and ../data/, if you have it)
+
 doc        Generate documentation using Doxygen and copy over data-files
-           (and ../data/ if you have it)
+           (and ../data/, if you have it)
 
 tools      Build gfxmeter and viewer applications and copy
            copyifnewer and icompile
@@ -849,7 +856,7 @@ if __name__ == "__main__":
         [libTarget, cleanTarget, testTarget,
          docTarget, allTarget, srcTarget, toolsTarget,
          jarTarget, helpTarget, updateTarget, 
-         ffmpegWinTarget, ffmpegCCTarget])
+         ffmpegWinTarget, ffmpegCCTarget, dataTarget])
 
     if (code == 0) and (sys.argv[1] != 'help') and doInstall:
         install()

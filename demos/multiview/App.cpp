@@ -65,7 +65,7 @@ void App::onInit() {
     GuiPane* pane = background->pane();
 
     pane->addLabel("Buffers:");
-    GuiTextureBox* norBox = pane->addTextureBox("Normal", m_gbuffer->normal(), GuiTextureBox::Settings::unitVector());
+    GuiTextureBox* norBox = pane->addTextureBox("Normal", m_gbuffer->wsNormal(), GuiTextureBox::Settings::unitVector());
     norBox->setSizeFromInterior(gbufferViewSize);
     norBox->setShowInfo(false);
     norBox->zoomToFit();
