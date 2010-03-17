@@ -39,7 +39,9 @@ void App::onInit() {
 
     m_scene = Scene::create();
 
-    m_gbuffer = GBuffer::create("GBuffer");
+    GBuffer::Specification specification;
+    specification.wsPosition = true;
+    m_gbuffer = GBuffer::create("GBuffer", specification);
     m_gbuffer->resize((window()->width() - 4) / 2, window()->height() - GUI_HEIGHT - 2);
 
     GuiTheme::Ref theme = debugWindow->theme();
@@ -61,11 +63,17 @@ void App::onInit() {
 
     GuiWindow::Ref background = GuiWindow::create("", theme, renderDevice->viewport(), GuiTheme::NO_WINDOW_STYLE);
 
-    Vector2 gbufferViewSize(190, 190 * m_gbuffer->height() / m_gbuffer->width());
+    Vector2 gbufferViewSize(160, 160 * m_gbuffer->height() / m_gbuffer->width());
     GuiPane* pane = background->pane();
 
     pane->addLabel("Buffers:");
+    GuiTextureBox* posBox = pane->addTextureBox("Position", m_gbuffer->wsPosition(), GuiTextureBox::Settings::unitVector());
+    posBox->setSizeFromInterior(gbufferViewSize);
+    posBox->setShowInfo(false);
+    posBox->zoomToFit();
+
     GuiTextureBox* norBox = pane->addTextureBox("Normal", m_gbuffer->wsNormal(), GuiTextureBox::Settings::unitVector());
+    norBox->moveRightOf(posBox);
     norBox->setSizeFromInterior(gbufferViewSize);
     norBox->setShowInfo(false);
     norBox->zoomToFit();

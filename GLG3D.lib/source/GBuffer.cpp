@@ -320,6 +320,7 @@ void GBuffer::compute
             rd->setColorClearValue(Color4::zero());
             rd->clear(true, d, false);
             rd->setDepthWrite(d);
+            rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
 
             rd->setProjectionAndCameraMatrix(camera);
             
