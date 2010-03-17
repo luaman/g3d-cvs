@@ -48,7 +48,7 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
     lighting->lightArray.append(GLight::directional(Vector3::unitY(), Color3::white()));
     renderDevice->setColorClearValue(Color3::black());
 }
-
+/*
 
 static void renderSomething(RenderDevice* rd) {
     rd->setObjectToWorldMatrix(CFrame());
@@ -59,6 +59,7 @@ static void renderSomething(RenderDevice* rd) {
     Draw::box(Box(Vector3(-5, 3, -1), Vector3(-3, 5, 1)), rd, Color3::red(), Color3::black());
     Draw::box(Box(Vector3(3, -5, -1), Vector3(5, -3, 1)), rd, Color3::white(), Color3::black());  
 }
+*/
 
 void drawRect(const Rect2D& rect, RenderDevice* rd) {
     rd->beginPrimitive(PrimitiveType::QUADS);
@@ -116,6 +117,7 @@ void App::onInit() {
     GuiPane* p0 = t->addTab("Alpha");
     GuiPane* p1 = t->addTab("Beta");
     GuiPane* p2 = t->addTab("Very long long long tab");
+    (void)p2;
 
     p0->addButton("Hello");
     p0->addNumberBox("x=", &x, "", GuiTheme::LINEAR_SLIDER, 0, 16, 0);

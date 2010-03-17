@@ -292,7 +292,7 @@ Texture::CubeMapConvention Texture::determineCubeConvention(const std::string& f
         return Texture::CUBE_QUAKE;
     } else if (FileSystem::exists(filenameBase + "+x" + filenameExt)) {
         return Texture::CUBE_G3D;
-    } else if (FileSystem::exists(filenameBase + "PX" + filenameExt)) {
+    } else if (FileSystem::exists(filenameBase + "PX" + filenameExt) || FileSystem::exists(filenameBase + "px" + filenameExt)) {
         return Texture::CUBE_DIRECTX;
     }
     throw std::string("File not found");
