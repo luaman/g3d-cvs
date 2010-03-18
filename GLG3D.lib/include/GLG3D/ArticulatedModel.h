@@ -29,11 +29,16 @@ class Any;
  correct transparency. Use a custom SuperShader::Pass to add new
  effects.
  
- Loads 3DS, PLY2, PLY, OFF, and IFS files (Articulatedmodel::fromFile), or
+ Loads 3DS, PLY2, PLY, OFF, BSP, and IFS files (Articulatedmodel::fromFile), or
  you can create models (ArticulatedModel::createEmpty) from code at
  run time.  You can also load a model and then adjust the materials
  explicitly.  See ArticulatedModel::Preprocess and
  ArticulatedModel::Setings for options.
+
+ BSP models loaded by ArticulatedModel will produce G3D::SuperSurface when posed,
+ which is useful for advanced rendering algorithms.
+ However, they will render less efficiently than with G3D::BSPMap because they do not
+ perform viewer-dependent scene culling.
  
  Use the ArticulatedModel::Pose class to explicitly adjust the
  relationships between parts in the heirarchy.
@@ -390,6 +395,9 @@ private:
     /** Called from the constructor */
     void initIFS(const std::string& filename, const Matrix4& xform);
 
+    /** Called from the constructor */
+    void initBSP(const std::string& filename, const Preprocess& preprocess);
+
     /** Called from init3DS. 1st argument is a Load3DS::Material pointer; it is void* to work around
         a dependency problem of having Load3DS.h included here.
 
@@ -449,8 +457,8 @@ public:
     /**
        @brief Load a 3D model from disk, optionally applying some processing.
 
-       Supports 3DS, IFS, OFF, and PLY2 file formats.  The format of a file is 
-       detected by the extension.      
+       Supports 3DS, IFS, OFF, BSP, PLY, and PLY2 file formats.  The format of a file is 
+       detected by the extension.   
      */
     static ArticulatedModel::Ref fromFile
         (const std::string&  filename, 

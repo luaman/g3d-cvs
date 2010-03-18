@@ -654,13 +654,13 @@ public:
      Quake3 maps that use default textures, this should be the pak0.pk3 file that
      comes with Quake3 Arena.  Note that this file is copyrighted by id software and
      is not redistributable. It is not part of G3D.   If set to "<none>", avoids the
-     (slow) process of looking in the pk3 file for textures.
+     (slow) process of looking in the pk3 file for textures.  If set to "", the system
+     looks in the root of drives (on Windows) and in System::findDataFile locations
+     for pak0.pk3 or mini-pak0.pk3.
      
      You can obtain a limited version of this file by downloading the Q3A demo from:
      http://www.idsoftware.com/games/quake/quake3-arena/index.php?game_section=demo
      On Windows, the relevant file is at <code>C:\\Q3Ademo\\demoq3\\pak0.pk3</code>
-     If the altLoad is not specified, G3D uses System::findDataFile to locate pak0.pk3 or mini-pak0.pk3 on the
-     hard drive.
 
      \param defaultTextureFile If a texture is missing, load this texture.  if "",
     use the default texture specified at runtime.

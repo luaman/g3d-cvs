@@ -190,6 +190,14 @@ MapRef Map::fromFile(const std::string& path, const std::string& fileName, float
         if (! FileSystem::exists(altLoad)) {
             altLoad = System::findDataFile("mini-pak0.pk3", false);
         }
+#       ifdef G3D_WIN32
+        for (int i = 0; ! FileSystem::exists(altLoad) && (i < FileSystem::drives().size()); ++i) {
+            altLoad = FilePath::concat(FileSystem::drives()[i], "pak0.pk3");
+        }
+        for (int i = 0; ! FileSystem::exists(altLoad) && (i < FileSystem::drives().size()); ++i) {
+            altLoad = FilePath::concat(FileSystem::drives()[i], "mini-pak0.pk3");
+        }
+#       endif
     }
     Map* m = new Map();
     if (m->load(pathConcat(path, ""), fileName, altLoad, defaultTextureFile)) {

@@ -88,12 +88,7 @@ void App::onInit() {
 
 //    setDesiredFrameRate(30);
 
-    if (false) {
-        model = ArticulatedModel::createHeightfield("c:/temp/test.png");
-        Material::Specification spec;
-        spec.setLambertian("c:/temp/shades.png");
-        model->partArray[0].triList[0]->material = Material::create(spec);
-    }
+    model = ArticulatedModel::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3/maps/charon3dm11v2.bsp");
     {
         m_film->setBloomStrength(0.3f);
         m_film->setBloomRadiusFraction(0.02f);

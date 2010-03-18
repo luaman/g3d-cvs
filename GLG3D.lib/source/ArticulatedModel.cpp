@@ -3,7 +3,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2003-09-14
- @edited  2009-11-14
+ @edited  2010-03-18
  */
 
 #include "GLG3D/ArticulatedModel.h"
@@ -13,6 +13,7 @@
 #include "GLG3D/GLCaps.h"
 #include "G3D/Any.h"
 #include "G3D/FileSystem.h"
+#include "GLG3D/BSPMap.h"
 
 namespace G3D {
         
@@ -194,6 +195,8 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
         model->init3DS(filename, preprocess);
     } else if ((ext == "ifs") || (ext == "ply2") || (ext == "off") || (ext == "ply")) {
         model->initIFS(filename, preprocess.xform);
+    } else if (ext == "bsp") {
+        model->initBSP(filename, preprocess);
     }
 
     if (preprocess.materialOverride.notNull()) {
@@ -462,6 +465,140 @@ Material::Settings ArticulatedModel::compute3DSMaterial
     } // if bump maps
 
     return spec;
+}
+
+
+void ArticulatedModel::initBSP(const std::string& filename, const Preprocess& preprocess) {
+    Stopwatch s;
+    std::string defaultTexture = "";
+
+    // TODO: make a load option
+    Sphere keepOnly(Vector3::zero(), finf());
+
+    // TODO: parse filename to find enclosing directory
+
+    const std::string& pk3File = FilePath::parentPath(FilePath::parentPath(FileSystem::resolve(filename)));
+    const std::string& bspFile = FilePath::baseExt(filename);
+
+    // Load the Q3 format map    
+    const BSPMapRef& src = BSPMap::fromFile(pk3File, bspFile, 1.0, "", defaultTexture);
+    s.after("Load .bsp file");
+    debugAssertM(src.notNull(), "Could not find " + pk3File);
+
+    Array< Vector3 >    vertexArray;
+    Array< Vector3 >   	normalArray;
+    Array< int >  	    indexArray;
+    Array< Vector2 >    texCoordArray;
+    Array< int >        textureMapIndexArray;
+    Array< Vector2 >    lightCoordArray;
+    Array< int >        lightMapIndexArray;
+    Array< Texture::Ref > textureMapArray;
+    Array< Texture::Ref > lightMapArray;
+    
+    src->getTriangles(vertexArray, normalArray, indexArray, texCoordArray,
+                      textureMapIndexArray, lightCoordArray, lightMapIndexArray,
+                      textureMapArray, lightMapArray);
+    // s.after("Extract triangles");
+
+    // Convert it to an ArticulatedModel (discarding light maps)
+    ArticulatedModel::Settings settings;
+    settings.weld.normalSmoothingAngle = 0; // Turn off smoothing
+    setSettings(settings);
+
+    name = bspFile;
+    ArticulatedModel::Part& part = partArray.next();
+    part.name = "root";
+
+    // If skip.contains(textureFilename), then this surface should be removed from the map
+    Set<std::string> skip;
+
+    // TODO: add skip to preprocess
+    
+    // Maps texture names to triLists
+    Table<std::string, ArticulatedModel::Part::TriList::Ref > triListTable;
+
+    // There will be one part with many tri lists, one for each texture.  Note that many textures are simply "white"
+    for (int i = 0; i < textureMapArray.size(); ++i) {
+        if (! skip.contains(textureMapArray[i]->name())) {
+
+            const Texture::Ref& lambertianTexture = textureMapArray[i];
+            const std::string& name = lambertianTexture->name();
+
+            // Only add textures not already present
+            if (! triListTable.containsKey(name)) {
+
+                const ArticulatedModel::Part::TriList::Ref& triList = part.newTriList();
+                triListTable.set(name, triList);
+
+                triList->twoSided = ! lambertianTexture->opaque();
+
+                // Create the material for this part 
+                
+                // (TODO: material subsititution and override)
+                const SuperBSDF::Ref& bsdf =
+                    SuperBSDF::create(Component4(Color4::one(), lambertianTexture), 
+                                     Color4::zero(), Color3::zero(), 1.0, Color3::black());
+                triList->material = Material::create(bsdf);                
+            }
+        }
+    }
+    // s.after("Create materials");
+
+    part.geometry.vertexArray = vertexArray;
+    part.geometry.normalArray = normalArray;
+    part.texCoordArray        = texCoordArray;
+
+    // Iterate over triangles, putting into the appropriate trilist based on their texture map index.
+    const int numTris = textureMapIndexArray.size();
+    for (int t = 0; t < numTris; ++t) {
+        
+        const int tlIndex = textureMapIndexArray[t];
+        const std::string& name = textureMapArray[tlIndex]->name();
+
+        if (! skip.contains(name)) {
+
+            const ArticulatedModel::Part::TriList::Ref& triList = triListTable[name];
+
+            const int i = t * 3;
+
+            bool keep = true;
+
+            if (keepOnly.radius < inf()) {
+                // Keep only faces that have at least one vertex within the sphere
+                keep = false;
+                for (int j = 0; j < 3; ++j) {
+                    if (keepOnly.contains(vertexArray[indexArray[i + j]])) {
+                        keep = true;
+                        break;
+                    }
+                }
+            }
+
+            if (keep) {
+                // Copy the indices of the triangle's vertices
+                int i = t * 3;
+                for (int j = 0; j < 3; ++j) {
+                    triList->indexArray.append(indexArray[i + j]);
+                }
+            }
+        }
+    }
+    triListTable.clear();
+
+    // Remove any triLists that were empty
+    for (int t = 0; t < part.triList.size(); ++t) {
+        if ((part.triList[t]->indexArray.size() == 0) ||
+            (part.triList[t]->material->bsdf()->lambertian().max().a < 0.4f)) {
+            part.triList.fastRemove(t);
+            --t;
+        /*} else {
+            debugPrintf("Q3 parts kept: %s, %f\n", 
+                part.triList[t]->material->bsdf()->lambertian().texture()->name().c_str(),
+                part.triList[t]->material->bsdf()->lambertian().max().a);
+                */
+        }
+    }
+    // s.after("Create parts");
 }
 
 
