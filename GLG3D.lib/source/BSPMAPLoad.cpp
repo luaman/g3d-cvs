@@ -564,7 +564,7 @@ void Map::loadFaces(
 
 
 
-Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename) {
+Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename, int index) {
     float brighten = 2.0f;
     const int numExt = 3;
     static const std::string ext[] = {".jpg", ".tga", ".png"};
@@ -591,7 +591,7 @@ Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& alt
             }
         }
         
-        logPrintf("BSPMap reports missing texture: \"%s\"\n", filename.c_str());
+        logPrintf("BSPMap reports missing texture #%d: \"%s\"\n", index, filename.c_str());
         return defaultTexture;
 
     } catch (const GImage::Error& e) {
@@ -629,7 +629,7 @@ void Map::loadTextures(
 
         // Locate the texture
         std::string filename = textureData[ct].name;
-        textures[ct] = loadTexture(resPath, altPath, filename);
+        textures[ct] = loadTexture(resPath, altPath, filename, ct);
     }
 }
 

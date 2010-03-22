@@ -502,7 +502,7 @@ void ArticulatedModel::initBSP(const std::string& filename, const Preprocess& pr
 
     // Convert it to an ArticulatedModel (discarding light maps)
     ArticulatedModel::Settings settings;
-    settings.weld.normalSmoothingAngle = 0; // Turn off smoothing
+//    settings.weld.normalSmoothingAngle = 0; // Turn off smoothing
     setSettings(settings);
 
     name = bspFile;

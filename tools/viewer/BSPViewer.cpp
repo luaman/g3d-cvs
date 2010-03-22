@@ -24,6 +24,8 @@ void BSPViewer::onInit(const std::string& filename) {
 
 	map = BSPMap::fromFile(resourceDir, mapName);
 
+    /*
+     // This is a really slow way of computing the properties!
 	Array<Vector3> vertexArray, normalArray;
 	Array<Vector2> texCoordArray, lightCoordArray;
 	Array<TextureRef> texMapArray, lightMapArray;
@@ -39,6 +41,7 @@ void BSPViewer::onInit(const std::string& filename) {
 	numVertices = vertexArray.length();
 	numTextures = texMapArray.length();
 	numLightMaps = lightMapArray.length();
+    */
 
 	//So that we can reset the camera to the map's
 	//default starting position the next time
@@ -54,10 +57,12 @@ void BSPViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighti
 		app->defaultController->setFrame(map->getStartingPosition());
 	}
 
+    /*
 	screenPrintf("Faces: %d", numFaces);
 	screenPrintf("Vertices: %d", numVertices);
 	screenPrintf("Light Maps: %d", numLightMaps);
 	screenPrintf("Textures: %d", numTextures);
+    */
 	Vector3 camPos = app->defaultCamera.coordinateFrame().translation;
 	screenPrintf("Current camera position: (%f, %f, %f)", camPos.x, camPos.y, camPos.z);
 

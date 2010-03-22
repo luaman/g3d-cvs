@@ -509,8 +509,10 @@ private:
     /**
      filename has no extension.  JPG, PNG, and TGA files are sought.
      The textures are brightened by a factor of 2.0.
+
+     \param index Index of the texture in the map's texture array; useful for error reporting
      */
-    Texture::Ref loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename);
+    Texture::Ref loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename, int index);
 
     /**
      Loads version information from the front of a file.  Called from load.
