@@ -41,6 +41,7 @@
      <li> G3D::FilePath
      <li> Upgraded to libpng 1.4.1
      <li> Upgraded to glew 1.5.3
+     <li> G3D::PhysicsFrameSpline
      <li> G3D::BinaryInput::readStringNewline
      <li> G3D::fileExists now caches results by default; see new optional argument and G3D::clearFileSystemCache
      <li> G3D::Surface::AlphaMode

@@ -8,101 +8,6 @@
 #define HISTOGRAM 0
 
 
-/**
- A subclass of Spline that keeps the rotation field of a
- PhysicsFrame normalized and rotating the short direction.
- */
-class PhysicsFrameSpline : public Spline<PhysicsFrame> {
-public:
-
-    PhysicsFrameSpline() {}
-
-    PhysicsFrameSpline(const Any& any) {
-        any.verifyName("PhysicsFrameSpline", "PFrameSpline");
-        *this = PhysicsFrameSpline();
-        
-        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
-            const std::string& k = toLower(it->key);
-            if (k == "cyclic") {
-                cyclic = it->value;
-            } else if (k == "control") {
-                const Any& v = it->value;
-                v.verifyType(Any::ARRAY);
-                control.resize(v.size());
-                for (int i = 0; i < control.size(); ++i) {
-                    control[i] = v;
-                }
-            } else if (k == "finalinterval") {
-                finalInterval = it->value;
-            } else if (k == "time") {
-                const Any& v = it->value;
-                v.verifyType(Any::ARRAY);
-                time.resize(v.size());
-                for (int i = 0; i < time.size(); ++i) {
-                    time[i] = v;
-                }
-            }
-        }
-    }
-
-    virtual void correct(PhysicsFrame& frame) const {
-        frame.rotation.unitize();
-    }
-
-    virtual void ensureShortestPath(PhysicsFrame* A, int N) const {
-        for (int i = 1; i < N; ++i) {
-            const Quat& p = A[i - 1].rotation;
-            Quat& q = A[i].rotation;
-
-            float cosphi = p.dot(q);
-
-            if (cosphi < 0) {
-                // Going the long way, so change the order
-                q = -q;
-            }
-        }
-    }
-};
-
-// TODO: move to spline
-void renderPhysicsFrameSpline(PhysicsFrameSpline& spline, RenderDevice* rd) {
-    rd->pushState();
-    for (int i = 0; i < spline.control.size(); ++i) {
-        const CFrame& c = spline.control[i];
-
-        Draw::axes(c, rd, Color3::red(), Color3::green(), Color3::blue(), 0.5f);
-        Draw::sphere(Sphere(c.translation, 0.1f), rd, Color3::white(), Color4::clear());
-    }
-
-    const int N = spline.control.size() * 30;
-    CFrame last = spline.evaluate(0);
-    const float a = 0.5f;
-    rd->setLineWidth(1);
-    rd->beginPrimitive(PrimitiveType::LINES);
-    for (int i = 1; i < N; ++i) {
-        float t = (spline.control.size() - 1) * i / (N - 1.0f);
-        const CFrame& cur = spline.evaluate(t);
-        rd->setColor(Color4(1,1,1,a));
-        rd->sendVertex(last.translation);
-        rd->sendVertex(cur.translation);
-
-        rd->setColor(Color4(1,0,0,a));
-        rd->sendVertex(last.rightVector() + last.translation);
-        rd->sendVertex(cur.rightVector() + cur.translation);
-
-        rd->setColor(Color4(0,1,0,a));
-        rd->sendVertex(last.upVector() + last.translation);
-        rd->sendVertex(cur.upVector() + cur.translation);
-
-        rd->setColor(Color4(0,0,1,a));
-        rd->sendVertex(-last.lookVector() + last.translation);
-        rd->sendVertex(-cur.lookVector() + cur.translation);
-
-        last = cur;
-    }
-    rd->endPrimitive();
-    rd->popState();
-}
 
 class PoseSpline {
 public:
@@ -253,7 +158,7 @@ void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
     (void)surface;
     Draw::skyBox(rd, lighting->environmentMap);
     Surface::sortAndRender(rd, defaultCamera, surface, lighting);
-    renderPhysicsFrameSpline(m_spline, rd);
+    Draw::physicsFrameSpline(m_spline, rd);
 }
 
 void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {

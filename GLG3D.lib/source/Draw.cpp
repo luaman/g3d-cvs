@@ -20,6 +20,7 @@
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/GLCaps.h"
 #include "G3D/MeshAlg.h"
+#include "G3D/PhysicsFrameSpline.h"
 
 namespace G3D {
 
@@ -29,6 +30,44 @@ const int Draw::SPHERE_SECTIONS = 40;
 const int Draw::SPHERE_PITCH_SECTIONS = 20;
 const int Draw::SPHERE_YAW_SECTIONS = 40;
 
+void Draw::physicsFrameSpline(const PhysicsFrameSpline& spline, RenderDevice* rd) {
+    rd->pushState();
+    for (int i = 0; i < spline.control.size(); ++i) {
+        const CFrame& c = spline.control[i];
+
+        Draw::axes(c, rd, Color3::red(), Color3::green(), Color3::blue(), 0.5f);
+        Draw::sphere(Sphere(c.translation, 0.1f), rd, Color3::white(), Color4::clear());
+    }
+
+    const int N = spline.control.size() * 30;
+    CFrame last = spline.evaluate(0);
+    const float a = 0.5f;
+    rd->setLineWidth(1);
+    rd->beginPrimitive(PrimitiveType::LINES);
+    for (int i = 1; i < N; ++i) {
+        float t = (spline.control.size() - 1) * i / (N - 1.0f);
+        const CFrame& cur = spline.evaluate(t);
+        rd->setColor(Color4(1,1,1,a));
+        rd->sendVertex(last.translation);
+        rd->sendVertex(cur.translation);
+
+        rd->setColor(Color4(1,0,0,a));
+        rd->sendVertex(last.rightVector() + last.translation);
+        rd->sendVertex(cur.rightVector() + cur.translation);
+
+        rd->setColor(Color4(0,1,0,a));
+        rd->sendVertex(last.upVector() + last.translation);
+        rd->sendVertex(cur.upVector() + cur.translation);
+
+        rd->setColor(Color4(0,0,1,a));
+        rd->sendVertex(-last.lookVector() + last.translation);
+        rd->sendVertex(-cur.lookVector() + cur.translation);
+
+        last = cur;
+    }
+    rd->endPrimitive();
+    rd->popState();
+}
 
 /** Draws a single sky-box vertex.  Called from Draw::skyBox. (s,t) are
     texture coordinates for the case where the cube map is not used.*/

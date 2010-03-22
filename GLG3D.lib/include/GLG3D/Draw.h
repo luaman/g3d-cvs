@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-10-29
- @edited  2009-09-05
+ @edited  2010-03-05
  */
 
 #ifndef G3D_Draw_h
@@ -84,6 +84,8 @@ public:
 
     /** Render a skybox using \a cubeMap, and the set of 6 cube map faces in \a texture if \a cubeMap is NULL. */
     static void skyBox(RenderDevice* renderDevice, const Texture::Ref& cubeMap, const Texture::Ref* texture = NULL);
+
+    static void physicsFrameSpline(const class PhysicsFrameSpline& spline, RenderDevice* rd);
 
     /**
      Set the solid color or wire color to Color4::clear() to

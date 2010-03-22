@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2001-08-25
- @edited  2010-03-01
+ @edited  2010-03-20
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
@@ -44,6 +44,7 @@
 #include "G3D/Matrix4.h"
 #include "G3D/CoordinateFrame.h"
 #include "G3D/PhysicsFrame.h"
+#include "G3D/PhysicsFrameSpline.h"
 #include "G3D/Plane.h"
 #include "G3D/Line.h"
 #include "G3D/Ray.h"

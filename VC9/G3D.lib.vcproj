@@ -433,6 +433,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\PhysicsFrameSpline.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Plane.cpp"
 				>
 			</File>
@@ -856,6 +860,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\PhysicsFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\PhysicsFrameSpline.h"
 				>
 			</File>
 			<File
