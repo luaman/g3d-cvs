@@ -8,8 +8,42 @@
 #define HISTOGRAM 0
 
 
+/**
+ A subclass of Spline that keeps the rotation field of a
+ PhysicsFrame normalized and rotating the short direction.
+ */
 class PhysicsFrameSpline : public Spline<PhysicsFrame> {
 public:
+
+    PhysicsFrameSpline() {}
+
+    PhysicsFrameSpline(const Any& any) {
+        any.verifyName("PhysicsFrameSpline", "PFrameSpline");
+        *this = PhysicsFrameSpline();
+        
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& k = toLower(it->key);
+            if (k == "cyclic") {
+                cyclic = it->value;
+            } else if (k == "control") {
+                const Any& v = it->value;
+                v.verifyType(Any::ARRAY);
+                control.resize(v.size());
+                for (int i = 0; i < control.size(); ++i) {
+                    control[i] = v;
+                }
+            } else if (k == "finalinterval") {
+                finalInterval = it->value;
+            } else if (k == "time") {
+                const Any& v = it->value;
+                v.verifyType(Any::ARRAY);
+                time.resize(v.size());
+                for (int i = 0; i < time.size(); ++i) {
+                    time[i] = v;
+                }
+            }
+        }
+    }
 
     virtual void correct(PhysicsFrame& frame) const {
         frame.rotation.unitize();
@@ -23,9 +57,9 @@ public:
             float cosphi = p.dot(q);
 
             if (cosphi < 0) {
-                // Going the long way
+                // Going the long way, so change the order
                 q = -q;
-            }        
+            }
         }
     }
 };
@@ -76,22 +110,7 @@ public:
     SplineTable partSpline;
 
     /**
-    The Any must be a table mapping part names to PhysicsFrameSplines
-
-    
-    PoseSpline {
-       wheel = PhysicsSpline {
-           control = (
-              // Each element must be either
-              (0, CFrame::fromXYZYPR(...)), // Optional: time
-
-              CFrame::fromXYZYPR(...))
-           ),
-
-           cyclic = false
-       ),
-    }
-
+     The Any must be a table mapping part names to PhysicsFrameSplines.
     */
     PoseSpline(const Any& any) {
         (void)any;
