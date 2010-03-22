@@ -5,7 +5,7 @@
  @author Shawn Yarbrough
   
  @created 2006-06-11
- @edited  2010-03-01
+ @edited  2010-03-20
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -1220,6 +1220,14 @@ void Any::verify(bool value, const std::string& message) const {
 void Any::verifyName(const std::string& n) const {
     beforeRead();
     verify(beginsWith(toUpper(name()), toUpper(n)), "Name must begin with " + n);
+}
+
+
+void Any::verifyName(const std::string& n, const std::string& m) const {
+    beforeRead();
+    const std::string& x = toUpper(name());
+    verify(beginsWith(x, toUpper(n)) ||
+           beginsWith(x, toUpper(m)), "Name must begin with " + n + " or " + m);
 }
 
 

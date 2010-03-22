@@ -184,7 +184,7 @@ href="classes.html">Classes</a>.
     \link G3D::GameTime GameTime\endlink,
     \link G3D::GCamera GCamera\endlink,
     \link G3D::Intersect Intersect\endlink,
-    \link G3D::PhysicsFrame PhysicsFrame\endlink,
+    \link G3D::PhysicsFrame PhysicsFrame\endlink (\link G3D::PhysicsFrame PFrame\endlink),
     \link G3D::Line Line\endlink,
     \link G3D::LineSegment LineSegment\endlink,
     \link G3D::LineSegment2D LineSegment2D\endlink,

@@ -5,7 +5,7 @@
  @maintainer Morgan McGuire
   
  @created 2006-06-11
- @edited  2010-02-16
+ @edited  2010-03-16
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
@@ -569,9 +569,14 @@ public:
     */
     void verify(bool value, const std::string& message = "") const;
 
-    /** Verifies that the name begins with identifier \a n.  It may contain
-        identifier operators after this */
+
+    /** Verifies that the name <i>begins with</i> identifier \a n (case insensitive). 
+        It may contain identifier operators after this */
     void verifyName(const std::string& n) const;
+
+    /** Verifies that the name <i>begins with</i> identifier \a n or \a m (case insensitive). 
+        It may contain identifier operators after this */
+    void verifyName(const std::string& n, const std::string& m) const;
 
     /** Verifies that the type is \a t. */
     void verifyType(Type t) const;

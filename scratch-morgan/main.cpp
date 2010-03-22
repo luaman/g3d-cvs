@@ -8,15 +8,113 @@
 #define HISTOGRAM 0
 
 
+class PhysicsFrameSpline : public Spline<PhysicsFrame> {
+public:
+
+    virtual void correct(PhysicsFrame& frame) const {
+        frame.rotation.unitize();
+    }
+
+    virtual void ensureShortestPath(PhysicsFrame* A, int N) const {
+        for (int i = 1; i < N; ++i) {
+            const Quat& p = A[i - 1].rotation;
+            Quat& q = A[i].rotation;
+
+            float cosphi = p.dot(q);
+
+            if (cosphi < 0) {
+                // Going the long way
+                q = -q;
+            }        
+        }
+    }
+};
+
+// TODO: move to spline
+void renderPhysicsFrameSpline(PhysicsFrameSpline& spline, RenderDevice* rd) {
+    rd->pushState();
+    for (int i = 0; i < spline.control.size(); ++i) {
+        const CFrame& c = spline.control[i];
+
+        Draw::axes(c, rd, Color3::red(), Color3::green(), Color3::blue(), 0.5f);
+        Draw::sphere(Sphere(c.translation, 0.1f), rd, Color3::white(), Color4::clear());
+    }
+
+    const int N = spline.control.size() * 30;
+    CFrame last = spline.evaluate(0);
+    const float a = 0.5f;
+    rd->setLineWidth(1);
+    rd->beginPrimitive(PrimitiveType::LINES);
+    for (int i = 1; i < N; ++i) {
+        float t = (spline.control.size() - 1) * i / (N - 1.0f);
+        const CFrame& cur = spline.evaluate(t);
+        rd->setColor(Color4(1,1,1,a));
+        rd->sendVertex(last.translation);
+        rd->sendVertex(cur.translation);
+
+        rd->setColor(Color4(1,0,0,a));
+        rd->sendVertex(last.rightVector() + last.translation);
+        rd->sendVertex(cur.rightVector() + cur.translation);
+
+        rd->setColor(Color4(0,1,0,a));
+        rd->sendVertex(last.upVector() + last.translation);
+        rd->sendVertex(cur.upVector() + cur.translation);
+
+        rd->setColor(Color4(0,0,1,a));
+        rd->sendVertex(-last.lookVector() + last.translation);
+        rd->sendVertex(-cur.lookVector() + cur.translation);
+
+        last = cur;
+    }
+    rd->endPrimitive();
+    rd->popState();
+}
+
+class PoseSpline {
+public:
+    typedef Table<std::string, PhysicsFrameSpline> SplineTable;
+    SplineTable partSpline;
+
+    /**
+    The Any must be a table mapping part names to PhysicsFrameSplines
+
+    
+    PoseSpline {
+       wheel = PhysicsSpline {
+           control = (
+              // Each element must be either
+              (0, CFrame::fromXYZYPR(...)), // Optional: time
+
+              CFrame::fromXYZYPR(...))
+           ),
+
+           cyclic = false
+       ),
+    }
+
+    */
+    PoseSpline(const Any& any) {
+        (void)any;
+    }
+ 
+    void get(float t, ArticulatedModel::Pose& pose) {
+        for (SplineTable::Iterator it = partSpline.begin(); it.hasMore(); ++it) {
+            pose.cframe.set(it->key, it->value.evaluate(t));
+        }
+    }
+};
+
 class App : public GApp {
 public:
 
-    Lighting::Ref lighting;
+    Lighting::Ref           lighting;
 
-    int x;
+    ArticulatedModel::Ref   model;
+    ArticulatedModel::Ref   glassModel;
 
-    ArticulatedModel::Ref model;
-    ArticulatedModel::Ref glassModel;
+    PhysicsFrameSpline      m_spline;
+
+    int                     x;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -43,9 +141,6 @@ public:
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
     catchCommonExceptions = false;
-//    lighting = defaultLighting();
-    lighting = Lighting::create();
-    lighting->lightArray.append(GLight::directional(Vector3::unitY(), Color3::white()));
     renderDevice->setColorClearValue(Color3::black());
 }
 /*
@@ -81,15 +176,17 @@ void drawRect(const Rect2D& rect, RenderDevice* rd) {
 
 void App::onInit() {
 
-    showRenderingStats = true;
+    showRenderingStats = false;
     developerWindow->cameraControlWindow->setVisible(false);
-    debugWindow->setVisible(true);
+    debugWindow->setVisible(false);
     debugWindow->moveTo(Vector2(0, 300));
 
-//    setDesiredFrameRate(30);
+    setDesiredFrameRate(60);
 
-    model = ArticulatedModel::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3/maps/charon3dm11v2.bsp");
-    {
+    if (false) {
+        model = ArticulatedModel::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3/maps/charon3dm11v2.bsp");
+    }
+    if (false) {
         m_film->setBloomStrength(0.3f);
         m_film->setBloomRadiusFraction(0.02f);
         ArticulatedModel::Preprocess p;
@@ -100,33 +197,21 @@ void App::onInit() {
         glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), p);
     }
 
-//    debugPane->addTextureBox("", m_colorBuffer0)->zoomToFit();
 
-    debugPane->addButton("Foo");
+    lighting = defaultLighting();
 
-    x = 5;
-    debugPane->addNumberBox("x=", &x, "", GuiTheme::LINEAR_SLIDER, 0, 16, 0);
+    m_spline.append(CFrame::fromXYZYPRDegrees(0, 0, 0));
+    m_spline.append(CFrame::fromXYZYPRDegrees(0, 3, 3, 0, 45));
+    m_spline.append(CFrame::fromXYZYPRDegrees(3, 3, 0));
+    m_spline.append(CFrame::fromXYZYPRDegrees(3, 6, 0, 45));
+    m_spline.append(CFrame::fromXYZYPRDegrees(6, 6, 3, 90, 0, 45));
+    m_spline.append(CFrame::fromXYZYPRDegrees(6, 3, 3, 0, -45));
+    m_spline.cyclic = true;
 
-    GuiTabPane* t = debugPane->addTabPane();
-
-    GuiPane* p0 = t->addTab("Alpha");
-    GuiPane* p1 = t->addTab("Beta");
-    GuiPane* p2 = t->addTab("Very long long long tab");
-    (void)p2;
-
-    p0->addButton("Hello");
-    p0->addNumberBox("x=", &x, "", GuiTheme::LINEAR_SLIDER, 0, 16, 0);
-    p0->addButton("There");
-    p0->addButton("There");
-    p0->addButton("There");
-    p0->addButton("There");
-    p0->addLabel("There");
-    p1->addLabel("Second pane");
 
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
-
 
 
 void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
@@ -135,13 +220,21 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     if (model.notNull()) {
         model->pose(posed3D);
     }
-    glassModel->pose(posed3D, Vector3(0,8,0));
+//    glassModel->pose(posed3D, Vector3(0,8,0));
 }
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
+    static RealTime t0 = System::time();
+    float t = System::time() - t0;
+
+    CFrame c = m_spline.evaluate(t);
+    Draw::axes(c, rd, Color3::black(), Color3::black(), Color3::black(), 0.5f);
+    Draw::sphere(Sphere(c.translation, 0.1f), rd);
+
     (void)surface;
+    Draw::skyBox(rd, lighting->environmentMap);
     Surface::sortAndRender(rd, defaultCamera, surface, lighting);
-    Draw::axes(rd);
+    renderPhysicsFrameSpline(m_spline, rd);
 }
 
 void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {

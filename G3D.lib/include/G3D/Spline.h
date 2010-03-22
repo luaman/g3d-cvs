@@ -270,7 +270,7 @@ protected:
     }
 
     /**
-       Mutates the array of N control points. It is useful to override this
+       Mutates the array of N control points that begins at \a A. It is useful to override this
        method by one that wraps the values if they are angles or quaternions
        for which "shortest path" interpolation is significant.
      */

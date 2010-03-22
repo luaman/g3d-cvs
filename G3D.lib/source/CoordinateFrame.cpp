@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2001-06-02
- @edited  2009-11-13
+ @edited  2010-03-13
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
@@ -26,6 +26,7 @@
 #include "G3D/UprightFrame.h"
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
+#include "G3D/PhysicsFrame.h"
 
 namespace G3D {
 
@@ -38,18 +39,28 @@ CoordinateFrame::CoordinateFrame(const Any& any) {
         translation = any;
     } else if (beginsWith(n, "MATRIX3")) {
         rotation = any;
-    } else if (n == "CFRAME") {
+    } else if ((n == "CFRAME") || (n == "COORDINATEFRAME")) {
         any.verifyType(Any::TABLE, Any::ARRAY);
-        if (any.type() == Any::TABLE) {
-            rotation    = any["rotation"];
-            translation = any["translation"];
-        } else {
+        if (any.type() == Any::ARRAY) {
             any.verifySize(2);
             rotation    = any[0];
             translation = any[1];
+        } else {
+            for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+                const std::string& n = toLower(it->key);
+                if (n == "translation") {
+                    translation = Vector3(it->value);
+                } else if (n == "rotation") {
+                    rotation = Matrix3(it->value);
+                } else {
+                    any.verify(false, "Illegal table key: " + it->key);
+                }
+            }
         }
+    } else if (beginsWith(n, "PHYSICSFRAME") || beginsWith(n, "PFRAME")) {
+        *this = PhysicsFrame(any);
     } else {
-        any.verifyName("CFrame::fromXYZYPRDegrees");
+        any.verifyName("CFrame::fromXYZYPRDegrees", "CoordinateFrame::fromXYZYPRDegrees");
         any.verifyType(Any::ARRAY);
         any.verifySize(3, 6);
 
