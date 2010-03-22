@@ -14,7 +14,7 @@
 #include "G3D/Log.h"
 #include "G3D/FileSystem.h"
 
-#define TESSELLATION_LEVEL 5
+#define TESSELLATION_LEVEL 10
 #define G3D_LOAD_SCALE (0.03f)
 namespace G3D {
 namespace _BSPMAP {
