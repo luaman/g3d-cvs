@@ -900,11 +900,17 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
 
     int smajor = 1;
     int sminor = 0;
-    sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%d.%d", &smajor, &sminor);
-    bool ok = ((smajor >= 1) || (smajor == 1 && sminor >= 50));
-    supported = supported && ok;
+
+	bool hasGLSL150 = false;
+	if (glGetString(GL_SHADING_LANGUAGE_VERSION))
+	{
+		sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%d.%d", &smajor, &sminor);
+		hasGLSL150 = ((smajor > 1) || (smajor == 1 && sminor >= 50));
+	}
+
+	supported = supported && hasGLSL150;
     explanation += format("GLSL version 1.50                   %s (GLSL version on this driver is %d.%d)\n",
-                          ok ? "yes" : "NO", smajor, sminor);
+                          hasGLSL150 ? "yes" : "NO", smajor, sminor);
 
     if (major >= 3 || (major == 3 && minor >= 2)) {
         supported = true;
