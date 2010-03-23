@@ -84,6 +84,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     debugPane(NULL),
     renderDevice(NULL),
     userInput(NULL),
+    m_debugTextColor(Color3::white()),
+    m_debugTextOutlineColor(Color3::black()),
     m_lastFrameOverWait(0),
     lastWaitTime(System::time()),
     m_desiredFrameRate(5000),
@@ -370,10 +372,8 @@ void GApp::renderDebugInfo() {
         int pushCalls = renderDevice->stats().pushStates;
 
         renderDevice->push2D();
-            Color3 color = Color3::white();
-            double size = 10;
-
-            double x = 5;
+            float size = 10;
+            float x = 5;
             Vector2 pos(x, 5);
 
             if (showRenderingStats) {
@@ -392,7 +392,7 @@ void GApp::renderDebugInfo() {
 #               endif
 
                 debugFont->send2DQuads(renderDevice, renderDevice->getCardDescription() + "   " + System::version() + build, 
-                    pos, size, color);
+                    pos, size, Color3::white());
                 pos.y += size * 1.5f;
                 
                 float fps = renderDevice->stats().smoothFrameRate;
@@ -471,7 +471,7 @@ void GApp::renderDebugInfo() {
                     "               ";
 
                 const std::string& Fstr = format("%s     %s     %s    %s", esc, camera, video, dev);
-                debugFont->send2DQuads(renderDevice, Fstr, pos, 8, color);
+                debugFont->send2DQuads(renderDevice, Fstr, pos, 8, Color3::white());
 
                 pos.x = x;
                 pos.y += size;
@@ -482,7 +482,7 @@ void GApp::renderDebugInfo() {
 
             m_debugTextMutex.lock();
             for (int i = 0; i < debugText.length(); ++i) {
-                debugFont->send2DQuads(renderDevice, debugText[i], pos, size, color, Color3::black());
+                debugFont->send2DQuads(renderDevice, debugText[i], pos, size, m_debugTextColor, m_debugTextOutlineColor);
                 pos.y += size * 1.5;
             }
             m_debugTextMutex.unlock();

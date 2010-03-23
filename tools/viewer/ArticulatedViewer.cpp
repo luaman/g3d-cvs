@@ -155,9 +155,10 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
     
     screenPrintf("Model Faces: %d,  Vertices: %d\n", m_numFaces, m_numVertices);
     if (m_selectedGeom.notNull()) {
-        screenPrintf(" Selected `%s' partArray[%d].triList[%d]\n", 
+        screenPrintf(" Selected `%s' partArray[%d].triList[%d].indexArray[%d...%d]\n", 
             m_model->partArray[m_selectedPartIndex].name.c_str(),
-            m_selectedPartIndex, m_selectedTriListIndex);
+            m_selectedPartIndex, m_selectedTriListIndex,
+            m_selectedTriangleIndex, m_selectedTriangleIndex + 2);
     }
 
     screenPrintf("Hierarchy:");
@@ -180,6 +181,7 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
         m_selectedGeom = NULL;
         m_selectedPartIndex = -1;
         m_selectedTriListIndex = -1;
+        m_selectedTriangleIndex = -1;
 
         for (int i = 0; i < m_model->partArray.size(); ++i) {
             const ArticulatedModel::Part& part = m_model->partArray[i];
@@ -191,9 +193,33 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
                 const Box& wsBox = part.cframe.toWorldSpace(triList->boxBounds);
                 float test = ray.intersectionTime(wsBox);
                 if (test < distance) {
-                    m_selectedGeom = triList;
-                    m_selectedPartIndex = i;
-                    m_selectedTriListIndex = t;
+                    // See if we clicked on an actual triangle
+                    const Ray&              osRay   = part.cframe.toObjectSpace(ray);
+                    const Array<Vector3>&   vertex  = part.geometry.vertexArray;
+                    const Array<int>&       index   = triList->indexArray;
+
+                    debugAssert(index.size() % 3 == 0);
+                    for (int j = 0; j < index.size(); j += 3) {
+                        test = osRay.intersectionTime(vertex[index[j]], vertex[index[j + 1]], vertex[index[j + 2]]);
+                        if (test < distance) {
+                            m_selectedGeom = triList;
+                            m_selectedPartIndex = i;
+                            m_selectedTriListIndex = t;
+                            m_selectedTriangleIndex = j;
+                        }
+                    }
+
+                    if (triList->twoSided) {
+                        for (int j = 0; j < index.size(); j += 3) {
+                            test = osRay.intersectionTime(vertex[index[j + 2]], vertex[index[j + 1]], vertex[index[j]]);
+                            if (test < distance) {
+                                m_selectedGeom = triList;
+                                m_selectedPartIndex = i;
+                                m_selectedTriListIndex = t;
+                                m_selectedTriangleIndex = j;
+                            }
+                        }
+                    }
                 }
             }
         }

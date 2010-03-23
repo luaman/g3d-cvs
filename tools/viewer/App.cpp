@@ -26,6 +26,9 @@ App::App(const GApp::Settings& settings, const std::string& file) :
     viewer(NULL),
     filename(file) {
 
+    m_debugTextColor = Color3::black();
+    m_debugTextOutlineColor = Color3::white();
+
     shadowMap = ShadowMap::create("Shadow Map", 2048);
     shadowMap->setPolygonOffset(2.0, 2.0);
     setDesiredFrameRate(60);

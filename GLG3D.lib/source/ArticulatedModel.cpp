@@ -336,6 +336,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Preprocess& pr
                 // Lump everything into one part
                 Part::TriList::Ref triList = part.newTriList();
                 triList->indexArray = object.indexArray;
+                debugAssert(triList->indexArray.size() % 3 == 0);
 
             } else {
                 for (int m = 0; m < object.faceMatArray.size(); ++m) {
@@ -374,7 +375,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Preprocess& pr
                             }
                         }
                         debugAssert(triList->indexArray.size() > 0);
-
+                        debugAssert(triList->indexArray.size() % 3 == 0);
 
                     } // if there are indices on this part
                 } // for m

@@ -212,6 +212,9 @@ protected:
     */
     Array<std::string>      debugText;
 
+    Color4                  m_debugTextColor;
+    Color4                  m_debugTextOutlineColor;
+
     /**
        Processes all pending events on the OSWindow queue into the userInput.
     */

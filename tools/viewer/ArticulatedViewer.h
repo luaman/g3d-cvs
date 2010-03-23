@@ -25,6 +25,8 @@ private:
 
     int                         m_selectedPartIndex;
     int                         m_selectedTriListIndex;
+    /** In the trilist index array */
+    int                         m_selectedTriangleIndex;
     SuperSurface::GPUGeom::Ref  m_selectedGeom;
 
     float                       m_scale;
