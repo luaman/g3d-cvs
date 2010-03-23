@@ -24,7 +24,7 @@ Material::Specification::Specification() :
 }
 
 
-Material::Specification::Specification(const Any& any) {
+  Material::Specification::Specification(const Any& any) {
     *this = Specification();
 
     any.verifyName("Material::Specification");
@@ -33,7 +33,7 @@ Material::Specification::Specification(const Any& any) {
         const std::string& key = toLower(it->key);
         if (key == "lambertian") {
             if (it->value.type() == Any::STRING) {
-                setLambertian(System::findDataFile(it->value.string()));
+                setLambertian(it->value.resolveStringAsFilename());
             } else if (beginsWith(toLower(it->value.name()), "color4")) {
                 setLambertian(Color4(it->value));
             } else if (beginsWith(toLower(it->value.name()), "color3")) {
@@ -44,7 +44,7 @@ Material::Specification::Specification(const Any& any) {
             }
         } else if (key == "specular") {
             if (it->value.type() == Any::STRING) {
-                setSpecular(System::findDataFile(it->value.string()));
+                setSpecular(it->value.resolveStringAsFilename());
             } else if (beginsWith(toLower(it->value.name()), "color3")) {
                 setSpecular(Color3(it->value));
             } else {
@@ -54,7 +54,7 @@ Material::Specification::Specification(const Any& any) {
         } else if (key == "shininess") {
             switch (it->value.type()) {
             case Any::STRING:
-                setShininess(System::findDataFile(it->value.string()));
+                setShininess(it->value.resolveStringAsFilename());
                 break;
 
             case Any::ARRAY:
@@ -76,30 +76,21 @@ Material::Specification::Specification(const Any& any) {
                 break;
             }    
         } else if (key == "transmissive") {
-            if (it->value.type() == Any::STRING) {
-                setTransmissive(System::findDataFile(it->value.string()));
-            } else if (beginsWith(toLower(it->value.name()), "color3")) {
+            if (beginsWith(toLower(it->value.name()), "color3")) {
                 setTransmissive(Color3(it->value));
             } else {
                 // Full specification
                 setTransmissive(Texture::Specification(it->value));
             }
         } else if (key == "emissive") {
-            if (it->value.type() == Any::STRING) {
-                setEmissive(System::findDataFile(it->value.string()));
-            } else if (beginsWith(toLower(it->value.name()), "color3")) {
+            if (beginsWith(toLower(it->value.name()), "color3")) {
                 setEmissive(Color3(it->value));
             } else {
                 // Full specification
                 setEmissive(Texture::Specification(it->value));
             }
         } else if (key == "bump") {
-            if (it->value.type() == Any::STRING) {
-                setBump(System::findDataFile(it->value.string()));
-            } else {
-                // Full specification
-                setBump(BumpMap::Specification(it->value));
-            }
+            setBump(BumpMap::Specification(it->value));
         } else if (key == "refractionhint") {
             m_refractionHint = it->value;
         } else if (key == "mirrorhint") {

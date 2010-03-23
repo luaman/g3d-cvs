@@ -14,6 +14,7 @@
 #include "GLG3D/Material.h"
 #include "GLG3D/SuperSurface.h"
 #include "GLG3D/Component.h"
+#include "G3D/PhysicsFrameSpline.h"
 
 namespace G3D {
 
@@ -213,6 +214,37 @@ public:
         Table<std::string, CoordinateFrame>     cframe;
 
         Pose() {}
+    };
+
+
+    class PoseSpline {
+    public:
+        typedef Table<std::string, PhysicsFrameSpline> SplineTable;
+        SplineTable partSpline;
+
+        PoseSpline();
+
+        /**
+         The Any must be a table mapping part names to PhysicsFrameSplines.
+         Note that a single PhysicsFrame (or any equivalent of it) can serve as
+         to create a PhysicsFrameSpline.  
+
+         <pre>
+            PoseSpline {
+                "part1" = PhysicsFrameSpline {
+                   control = ( Vector3(0,0,0),
+                               CFrame::fromXYZYPRDegrees(0,1,0,35)),
+                   cyclic = true
+                },
+
+                "part2" = Vector3(0,1,0)
+            }
+         </pre>
+        */
+        PoseSpline(const Any& any);
+     
+        /** Get the pose at time t, overriding values in \a pose that are specified by the spline. */
+        void get(float t, ArticulatedModel::Pose& pose);
     };
 
     /** Identity transformation.*/

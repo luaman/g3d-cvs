@@ -57,7 +57,9 @@ Sample File:
    radius = 3.7,
 
    position = Vector3(1.0, -1.0, 0.0),
-   texture = { format = "RGB8", size = (320, 200)}
+   video = { format = "RGB8", size = (320, 200)},
+
+   material = #include("rocks.mat")
 }
 </pre>
 
@@ -122,7 +124,9 @@ It is often convenient to iterate through the table portion:
            ...
         } else if (key == "goodbye") {
            ...
-        } else ... 
+        } else {
+           any.verify(false, "Unsupported key: " + it->key);
+        }
     }
 </pre>
 
@@ -434,6 +438,15 @@ public:
     const std::string& string() const;
     bool boolean() const;
 
+    /** Treat this string value as if it were a filename and resolve it relative to the directory from which
+     the Any was parsed.  If not found, use System::findDataFile to try and locate the file. 
+     
+     See the actual
+     implementation in Any.cpp for the precise specification. It is hard to explain in English and the fallback
+     cases may change between G3D releases. */
+    std::string resolveStringAsFilename() const;
+
+
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;
 
@@ -530,6 +543,10 @@ public:
     /** for an ARRAY, resizes and returns the last element */
     Any& next();
 
+    /** The parent directory of the location from which this Any was loaded.  This is useful for 
+       interpreting filenames relative to the Any's source location,
+       which may not match the current directory if the Any was from an included file. */
+    std::string sourceDirectory() const;
 
     /** True if the Anys are exactly equal, ignoring comments.  Applies deeply on arrays and tables. */
     bool operator==(const Any& x) const;

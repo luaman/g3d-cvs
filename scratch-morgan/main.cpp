@@ -4,41 +4,24 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include "Scene.h"
 
 #define HISTOGRAM 0
 
 
-
-class PoseSpline {
-public:
-    typedef Table<std::string, PhysicsFrameSpline> SplineTable;
-    SplineTable partSpline;
-
-    /**
-     The Any must be a table mapping part names to PhysicsFrameSplines.
-    */
-    PoseSpline(const Any& any) {
-        (void)any;
-    }
- 
-    void get(float t, ArticulatedModel::Pose& pose) {
-        for (SplineTable::Iterator it = partSpline.begin(); it.hasMore(); ++it) {
-            pose.cframe.set(it->key, it->value.evaluate(t));
-        }
-    }
-};
-
 class App : public GApp {
 public:
-
-    Lighting::Ref           lighting;
 
     ArticulatedModel::Ref   model;
     ArticulatedModel::Ref   glassModel;
 
+    ShadowMap::Ref          m_shadowMap;
+
     PhysicsFrameSpline      m_spline;
 
     int                     x;
+
+    Scene::Ref              m_scene;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -66,6 +49,7 @@ public:
 App::App(const GApp::Settings& settings) : GApp(settings) {
     catchCommonExceptions = false;
     renderDevice->setColorClearValue(Color3::black());
+    chdir("d:/morgan/G3D/scratch-morgan");
 }
 /*
 
@@ -121,9 +105,14 @@ void App::onInit() {
         glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), p);
     }
 
+    m_shadowMap = ShadowMap::create();
 
-    lighting = defaultLighting();
+    // Start wherever the developer HUD last marked as "Home"
+    defaultCamera.setCoordinateFrame(bookmark("Home"));
 
+    m_scene = Scene::create("Crates", defaultCamera);
+
+    /*
     m_spline.append(CFrame::fromXYZYPRDegrees(0, 0, 0));
     m_spline.append(CFrame::fromXYZYPRDegrees(0, 3, 3, 0, 45));
     m_spline.append(CFrame::fromXYZYPRDegrees(3, 3, 0));
@@ -131,16 +120,17 @@ void App::onInit() {
     m_spline.append(CFrame::fromXYZYPRDegrees(6, 6, 3, 90, 0, 45));
     m_spline.append(CFrame::fromXYZYPRDegrees(6, 3, 3, 0, -45));
     m_spline.cyclic = true;
+    */
 
-
-    // Start wherever the developer HUD last marked as "Home"
-    defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
 
 
 void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     (void)posed2D;
     (void)posed3D;
+    if (m_scene.notNull()) {
+        m_scene->onPose(posed3D);
+    }
     if (model.notNull()) {
         model->pose(posed3D);
     }
@@ -148,17 +138,18 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 }
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
+    (void)surface;
+    Draw::skyBox(rd, m_scene->skyBox());
+
+/*
     static RealTime t0 = System::time();
     float t = System::time() - t0;
-
     CFrame c = m_spline.evaluate(t);
     Draw::axes(c, rd, Color3::black(), Color3::black(), Color3::black(), 0.5f);
     Draw::sphere(Sphere(c.translation, 0.1f), rd);
-
-    (void)surface;
-    Draw::skyBox(rd, lighting->environmentMap);
-    Surface::sortAndRender(rd, defaultCamera, surface, lighting);
     Draw::physicsFrameSpline(m_spline, rd);
+*/
+    Surface::sortAndRender(rd, defaultCamera, surface, m_scene->lighting(), m_shadowMap);
 }
 
 void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
@@ -184,6 +175,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 	(void)idt;
     // Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
+    m_scene->onSimulation(idt);
 }
 
 void App::onUserInput(UserInput* ui) {

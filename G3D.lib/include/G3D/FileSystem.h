@@ -173,8 +173,11 @@ private:
     /** Fully qualifies a filename.
 
         The filename may contain wildcards, in which case the wildcards will be preserved in the returned value.
+
+        \param cwd The directory to treat as the "current" directory when resolving a relative path.  The default 
+        value is the actual current directory.  (G3D::Any::sourceDirectory is a common alternative) 
     */
-    std::string _resolve(const std::string& path);
+    std::string _resolve(const std::string& path, const std::string& cwd = currentDirectory());
 
     /** Returns true if \param dst does not exist or \param src is newer than \param dst,
        according to their time stamps.
@@ -304,8 +307,8 @@ public:
     }
 
     /** \copydoc _resolve */
-    static std::string resolve(const std::string& path) {
-        return instance()._resolve(path);
+    static std::string resolve(const std::string& path, const std::string& cwd = currentDirectory()) {
+        return instance()._resolve(path, cwd);
     }
 
     /** \copydoc _isNewer */

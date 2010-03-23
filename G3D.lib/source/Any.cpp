@@ -22,6 +22,16 @@
 
 namespace G3D {
 
+std::string Any::resolveStringAsFilename() const {
+    verifyType(STRING);
+    std::string f = FileSystem::resolve(string(), sourceDirectory());
+    if (FileSystem::exists(f)) {
+        return f;
+    } else {
+        return System::findDataFile(string(), false);
+    }
+}
+
 void Any::beforeRead() const {
     if (isPlaceholder()) {
         // Tried to read from a placeholder--throw an exception as if
@@ -709,7 +719,7 @@ void Any::load(const std::string& filename) {
     TextInput::Settings settings;
     getDeserializeSettings(settings);
 
-    TextInput ti(filename, settings);
+    TextInput ti(FileSystem::resolve(filename), settings);
     deserialize(ti);
 }
 
@@ -1188,6 +1198,15 @@ const Any::Source& Any::source() const {
         return m_data->source;
     } else {
         return s;
+    }
+}
+
+
+std::string Any::sourceDirectory() const {
+    if (m_data) {
+        return FilePath::parentPath(m_data->source.filename);
+    } else {
+        return "";
     }
 }
 

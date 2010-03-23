@@ -2,8 +2,8 @@
 // #include() inside another Any file.
 
 Material::Specification {
-    lambertian = "material/metalcrate/metalcrate-L.png",
-    specular = "material/metalcrate/metalcrate-G.png",
-    shininess = glossyExponent(30),
-    bump = "material/metalcrate/metalcrate-B.png",
+    lambertian = "metalcrate-L.png",
+    specular   = "metalcrate-G.png",
+    shininess  = glossyExponent(30),
+    bump       = "metalcrate-B.png",
 }

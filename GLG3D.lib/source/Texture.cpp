@@ -2356,21 +2356,34 @@ bool Texture::Specification::operator==(const Specification& other) const {
 
 Texture::Specification::Specification(const Any& any) {
     *this = Specification();
-    any.verifyName("Texture::Specification");
-    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
-        const std::string& key = toLower(it->key);
-        if (key == "filename") {
-            filename = System::findDataFile(it->value.string());
-        } else if (key == "desiredformat") {
-            desiredFormat = ImageFormat::fromString(it->value.string());
-        } else if (key == "dimension") {
-            dimension = toDimension(it->value);
-        } else if (key == "settings") {
-            settings = it->value;
-        } else if (key == "preprocess") {
-            preprocess = it->value;
-        } else {
-            any.verify(false, "Illegal key: " + it->key);
+
+    if (any.type() == Any::STRING) {
+        filename = any.resolveStringAsFilename();
+        if (FilePath::containsWildcards(filename)) {
+            // Assume this is a cube map
+            settings = Texture::Settings::cubeMap();
+        }
+    } else {
+        any.verifyName("Texture::Specification");
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "filename") {
+                filename = it->value.resolveStringAsFilename();
+            } else if (key == "desiredformat") {
+                desiredFormat = ImageFormat::fromString(it->value.string());
+            } else if (key == "dimension") {
+                dimension = toDimension(it->value);
+            } else if (key == "settings") {
+                settings = it->value;
+            } else if (key == "preprocess") {
+                preprocess = it->value;
+            } else {
+                any.verify(false, "Illegal key: " + it->key);
+            }
+        }
+        if (! any.containsKey("settings") && FilePath::containsWildcards(filename)) {
+            // Assume this is a cube map
+            settings = Texture::Settings::cubeMap();
         }
     }
 }

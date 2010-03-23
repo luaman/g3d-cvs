@@ -21,17 +21,22 @@ ArticulatedModel::Specification::Specification() {}
 
 ArticulatedModel::Specification::Specification(const Any& any) {
     *this = Specification();
-    any.verifyName("ArticulatedModel::Specification");
-    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
-        const std::string& key = toLower(it->key);
-        if (key == "filename") {
-            filename = System::findDataFile(it->value.string());
-        } else if (key == "preprocess") {
-            preprocess = it->value;
-        } else if (key == "settings") {
-            settings = it->value;
-        } else {
-            any.verify(false, "Illegal key: " + it->key);
+
+    if (any.type() == Any::STRING) {
+        filename = any.resolveStringAsFilename();
+    } else {
+        any.verifyName("ArticulatedModel::Specification");
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "filename") {
+                filename = it->value.resolveStringAsFilename();
+            } else if (key == "preprocess") {
+                preprocess = it->value;
+            } else if (key == "settings") {
+                settings = it->value;
+            } else {
+                any.verify(false, "Illegal key: " + it->key);
+            }
         }
     }
 }
@@ -1028,5 +1033,24 @@ void ArticulatedModel::Part::pose
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
+
+ArticulatedModel::PoseSpline::PoseSpline() {}
+
+
+ArticulatedModel::PoseSpline::PoseSpline(const Any& any) {
+    any.verifyName("PoseSpline");
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        partSpline.getCreate(it->key) = it->value;
+    }
+}
+ 
+void ArticulatedModel::PoseSpline::get(float t, ArticulatedModel::Pose& pose) {
+    for (SplineTable::Iterator it = partSpline.begin(); it.hasMore(); ++it) {
+        if (it->value.control.size() > 0) {
+            pose.cframe.set(it->key, it->value.evaluate(t));
+        }
+    }
+}
 
 } // G3D

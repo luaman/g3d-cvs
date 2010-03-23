@@ -458,7 +458,7 @@ bool FileSystem::_isDirectory(const std::string& filename) {
 }
 
 
-std::string FileSystem::_resolve(const std::string& filename) {
+std::string FileSystem::_resolve(const std::string& filename, const std::string& cwd) {
     if (filename.size() >= 1) {
         if (isSlash(filename[0])) {
             // Already resolved
@@ -485,7 +485,7 @@ std::string FileSystem::_resolve(const std::string& filename) {
     }
 
     // Prepend the working directory.
-    return FilePath::concat(currentDirectory(), filename);
+    return FilePath::concat(cwd, filename);
 }
 
 

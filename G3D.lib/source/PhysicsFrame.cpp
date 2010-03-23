@@ -39,7 +39,7 @@ PhysicsFrame::PhysicsFrame(const Any& a) {
     } else if (beginsWith(n, "matrix3")) {        
         *this = PhysicsFrame(Matrix3(a));
     } else if (beginsWith(n, "cframe") || beginsWith(n, "coordinateframe")) {        
-        *this = PhysicsFrame(Matrix3(a));
+        *this = PhysicsFrame(CoordinateFrame(a));
     } else if (beginsWith(n, "pframe") || beginsWith(n, "physicsframe")) {
         if (a.type() == Any::ARRAY) {
             a.verifySize(2);

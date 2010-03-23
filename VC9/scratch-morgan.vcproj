@@ -174,7 +174,19 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\scratch-morgan\scene\crates.txt"
+			>
+		</File>
+		<File
 			RelativePath="..\scratch-morgan\main.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\scratch-morgan\Scene.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\scratch-morgan\Scene.h"
 			>
 		</File>
 	</Files>

@@ -199,6 +199,14 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\demos\starter\data-files\scene\crates.txt"
+			>
+		</File>
+		<File
+			RelativePath="..\data-files\material\metalcrate\metalcrate.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

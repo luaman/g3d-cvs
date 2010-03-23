@@ -193,6 +193,10 @@ Lighting::Specification::Specification(const Any& any) {
             ambientBottom = it->value;
         } else if (key == "environmentmap") {
             environmentMap = it->value;
+            if (it->value.type() == Any::STRING) {
+                // Cube map defaults
+                environmentMap.settings = Texture::Settings::cubeMap();
+            }
         } else if (key == "environmentmapcolor") {
             environmentMapColor = it->value;
         } else if (key == "lightarray") {

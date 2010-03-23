@@ -17,13 +17,17 @@ bool BumpMap::Specification::operator==(const Specification& other) const {
 BumpMap::Specification::Specification(const Any& any) {
     if (any.type() == Any::STRING) {
         // Treat as a filename
-        texture.filename = System::findDataFile(any.string());
+        texture.filename = any.resolveStringAsFilename();
         texture.preprocess = Texture::Preprocess::normalMap();
     } else {
         for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
             const std::string& key = toLower(it->key);
             if (key == "texture") {
                 texture = it->value;
+                if (it->value.type() == Any::STRING) {
+                    // Set bump map defaults
+                    texture.preprocess = Texture::Preprocess::normalMap();
+                }
             } else if (key == "settings") {
                 settings = it->value;
             } else {
