@@ -232,7 +232,7 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
     }
 
     for (int i = 0; i < preprocess.program.size(); ++i) {
-        preprocess.program[i]->apply(this);
+        preprocess.program[i]->apply(model);
     }
 
     model->updateAll();
