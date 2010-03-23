@@ -74,6 +74,11 @@ ArticulatedModel::Preprocess::Preprocess(const Any& any) {
             // TODO
         } else if (key == "materialoverride") {
             materialOverride = Material::create(it->value);
+        } else if (key == "program") {
+            program.resize(it->value.size());
+            for (int i = 0; i < program.size(); ++i) {
+                program[i] = Operation::create(it->value[i]);
+            }
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }
@@ -149,6 +154,19 @@ void ArticulatedModel::setStorage(ImageStorage s) {
 }
 
 
+int ArticulatedModel::partIndex(const PartID& id) const {
+    if (id.m_index != USE_NAME) {
+        return id.m_index;
+    } else {
+        for (int i = 0; i < partArray.size(); ++i) {
+            if (partArray[i].name == id.m_name) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
 ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList(const Material::Ref& mat) {
     TriList::Ref t = new TriList();
 
@@ -211,6 +229,10 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
                 part.triList[t]->material = preprocess.materialOverride;
             }
         }
+    }
+
+    for (int i = 0; i < preprocess.program.size(); ++i) {
+        preprocess.program[i]->apply(this);
     }
 
     model->updateAll();

@@ -32,6 +32,46 @@ std::string Any::resolveStringAsFilename() const {
     }
 }
 
+
+bool Any::nameBeginsWith(const std::string& s) const {
+    return nameBeginsWith(s.c_str());
+}
+
+
+bool Any::nameEquals(const std::string& s) const {
+    // If std::string has a fast hash compare, use it first
+    return (name() == s) || nameEquals(s.c_str());
+}
+
+
+inline static char toLower(char c) {
+    return ((c >= 'A') && (c <= 'Z')) ? (c - 'A' + 'a') : c;
+}
+
+
+bool Any::nameBeginsWith(const char* s) const {
+    verifyType(Any::ARRAY, Any::TABLE);
+
+    const char* n = name().c_str();
+    // Walk through character-by-character
+    while ((*s != '\0') && (*n != '\0')) {
+        if (toLower(*s) != toLower(*n)) {
+            // Mismatch
+            return false;
+        }
+        ++s; ++n;
+    }
+    // Make sure s ran out no later than n
+    return (*s == '\0');
+}
+
+
+bool Any::nameEquals(const char* s) const {
+    verifyType(Any::ARRAY, Any::TABLE);
+    return stricmp(name().c_str(), s) == 0;
+}
+
+
 void Any::beforeRead() const {
     if (isPlaceholder()) {
         // Tried to read from a placeholder--throw an exception as if

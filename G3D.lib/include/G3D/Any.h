@@ -450,6 +450,18 @@ public:
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;
 
+    /** If this is named ARRAY or TABLE, returns true if the name begins with \a s.  The comparision is case insensitive. */
+    bool nameBeginsWith(const std::string& s) const;
+
+    /** If this is named ARRAY or TABLE, returns true if the name begins with \a s.  The comparision is case insensitive. */
+    bool nameBeginsWith(const char* s) const;
+
+    /** If this is named ARRAY or TABLE, returns true if the name is \a s.  The comparision is case insensitive. */
+    bool nameEquals(const std::string& s) const;
+
+    /** If this is named ARRAY or TABLE, returns true if the name is\a s.  The comparision is case insensitive. */
+    bool nameEquals(const char* s) const;
+
     /** \brief Set the name used when serializing an ARRAY or TABLE.
     
        Only legal for ARRAY or TABLE.  The \a name must begin with a letter
@@ -478,6 +490,14 @@ public:
     /** For an array, returns the ith element */
     const Any& operator[](int i) const;
     Any& operator[](int i);
+
+    const Any& last() const {
+        return (*this)[size() - 1];
+    }
+
+    Any& last() {
+        return (*this)[size() - 1];
+    }
 
     /** Directly exposes the underlying data structure for an ARRAY. */
     const Array<Any>& array() const;

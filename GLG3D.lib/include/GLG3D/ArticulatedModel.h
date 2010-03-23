@@ -87,121 +87,12 @@ class Any;
  */
 class ArticulatedModel : public ReferenceCountedObject {
 public:
+    friend class Part;
 	
     typedef ReferenceCountedPointer<class ArticulatedModel> Ref;
 
-    /** @brief Options to apply while loading models. 
-    
-      You can use the @a xform parameter to scale, translate, and rotate 
-      (or even invert!) the model as it is loaded. */
-    class Preprocess {
-    public:
-        /** Removes all material properties while loading for cases where only geometry is desired. */
-        bool                          stripMaterials;
+    enum {ALL = -5, USE_NAME = -6};
 
-        /** If a material's diffuse texture is name X.Y and X-bump.* file exists,
-            add that to the material as a bump map. Default is <b>false</b>.
-            
-            @beta May be generalized to support maps for all Material parameters 
-            later. */
-        bool                          addBumpMaps;
-
-        /** Transformation to apply to geometry after it is loaded. 
-           Default is <b>Matrix4::identity()</b>*/
-        Matrix4                       xform;
-
-        /** For files that have normal/bump maps but no specification of the bump-map algorithm, 
-            use this as the number of Material::parallaxSteps. Default is <b>0</b>
-            (Blinn Normal Mapping) */
-        int                           parallaxSteps;
-
-        /** For files that have normal/bump maps but no specification of the elevation of the bump
-            map, this is used. See Material::bumpMapScale. Default = 0.05.*/
-        float                         bumpMapScale;
-
-        /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.02f */
-        float                         normalMapWhiteHeightInPixels;
-
-        /** During loading, whenever a material whose diffuse texture is named X is specified, it is automatically replaced
-            with materialSubstitution[X].*/
-        Table<std::string, Material::Ref> materialSubstitution;
-
-        /** Reserved for future use */
-        class TriListKey {
-        public:
-            /** If "*", this applies to all parts */
-            std::string     partName;
-
-            /** If "-1", this applies to all indices */
-            int             triListIndex;
-            TriListKey() : partName("*"), triListIndex(-1) {}
-
-            static size_t hashCode(const TriListKey& key) {
-                return HashTrait<std::string>::hashCode(key.partName) + key.triListIndex;
-            }
-        };
-
-        /** Override all materials with this one, if non-NULL.  This
-            forces stripMaterials to be true.*/
-        Material::Ref           materialOverride;
-        
-        Preprocess(const Any& any);
-        operator Any() const;
-
-        inline Preprocess() : stripMaterials(false), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
-
-        explicit inline Preprocess(const Matrix4& m) : stripMaterials(false), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
-
-        /** Initializes with a scale matrix */
-        explicit inline Preprocess(const Vector3& scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
- 
-        /** Initializes with a scale matrix */
-        explicit inline Preprocess(const float scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
-    };
-
-    /**
-     Parameters applied when G3D::ArticulatedModel::Part::computeNormalsAndTangentSpace 
-     is caled by G3D::ArticulatedModel::updateAll.
-     */
-    class Settings {
-    public:
-        Welder::Settings                     weld;
-
-        inline Settings() {}
-
-        /** This forces "flat shading" on the model and causes it to render significantly
-            slower than a smooth shaded object. However, it can be very useful for debugging in certain
-            conditions and for rendering polyhedra.*/
-        inline static Settings facet() {
-            Settings s;
-            s.weld.normalSmoothingAngle = 0;
-            return s;
-        }
-
-        Settings(const Any& any);
-        operator Any() const;
-    };
-
-
-    /** \beta */
-    class Specification {
-    public:
-        std::string     filename;
-        Preprocess      preprocess;
-        Settings        settings;
-
-        Specification();
-
-        Specification(const Any& any);
-        operator Any() const;
-    };
-        
-
-private:
-
-    friend class Part;
-
-public:
 
     /** Specifies the transformation that occurs at each node in the heirarchy. 
      */
@@ -247,8 +138,30 @@ public:
         void get(float t, ArticulatedModel::Pose& pose);
     };
 
-    /** Identity transformation.*/
-    static const Pose& defaultPose();
+
+    /**
+     Parameters applied when G3D::ArticulatedModel::Part::computeNormalsAndTangentSpace 
+     is caled by G3D::ArticulatedModel::updateAll.
+     */
+    class Settings {
+    public:
+        Welder::Settings                     weld;
+
+        inline Settings() {}
+
+        /** This forces "flat shading" on the model and causes it to render significantly
+            slower than a smooth shaded object. However, it can be very useful for debugging in certain
+            conditions and for rendering polyhedra.*/
+        inline static Settings facet() {
+            Settings s;
+            s.weld.normalSmoothingAngle = 0;
+            return s;
+        }
+
+        Settings(const Any& any);
+        operator Any() const;
+    };
+
 
     /**
       A named sub-set of the model that has a single reference frame.
@@ -344,7 +257,17 @@ public:
         /** Union of the index arrays for all triLists. This is not used for normal rendering. */
         Array<int>                  indexArray;
 
-        inline Part() : parent(-1) {}
+        Part() : parent(-1) {}
+
+        /** Removes CPU geometry but retains GPU geometry (until next update()), cframe, and hierarchy.*/
+        void removeGeometry() {
+            triList.clear();
+            packedTangentArray.clear();
+            texCoordArray.clear();
+            geometry.clear();
+            indexArray.clear();
+        }
+
 
         /** Creates a new tri list, adds it to the Part, and returns it.
             If \a mat is NULL, creates a default white material. */
@@ -393,6 +316,217 @@ public:
             Calls computeBounds on each triList in this Part's triListArray.*/
         void computeBounds();
     };
+
+    /** Identifies an individual part, for use with G3D::ArticulatedModel::Operation. */
+    class PartID {
+    private:
+        friend class ArticulatedModel;
+
+        /** Note special values ALL and USE_NAME */
+        int             m_index;
+        std::string     m_name;
+
+    public:
+
+        PartID(const std::string& name);
+        PartID(int index = ALL);
+        PartID(const Any& any);
+
+        bool isAll() const {
+            return m_index == ALL;
+        }
+    };
+
+    /** For use with G3D::ArticulatedModel::Preprocess.  Defines
+        a mini processing language.  A sample use is:
+      
+        <pre>
+        ArticulatedModel::Specification {
+           preprocess = ArticulatedModel::Preprocess {
+              program = (
+                  rename("toe", "root");
+                  setMaterial("hand", #include("skin.mat"));
+                  setTwoSided("eye", 1, true);
+              )
+           }
+        }
+        </pre>               
+
+        This language contains zero or more statements.
+        The legal statements are:
+
+        <pre>
+        partid   := string | number
+        trilist  := number
+        target   := partid  | partid ',' trilist  |  '(' partid* ')'
+
+        Statements:
+
+          rename( partid, string );
+
+          setMaterial( [ target ,] materialSpec );
+          setTwoSided( [ target ,] boolean );
+          
+          
+          remove( target );
+            When triList is removed, the triList indexing changes.
+            When a part is removed, its geometry is wiped but the part and transform remain.
+
+          merge( target );
+          merge( partid, trilist, trilist );
+          merge( partid, trilist, partid, trilist );
+        </pre>
+    */
+    class Operation : public ReferenceCountedObject {
+    public:
+        typedef ReferenceCountedPointer<Operation> Ref;
+    
+        virtual void apply(ArticulatedModel::Ref model) = 0;
+
+        static Ref create(const Any& any);
+    };
+
+    class RenameOperation : public Operation {
+    public:
+        typedef ReferenceCountedPointer<RenameOperation> Ref;
+        
+        PartID              sourcePart;
+        std::string         name;
+
+        static Ref create(const Any& any);
+        virtual void apply(ArticulatedModel::Ref model);
+    };
+
+    class TriListOperation : public Operation {
+    protected:
+
+        void parseTarget(const Any& any);
+        virtual void process(ArticulatedModel::Ref model, int partIndex, Part& part) = 0;
+
+    public:
+        Array<PartID>       sourcePart;
+
+        /** May be ALL */
+        int                 sourceTriList;
+        virtual void apply(ArticulatedModel::Ref model);
+    };
+
+    /** Replaces the part with an empty part, so that numbering is unchanged */
+    class RemoveOperation : public TriListOperation {
+    protected:
+        virtual void process(ArticulatedModel::Ref model, int partIndex, Part& part);
+    public:
+        typedef ReferenceCountedPointer<RemoveOperation> Ref;
+        static Ref create(const Any& any);
+    };
+
+    class SetTwoSidedOperation : public TriListOperation {
+    protected:
+        virtual void process(ArticulatedModel::Ref model, int partIndex, Part& part);
+    public:
+        bool                twoSided;
+        typedef ReferenceCountedPointer<SetTwoSidedOperation> Ref;
+        static Ref create(const Any& any);
+    };
+
+    class SetMaterialOperation : public TriListOperation {
+    protected:
+        virtual void process(ArticulatedModel::Ref model, int partIndex, Part& part);
+    public:
+        Material::Ref       material;
+        typedef ReferenceCountedPointer<SetMaterialOperation> Ref;
+        static Ref create(const Any& any);
+    };
+
+    /** Transforms the geometry, but not the cframe or the sub-parts. */
+    class TransformOperation : public Operation {
+    protected:
+        void transform(Part& p) const;
+    public:
+        Array<PartID>       sourcePart;
+        Matrix4             xform;
+        typedef ReferenceCountedPointer<TransformOperation> Ref;
+        static Ref create(const Any& any);
+        virtual void apply(ArticulatedModel::Ref model);
+    };
+
+    /** @brief Options to apply while loading models. 
+    
+      You can use the @a xform parameter to scale, translate, and rotate 
+      (or even invert!) the model as it is loaded. */
+    class Preprocess {
+    public:
+        /** Removes all material properties while loading for cases where only geometry is desired. */
+        bool                          stripMaterials;
+
+        /** Transformation to apply to geometry after it is loaded. 
+           Default is <b>Matrix4::identity()</b>*/
+        Matrix4                       xform;
+
+        /** If a material's diffuse texture is name X.Y and X-bump.* file exists,
+            add that to the material as a bump map. Default is <b>false</b>.
+            
+            @beta May be generalized to support maps for all Material parameters 
+            later. */
+        bool                          addBumpMaps;
+
+        /** For files that have normal/bump maps but no specification of the bump-map algorithm, 
+            use this as the number of Material::parallaxSteps. Default is <b>0</b>
+            (Blinn Normal Mapping) */
+        int                           parallaxSteps;
+
+        /** For files that have normal/bump maps but no specification of the elevation of the bump
+            map, this is used. See Material::bumpMapScale. Default = 0.05.*/
+        float                         bumpMapScale;
+
+        /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.02f */
+        float                         normalMapWhiteHeightInPixels;
+
+        /** During loading, whenever a material whose diffuse texture is named X is specified, it is automatically replaced
+            with materialSubstitution[X].*/
+        Table<std::string, Material::Ref> materialSubstitution;
+
+        /** Override all materials with this one, if non-NULL.  This
+            forces stripMaterials to be true.*/
+        Material::Ref                 materialOverride;
+
+        /** Operations are performed after all other transformations during loading. */
+        Array<Operation::Ref>         program;
+        
+        Preprocess(const Any& any);
+        operator Any() const;
+
+        inline Preprocess() : stripMaterials(false), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+
+        explicit inline Preprocess(const Matrix4& m) : stripMaterials(false), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+
+        /** Initializes with a scale matrix */
+        explicit inline Preprocess(const Vector3& scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+ 
+        /** Initializes with a scale matrix */
+        explicit inline Preprocess(const float scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+    };
+
+
+    /** \beta */
+    class Specification {
+    public:
+        std::string     filename;
+        Preprocess      preprocess;
+        Settings        settings;
+
+        Specification();
+
+        Specification(const Any& any);
+        operator Any() const;
+    };
+        
+
+public:
+
+    /** Identity transformation.*/
+    static const Pose& defaultPose();
+
 
     /** All parts. Root parts are identified by (parent == -1).  
         It is assumed that each part has exactly
@@ -457,6 +591,9 @@ public:
         const CoordinateFrame&   cframe = CoordinateFrame(),
         const Pose&              pose = defaultPose());
   
+
+    /** Converts a part name to an index.  Returns -1 if the part name is not found.*/
+    int partIndex(const PartID& id) const;
 
     inline const Settings& settings() const {
         return m_settings;
