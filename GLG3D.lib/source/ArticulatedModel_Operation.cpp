@@ -65,8 +65,9 @@ void ArticulatedModel::RenameOperation::apply(ArticulatedModel::Ref model) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-void ArticulatedModel::TriListOperation::parseTarget(const Any& any) {
-    if (any.size() == 3) {
+void ArticulatedModel::TriListOperation::parseTarget(const Any& any, int numExtraArgs) {
+    int myNumArgs = any.size() - numExtraArgs;
+    if (myNumArgs == 2) {
         // part, (trilist) or part, trilist
         sourcePart.append(any[0]);
 
@@ -84,7 +85,7 @@ void ArticulatedModel::TriListOperation::parseTarget(const Any& any) {
             t.verify(sourceTriList[0] >= 0, "triList index must be non-negative");
         }
 
-    } else if (any.size() == 2) {
+    } else if (myNumArgs == 1) {
         // part or (part)
         Any p = any[0];
         if (p.type() == Any::ARRAY) {
@@ -97,7 +98,7 @@ void ArticulatedModel::TriListOperation::parseTarget(const Any& any) {
         }
         sourceTriList.append(ALL);
 
-    } else if (any.size() == 1) {
+    } else if (myNumArgs == 0) {
         // all parts
         sourcePart.append(ALL);
         sourceTriList.append(ALL);
@@ -125,7 +126,7 @@ ArticulatedModel::RemoveOperation::Ref ArticulatedModel::RemoveOperation::create
     any.verifyName("remove");
 
     Ref op = new RemoveOperation();
-    op->parseTarget(any);
+    op->parseTarget(any, 0);
     return op;
 }
 
@@ -153,7 +154,7 @@ ArticulatedModel::SetTwoSidedOperation::Ref ArticulatedModel::SetTwoSidedOperati
     any.verify(any.size() <= 3, "Cannot take more than three arguments");
 
     Ref op = new SetTwoSidedOperation();
-    op->parseTarget(any);
+    op->parseTarget(any, 1);
     op->twoSided = any.last();
     return op;
 }
@@ -178,7 +179,7 @@ ArticulatedModel::SetMaterialOperation::Ref ArticulatedModel::SetMaterialOperati
     any.verify(any.size() <= 3, "Cannot take more than three arguments");
 
     Ref op = new SetMaterialOperation();
-    op->parseTarget(any);
+    op->parseTarget(any, 1);
     op->material = Material::create(any.last());
     return op;
 }

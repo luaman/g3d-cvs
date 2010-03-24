@@ -402,7 +402,7 @@ public:
     class TriListOperation : public Operation {
     protected:
 
-        void parseTarget(const Any& any);
+        void parseTarget(const Any& any, int numContentArgs);
         virtual void process(ArticulatedModel::Ref model, int partIndex, Part& part) = 0;
 
     public:
