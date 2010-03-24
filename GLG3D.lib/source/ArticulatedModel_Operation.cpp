@@ -66,13 +66,23 @@ void ArticulatedModel::RenameOperation::apply(ArticulatedModel::Ref model) {
 
 ////////////////////////////////////////////////////////////////////////
 void ArticulatedModel::TriListOperation::parseTarget(const Any& any) {
-    sourceTriList = ALL;
-
     if (any.size() == 3) {
-        // part, trilist
+        // part, (trilist) or part, trilist
         sourcePart.append(any[0]);
-        sourceTriList = any[1];
-        any.verify(sourceTriList >= 0, "triList index must be non-negative");
+
+        Any t = any[1];
+        if (t.type() == Any::ARRAY) {
+            // List of trilists
+            sourceTriList.resize(t.size());
+            for (int i = 0; i < sourceTriList.size(); ++i) {
+                sourceTriList[i] = t[i];
+                t[i].verify(sourceTriList[i] >= 0, "triList index must be non-negative");
+            }
+        } else {
+            // Single trilist
+            sourceTriList.append(t.number());
+            t.verify(sourceTriList[0] >= 0, "triList index must be non-negative");
+        }
 
     } else if (any.size() == 2) {
         // part or (part)
@@ -85,10 +95,12 @@ void ArticulatedModel::TriListOperation::parseTarget(const Any& any) {
         } else {
             sourcePart.append(p);
         }
+        sourceTriList.append(ALL);
 
     } else if (any.size() == 1) {
         // all parts
         sourcePart.append(ALL);
+        sourceTriList.append(ALL);
     }
 }
 
@@ -119,13 +131,17 @@ ArticulatedModel::RemoveOperation::Ref ArticulatedModel::RemoveOperation::create
 
 
 void ArticulatedModel::RemoveOperation::process(ArticulatedModel::Ref model, int partIndex, Part& part) {
-    if (sourceTriList == ALL) {
-        part.triList.remove(sourceTriList);
+    if ((sourceTriList.size() == 1) && (sourceTriList[0] == ALL)) {
+        part.removeGeometry();
+    } else {
+        // Remove from back to front so that ordering is not affected while removing
+        sourceTriList.sort(SORT_DECREASING);
+        for (int i = 0; i < sourceTriList.size(); ++i) {
+            part.triList.remove(sourceTriList[i]);
+        }
         if (part.triList.size() == 0) {
             part.removeGeometry();
         }
-    } else {
-        part.removeGeometry();
     }
 }
 
@@ -144,12 +160,14 @@ ArticulatedModel::SetTwoSidedOperation::Ref ArticulatedModel::SetTwoSidedOperati
 
 
 void ArticulatedModel::SetTwoSidedOperation::process(ArticulatedModel::Ref model, int partIndex, Part& part) {
-    if (sourceTriList == ALL) {
+    if ((sourceTriList.size() == 1) && (sourceTriList[0] == ALL)) {
         for (int t = 0; t < part.triList.size(); ++t) {
             part.triList[t]->twoSided = twoSided;
         }
     } else {
-        part.triList[sourceTriList]->twoSided = twoSided;
+        for (int t = 0; t < sourceTriList.size(); ++t) {
+            part.triList[sourceTriList[t]]->twoSided = twoSided;
+        }
     }
 }
 
@@ -167,12 +185,14 @@ ArticulatedModel::SetMaterialOperation::Ref ArticulatedModel::SetMaterialOperati
 
 
 void ArticulatedModel::SetMaterialOperation::process(ArticulatedModel::Ref model, int partIndex, Part& part) {
-    if (sourceTriList == ALL) {
+    if ((sourceTriList.size() == 1) && (sourceTriList[0] == ALL)) {
         for (int t = 0; t < part.triList.size(); ++t) {
             part.triList[t]->material = material;
         }
     } else {
-        part.triList[sourceTriList]->material = material;
+        for (int t = 0; t < sourceTriList.size(); ++t) {
+            part.triList[sourceTriList[t]]->material = material;
+        }
     }
 }
 

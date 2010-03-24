@@ -209,7 +209,7 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
     alwaysAssertM(FileSystem::exists(filename),
         filename + " cannot be loaded by ArticulatedModel because it does not exist.");
 
-    ArticulatedModel* model = new ArticulatedModel();
+    ArticulatedModel::Ref model = new ArticulatedModel();
     model->setSettings(settings);
 
     std::string ext = filenameExt(toLower(filename));

@@ -150,6 +150,7 @@ void App::setViewer(const std::string& newFilename) {
         (ext == "ply2") ||
         (ext == "off") ||
         (ext == "ply")) {
+       // (ext == "bsp")) {
         
         shadowMap->setSize(2048);
         

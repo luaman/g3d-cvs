@@ -357,8 +357,10 @@ public:
 
         <pre>
         partid   := string | number
+        parts    := partid |  '(' partid [',' partid]* ')'
         trilist  := number
-        target   := partid  | partid ',' trilist  |  '(' partid* ')'
+        trilists := trilist  |  '(' trilist [',' trilist]* ')'
+        target   := partids  | parts ',' trilists
 
         Statements:
 
@@ -407,7 +409,7 @@ public:
         Array<PartID>       sourcePart;
 
         /** May be ALL */
-        int                 sourceTriList;
+        Array<int>          sourceTriList;
         virtual void apply(ArticulatedModel::Ref model);
     };
 
