@@ -18,9 +18,9 @@ ArticulatedModel::PartID::PartID(int index) : m_index(index) {
 ArticulatedModel::PartID::PartID(const Any& any) : m_index(USE_NAME){
     any.verifyType(Any::STRING, Any::NUMBER);
     if (any.type() == Any::STRING) {
-        m_name = any;
+        m_name = any.string();
     } else {
-        m_index = any;
+        m_index = int(any.number());
         any.verify(m_index >= 0, "Part index must be non-negative.");
     }
 }
@@ -54,7 +54,7 @@ ArticulatedModel::RenameOperation::Ref ArticulatedModel::RenameOperation::create
 
     Ref op = new RenameOperation();
     op->sourcePart = any[0];
-    op->name = any[1];
+    op->name = any[1].string();
 
     return op;
 }

@@ -496,15 +496,15 @@ public:
         Preprocess(const Any& any);
         operator Any() const;
 
-        inline Preprocess() : stripMaterials(false), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        inline Preprocess() : stripMaterials(false), xform(Matrix4::identity()), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
-        explicit inline Preprocess(const Matrix4& m) : stripMaterials(false), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const Matrix4& m) : stripMaterials(false), xform(m), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
         /** Initializes with a scale matrix */
-        explicit inline Preprocess(const Vector3& scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const Vector3& scale) : stripMaterials(false), xform(Matrix4::scale(scale)), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
  
         /** Initializes with a scale matrix */
-        explicit inline Preprocess(const float scale) : stripMaterials(false), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const float scale) : stripMaterials(false), xform(Matrix4::scale(scale)), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
     };
 
 
