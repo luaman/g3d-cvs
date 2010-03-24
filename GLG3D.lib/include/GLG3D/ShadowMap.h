@@ -115,14 +115,14 @@ public:
     */
     static void computeMatrices
     (const GLight& light, const AABox& sceneBounds, GCamera& lightFrame, Matrix4& lightProjectionMatrix,
-     float lightProjX = 12, float lightProjY = 12, float lightProjNear = 0.5f, float lightProjFar = 60,
+     float lightProjX = 20, float lightProjY = 20, float lightProjNear = 1.0f, float lightProjFar = 60,
      float intensityCutoff = 1/255.0f);
 
     /** Call with desiredSize = 0 to turn off shadow maps.
      */
     virtual void setSize(int desiredSize = 1024, const Texture::Settings& settings = Texture::Settings::shadow());
 
-    static ShadowMap::Ref create(const std::string& name = "Shadow Map", int size = 1024, 
+    static ShadowMap::Ref create(const std::string& name = "Shadow Map", int size = 2048, 
                                const Texture::Settings& settings = Texture::Settings::shadow());
 
     

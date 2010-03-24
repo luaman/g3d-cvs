@@ -46,7 +46,7 @@
             GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d))
         ),
         shadowedLightArray = (
-            GLight::spot(Vector3(0, 2, 0), Vector3(0,-1,0), 30, Color3(10,10,10))
+            GLight::spot(Vector3(0, 2, 0), Vector3(0,-1,0), 60, Color3(10,10,10))
         ),
 
         environmentMap = Texture::Specification {
@@ -69,12 +69,13 @@
 
         s0 = ship(PhysicsFrameSpline {
            control = (
-               CFrame::fromXYZYPRDegrees(  -1.1f,  13.1f, -12.3f,  181.8f, -55.6f,   0.0f),
-               CFrame::fromXYZYPRDegrees(  0.5f,   5.6f,  -7.0f,  184.7f, -53.3f,   0.0f),
+               CFrame::fromXYZYPRDegrees(  -1.1f,  13.1f, -12.3f,  181.8f, -30.6f,   0.0f),
+               CFrame::fromXYZYPRDegrees(  0.5f,   4.6f,  -4.0f,  184.7f, -20.3f,   0.0f),
                
                // Hover:
+               CFrame::fromXYZYPRDegrees(  0.6f,   2.5f,  -2.0f,  175.5f,  6,   2.0f),
+               CFrame::fromXYZYPRDegrees(  0.6f,   2.6f,  -2.2f,  176.5f,  0.9f,   -2.0f),
                CFrame::fromXYZYPRDegrees(  0.6f,   2.5f,  -2.0f,  175.5f,  -6.9f,   2.0f),
-               CFrame::fromXYZYPRDegrees(  0.6f,   2.5f,  -2.0f,  175.5f,  -6.9f,   -2.0f),
 
                // Turn:
                CFrame::fromXYZYPRDegrees(  0.6f,   2.5f,  -2.0f,  175.5f,  -6.9f,   0.0f),
@@ -82,6 +83,8 @@
                // Fly off
                CFrame::fromXYZYPRDegrees( -2.6f,   2.5f,  -2.0f,  137.1f,  -1.7f,   0.0f),
                CFrame::fromXYZYPRDegrees( -5.2f,   5.3f,   0.0f,  95.9f,   6.9f,   -45.0f),
+               CFrame::fromXYZYPRDegrees( -8.2f,   9.7f,  -14.9f,  343.0f,   9.7f,   0.0f),
+               CFrame::fromXYZYPRDegrees( -8.2f,   9.7f,  -14.9f,  343.0f,   9.7f,   0.0f),
                CFrame::fromXYZYPRDegrees( -8.2f,   9.7f,  -14.9f,  343.0f,   9.7f,   0.0f),
                CFrame::fromXYZYPRDegrees( -9.0f,   14.3f, -16.1f,  270.8f,   5.2f,  10.0f)
                

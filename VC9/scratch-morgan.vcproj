@@ -189,6 +189,10 @@
 			RelativePath="..\scratch-morgan\Scene.h"
 			>
 		</File>
+		<File
+			RelativePath="..\data-files\3ds\spaceFighter01\spaceFighter01.any"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

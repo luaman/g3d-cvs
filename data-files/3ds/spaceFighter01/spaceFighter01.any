@@ -1,9 +1,9 @@
 ArticulatedModel::Specification {
     filename = "spaceFighter01.3ds",
     preprocess = ArticulatedModel::Preprocess {
-        xform = Matrix4(-0.008,  0,      0,      0,
-                          0,     0.008,  0,      0,
-                          0,     0,     -0.008,  0,
+        xform = Matrix4(-0.016,  0,      0,      0,
+                          0,     0.016,  0,      0,
+                          0,     0,     -0.016,  0,
                           0,     0,      0,      1),
         materialOverride = Material::Specification {
             lambertian = "diffuse.jpg",

@@ -330,6 +330,8 @@ void ShadowMap::computeMatrices
                                                  lightProjFar));
 
     if (light.spotCutoff <= 90) {
+        // TODO: Square spot
+
         // Spot light; we can set the lightProj bounds intelligently
 
         debugAssert(light.position.w == 1.0f);
