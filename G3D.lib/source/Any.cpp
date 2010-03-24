@@ -68,7 +68,12 @@ bool Any::nameBeginsWith(const char* s) const {
 
 bool Any::nameEquals(const char* s) const {
     verifyType(Any::ARRAY, Any::TABLE);
+#ifdef G3D_WIN32
     return stricmp(name().c_str(), s) == 0;
+#else
+    return strcasecmp(name().c_str(), s) == 0;
+#endif
+
 }
 
 
