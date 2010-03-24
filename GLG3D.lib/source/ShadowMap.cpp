@@ -337,7 +337,6 @@ void ShadowMap::computeMatrices
         // The cutoff is half the angle of extent (See the Red Book, page 193)
         const float angle = toRadians(light.spotCutoff);
 
-
         lightProjX = tan(angle) * lightProjNear;
       
         // Symmetric in x and y
