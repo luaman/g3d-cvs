@@ -29,10 +29,15 @@ public:
     virtual void onAI();
     virtual void onNetwork();
     virtual bool onEvent(const GEvent& e) {
-        /*
+        
         if (e.type == GEventType::KEY_DOWN) {
-            debugPrintf("Received key code %d\n", e.key.keysym.sym);
-            }*/
+            if (e.key.keysym.sym == 'r') {
+GCamera c;
+    m_scene = Scene::create("Crates", c);
+  //          debugPrintf("Received key code %d\n", e.key.keysym.sym);
+                return true;
+            }
+        }
         return GApp::onEvent(e);
     }
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
@@ -137,20 +142,54 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 //    glassModel->pose(posed3D, Vector3(0,8,0));
 }
 
+
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
     (void)surface;
-    Draw::skyBox(rd, m_scene->skyBox());
+    if (m_scene.notNull()) {
+        Draw::skyBox(rd, m_scene->skyBox());
 
-/*
-    static RealTime t0 = System::time();
-    float t = System::time() - t0;
-    CFrame c = m_spline.evaluate(t);
-    Draw::axes(c, rd, Color3::black(), Color3::black(), Color3::black(), 0.5f);
-    Draw::sphere(Sphere(c.translation, 0.1f), rd);
-    Draw::physicsFrameSpline(m_spline, rd);
-*/
-    Surface::sortAndRender(rd, defaultCamera, surface, m_scene->lighting(), m_shadowMap);
+        /*
+            static RealTime t0 = System::time();
+            float t = System::time() - t0;
+            CFrame c = m_spline.evaluate(t);
+            Draw::axes(c, rd, Color3::black(), Color3::black(), Color3::black(), 0.5f);
+            Draw::sphere(Sphere(c.translation, 0.1f), rd);
+            Draw::physicsFrameSpline(m_spline, rd);
+        */
+        Surface::sortAndRender(rd, defaultCamera, surface, m_scene->lighting(), m_shadowMap);
+        Draw::lighting(m_scene->lighting(), rd);
+
+        rd->setLineWidth(5);
+        rd->beginPrimitive(PrimitiveType::LINES);
+            Vector3 c(0,2,0);
+
+            // 30 degrees
+            float k = sqrt(3.0f)/2.0;
+            rd->setColor(Color3::blue());
+            rd->sendVertex(c);
+            rd->sendVertex(c - Vector3(0.5,k,0)*5);
+            rd->sendVertex(c);
+            rd->sendVertex(c - Vector3(-0.5,k,0)*5);
+
+            // 45 degrees
+            float p = sqrt(2.0f)/2.0;
+            rd->setColor(Color3::yellow());
+            rd->sendVertex(c);
+            rd->sendVertex(c - Vector3(p,p,0)*5);
+            rd->sendVertex(c);
+            rd->sendVertex(c - Vector3(-p,p,0)*5);
+
+
+            // 60 degrees
+            rd->setColor(Color3::red());
+            rd->sendVertex(c);
+            rd->sendVertex(c - Vector3(k,0.5,0)*5);
+            rd->sendVertex(c);
+            rd->sendVertex(c - Vector3(-k,0.5,0)*5);
+        rd->endPrimitive();
+    }
 }
+
 
 void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
 
@@ -175,7 +214,9 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 	(void)idt;
     // Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
-    m_scene->onSimulation(idt);
+    if (m_scene.notNull()) {
+        m_scene->onSimulation(idt);
+    }
 }
 
 void App::onUserInput(UserInput* ui) {

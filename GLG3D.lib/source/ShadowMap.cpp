@@ -308,6 +308,8 @@ void ShadowMap::computeMatrices
     float lightProjNear = lightProjNearMin;
     float lightProjFar  = lightProjFarMax;
 
+    // TODO: for a spot light, only consider objects this light can see
+
     // Find nearest and farthest corners of the scene bounding box
     lightProjNear = finf();
     lightProjFar  = 0;
@@ -334,11 +336,10 @@ void ShadowMap::computeMatrices
 
         // The cutoff is half the angle of extent (See the Red Book, page 193)
         const float angle = toRadians(light.spotCutoff);
-        lightProjX = lightProjNear * sin(angle);
 
-        // Expand to bound with a square
-        lightProjX *= 2.0f / sqrt(2.0f);
 
+        lightProjX = tan(angle) * lightProjNear;
+      
         // Symmetric in x and y
         lightProjY = lightProjX;
 

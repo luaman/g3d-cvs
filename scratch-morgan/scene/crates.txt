@@ -46,7 +46,7 @@
             GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d))
         ),
         shadowedLightArray = (
-            GLight::directional(Vector3(1, 2, 1), Color3::fromARGB(0xfcf6eb))
+            GLight::spot(Vector3(0, 2, 0), Vector3(0,-1,0), 30, Color3(10,10,10))
         ),
 
         environmentMap = Texture::Specification {
