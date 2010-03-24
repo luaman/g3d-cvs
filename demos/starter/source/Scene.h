@@ -3,6 +3,7 @@
 
 #include <G3D/G3DAll.h>
 
+
 /** Sample object. 
 
     G3D does not contain an Entity class in the API because it is a
@@ -15,10 +16,20 @@ public:
 
 protected:
 
-    std::string             m_name;
-    CFrame                  m_frame;
-    ArticulatedModel::Ref   m_model;
-    ArticulatedModel::Pose  m_pose;
+    std::string                     m_name;
+    ArticulatedModel::Ref           m_model;
+
+    /** Current position */
+    CFrame                          m_frame;
+
+    /** Current pose */
+    ArticulatedModel::Pose          m_pose;
+
+    /** Root position over time */
+    PhysicsFrameSpline              m_frameSpline;
+
+    /** Pose over time. */
+    ArticulatedModel::PoseSpline    m_poseSpline;
 
     Entity();
 
@@ -32,7 +43,9 @@ public:
         return m_name;
     }
 
-    static Entity::Ref create(const std::string& n, const CFrame& c, const ArticulatedModel::Ref& m);
+    static Entity::Ref create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline);
+
+    virtual void onSimulation(GameTime absoluteTime, GameTime deltaTime);
 
     virtual void onPose(Array<Surface::Ref>& surfaceArray);
 };
@@ -49,11 +62,13 @@ public:
 */
 class Scene : public ReferenceCountedObject {
 protected:
+    /** Current time */
+    RealTime                    m_time;
     Lighting::Ref               m_lighting;
     Texture::Ref                m_skyBox;
     Array<Entity::Ref>          m_entityArray;
 	
-	Scene() {}
+    Scene() : m_time(0) {}
 
 public:
 
@@ -61,7 +76,9 @@ public:
 
     static Scene::Ref create(const std::string& sceneName, GCamera& camera);
     
-    void onPose(Array<Surface::Ref>& surfaceArray);
+    virtual void onPose(Array<Surface::Ref>& surfaceArray);
+
+    virtual void onSimulation(GameTime deltaTime);
 
     inline Lighting::Ref lighting() const {
         return m_lighting;

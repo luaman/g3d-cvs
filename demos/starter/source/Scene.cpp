@@ -4,17 +4,36 @@ using namespace G3D::units;
 
 Entity::Entity() {}
 
-Entity::Ref Entity::create(const std::string& n, const CFrame& c, const ArticulatedModel::Ref& m) {
+Entity::Ref Entity::create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline) {
     Ref e = new Entity();
     e->m_name  = n;
-    e->m_frame = c;
     e->m_model = m;
+    e->m_frameSpline = frameSpline;
+    e->m_poseSpline = poseSpline;
+
+    // Set the initial position
+    e->onSimulation(0, 0);
     return e;
 }
 
 
 void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
     m_model->pose(surfaceArray, m_frame, m_pose);
+}
+
+
+void Entity::onSimulation(GameTime absoluteTime, GameTime deltaTime) {
+    (void)deltaTime;
+    m_frame = m_frameSpline.evaluate(float(absoluteTime));
+    m_poseSpline.get(float(absoluteTime), m_pose);
+}
+
+
+void Scene::onSimulation(RealTime deltaTime) {
+    m_time += deltaTime;
+    for (int i = 0; i < m_entityArray.size(); ++i) {
+        m_entityArray[i]->onSimulation(m_time, deltaTime);
+    }
 }
 
 
@@ -87,16 +106,27 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
         modelArgs.verify((model != NULL), 
             "Can't instantiate undefined model named " + modelArgs.name() + ".");
 
-        CFrame cframe;
-        if (modelArgs.size() == 1) {
-            cframe = modelArgs[0];
+        PhysicsFrameSpline frameSpline;
+        ArticulatedModel::PoseSpline poseSpline;
+        if (modelArgs.size() >= 1) {
+            frameSpline = modelArgs[0];
+            if (modelArgs.size() >= 2) {
+                // Poses 
+                poseSpline = modelArgs[1];
+            }
         }
 
-        s->m_entityArray.append(Entity::create(name, cframe, *model));
+        s->m_entityArray.append(Entity::create(name, *model, frameSpline, poseSpline));
     }
 
     // Load the camera
     camera = any["camera"];
+
+    if (any.containsKey("skybox")) {
+        s->m_skyBox = Texture::create(any["skybox"]);
+    } else {
+        s->m_skyBox = s->m_lighting->environmentMap;
+    }
     
     return s;
 }
