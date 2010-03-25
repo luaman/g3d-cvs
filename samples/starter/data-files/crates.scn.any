@@ -1,11 +1,10 @@
-// -*- c++ -*-
 // You can extend this sample scene file format with your own fields.
 // Edit the scene parsing in Scene.cpp.
 {
     name = "Crates",
    
     models = {
-       ship = #include("3ds/spaceFighter01/spaceFighter01.am.any"),
+       ship = #include("3ds/spaceFighter01/spaceFighter01.any"),
        
        groundModel = ArticulatedModel::Specification {
             filename = "ifs/squarex8.ifs",
