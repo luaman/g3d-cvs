@@ -205,7 +205,7 @@
 			Name="Scene Files"
 			>
 			<File
-				RelativePath=".\data-files\scene\crates.txt"
+				RelativePath=".\data-files\crates.scn.any"
 				>
 			</File>
 		</Filter>
