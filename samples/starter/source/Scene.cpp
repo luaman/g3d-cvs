@@ -44,10 +44,10 @@ static Table<std::string, std::string>& filenameTable() {
     if (filenameTable.size() == 0) {
         // Create a table mapping scene names to filenames
         Array<std::string> filenameArray;
-		FileSystem::getFiles("scene/*.txt", filenameArray);
+		FileSystem::getFiles("*.scn.any", filenameArray, true);
         for (int i = 0; i < filenameArray.size(); ++i) {
             Any a;
-            a.load(pathConcat("scene", filenameArray[i]));
+            a.load(filenameArray[i]);
 
             std::string name = a["name"].string();
             alwaysAssertM(! filenameTable.containsKey(name),
@@ -79,7 +79,7 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
     const std::string& filename = *f;
 
     Any any;
-    any.load(pathConcat("scene", filename));
+    any.load(filename);
 
     // Load the lighting
     if (any.containsKey("lighting")) {

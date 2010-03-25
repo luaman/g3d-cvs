@@ -181,15 +181,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\demos\rayTrace\App.cpp"
+				RelativePath="..\samples\rayTrace\App.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\rayTrace\Hit.cpp"
+				RelativePath="..\samples\rayTrace\Hit.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\rayTrace\World.cpp"
+				RelativePath="..\samples\rayTrace\World.cpp"
 				>
 			</File>
 		</Filter>
@@ -199,15 +199,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\demos\rayTrace\App.h"
+				RelativePath="..\samples\rayTrace\App.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\rayTrace\Hit.h"
+				RelativePath="..\samples\rayTrace\Hit.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\rayTrace\World.h"
+				RelativePath="..\samples\rayTrace\World.h"
 				>
 			</File>
 		</Filter>

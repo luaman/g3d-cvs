@@ -177,11 +177,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\demos\starter\source\App.cpp"
+				RelativePath="..\samples\starter\source\App.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\starter\source\Scene.cpp"
+				RelativePath="..\samples\starter\source\Scene.cpp"
 				>
 			</File>
 		</Filter>
@@ -191,22 +191,22 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\demos\starter\source\App.h"
+				RelativePath="..\samples\starter\source\App.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\starter\source\Scene.h"
+				RelativePath="..\samples\starter\source\Scene.h"
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\demos\starter\data-files\scene\crates.txt"
+		<Filter
+			Name="Scene Files"
 			>
-		</File>
-		<File
-			RelativePath="..\data-files\material\metalcrate\metalcrate.txt"
-			>
-		</File>
+			<File
+				RelativePath="..\samples\starter\data-files\crates.scn.any"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

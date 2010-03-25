@@ -26,7 +26,7 @@ Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD><
   G3D::RenderDevice::endPrimitives.  For higher performance, first load the vertices
   into a vertex array (G3D::VAR) in a memory area (G3D::VARArea).  G3D::Texture abstracts 
   the various texture mechanisms.  G3D::GFont can render text on screen using a series of 
-  rectangles with letter textures.  See <A HREF="../demos/GLG3D_Demo">demos/GLG3D_Demo</A>
+  rectangles with letter textures.  See <A HREF="../samples/starter">samples/starter</A>
   for examples of each kind of rendering.
   
   The basic concepts of immediate mode graphics are not explained in this manual or

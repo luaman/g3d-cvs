@@ -130,7 +130,7 @@ typedef ReferenceCountedPointer<class Client> ClientRef;
    by calling G3D::GApp::addWidget or G3D::WidgetManager::add, and
    then remove when browsing is complete.
 
-   See demos/network for an example of use
+   See samples/network for an example of use
 @beta
  */
 class Client : public GuiWindow {

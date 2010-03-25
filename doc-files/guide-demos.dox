@@ -2,7 +2,7 @@
 @page guidedemos Sample Programs
 
 <table width=100% border=0 cellpadding=2 cellspacing=2>
-<tr><td culspan=2>Ray Trace (<a href="../demos/rayTrace">demos/rayTrace</a>)</td></tr>
+<tr><td culspan=2>Ray Trace (<a href="../samples/rayTrace">samples/rayTrace</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly<IMG SRC="demo-rayTrace.png" width=250 >\endhtmlonly
@@ -22,7 +22,7 @@
 
 <tr><td culspan=2 height=10> </td></tr>
 
-<tr><td culspan=2>Shader (<a href="../demos/shader">demos/shader</a>)</td></tr>
+<tr><td culspan=2>Shader (<a href="../samples/shader">samples/shader</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly<IMG SRC="demo-shader.png" width=250 >\endhtmlonly
@@ -39,7 +39,7 @@
 
 <tr><td culspan=2 height=10> </td></tr>
 
-<tr><td culspan=2>Models (<a href="../demos/shader">demos/models</a>)</td></tr>
+<tr><td culspan=2>Models (<a href="../samples/shader">samples/models</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly<IMG SRC="demo-models.png" width=250 >\endhtmlonly
@@ -58,7 +58,7 @@
 
 <tr><td culspan=2 height=10> </td></tr>
 
-<tr><td culspan=2>Geometry Shader (<a href="../demos/geometry">demos/geometry</a>)</td></tr>
+<tr><td culspan=2>Geometry Shader (<a href="../samples/geometry">samples/geometry</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly <IMG SRC="demo-geometry.png" width=250 > \endhtmlonly
@@ -72,11 +72,10 @@
 </tr>
 
 <tr><td culspan=2 height=10> </td></tr>
-
-\htmlonly <IMG SRC="demo-network.png" width=250 > \endhtmlonly
-<tr><td culspan=2>Network Discovery (<a href="../demos/network">demos/network</a>)</td></tr>
+<tr><td culspan=2>Network Discovery (<a href="../samples/network">samples/network</a>)</td></tr>
 <tr valign=top>
 <td>
+\htmlonly <IMG SRC="demo-network.png" width=250 > \endhtmlonly
 </td>
 <td>
 <ul>
@@ -94,7 +93,7 @@
 
 <tr><td culspan=2 height=10> </td></tr>
 
-<tr><td culspan=2>Multiple Views (<a href="../demos/multiview">demos/multiview</a>)</td></tr>
+<tr><td culspan=2>Multiple Views (<a href="../samples/multiview">samples/multiview</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly <IMG SRC="demo-multiview.png" width=250 > \endhtmlonly
@@ -112,7 +111,7 @@ Two ways of creating multiple views: render to texture and explicit viewports.
 
 <tr><td culspan=2 height=10> </td></tr>
 
-<tr><td culspan=2>Starter (<a href="../demos/starter">demos/starter</a>)</td></tr>
+<tr><td culspan=2>Starter (<a href="../samples/starter">samples/starter</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly <IMG SRC="demo-starter.png" width=250 > \endhtmlonly
@@ -129,7 +128,7 @@ A good starting point for building your own G3D programs. (This is the program t
 
 <tr><td culspan=2> </td></tr>
 
-<tr><td culspan=2>Raw OpenGL (<a href="../demos/rawOpenGL">demos/rawOpenGL</a>)</td></tr>
+<tr><td culspan=2>Raw OpenGL (<a href="../samples/rawOpenGL">samples/rawOpenGL</a>)</td></tr>
 <tr valign=top>
 <td>
 \htmlonly <IMG SRC="demo-rawOpenGL.png" width=250 > \endhtmlonly

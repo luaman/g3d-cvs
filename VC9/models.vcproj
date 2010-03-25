@@ -180,15 +180,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\demos\models\App.cpp"
+				RelativePath="..\samples\models\App.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\models\loadScene.cpp"
+				RelativePath="..\samples\models\loadScene.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\models\main.cpp"
+				RelativePath="..\samples\models\main.cpp"
 				>
 			</File>
 		</Filter>
@@ -198,11 +198,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\demos\models\App.h"
+				RelativePath="..\samples\models\App.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\models\Entity.h"
+				RelativePath="..\samples\models\Entity.h"
 				>
 			</File>
 		</Filter>

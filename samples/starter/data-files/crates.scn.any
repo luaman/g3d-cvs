@@ -1,10 +1,11 @@
+// -*- c++ -*-
 // You can extend this sample scene file format with your own fields.
 // Edit the scene parsing in Scene.cpp.
 {
     name = "Crates",
    
     models = {
-       ship = #include("3ds/spaceFighter01/spaceFighter01.any"),
+       ship = #include("3ds/spaceFighter01/spaceFighter01.am.any"),
        
        groundModel = ArticulatedModel::Specification {
             filename = "ifs/squarex8.ifs",
@@ -31,7 +32,7 @@
                 // options here as was done for groundModel.  #include can be
                 // used to replace any Any value, including a whole 
                 // ArticulatedModel::Specification.
-                materialOverride = #include("material/metalcrate/metalcrate.txt")              
+                materialOverride = #include("material/metalcrate/metalcrate.mat.any")              
             }
        },
        

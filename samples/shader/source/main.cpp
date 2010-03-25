@@ -61,7 +61,7 @@ void App::onInit() {
 #   ifdef G3D_WIN32
 	if (! FileSystem::exists("phong.pix", false) && FileSystem::exists("G3D.sln", false)) {
             // Running in the solution directory
-            chdir("../demos/shader/data-files");
+            chdir("../samples/shader/data-files");
         }
 #   endif
 

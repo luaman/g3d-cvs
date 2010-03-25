@@ -179,7 +179,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\demos\shader\source\main.cpp"
+				RelativePath="..\samples\shader\source\main.cpp"
 				>
 			</File>
 		</Filter>
@@ -190,14 +190,14 @@
 			>
 		</Filter>
 		<Filter
-			Name="data-files"
+			Name="Shader Files"
 			>
 			<File
-				RelativePath="..\demos\shader\data-files\phong.pix"
+				RelativePath="..\samples\shader\data-files\phong.pix"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\shader\data-files\phong.vrt"
+				RelativePath="..\samples\shader\data-files\phong.vrt"
 				>
 			</File>
 		</Filter>

@@ -16,8 +16,8 @@ int main(int argc, char** argv) {
         // On Windows, we just run from the data directory.
 		if (FileSystem::exists("data-files")) {
             chdir("data-files");
-        } else if (FileSystem::exists("../demos/geometryShader/data-files")) {
-            chdir("../demos/geometryShader/data-files");
+        } else if (FileSystem::exists("../samples/geometryShader/data-files")) {
+            chdir("../samples/geometryShader/data-files");
         }
 
 #   endif

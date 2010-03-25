@@ -1,3 +1,4 @@
+// -*- c++ -*-
 // Load this with the Material::Specification(const Any&) constructor or
 // #include() inside another Any file.
 

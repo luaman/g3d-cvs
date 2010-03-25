@@ -110,11 +110,11 @@ std::string readWholeFile(
 
         char* buffer = (char*)System::alignedMalloc(length + 1, 16);
         debugAssert(buffer);
-        FILE* f = fopen(filename.c_str(), "rb");
+        FILE* f = FileSystem::fopen(filename.c_str(), "rb");
         debugAssert(f);
         int ret = fread(buffer, 1, length, f);
 	    debugAssert(ret == length);(void)ret;
-        fclose(f);
+        FileSystem::fclose(f);
 
         buffer[length] = '\0';    
         s = std::string(buffer);

@@ -21,7 +21,7 @@ controls provided by G3D::GuiPane.
 This manual begins with a \link guidenewuser New User Guide \endlink that help
 programmers who know C++ but are either new to 3D or starting without
 a base of 3D code get up and running quickly.  The demos directory contains
-a <a href="../demos/starter">starter</a> project(it is how the %G3D development team usually
+a <a href="../samples/starter">starter</a> project(it is how the %G3D development team usually
 start new projects in their own work).
 
 The library also provides lower-level interfaces that programmers who are
@@ -48,7 +48,7 @@ abreast of changes coming in future releases and download Beta releases
 from the G3D website to provide feedback.
 
 %G3D provides several demos with source that show different ways of structuring your 3D program 
-and how to use some of the most popular features in <A HREF="../demos">demos/</A>.
+and how to use some of the most popular features in <A HREF="../demos">samples/</A>.
 
 The official support team and community respond to most user posts within
 hours and patches for critical user-discovered bugs are given top priority.  

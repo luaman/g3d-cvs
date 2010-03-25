@@ -174,7 +174,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\demos\rawOpenGL\main.cpp"
+			RelativePath="..\samples\rawOpenGL\main.cpp"
 			>
 		</File>
 	</Files>

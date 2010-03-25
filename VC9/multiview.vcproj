@@ -182,11 +182,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\demos\multiview\App.cpp"
+				RelativePath="..\samples\multiview\App.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\multiview\Scene.cpp"
+				RelativePath="..\samples\multiview\Scene.cpp"
 				>
 			</File>
 		</Filter>
@@ -196,11 +196,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\demos\multiview\App.h"
+				RelativePath="..\samples\multiview\App.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\multiview\Scene.h"
+				RelativePath="..\samples\multiview\Scene.h"
 				>
 			</File>
 		</Filter>

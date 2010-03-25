@@ -178,7 +178,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\demos\geometryShader\App.cpp"
+				RelativePath="..\samples\geometryShader\App.cpp"
 				>
 			</File>
 		</Filter>
@@ -188,7 +188,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\demos\geometryShader\App.h"
+				RelativePath="..\samples\geometryShader\App.h"
 				>
 			</File>
 		</Filter>
@@ -196,15 +196,15 @@
 			Name="Shaders"
 			>
 			<File
-				RelativePath="..\demos\geometryShader\data-files\extrude.geo"
+				RelativePath="..\samples\geometryShader\data-files\extrude.geo"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\geometryShader\data-files\extrude.pix"
+				RelativePath="..\samples\geometryShader\data-files\extrude.pix"
 				>
 			</File>
 			<File
-				RelativePath="..\demos\geometryShader\data-files\extrude.vrt"
+				RelativePath="..\samples\geometryShader\data-files\extrude.vrt"
 				>
 			</File>
 		</Filter>

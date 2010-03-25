@@ -6,7 +6,7 @@ projects that use %G3D, see the Installing %G3D page for your
 operating system linked from the <a class="el" href="index.html">title page</a>.
 
 <b>To get started quickly, refer to the <a
-class="el" href="../demos/starter/">demos/starter</a> starter project for a small
+class="el" href="../samples/starter/">samples/starter</a> starter project for a small
 example program of how most people use G3D. </b> On Unix-like operating systems,
 just run 'icompile' with no arguments to generate your own G3D starter project.
 
@@ -44,7 +44,7 @@ subsystems like OpenGL and Winsock.
 Small games, research projects, and homework assignments are written
 on short shedules and have moderate GUI needs.  The G3D::GApp class is
 designed to get such projects running quickly and easily.  
-See the <a href="../demos/starter">demos/starter</a> project for an example.
+See the <a href="../samples/starter">samples/starter</a> project for an example.
 
 G3D::GApp will create a window, initialize OpenGL, create a log file,
 and provide you with framerate, video recorder, camera and tone map controls, 
@@ -84,7 +84,7 @@ OpenGL in a platform-independent way and then have students write
 their own OpenGL calls (in fact, you can always mix OpenGL and %G3D
 calls, no matter how sophisticated the program).
 
-See the <a href="../demos/rawOpenGL">demos/rawOpenGL</a> project as an example.
+See the <a href="../samples/rawOpenGL">samples/rawOpenGL</a> project as an example.
 
 A sample progression for a course is to begin with raw OpenGL as in
 the example, then add the linear algebra helper classes (e.g.,

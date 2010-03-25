@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 #   ifdef G3D_WIN32
         if (! FileSystem::exists("G3D-logo-tiny-alpha.tga")) {
             // Running under visual studio from the wrong directory
-            chdir("../demos/models/data-files");
+            chdir("../samples/models/data-files");
         }
 #   endif
 

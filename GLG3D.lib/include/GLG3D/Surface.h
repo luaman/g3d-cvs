@@ -126,7 +126,7 @@ public:
 
         /** Convert alpha to coverage values using <code>glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB)</code>. 
            Requires a MSAA framebuffer to be bound.*/
-        // See http://www.dhpoware.com/demos/glMultiSampleAntiAliasing.html for an example.
+        // See http://www.dhpoware.com/samples/glMultiSampleAntiAliasing.html for an example.
         ALPHA_TO_COVERAGE,
         
         /** Render surfaces with partial coverage from back to front, using Porter and Duff's OVER operator.

@@ -43,6 +43,7 @@
      <li> Upgraded to libpng 1.4.1
      <li> Upgraded to glew 1.5.3
      <li> G3D::PhysicsFrameSpline
+     <li> Renamed "demos" directory to "samples"
      <li> G3D::BinaryInput::readStringNewline
      <li> G3D::fileExists now caches results by default; see new optional argument and G3D::clearFileSystemCache
      <li> G3D::Surface::AlphaMode
@@ -69,7 +70,7 @@
      <li> Tweaked FirstPersonManipulator rotation to avoid over-clamping on diagonals
      <li> G3D::parseCommaSeparated
      <li> G3D::ReferenceCountedPointer can now be instantiated for a forward-declared type
-     <li> demos/starter app uses Film
+     <li> samples/starter app uses Film
      <li> G3D::ParseError
      <li> G3D::Array provides constructors that accept up to 6 initial elements
      <li> G3D::Texture::readTexel
@@ -1123,7 +1124,7 @@
 	 <LI> G3D::Token::extendedType returns information disambiguating characters and strings
 	      and floats and ints.
      <LI> Added data/ah64-body and ah64-rotor
-     <LI> demos/Network_Demo now uses a helicopter model instead of a plane
+     <LI> samples/Network_Demo now uses a helicopter model instead of a plane
      <LI> G3D::VARArea::openGLVertexBufferObject and G3D::VARArea::openGLBasePointer for breaking
           the VARArea abstraction.
      <LI> GLG3D.h no longer links against SDLMain.lib on Windows if _CONSOLE is defined

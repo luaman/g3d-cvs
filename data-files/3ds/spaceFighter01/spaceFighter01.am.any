@@ -1,3 +1,4 @@
+// -*- c++ -*-
 ArticulatedModel::Specification {
     filename = "spaceFighter01.3ds",
     preprocess = ArticulatedModel::Preprocess {

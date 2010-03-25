@@ -26,7 +26,7 @@ namespace G3D {
 /**
    \brief Quake II model class, primarily used for animated characters.
  <P>
- See demos/models for an example of how to use this class.
+ See samples/models for an example of how to use this class.
 
  <P>
  Models are centered about their waist.  To figure out where the feet are you

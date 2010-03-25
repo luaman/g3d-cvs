@@ -76,7 +76,7 @@ the default button.
 </LI>
 <LI>
 Create a new <tt>main.cpp</tt> containing a main() routine, or copy the <tt>main.cpp</tt>
-from the <tt>source/demos/</tt> directory to your project's directory, and add the
+from the <tt>source/samples/</tt> directory to your project's directory, and add the
 new or existing file to your Xcode project.
 </LI>
 <LI>
