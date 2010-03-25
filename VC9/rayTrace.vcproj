@@ -116,14 +116,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
