@@ -85,6 +85,9 @@ directory.  If you installed G3D to
 <code>c:\libraries\G3D\lib</code>.
 </p>
 
+<li><p>In the tree list on the left of the entire dialog, select TextEditor/Extensions.  Add each of the following extensions with the "Microsoft C++ Experience" by typing it into the text box and pressing "Add": "pix", "vrt", "geo", "cu", "any".  The completed dialog should look like:</p>
+<center><img src="vc9-extension-dialog.png" border=0 align=top></center></p>
+
 <li><p>Push <b>Ok</b> to close the <b>Options</b> dialog.</p>
 
 <li><p>Quit Visual Studio to ensure that your changes are saved.</p>
