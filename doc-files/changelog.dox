@@ -40,6 +40,7 @@
      <li> G3D::GFont::nativeSize
      <li> G3D::FileSystem
      <li> G3D::FilePath
+     <li> G3D::Matrix4::operator+(const Matrix4&)
      <li> Upgraded to libpng 1.4.1
      <li> Upgraded to glew 1.5.3
      <li> G3D::PhysicsFrameSpline
@@ -214,6 +215,7 @@
      <li> Fix: G3D::Draw::lighting now renders shadow casting lights as well
      <li> Fix: G3D::RenderDevice now handles textures up to 16 correctly while leaving texture units, coords and matrics at 8
      <li> Fix: Alpha cutout for transmissive surfaces
+     <li> Fix: Color3uint8::operator!=
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

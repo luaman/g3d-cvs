@@ -115,7 +115,7 @@ public:
     }
 
     bool operator!=(const Color3uint8 other) const {
-        return (other.r != r) && (other.g != g) && (other.b != b);
+        return ! (*this == other);
     }
 }
 G3D_END_PACKED_CLASS(1)
