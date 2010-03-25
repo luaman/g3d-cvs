@@ -63,7 +63,7 @@ public:
 class Scene : public ReferenceCountedObject {
 protected:
     /** Current time */
-    RealTime                    m_time;
+    GameTime                    m_time;
     Lighting::Ref               m_lighting;
     Texture::Ref                m_skyBox;
     Array<Entity::Ref>          m_entityArray;
@@ -80,11 +80,15 @@ public:
 
     virtual void onSimulation(GameTime deltaTime);
 
-    inline Lighting::Ref lighting() const {
+    Lighting::Ref lighting() const {
         return m_lighting;
     }
 
-    inline Texture::Ref skyBox() const {
+    GameTime time() const {
+        return m_time;
+    }
+
+    Texture::Ref skyBox() const {
         return m_skyBox;
     }
 
