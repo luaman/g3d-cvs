@@ -427,7 +427,12 @@ public:
     */
     int run();
 
+    /** Draw a simple, short message in the center of the screen and swap the buffers. 
+      Useful for loading screens and other slow operations.*/
+    void drawMessage(const std::string& message);
+
 private:
+
     /** Used by doSimulation for elapsed time. */
     RealTime               now, lastTime;
 

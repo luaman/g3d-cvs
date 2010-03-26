@@ -14,8 +14,12 @@
 #include "Scene.h"
 
 class App : public GApp {
+    GuiDropDownList*    m_sceneDropDownList;
     Scene::Ref          m_scene;
     ShadowMap::Ref      m_shadowMap;
+
+    /** Loads whatever scene is currently selected in the m_sceneDropDownList. */
+    void loadScene();
 
 public:
     

@@ -244,6 +244,19 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
 }
 
 
+void GApp::drawMessage(const std::string& message) {
+    renderDevice->push2D();
+    {
+        renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+        Draw::fastRect2D(renderDevice->viewport(), renderDevice, Color4(Color3::white(), 0.8f));
+        debugWindow->theme()->defaultStyle().font->draw2D(renderDevice, message, renderDevice->viewport().center(), 30, 
+            Color3::black(), Color4::clear(), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+    }
+    renderDevice->pop2D();
+    renderDevice->swapBuffers();
+}
+
+
 void GApp::setExitCode(int code) {
     m_endProgram = true;
     m_exitCode = code;

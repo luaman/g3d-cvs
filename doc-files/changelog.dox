@@ -40,6 +40,7 @@
      <li> G3D::GFont::nativeSize
      <li> G3D::FileSystem
      <li> G3D::FilePath
+     <li> G3D::GApp::drawMessage
      <li> G3D::Matrix4::operator+(const Matrix4&)
      <li> Upgraded to libpng 1.4.1
      <li> Upgraded to glew 1.5.3

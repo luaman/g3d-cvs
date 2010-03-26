@@ -59,12 +59,30 @@ void App::onInit() {
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
 
+    // Example of using a callback; you can also listen for events in onEvent or bind controls to data
+    m_sceneDropDownList = debugPane->addDropDownList("Scene", Scene::sceneNames(), NULL, GuiControl::Callback(this, &App::loadScene));
+    debugPane->addButton(GuiText("q", GFont::fromFile(System::findDataFile("icon.fnt")), 15), this, &App::loadScene, GuiTheme::TOOL_BUTTON_STYLE)->moveRightOf(m_sceneDropDownList);
+    debugWindow->pack();
+    debugWindow->moveTo(Vector2(0, window()->height() - debugWindow->rect().height()));
+
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
     m_shadowMap = ShadowMap::create();
 
+    loadScene();
     m_scene = Scene::create("Crates", defaultCamera);
+}
+
+
+void App::loadScene() {
+    const std::string& sceneName = m_sceneDropDownList->selectedValue().text();
+
+    // Use immediate mode rendering to force a simple message onto the screen
+    drawMessage("Loading " + sceneName + "...");
+
+    // Load the scene
+    m_scene = Scene::create(sceneName, defaultCamera);
 }
 
 
