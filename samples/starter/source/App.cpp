@@ -61,7 +61,7 @@ void App::onInit() {
 
     // Example of using a callback; you can also listen for events in onEvent or bind controls to data
     m_sceneDropDownList = debugPane->addDropDownList("Scene", Scene::sceneNames(), NULL, GuiControl::Callback(this, &App::loadScene));
-    debugPane->addButton(GuiText("q", GFont::fromFile(System::findDataFile("icon.fnt")), 15), this, &App::loadScene, GuiTheme::TOOL_BUTTON_STYLE)->moveRightOf(m_sceneDropDownList);
+    debugPane->addButton(GuiText("q", GFont::fromFile(System::findDataFile("icon.fnt")), 14), this, &App::loadScene, GuiTheme::TOOL_BUTTON_STYLE)->moveRightOf(m_sceneDropDownList);
     debugWindow->pack();
     debugWindow->moveTo(Vector2(0, window()->height() - debugWindow->rect().height()));
 
