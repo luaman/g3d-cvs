@@ -75,9 +75,9 @@ GLight::GLight(const Any& any) {
         *this = spot(any[0], any[1], any[2], any[3],
             (any.size() > 4) ? any[4] : Any(1), 
             (any.size() > 5) ? any[5] : Any(0), 
-            (any.size() > 6) ? any[6] : Any(0.5f), 
-            (any.size() > 7) ? any[5] : Any(true), 
-            (any.size() > 8) ? any[6] : Any(true));
+            (any.size() > 6) ? any[6] : Any(0), 
+            (any.size() > 7) ? any[7] : Any(true), 
+            (any.size() > 8) ? any[8] : Any(true));
     } else {
         any.verify(false, "Unrecognized name");
     }

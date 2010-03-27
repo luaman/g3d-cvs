@@ -210,7 +210,7 @@ Lighting::Specification::Specification(const Any& any) {
             const Any& array = it->value;
             array.verifyType(Any::ARRAY);
             shadowedLightArray.resize(array.size());
-            for (int i = 0; i < array.size(); ++i) {
+            for (int i = 0; i < shadowedLightArray.size(); ++i) {
                 shadowedLightArray[i] = array[i];
             }
         } else {
