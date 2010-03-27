@@ -94,6 +94,8 @@ GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
 	Texture::Settings fontSettings;
 	fontSettings.wrapMode = WrapMode::CLAMP;
     fontSettings.interpolateMode = Texture::BILINEAR_MIPMAP;
+    Texture::Preprocess preprocess;
+    preprocess.computeMinMaxMean = false;
 
     m_texture = 
         Texture::fromMemory(
@@ -105,7 +107,8 @@ GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
 			1,
 			ImageFormat::A8(), 
 			Texture::DIM_2D,
-			fontSettings);
+			fontSettings,
+            preprocess);
    
     m_textureMatrix[0] = 1.0f / m_texture->width();
     m_textureMatrix[1] = 0;
