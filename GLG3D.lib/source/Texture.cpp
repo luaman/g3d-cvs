@@ -258,7 +258,7 @@ const Texture::Preprocess& Texture::Preprocess::none() {
 
 const Texture::Preprocess& Texture::Preprocess::quake() {
     static Texture::Preprocess p;
-    p.modulate = Color4::one() * 2.0f;
+    p.modulate = Color4(2,2,2,1);
     p.gammaAdjust = 1.6f;
     return p;
 }
@@ -2322,22 +2322,26 @@ static void modulateImage(ImageFormat::Code fmt, void* _byte, int n, const Color
     uint8* byte = static_cast<uint8*>(_byte);
 
     // Make a lookup table
-    uint8 adjust[3][256];
-    for (int c = 0; c < 3; ++c) {
+    uint8 adjust[4][256];
+    for (int c = 0; c < 4; ++c) {
         for (int i = 0; i < 256; ++i) {
             float s = pow((i * modulate[c]) / 255.0f, gamma) * 255;
             adjust[c][i] = iClamp(iRound(s), 0, 255);
         }
     }
 
-    int skipAlpha = 0;
     if (fmt == ImageFormat::CODE_RGBA8) {
-        skipAlpha = 1;
-    }
-
-    for (int i = 0; i < n; i += skipAlpha) {
-        for (int c = 0; c < 3; ++c, ++i) {
-            byte[i] = adjust[c][byte[i]];
+        // 4 channels (we duplicate the loop so that it can be unrolled by the compiler)
+        for (int i = 0; i < n; ) {
+            for (int c = 0; c < 4; ++c, ++i) {
+                byte[i] = adjust[c][byte[i]];
+            }
+        }
+    } else {
+        for (int i = 0; i < n; ) {
+            for (int c = 0; c < 3; ++c, ++i) {
+                byte[i] = adjust[c][byte[i]];
+            }
         }
     }
 }

@@ -217,6 +217,7 @@
      <li> Fix: G3D::RenderDevice now handles textures up to 16 correctly while leaving texture units, coords and matrics at 8
      <li> Fix: Alpha cutout for transmissive surfaces
      <li> Fix: Color3uint8::operator!=
+     <li> Fix: Texture::Preprocess::modulate now affects alpha channel
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
