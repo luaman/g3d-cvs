@@ -58,6 +58,8 @@ public:
     private:
         friend class Material;
 
+        float           m_depthWriteHintDistance;
+
         Texture::Specification m_lambertian;
         Color4          m_lambertianConstant;
 
@@ -115,6 +117,16 @@ public:
 
         void setCustomShaderPrefix(const std::string& s) {
             m_customShaderPrefix = s;
+        }
+
+        /** Distance below which Surface::depthWriteHint returns true.
+        
+           - inf() = Always depth write
+           - -inf() = Never depth write
+           - nan() [default]: depth write at any distance for opaque and never depth write for transmissive surfaces.
+        */
+        void setDepthWriteHintDistance(float hint) {
+            m_depthWriteHintDistance = hint;
         }
 
         /** Filename of Lambertian (diffuse) term, empty if none. The
@@ -268,6 +280,8 @@ protected:
     /** Preferred level of mirror reflection quality. The actual level available depends on the renderer.*/
     MirrorQuality               m_mirrorHint;
 
+    float                       m_depthWriteHintDistance;
+
     Material();
 
 public:
@@ -313,6 +327,11 @@ public:
     /** May be NULL */
     BumpMap::Ref bump() const {
         return m_bump;
+    }
+
+    /** \copydoc Material::Specification::setDepthWriteHintDistance */
+    float depthWriteHintDistance() const {
+        return m_depthWriteHintDistance;
     }
 
     /** \copydoc m_customShaderPrefix */

@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-11-15
-  @edited  2009-04-02
+  @edited  2010-03-27
  */ 
 
 #ifndef GLG3D_Surface_h
@@ -439,6 +439,11 @@ public:
      RefractionQuality              maxRefractionQuality = RefractionQuality::BEST,
      AlphaMode                      alphaMode = ALPHA_BINARY);
 
+    /** A hint to the renderer indicating that this surface should write to the depth buffer.  Typically overridden to return false for surfaces with very low
+        partial coverage (alpha) or transmission values, or to resolve artifacts for specific scenes.  The default value is ! hasTransmission().*/
+    virtual bool depthWriteHint(float distanceToCamera) const {
+        return ! hasTransmission();
+    }
 protected:
 
     /**

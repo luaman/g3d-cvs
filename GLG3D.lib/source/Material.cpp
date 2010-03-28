@@ -10,7 +10,7 @@
 
 namespace G3D {
 
-Material::Material() : m_customConstant(Color4::inf()) {
+Material::Material() : m_customConstant(Color4::inf()), m_depthWriteHintDistance(nan()) {
 }
 
 
@@ -75,6 +75,7 @@ Material::Ref Material::create(const Specification& specification) {
                 specification.m_etaReflect,
                 specification.m_extinctionReflect);
 
+        value->m_depthWriteHintDistance = specification.m_depthWriteHintDistance;
         value->m_customShaderPrefix = specification.m_customShaderPrefix;
         value->m_refractionHint = specification.m_refractionHint;
         value->m_mirrorHint = specification.m_mirrorHint;

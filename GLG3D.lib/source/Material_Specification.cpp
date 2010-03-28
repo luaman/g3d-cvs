@@ -2,7 +2,7 @@
  @file   Material_Specification.h
  @author Morgan McGuire, http://graphics.cs.williams.edu
  @date   2009-03-10
- \edited 2010-01-29
+ \edited 2010-03-29
 */
 #include "GLG3D/Material.h"
 #include "G3D/Any.h"
@@ -10,6 +10,7 @@
 namespace G3D {
 
 Material::Specification::Specification() : 
+  m_depthWriteHintDistance(nan()),
   m_lambertianConstant(Color4(0.85f, 0.85f, 0.85f, 1.0f)),
   m_specularConstant(Color3::zero()),
   m_shininessConstant(SuperBSDF::packedSpecularNone()),
@@ -24,7 +25,7 @@ Material::Specification::Specification() :
 }
 
 
-  Material::Specification::Specification(const Any& any) {
+Material::Specification::Specification(const Any& any) {
     *this = Specification();
 
     any.verifyName("Material::Specification");
@@ -105,6 +106,8 @@ Material::Specification::Specification() :
             m_extinctionReflect = it->value;
         } else if (key == "customshaderprefix") {
             m_customShaderPrefix = it->value.string();
+        } else if (key == "depthwritehintdistance") {
+            m_depthWriteHintDistance = it->value;
         } else {
             any.verify(false, "Illegal key: " + it->key);
         }
@@ -281,7 +284,9 @@ bool Material::Specification::operator==(const Specification& s) const {
         (m_refractionHint == s.m_refractionHint) &&
         (m_mirrorHint == s.m_mirrorHint) &&
         
-        (m_customShaderPrefix == s.m_customShaderPrefix);
+        (m_customShaderPrefix == s.m_customShaderPrefix) &&
+        
+        (m_depthWriteHintDistance == s.m_depthWriteHintDistance);
 }
 
 
@@ -304,7 +309,8 @@ size_t Material::Specification::hashCode() const {
 
         HashTrait<std::string>::hashCode(m_bump.texture.filename) ^
         
-        HashTrait<std::string>::hashCode(m_customShaderPrefix);
+        HashTrait<std::string>::hashCode(m_customShaderPrefix) 
+        ^ (int)(m_depthWriteHintDistance);
 }
 
 

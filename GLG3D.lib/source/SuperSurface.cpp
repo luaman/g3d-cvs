@@ -33,6 +33,16 @@ static bool glossyReflectiveFF(const SuperBSDF::Ref& bsdf) {
 }
 
 
+bool SuperSurface::depthWriteHint(float distanceToCamera) const {
+    const float d = m_gpuGeom->material->depthWriteHintDistance();
+    if (isNaN(d)) {
+        return ! hasTransmission();
+    } else {
+        return distanceToCamera < d;
+    }
+}
+
+
 void SuperSurface::sortFrontToBack(Array<SuperSurface::Ref>& a, const Vector3& v) {
     Array<Surface::Ref> s;
     s.resize(a.size());
@@ -222,21 +232,31 @@ void SuperSurface::renderShadowMappedLightPass
 (const Array<Surface::Ref>&     posedArray, 
  RenderDevice*                  rd, 
  const GLight&                  light, 
- const ShadowMap::Ref&          shadowMap) {
+ const ShadowMap::Ref&          shadowMap,
+ bool                           preserveState) {
     
     if (posedArray.size() == 0) {
         return;
     }
 
-    rd->pushState();
+    RenderDevice::CullFace oldCullFace;
+    RenderDevice::BlendFunc oldSrcBlendFunc, oldDstBlendFunc;
+    RenderDevice::BlendEq oldBlendEq;
+    if (preserveState) {
+        rd->pushState();
+    } else {
+        oldCullFace = rd->cullFace();
+        rd->getBlendFunc(oldSrcBlendFunc, oldDstBlendFunc, oldBlendEq);
+    }
+    {
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
 
         rd->setCullFace(RenderDevice::CULL_BACK);
 
         for (int i = 0; i < posedArray.size(); ++i) {
-            const SuperSurface::Ref& posed    = posedArray[i].downcast<SuperSurface>();
-            const Material::Ref&          material = posed->m_gpuGeom->material;
-            const SuperBSDF::Ref&              bsdf     = material->bsdf();
+            const SuperSurface::Ref&    posed    = posedArray[i].downcast<SuperSurface>();
+            const Material::Ref&        material = posed->m_gpuGeom->material;
+            const SuperBSDF::Ref&       bsdf     = material->bsdf();
 
             if (bsdf->lambertian().isBlack() && bsdf->specular().isBlack()) {
                 // Nothing to draw for this object
@@ -285,7 +305,13 @@ void SuperSurface::renderShadowMappedLightPass
                 debugAssertM(false, "Fell through switch");
             }
         }
-    rd->popState();
+    }
+    if (preserveState) {
+        rd->popState();
+    } else {
+        rd->setCullFace(oldCullFace);
+        rd->setBlendFunc(oldSrcBlendFunc, oldDstBlendFunc, oldBlendEq);
+    }
  }
 
 

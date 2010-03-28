@@ -613,7 +613,9 @@ void Surface::renderTranslucent
     bool didReadback = false;
 
     const CFrame& cameraFrame = rd->cameraToWorldMatrix();
-    
+
+    bool oldDepthWrite = rd->depthWrite();
+
     // Switching between fixed function and SuperSurfaces mode is expensive.
     // This flag lets us avoid the switch when rendering multiple SuperSurfaces
     // sequentially that have no transmission.
@@ -622,10 +624,11 @@ void Surface::renderTranslucent
     for (int m = 0; m < modelArray.size(); ++m) {
         Surface::Ref model = modelArray[m];
 
-        // Don't write depth for transmissive objects because they are too sensitive to order
-        rd->setDepthWrite(! model->hasTransmission());  // TODO: use depthWriteHint
+        const float distanceToCamera = (model->worldSpaceBoundingSphere().center - cameraFrame.translation).dot(cameraFrame.lookVector());
 
-        SuperSurface::Ref gmodel = model.downcast<SuperSurface>();
+        rd->setDepthWrite(oldDepthWrite && model->depthWriteHint(distanceToCamera));
+
+        const SuperSurface::Ref& gmodel = model.downcast<SuperSurface>();
 
         // Render refraction (without modulating by transmissive)
         if (gmodel.notNull() && model->hasTransmission() && supportsRefract) {
@@ -721,6 +724,7 @@ void Surface::renderTranslucent
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
         }
 
+        static Array<Surface::Ref> oneSurface(NULL);
         if (gmodel.notNull() && ! model->hasTransmission()) {
             if (! inSuperSurfaceAlphaMode) {
                 // Enter SuperSurface mode
@@ -729,9 +733,8 @@ void Surface::renderTranslucent
             } 
 
             // Call the non-preserveState version of renderNonShadowed
-            static Array<Surface::Ref> oneSurface(NULL);
             oneSurface[0] = model;
-            gmodel->renderNonShadowed(oneSurface, rd, lighting, false);
+            SuperSurface::renderNonShadowed(oneSurface, rd, lighting, false);
 
         } else {
 
@@ -751,9 +754,13 @@ void Surface::renderTranslucent
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
         }
         debugAssert(lighting->shadowedLightArray.size() <= shadowMapArray.size());
-        // TODO: optimize for inSuperSurfaceAlphaMode
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMapArray[L]);
+            if (inSuperSurfaceAlphaMode) {
+                // If we've made it to this branch, oneSurface is already set
+                SuperSurface::renderShadowMappedLightPass(oneSurface, rd, lighting->shadowedLightArray[L], shadowMapArray[L], false);
+            } else {
+                model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMapArray[L]);
+            }
         }
 
         // Add extra light passes

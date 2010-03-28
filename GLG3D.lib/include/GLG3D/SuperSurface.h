@@ -265,7 +265,8 @@ public:
         const Array<Surface::Ref>& posedArray, 
         RenderDevice*                 rd, 
         const GLight&                 light, 
-        const ShadowMap::Ref&         shadowMap);
+        const ShadowMap::Ref&         shadowMap,
+        bool preserveState = true);
 
     /** Called by Surface.
 	 
@@ -349,6 +350,8 @@ public:
     virtual int numBoundaryEdges() const;
 
     virtual int numWeldedBoundaryEdges() const;
+
+    virtual bool depthWriteHint(float distanceToCamera) const;
 
     virtual const Array<Vector4>& objectSpacePackedTangents() const;
    
