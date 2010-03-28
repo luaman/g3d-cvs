@@ -245,11 +245,15 @@ public:
         Renders an array of SuperSurfaces in the order that they
         appear in the array, taking advantage of the fact that all
         objects have the same subclass to optimize the rendering
-        calls.*/
+        calls.
+        
+        \param preserveState If true, wraps the entire call in pushState...popState.
+        */
     static void renderNonShadowed(
         const Array<Surface::Ref>& posedArray, 
         RenderDevice* rd, 
-        const LightingRef& lighting);
+        const LightingRef& lighting,
+        bool preserveState = true);
 
     /** Called by Surface.
 	 

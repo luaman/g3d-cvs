@@ -614,11 +614,16 @@ void Surface::renderTranslucent
 
     const CFrame& cameraFrame = rd->cameraToWorldMatrix();
     
+    // Switching between fixed function and SuperSurfaces mode is expensive.
+    // This flag lets us avoid the switch when rendering multiple SuperSurfaces
+    // sequentially that have no transmission.
+    bool inSuperSurfaceAlphaMode = false;
+
     for (int m = 0; m < modelArray.size(); ++m) {
         Surface::Ref model = modelArray[m];
 
         // Don't write depth for transmissive objects because they are too sensitive to order
-        rd->setDepthWrite(! model->hasTransmission());
+        rd->setDepthWrite(! model->hasTransmission());  // TODO: use depthWriteHint
 
         SuperSurface::Ref gmodel = model.downcast<SuperSurface>();
 
@@ -716,8 +721,28 @@ void Surface::renderTranslucent
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
         }
 
-        // Add lights, or black
-        model->renderNonShadowed(rd, lighting);
+        if (gmodel.notNull() && ! model->hasTransmission()) {
+            if (! inSuperSurfaceAlphaMode) {
+                // Enter SuperSurface mode
+                rd->pushState();
+                inSuperSurfaceAlphaMode = true;
+            } 
+
+            // Call the non-preserveState version of renderNonShadowed
+            static Array<Surface::Ref> oneSurface(NULL);
+            oneSurface[0] = model;
+            gmodel->renderNonShadowed(oneSurface, rd, lighting, false);
+
+        } else {
+
+            if (inSuperSurfaceAlphaMode) {
+                // Exit SS mode
+                rd->popState();
+                inSuperSurfaceAlphaMode = false;
+            }
+            // Add lights, or black
+            model->renderNonShadowed(rd, lighting);
+        }
 
         // Add shadowed lights
         if ((alphaMode == ALPHA_BLEND) && model->hasPartialCoverage()) {
@@ -726,20 +751,30 @@ void Surface::renderTranslucent
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
         }
         debugAssert(lighting->shadowedLightArray.size() <= shadowMapArray.size());
+        // TODO: optimize for inSuperSurfaceAlphaMode
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMapArray[L]);
         }
 
         // Add extra light passes
         if (extraAdditivePasses.size() > 0) {
-            rd->pushState();
+            if (! inSuperSurfaceAlphaMode) {
+                rd->pushState();
+            }
             for (int p = 0; p < extraAdditivePasses.size(); ++p) {
                 model->renderSuperShaderPass(rd, extraAdditivePasses[p]);
             }
-            rd->popState();
+            if (! inSuperSurfaceAlphaMode) {
+                rd->popState();
+            }
         }
     }
 
+    if (inSuperSurfaceAlphaMode) {
+        // Exit SS mode
+        rd->popState();
+        inSuperSurfaceAlphaMode = false;
+    }
     rd->popState();
 }
 ////////////////////////////////////////////////////////////////////////////////////////

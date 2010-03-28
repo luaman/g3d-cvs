@@ -123,7 +123,8 @@ const char* toString(SuperSurface::GraphicsProfile p) {
 void SuperSurface::renderNonShadowed(
     const Array<Surface::Ref>&      posedArray, 
     RenderDevice*                   rd, 
-    const LightingRef&              lighting) {
+    const LightingRef&              lighting,
+    bool                            preserveState) {
 
     if (posedArray.size() == 0) {
         return;
@@ -139,7 +140,9 @@ void SuperSurface::renderNonShadowed(
     RenderDevice::BlendEq   blendEq;
     rd->getBlendFunc(srcBlend, dstBlend, blendEq);
 
-    rd->pushState();
+    if (preserveState) {
+        rd->pushState();
+    }
         bool originalDepthWrite = rd->depthWrite();
 
         // Lighting will be turned on and off by subroutines
@@ -163,10 +166,6 @@ void SuperSurface::renderNonShadowed(
             debugAssertM(bsdf->transmissive().isBlack(), 
                 "Transparent object passed through the batch version of "
                 "SuperSurface::renderNonShadowed, which is intended exclusively for opaque objects.");
-
-            // Alpha blend will be changed by subroutines so we restore it for each object
-            rd->setBlendFunc(srcBlend, dstBlend, blendEq);
-            rd->setDepthWrite(originalDepthWrite);
 
             if (posed->m_gpuGeom->twoSided) {
                 if (! ps20) {
@@ -206,8 +205,16 @@ void SuperSurface::renderNonShadowed(
                 rd->disableTwoSidedLighting();
                 rd->setCullFace(RenderDevice::CULL_BACK);
             }
+
+
+            // Alpha blend will be changed by subroutines so we restore it for each object
+            rd->setBlendFunc(srcBlend, dstBlend, blendEq);
+            rd->setDepthWrite(originalDepthWrite);
         }
-    rd->popState();
+
+    if (preserveState) {
+        rd->popState();
+    }
 }
 
 
@@ -765,7 +772,7 @@ void SuperSurface::renderNonShadowed
     // opaque objects are batched together.
     const SuperBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
-    if (! bsdf->transmissive().isBlack()) {
+    if (hasTransmission()) {
         rd->pushState();
             // Transparent
             bool oldDepthWrite = rd->depthWrite();
@@ -801,7 +808,7 @@ void SuperSurface::renderNonShadowed
         rd->popState();
     } else {
 
-        // This is the unoptimized, single-object version of renderShadowMappedLightPass.
+        // This is the unoptimized, single-object version of renderNonShadowed.
         // It just calls the optimized version with a single-element array.
 
         static Array<Surface::Ref> posedArray;
