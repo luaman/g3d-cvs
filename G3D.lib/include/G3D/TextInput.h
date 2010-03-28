@@ -322,10 +322,11 @@ public:
 
         /** 
           Parse -1.#IND00 as the floating point number returned by
-          nan(), -1.#INF00 as -inf(), and 1.#INF00 as inf().  Note
-          that the C99 standard specifies that a variety of formats
-          like "NaN" and "nan" are to be used; these are easier to
-          parse yourself and not currently supported by readNumber.
+          nan(), -1.#INF00 as -G3D::inf(), and 1.#INF00 as G3D::inf().  
+          
+          Note that the C99 standard specifies that a variety of formats
+          like "nan" are to be used; these are supported by 
+          G3D::TextInput::Settings::simpleSpecials.
 
           An alternative to specifying msvcSpecials is to read numbers as:
           <pre>
@@ -349,6 +350,10 @@ public:
 
           Default is true. */
         bool                msvcSpecials;
+
+        /** Parses "+inf', "-inf", "inf", "nan" as floats instead of symbols. 
+            Defaults to true.*/
+        bool                simpleSpecials;
 
         /**
          Parse the following set of useful proof symbols:

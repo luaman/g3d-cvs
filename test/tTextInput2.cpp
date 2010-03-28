@@ -152,6 +152,33 @@ void testTextInput2() {
         TextInput t(TextInput::FROM_STRING, "-1.#IND00", opt);
         alwaysAssertM(isNaN(t.readNumber()), "");
     }
+
+    {
+        TextInput::Settings opt;
+        opt.simpleSpecials = true;
+        TextInput t(TextInput::FROM_STRING, "-inf", opt);
+        double n = t.readNumber();
+        alwaysAssertM(n == -inf(), "");
+    }
+    {
+        TextInput::Settings opt;
+        opt.simpleSpecials = true;
+        TextInput t(TextInput::FROM_STRING, "inf", opt);
+        alwaysAssertM(t.readNumber() == inf(), "");
+    }
+    {
+        TextInput::Settings opt;
+        opt.simpleSpecials = true;
+        TextInput t(TextInput::FROM_STRING, "+inf", opt);
+        alwaysAssertM(t.readNumber() == inf(), "");
+    }
+    {
+        TextInput::Settings opt;
+        opt.simpleSpecials = true;
+        TextInput t(TextInput::FROM_STRING, "nan", opt);
+        alwaysAssertM(isNaN(t.readNumber()), "");
+    }
+
     {
         TextInput t(TextInput::FROM_STRING, "fafaosadoas");
         alwaysAssertM(t.hasMore(), "");

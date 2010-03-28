@@ -6,7 +6,7 @@
  @cite Based on a lexer written by Aaron Orenstein. 
  
  @created 2001-11-27
- @edited  2008-07-14
+ @edited  2010-03-27
  */
 
 #include "G3D/fileutils.h"
@@ -46,15 +46,15 @@ bool TextInput::parseBoolean(const std::string& _string) {
 
 double TextInput::parseNumber(const std::string& _string) {
     std::string s = toLower(_string);
-    if (s == "-1.#ind00") {
+    if (s == "-1.#ind00" || s == "nan") {
         return nan();
     }
     
-    if (s == "1.#inf00") {
+    if (s == "1.#inf00" || s == "inf" || s == "+inf") {
         return inf();
     }
     
-    if (s == "-1.#inf00") {
+    if (s == "-1.#inf00" || s == "-inf") {
         return -inf();
     }
     
@@ -88,6 +88,7 @@ TextInput::Settings::Settings () :
     sourceFileName(),
     startingLineNumberOffset(0),
     msvcSpecials(true),
+    simpleSpecials(true),
     proofSymbols(false),
     caseSensitive(true)
 { 
@@ -389,14 +390,28 @@ Token TextInput::nextToken() {
             return t;
         }
 
-        if (options.signedNumbers
-            && (isDigit(c) || (c == '.' && isDigit(peekInputChar(1))))) {
+        if (options.signedNumbers) {
+            if (isDigit(c) || (c == '.' && isDigit(peekInputChar(1)))) {
+                // Negative number.  'c' is still the first digit, and is
+                // the next input char.
 
-            // Negative number.  'c' is still the first digit, and is
-            // the next input char.
-
-            goto numLabel;
+                goto numLabel;
+            } else {
+                char terminal = peekInputChar(3);
+                if (options.simpleSpecials && (c == 'i') && (peekInputChar(1) == 'n') && (peekInputChar(2) == 'f') && 
+                    ! isLetter(terminal) && (terminal != '_')) {
+                    // negative infinity
+                    t._type = Token::NUMBER;
+                    t._extendedType = Token::FLOATING_POINT_TYPE;
+                    t._string = "-inf";
+                    eatInputChar(); // i
+                    eatInputChar(); // n
+                    eatInputChar(); // f
+                    return t;
+                }
+            }
         }
+
 
         // plain -
         return t;
@@ -412,13 +427,26 @@ Token TextInput::nextToken() {
             return t;
         }
 
-        if (options.signedNumbers
-            && (isDigit(c) || (c == '.' && isDigit(peekInputChar(1))))) {
+        if (options.signedNumbers) {
+            if (isDigit(c) || (c == '.' && isDigit(peekInputChar(1)))) {
+                // Positive number.  'c' is still the first digit, and is
+                // the next input char.
 
-            // Positive number.  'c' is still the first digit, and is
-            // the next input char.
-
-            goto numLabel;
+                goto numLabel;
+            } else {
+                char terminal = peekInputChar(3);
+                if (options.simpleSpecials && (c == 'i') && (peekInputChar(1) == 'n') && (peekInputChar(2) == 'f') && 
+                    ! isLetter(terminal) && (terminal != '_')) {
+                    // positive infinity
+                    t._type = Token::NUMBER;
+                    t._extendedType = Token::FLOATING_POINT_TYPE;
+                    t._string = "+inf";
+                    eatInputChar(); // i
+                    eatInputChar(); // n
+                    eatInputChar(); // f
+                    return t;
+                }
+            }
         }
 
         return t;
@@ -722,6 +750,10 @@ numLabel:
             }
         }
 
+        if (options.simpleSpecials && ((t._string == "nan") || (t._string == "inf"))) {
+            t._type = Token::NUMBER;
+            t._extendedType = Token::FLOATING_POINT_TYPE;
+        }
         return t;
 
     } else if (c == '\"') {

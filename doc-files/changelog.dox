@@ -140,6 +140,7 @@
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge
      <li> G3D::GuiTextureBox
+     <li> G3D::TextInput::Settings::simpleSpecialst
      <li> G3D::RenderDevice::project() no longer calls glToScreen; necessary for multi-GPU AFR
      <li> G3D::GuiControl::fromOSWindowCoords
      <li> G3D::GuiControl::increaseBounds
