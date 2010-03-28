@@ -442,6 +442,7 @@ public:
     /** A hint to the renderer indicating that this surface should write to the depth buffer.  Typically overridden to return false for surfaces with very low
         partial coverage (alpha) or transmission values, or to resolve artifacts for specific scenes.  The default value is ! hasTransmission().*/
     virtual bool depthWriteHint(float distanceToCamera) const {
+        (void)distanceToCamera;
         return ! hasTransmission();
     }
 protected:

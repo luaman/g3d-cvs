@@ -53,7 +53,7 @@ GLight::GLight(const Any& any) {
             }
         }
         if (hasSpotTarget) {
-            spotDirection = spotTarget - position.xyz();
+            spotDirection = (spotTarget - position.xyz()).direction();
         }
     } else if (toLower(any.name()) == "glight::directional") {
 

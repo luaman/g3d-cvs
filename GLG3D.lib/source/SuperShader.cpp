@@ -259,6 +259,7 @@ void configureSingleLightShaderArgs(
                 light.attenuation[2], 
                 cosThresh));
 
+    debugAssert(light.spotDirection.squaredLength() == 0 || fuzzyEq(light.spotDirection.squaredLength(), 1.0));
     args.set(lightDirectionString[i],   light.spotDirection);
 }
 
