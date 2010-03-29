@@ -393,7 +393,7 @@ void GConsole::addToCompletionHistory(const string& s) {
 
         settings.cppBlockComments = false;
         settings.cppLineComments = false;
-        settings.msvcSpecials = false;
+        settings.msvcFloatSpecials = false;
 
         initialized = true;
     }

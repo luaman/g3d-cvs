@@ -140,7 +140,7 @@
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge
      <li> G3D::GuiTextureBox
-     <li> G3D::TextInput::Settings::simpleSpecialst
+     <li> G3D::TextInput::Settings::simpleFloatSpecialst
      <li> G3D::RenderDevice::project() no longer calls glToScreen; necessary for multi-GPU AFR
      <li> G3D::GuiControl::fromOSWindowCoords
      <li> G3D::GuiControl::increaseBounds
@@ -596,7 +596,7 @@
      <li> G3D::BSPMap for loading Quake3 .bsp files
      <li> G3D::TextInput::Settings::caseSensitive
      <li> G3D::TextInput::readBoolean, G3D::TextInput::Settings::trueSymbols, G3D::TextInput::Settings::falseSymbols, G3D::TextOutput::Settings::trueSymbol, G3D::TextOutput::Settings::falseSymbol, G3D::TextOutput::writeBoolean, G3D::Token::BOOLEAN_TYPE
-     <li> G3D::TextInput::Settings::msvcSpecials now defaults to true
+     <li> G3D::TextInput::Settings::msvcFloatSpecials now defaults to true
      <li> Made the input to G3D::tessellateComplexPolygon a constant array reference
      <li> Removed SDL from Win32 build
      <li> Increased maximum ReliableConduit message size to 60 MB
@@ -827,7 +827,7 @@
            checking of printf argument strings under gcc at compile time with
            -Wformat.
       <LI> G3D::TextInput::filename
-      <LI> G3D::TextInput::Options::msvcSpecials
+      <LI> G3D::TextInput::Options::msvcFloatSpecials
       <LI> G3D::TextInput::Options::startingLineNumberOffset
       <LI> G3D::TextInput::readSymbolToken [cgd]
       <LI> G3D::TextInput::readStringToken [cgd]

@@ -135,46 +135,46 @@ void testTextInput2() {
     // Test Nan and inf    
     {
         TextInput::Settings opt;
-        opt.msvcSpecials = true;
+        opt.msvcFloatSpecials = true;
         TextInput t(TextInput::FROM_STRING, "-1.#INF00", opt);
         double n = t.readNumber();
         alwaysAssertM(n == -inf(), "");
     }
     {
         TextInput::Settings opt;
-        opt.msvcSpecials = true;
+        opt.msvcFloatSpecials = true;
         TextInput t(TextInput::FROM_STRING, "1.#INF00", opt);
         alwaysAssertM(t.readNumber() == inf(), "");
     }
     {
         TextInput::Settings opt;
-        opt.msvcSpecials = true;
+        opt.msvcFloatSpecials = true;
         TextInput t(TextInput::FROM_STRING, "-1.#IND00", opt);
         alwaysAssertM(isNaN(t.readNumber()), "");
     }
 
     {
         TextInput::Settings opt;
-        opt.simpleSpecials = true;
+        opt.simpleFloatSpecials = true;
         TextInput t(TextInput::FROM_STRING, "-inf", opt);
         double n = t.readNumber();
         alwaysAssertM(n == -inf(), "");
     }
     {
         TextInput::Settings opt;
-        opt.simpleSpecials = true;
+        opt.simpleFloatSpecials = true;
         TextInput t(TextInput::FROM_STRING, "inf", opt);
         alwaysAssertM(t.readNumber() == inf(), "");
     }
     {
         TextInput::Settings opt;
-        opt.simpleSpecials = true;
+        opt.simpleFloatSpecials = true;
         TextInput t(TextInput::FROM_STRING, "+inf", opt);
         alwaysAssertM(t.readNumber() == inf(), "");
     }
     {
         TextInput::Settings opt;
-        opt.simpleSpecials = true;
+        opt.simpleFloatSpecials = true;
         TextInput t(TextInput::FROM_STRING, "nan", opt);
         alwaysAssertM(isNaN(t.readNumber()), "");
     }

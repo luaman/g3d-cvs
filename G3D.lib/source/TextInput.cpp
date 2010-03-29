@@ -87,8 +87,8 @@ TextInput::Settings::Settings () :
     singleQuoteCharacter('\''),
     sourceFileName(),
     startingLineNumberOffset(0),
-    msvcSpecials(true),
-    simpleSpecials(true),
+    msvcFloatSpecials(true),
+    simpleFloatSpecials(true),
     proofSymbols(false),
     caseSensitive(true)
 { 
@@ -398,7 +398,7 @@ Token TextInput::nextToken() {
                 goto numLabel;
             } else {
                 char terminal = peekInputChar(3);
-                if (options.simpleSpecials && (c == 'i') && (peekInputChar(1) == 'n') && (peekInputChar(2) == 'f') && 
+                if (options.simpleFloatSpecials && (c == 'i') && (peekInputChar(1) == 'n') && (peekInputChar(2) == 'f') && 
                     ! isLetter(terminal) && (terminal != '_')) {
                     // negative infinity
                     t._type = Token::NUMBER;
@@ -435,7 +435,7 @@ Token TextInput::nextToken() {
                 goto numLabel;
             } else {
                 char terminal = peekInputChar(3);
-                if (options.simpleSpecials && (c == 'i') && (peekInputChar(1) == 'n') && (peekInputChar(2) == 'f') && 
+                if (options.simpleFloatSpecials && (c == 'i') && (peekInputChar(1) == 'n') && (peekInputChar(2) == 'f') && 
                     ! isLetter(terminal) && (terminal != '_')) {
                     // positive infinity
                     t._type = Token::NUMBER;
@@ -633,7 +633,7 @@ numLabel:
                 c = eatAndPeekInputChar();
 
                 // Floating point specials (msvc format only)
-                if (options.msvcSpecials && (c == '#')) {
+                if (options.msvcFloatSpecials && (c == '#')) {
                     isSpecial = true;
                     // We are reading a floating point special value
                     // of the form -1.#IND00, -1.#INF00, or 1.#INF00
@@ -750,7 +750,7 @@ numLabel:
             }
         }
 
-        if (options.simpleSpecials && ((t._string == "nan") || (t._string == "inf"))) {
+        if (options.simpleFloatSpecials && ((t._string == "nan") || (t._string == "inf"))) {
             t._type = Token::NUMBER;
             t._extendedType = Token::FLOATING_POINT_TYPE;
         }
