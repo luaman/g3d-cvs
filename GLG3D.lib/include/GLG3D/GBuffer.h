@@ -18,7 +18,7 @@ namespace G3D {
 
 class RenderDevice;
 
-/** \brief Saito and Takahashi's Geometry Buffers for deferred shading. 
+/** \brief Saito and Takahashi's Geometry Buffers, typically used today for deferred shading. 
     Contains position, normal, depth, and BSDF parameters.
 
     Used for rendering a G3D::SuperBSDF with deferred shading. 
@@ -50,6 +50,11 @@ public:
         /** Camera-space triangle normal in RGB. */
         bool                  csFaceNormal;
 
+        /** If true, normal channels are encoded as \f$ \vec{n}'_i = (\vec{n}_i + 1)/n\f$. 
+            This is typically desirable for 8-bit formats.
+            Defaults to true.*/
+        bool                  normalsAreUnsigned;
+
         /** Packed camera-space depth. */
         bool                  packedDepth;
 
@@ -70,15 +75,18 @@ public:
         /** Must have at least three channels */
         const ImageFormat*    positionFormat;
 
+        /** All fields for specific buffers default to false.  In the future, more buffers may be added, which will also 
+            default to false for backwards compatibility. */
         Specification() : 
-            wsNormal(true),
+            wsNormal(false),
             csNormal(false),
-            lambertian(true),
-            specular(true),
+            lambertian(false),
+            specular(false),
             transmissive(false),
             emissive(false),
             wsFaceNormal(false),
             csFaceNormal(false),
+            normalsAreUnsigned(true),
             packedDepth(false),
             custom(false),
             wsPosition(false),
@@ -101,7 +109,8 @@ public:
                 (int(packedDepth) << 8)  |
                 (int(custom)      << 9)  |
                 (int(csPosition)  << 10) |
-                (int(wsPosition)  << 11);
+                (int(wsPosition)  << 11) |
+                (int(normalsAreUnsigned) << 12);
         }
 
         /** Can be used with G3D::Table as an Equals function */

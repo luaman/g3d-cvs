@@ -51,6 +51,14 @@
 
 #include "SS_BumpMap.pix"
 
+vec3 maybePackNormal(in vec3 n) {
+#   if defined(NORMALS_ARE_UNSIGNED)
+        return n * 0.5 + vec3(0.5);
+#   else
+        return n;
+#   endif
+}
+
 void main(void) {
 #include "SS_LambertianComponent.pix"
 
@@ -118,12 +126,12 @@ void main(void) {
 
 
 #   if (WS_NORMAL_INDEX >= 0)
-        gl_FragData[WS_NORMAL_INDEX].xyz = wsN * 0.5 + vec3(0.5);
+        gl_FragData[WS_NORMAL_INDEX].xyz = maybePackNormal(wsN);
 #   endif
 
 
 #   if (CS_NORMAL_INDEX >= 0)
-        gl_FragData[CS_NORMAL_INDEX].xyz = (g3d_WorldToCameraMatrix * vec4(wsN, 0.0)).xyz * 0.5 + vec3(0.5);
+        gl_FragData[CS_NORMAL_INDEX].xyz = maybePackNormal((g3d_WorldToCameraMatrix * vec4(wsN, 0.0)).xyz);
 #   endif
 
 
@@ -132,13 +140,13 @@ void main(void) {
 #   endif
 
 #   if (WS_FACE_NORMAL_INDEX >= 0)
-        gl_FragData[WS_FACE_NORMAL_INDEX].xyz = faceNormal * 0.5 + vec3(0.5);        
+        gl_FragData[WS_FACE_NORMAL_INDEX].xyz = maybePackNormal(faceNormal);        
 #   endif
 
 
 #   if (CS_FACE_NORMAL_INDEX >= 0)
         vec3 csFaceNormal = (g3d_WorldToCameraMatrix * vec4(faceNormal, 0.0)).xyz;
-        gl_FragData[CS_FACE_NORMAL_INDEX].xyz = csFaceNormal * 0.5 + vec3(0.5);        
+        gl_FragData[CS_FACE_NORMAL_INDEX].xyz = maybePackNormal(csFaceNormal);        
 #   endif
 
 

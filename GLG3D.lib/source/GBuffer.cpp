@@ -102,6 +102,9 @@ Shader::Ref GBuffer::getShader(const GBuffer::Specification& specification, cons
         const std::string pixelCode  = readWholeFile("SS_GBuffer.pix");
         std::string s;
         material->computeDefines(s);
+        if (specification.normalsAreUnsigned) {
+            s += "#define NORMALS_ARE_UNSIGNED\n";
+        }
         std::string prefix = s + indices.computeDefines();
         shader = Shader::fromStrings(prefix + vertexCode, prefix + pixelCode);
         shader->setPreserveState(false);
