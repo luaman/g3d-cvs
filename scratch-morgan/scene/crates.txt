@@ -31,7 +31,12 @@
                 // options here as was done for groundModel.  #include can be
                 // used to replace any Any value, including a whole 
                 // ArticulatedModel::Specification.
-                materialOverride = #include("material/metalcrate/metalcrate.mat.any")              
+                //materialOverride = #include("material/metalcrate/metalcrate.mat.any")              
+                materialOverride = Material::Specification {
+                        transmissive = Color3(1,0,0),
+                        etaTransmit = 1.1,
+                        
+                }
             }
        },
        
@@ -46,8 +51,6 @@
             GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d))
         ),
         shadowedLightArray = (
-GLight { position = Vector4(0,1,0,1), spotTarget = Vector3(0,0,0), spotCutoff = 5, color = Color3(1,1,1)}
-//            GLight::spot(Vector3(0, 2, 0), Vector3(0,-1,0), 60, Color3(10,10,10))
         ),
 
         environmentMap = Texture::Specification {

@@ -735,7 +735,7 @@ static void getDeserializeSettings(TextInput::Settings& settings) {
     settings.otherLineComments = false;
     settings.generateCommentTokens = true;
     settings.singleQuotedStrings = false;
-    settings.msvcSpecials = false;
+    settings.msvcFloatSpecials = false;
     settings.caseSensitive = false;
 }
 

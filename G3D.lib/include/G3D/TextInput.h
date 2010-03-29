@@ -326,9 +326,9 @@ public:
           
           Note that the C99 standard specifies that a variety of formats
           like "nan" are to be used; these are supported by 
-          G3D::TextInput::Settings::simpleSpecials.
+          G3D::TextInput::Settings::simpleFloatSpecials.
 
-          An alternative to specifying msvcSpecials is to read numbers as:
+          An alternative to specifying msvcFloatSpecials is to read numbers as:
           <pre>
             Token x = t.read();
             Token y = t.peek();
@@ -346,14 +346,14 @@ public:
           special format overrides the comment and will be parsed
           instead.
 
-          If signedNumbers is false msvcSpecials will not be parsed.
+          If signedNumbers is false msvcFloatSpecials will not be parsed.
 
           Default is true. */
-        bool                msvcSpecials;
+        bool                msvcFloatSpecials;
 
         /** Parses "+inf', "-inf", "inf", "nan" as floats instead of symbols. 
             Defaults to true.*/
-        bool                simpleSpecials;
+        bool                simpleFloatSpecials;
 
         /**
          Parse the following set of useful proof symbols:
@@ -373,7 +373,7 @@ public:
         bool                proofSymbols;
 
         /**
-         When parsing booleans and msvcSpecials, is case significant?
+         When parsing booleans and msvcFloatSpecials, is case significant?
          Default is {true}
         */
         bool                caseSensitive;

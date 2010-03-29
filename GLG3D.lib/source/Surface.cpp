@@ -662,7 +662,7 @@ void Surface::renderTranslucent
                 {
                     rd->setDepthWrite(false);
                     rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-                    Sphere bounds3D = gmodel->worldSpaceBoundingSphere();
+                    const Sphere& bounds3D = gmodel->worldSpaceBoundingSphere();
                     
                     // Estimate of distance from object to background to
                     // be constant (we could read back depth buffer, but
@@ -746,6 +746,7 @@ void Surface::renderTranslucent
             // Add lights, or black
             model->renderNonShadowed(rd, lighting);
         }
+
 
         // Add shadowed lights
         if ((alphaMode == ALPHA_BLEND) && model->hasPartialCoverage()) {
