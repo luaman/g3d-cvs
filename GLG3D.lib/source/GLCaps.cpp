@@ -466,7 +466,7 @@ bool GLCaps::supportsTexture(const ImageFormat* fmt) {
             supportsFormat = false;
         } else {
             // Allocate some space for making a dummy texture
-            uint8 bytes[8 * 8 * 4];
+            uint8 bytes[8 * 8 * 8];
 
             glPushAttrib(GL_TEXTURE_BIT);
             {
@@ -483,7 +483,7 @@ bool GLCaps::supportsTexture(const ImageFormat* fmt) {
                 // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
                 // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
                 glTexImage2D(GL_TEXTURE_2D, 0, fmt->openGLFormat, 8, 8, 0, 
-                             fmt->openGLBaseFormat, GL_UNSIGNED_BYTE, bytes);
+                             fmt->openGLBaseFormat, GL_UNSIGNED_BYTE, NULL);
 
                 supportsFormat = (glGetError() == GL_NO_ERROR);
 

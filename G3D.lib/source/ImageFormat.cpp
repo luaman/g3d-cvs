@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-05-23
- @edited  2009-12-10
+ @edited  2010-03-30
  */
 
 #include "GLG3D/glheaders.h"
@@ -130,8 +130,12 @@ const ImageFormat* ImageFormat::stencil(int bits) {
         "RGB8I",
         "RGB8UI",
 
+        "RGBA8UI",
+
         "ARGB8",
         "BGR8",
+
+        "R8",
 
         "RG8",
         "RG8I",
@@ -286,6 +290,9 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
 
     case ImageFormat::CODE_BGR8:
         return ImageFormat::BGR8();
+
+    case ImageFormat::CODE_R8:
+        return ImageFormat::R8();
 
     case ImageFormat::CODE_RG8:
         return ImageFormat::RG8();
@@ -474,6 +481,8 @@ DEFINE_TEXTUREFORMAT_METHOD(LA32F,      2, UNCOMP_FORMAT,   GL_LUMINANCE_ALPHA32
 
 DEFINE_TEXTUREFORMAT_METHOD(BGR8,       3, UNCOMP_FORMAT,   GL_RGB8,            GL_BGR,     0,  0,  8,  8,  8,  0,  0, 32, 24,      GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_BGR8, ImageFormat::COLOR_SPACE_RGB);
 
+DEFINE_TEXTUREFORMAT_METHOD(R8,         1, UNCOMP_FORMAT,   GL_R8,              GL_RED,    0,  0,  8,  0,  0,  0,  0, 8, 8,      GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_R8, ImageFormat::COLOR_SPACE_RGB);
+
 DEFINE_TEXTUREFORMAT_METHOD(RG8,        2, UNCOMP_FORMAT,   GL_RG8,             GL_RG,     0,  0,  8,  8,  0,  0,  0, 16, 16,      GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_RG8, ImageFormat::COLOR_SPACE_RGB);
 
 DEFINE_TEXTUREFORMAT_METHOD(RG8I,       2, UNCOMP_FORMAT,   GL_RG8I,            GL_RG,     0,  0,  8,  8,  0,  0,  0, 16, 16,      GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_RG8I, ImageFormat::COLOR_SPACE_RGB);
@@ -515,6 +524,8 @@ DEFINE_TEXTUREFORMAT_METHOD(RGB9E5F,    3, UNCOMP_FORMAT,   GL_RGB9_E5_EXT,     
 DEFINE_TEXTUREFORMAT_METHOD(RGB8I,      3, UNCOMP_FORMAT,   GL_RGB8I_EXT,                       GL_RGB,     0,  0,  8,  8,  8,  0,  0, 32, 24,      GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_RGB8I, ImageFormat::COLOR_SPACE_RGB);
 
 DEFINE_TEXTUREFORMAT_METHOD(RGB8UI,     3, UNCOMP_FORMAT,   GL_RGB8UI_EXT,                      GL_RGB,     0,  0,  8,  8,  8,  0,  0, 32, 24,      GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_RGB8UI, ImageFormat::COLOR_SPACE_RGB);
+
+DEFINE_TEXTUREFORMAT_METHOD(RGBA8UI,    4, UNCOMP_FORMAT,   GL_RGBA8UI_EXT,                     GL_RGBA,    0,  0,  8,  8,  8,  8,  0, 32, 32,      GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_RGBA8UI, ImageFormat::COLOR_SPACE_RGB);
 
 
 DEFINE_TEXTUREFORMAT_METHOD(RGB_DXT1,   3, COMP_FORMAT,     GL_COMPRESSED_RGB_S3TC_DXT1_EXT,    GL_RGB,     0, 0, 0, 0, 0, 0, 0, 64, 64,    GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_RGB_DXT1, ImageFormat::COLOR_SPACE_RGB);
