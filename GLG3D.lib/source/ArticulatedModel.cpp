@@ -1062,7 +1062,7 @@ ArticulatedModel::PoseSpline::PoseSpline() {}
 
 
 ArticulatedModel::PoseSpline::PoseSpline(const Any& any) {
-    any.verifyName("PoseSpline");
+    any.verifyName("ArticulatedModel::PoseSpline");
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         partSpline.getCreate(it->key) = it->value;
     }
