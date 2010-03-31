@@ -68,6 +68,8 @@ public:
         CODE_RG8I,
         CODE_RG8UI,
 
+        CODE_RG16F,
+
         CODE_RGBA8,
         CODE_RGBA16,
         CODE_RGBA16F,
@@ -269,6 +271,8 @@ public:
     static const ImageFormat* RG8();
     static const ImageFormat* RG8I();
     static const ImageFormat* RG8UI();
+
+    static const ImageFormat* RG16F();
 
     static const ImageFormat* RGB5();
 
