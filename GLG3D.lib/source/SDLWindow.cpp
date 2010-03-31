@@ -78,7 +78,7 @@ static bool SDL_handleErrorCheck_(
     return _internal::_handleErrorCheck_(expression, message, filename, lineNumber, useGuiPrompt);
 }
 
-Vector2 SDLWindow::screenSize() {
+Vector2 SDLWindow::primaryDisplaySize() {
     doSDLInit();
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
@@ -87,6 +87,19 @@ Vector2 SDLWindow::screenSize() {
     int width  = screenWidth (X11Display);
     int height = screenHeight(X11Display);
     return G3D::Vector2(width,height);
+}
+
+
+Vector2 SDLWindow::virtualDisplaySize() {
+    return primaryDisplaySize();
+}
+
+Vector2 SDLWindow::primaryDisplayWindowSize() {
+    return primaryDisplaySize();
+}
+
+int SDLWindow::numDisplays() {
+    return 1;
 }
 
 SDLWindow* SDLWindow::create(const OSWindow::Settings& settings) {

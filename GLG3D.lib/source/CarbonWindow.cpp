@@ -596,11 +596,23 @@ CarbonWindow::CarbonWindow(
 CarbonWindow::CarbonWindow(const GWindow::Settings& s, WindowRef window) : _createdWindow(false) {
 }
 
-Vector2 CarbonWindow::screenSize() {
+Vector2 CarbonWindow::primaryDisplaySize() {
     CGRect rScreen = CGDisplayBounds(kCGDirectMainDisplay);
     int width  = rScreen.size.width;
     int height = rScreen.size.height;
     return G3D::Vector2(width,height);
+}
+
+Vector2 CarbonWindow::virtualDisplaySize() {
+    return primaryDisplaySize();
+}
+
+Vector2 CarbonWindow::primaryDisplayWindowSize() {
+    return primaryDisplaySize();
+}
+
+int CarbonWindow::numDisplays() {
+    return 1;
 }
 
 #pragma mark Public - CarbonWindow Creation:

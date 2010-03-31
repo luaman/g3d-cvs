@@ -110,7 +110,17 @@ private:
 
 public:
 
-    static Vector2 screenSize();
+    /** \copydoc OSWindow::primaryDisplaySize */
+    static Vector2 primaryDisplaySize();
+
+    /** \copydoc OSWindow::virtualDisplaySize */
+    static Vector2 virtualDisplaySize();
+
+    /** \copydoc OSWindow::primaryDisplayWindowSize */
+    static Vector2 primaryDisplayWindowSize();
+
+    /** \copydoc OSWindow::numDisplays */
+    static int numDisplays();
 
     /** Different subclasses will be returned depending on
         whether DirectInput8 is available. You must delete 

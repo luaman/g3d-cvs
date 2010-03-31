@@ -273,11 +273,21 @@ Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(f
 }
 
 
-Vector2 Win32Window::screenSize() {
-    int width  = GetSystemMetrics(SM_CXSCREEN);
-    int height = GetSystemMetrics(SM_CYSCREEN);
-//	logPrintf("Win32Window::screenSize(): %dx%d\n", width, height);
-    return G3D::Vector2( width, height );
+// See http://msdn.microsoft.com/en-us/library/ms724385(VS.85).aspx
+Vector2 Win32Window::primaryDisplaySize() {
+    return Vector2(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+}
+
+Vector2 Win32Window::virtualDisplaySize() {
+    return Vector2(GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN));
+}
+
+Vector2 Win32Window::primaryDisplayWindowSize() {
+    return Vector2(GetSystemMetrics(SM_CXMAXIMIZED), GetSystemMetrics(SM_CYMAXIMIZED));
+}
+
+int Win32Window::numDisplays() {
+    return GetSystemMetrics(SM_CMONITORS);
 }
 
 

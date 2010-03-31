@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2005-02-10
-  @edited  2008-01-07
+  @edited  2010-03-30
 */
 
 #ifndef G3D_OSWINDOW_H
@@ -269,7 +269,24 @@ protected:
 
 public:
 
-    static Vector2 screenSize();
+    /** Dimensions in pixels of the primary display.  The OSWindow implementation calls the appropriate 
+        subclass override for the current operating system. */
+    static Vector2 primaryDisplaySize();
+
+    /** Dimensions of the bounding rectangle of all displays.  For a multi-monitor configuration, this is
+        the net "display" size.*/
+    static Vector2 virtualDisplaySize();
+
+    /** Dimensions in pixels of a maximized (but not full-screen) window on the primary display.  Task bars
+        and menus may make this smaller than the primaryDisplaySize().
+
+        The OSWindow implementation calls the appropriate 
+        subclass override for the current operating system. */
+    static Vector2 primaryDisplayWindowSize();
+
+    /** Number of physical displays (e.g., monitors) reported by the operating system. The OSWindow implementation calls the appropriate 
+        subclass override for the current operating system.*/
+    static int numDisplays();
 
     /** Creates the default instance for this platform:
         Linux/FreeBSD - SDLWindow
@@ -586,10 +603,6 @@ public:
     }
 
 };
-
-/** Reports the dimensions of the primary display at any time,
-    with or without any open windows. */
-inline Vector2 screenSize() { return OSWindow::screenSize(); }
 
 /** @deprecated */
 typedef OSWindow GWindow;

@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @author Casey O'Donnell, caseyodonnell@gmail.com
   @created 2006-08-20
-  @edited  2007-08-23
+  @edited  2010-03-30
 */
 
 #ifndef G3D_CarbonWindow_h
@@ -175,7 +175,17 @@ private:
 
 public:
 
-    static Vector2 screenSize();
+    /** \copydoc OSWindow::primaryDisplaySize */
+    static Vector2 primaryDisplaySize();
+
+    /** \copydoc OSWindow::virtualDisplaySize */
+    static Vector2 virtualDisplaySize();
+
+    /** \copydoc OSWindow::primaryDisplayWindowSize */
+    static Vector2 primaryDisplayWindowSize();
+
+    /** \copydoc OSWindow::numDisplays */
+    static int numDisplays();
 
     static CarbonWindow* create(const GWindow::Settings& settings = GWindow::Settings());
     

@@ -22,13 +22,45 @@
 
 namespace G3D {
 
-Vector2 OSWindow::screenSize() {
+
+// See http://msdn.microsoft.com/en-us/library/ms724385(VS.85).aspx
+Vector2 OSWindow::primaryDisplaySize() {
 #   ifdef G3D_WIN32
-        return Win32Window::screenSize();
+        return Win32Window::primaryDisplaySize();
 #   elif defined(G3D_OSX)
-        return CarbonWindow::screenSize();
+        return CarbonWindow::primaryDisplaySize();
 #   else
-        return SDLWindow::screenSize();
+        return SDLWindow::primaryDisplaySize();
+#   endif
+}
+
+Vector2 OSWindow::virtualDisplaySize() {
+#   ifdef G3D_WIN32
+        return Win32Window::virtualDisplaySize();
+#   elif defined(G3D_OSX)
+        return CarbonWindow::virtualDisplaySize();
+#   else
+        return SDLWindow::virtualDisplaySize();
+#   endif
+}
+
+Vector2 OSWindow::primaryDisplayWindowSize() {
+#   ifdef G3D_WIN32
+        return Win32Window::primaryDisplayWindowSize();
+#   elif defined(G3D_OSX)
+        return CarbonWindow::primaryDisplayWindowSize();
+#   else
+        return SDLWindow::primaryDisplayWindowSize();
+#   endif
+}
+
+int OSWindow::numDisplays() {
+#   ifdef G3D_WIN32
+        return Win32Window::numDisplays();
+#   elif defined(G3D_OSX)
+        return CarbonWindow::numDisplays();
+#   else
+        return SDLWindow::numDisplays();
 #   endif
 }
 
