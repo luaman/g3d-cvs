@@ -1335,7 +1335,11 @@ public:
      each primitive group to set other RenderDevice state.     
      */
 	void setShader(const ShaderRef& s);
-    
+   
+    Shader::Ref shader() const {
+        return m_state.shader;
+    }
+
     /**
       Reads a depth buffer value (1 @ far plane, 0 @ near plane) from
       the given screen coordinates (x, y) where (0,0) is the top left

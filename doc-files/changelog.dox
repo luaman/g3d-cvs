@@ -25,10 +25,10 @@
    <p>
    Changes in 8.00:
    <ul>
-     <li> G3D::screenSize() now available, reports the dimensions of the primary display, with or without any open windows
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
-     <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
+     <li> G3D::Tri, G3D::TriTree for ray tracing (12x faster than KDTree + Triangle)
+     <li> G3D::FileSystem
      <li> G3D::Any replaces G3D::AnyVal
      <li> System::findDataFile no longer scans all disk drives; instead it checks the G3DDATA environment variable
      <li> G3D::Texture::createColor
@@ -38,8 +38,9 @@
      <li> G3D::TextInput::parseNumber
      <li> G3D::GuiTabPane, GuiPane::addTabPane
      <li> G3D::GFont::nativeSize
-     <li> G3D::FileSystem
      <li> G3D::FilePath
+     <li> G3D::OSWindow::primaryDisplaySize, G3D::OSWindow::virtualDisplaySize, G3D::OSWindow::primaryDisplayWindowSize, G3D::OSWindow::numDisplays
+     <li> G3D::RenderDevice::shader
      <li> G3D::GApp::drawMessage
      <li> G3D::Matrix4::operator+(const Matrix4&)
      <li> Upgraded to libpng 1.4.1

@@ -21,6 +21,7 @@ public:
 
     int                     x;
 
+    Shader::Ref             shader;
     Scene::Ref              m_scene;
 
     App(const GApp::Settings& settings = GApp::Settings());
@@ -91,6 +92,7 @@ void App::onInit() {
 
     showRenderingStats = false;
     developerWindow->cameraControlWindow->setVisible(false);
+    developerWindow->setVisible(false);
     debugWindow->setVisible(false);
     debugWindow->moveTo(Vector2(0, 300));
 
@@ -115,7 +117,7 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    m_scene = Scene::create("Crates", defaultCamera);
+//    m_scene = Scene::create("Crates", defaultCamera);
 
     /*
     m_spline.append(CFrame::fromXYZYPRDegrees(0, 0, 0));
@@ -127,6 +129,8 @@ void App::onInit() {
     m_spline.cyclic = true;
     */
 
+
+    shader = Shader::fromStrings("", "uniform vec2 viewportOrigin; void main() {  gl_FragColor.rgb = (gl_FragCoord.xy - viewportOrigin).xyy / 100; }");
 }
 
 
@@ -187,6 +191,13 @@ void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
             rd->sendVertex(c);
             rd->sendVertex(c - Vector3(-k,0.5,0)*5);
         rd->endPrimitive();
+    } else {
+        rd->push2D();
+            rd->setViewport(Rect2D::xywh(100, 0, 100, 100));
+            shader->args.set("viewportOrigin", rd->viewport().x0y0());
+            rd->setShader(shader);
+            Draw::rect2D(Rect2D::xywh(Vector2(0,0),rd->viewport().wh()), rd);
+        rd->pop2D();
     }
 }
 
@@ -266,6 +277,8 @@ int main(int argc, char** argv) {
     } 
  
     GApp::Settings set;
+    set.window.width = 200;
+    set.window.height = 100;
     set.film.enabled = true;
     return App(set).run();
 }

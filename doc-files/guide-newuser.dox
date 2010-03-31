@@ -189,6 +189,9 @@ linking against OpenGL or setting up an event handling routine.
   by RenderDevice. This is only visible in that G3D::RenderDevice::invertY will automatically be 
   set and that the g3d_ProjectionMatrix differs from the gl_ProjectionMatrix in shaders (note that
   OpenGL has deprecated gl_ProjectionMatrix as of GLSL 1.5).
+  
+  Inside a shader, gl_FragCoord.xy is the window-system coordinate; it ignores the viewport, projection matrix, and scissor region.
+  G3D arranges shaders such that its origin is at the top-left.
 
   @subsection ref Memory Management
   
