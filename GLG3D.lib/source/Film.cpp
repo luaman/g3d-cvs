@@ -143,29 +143,29 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input, int down
         m_blurryFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_blurry);
     }
 
+    rd->push2D();
+
     // Bloom
     if (bloomStrength > 0) {
-        rd->push2D(m_framebuffer);
-            rd->clear();
-            m_preBloomShader->args.set("sourceTexture",  input);
-            m_preBloomShader->args.set("exposure", m_exposure);
-            rd->setShader(m_preBloomShader);
-            Draw::fastRect2D(m_preBloom->rect2DBounds(), rd);
-        rd->pop2D();
+        Framebuffer::Ref oldFB = rd->framebuffer();
+        rd->setFramebuffer(m_framebuffer);
+        rd->clear();
+        m_preBloomShader->args.set("sourceTexture",  input);
+        m_preBloomShader->args.set("exposure", m_exposure);
+        rd->setShader(m_preBloomShader);
+        Draw::fastRect2D(m_preBloom->rect2DBounds(), rd);
 
-        rd->push2D(m_tempFramebuffer);
-        {
-            // Blur vertically
-            GaussianBlur::apply(rd, m_preBloom, Vector2(0, 1), blurDiameter, m_temp->vector2Bounds());
+        rd->setFramebuffer(m_tempFramebuffer);
+        // Blur vertically
+        GaussianBlur::apply(rd, m_preBloom, Vector2(0, 1), blurDiameter, m_temp->vector2Bounds());
 
-            // Blur horizontally
-            rd->setFramebuffer(m_blurryFramebuffer);
-            GaussianBlur::apply(rd, m_temp, Vector2(1, 0), halfBlurDiameter, m_blurry->vector2Bounds());
-        }
-        rd->pop2D();
+        // Blur horizontally
+        rd->setFramebuffer(m_blurryFramebuffer);
+        GaussianBlur::apply(rd, m_temp, Vector2(1, 0), halfBlurDiameter, m_blurry->vector2Bounds());
+
+        rd->setFramebuffer(oldFB);
     }
 
-    rd->push2D();
     {
         // Combine, fix saturation, gamma correct and draw
         m_shader->args.set("sourceTexture",  input);
