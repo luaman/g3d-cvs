@@ -74,6 +74,8 @@ private:
 
     /** Working framebuffer */
     Framebuffer::Ref        m_framebuffer;
+    Framebuffer::Ref        m_tempFramebuffer;
+    Framebuffer::Ref        m_blurryFramebuffer;
 
     /** Expose, invert gamma and correct out-of-gamut colors */
     Shader::Ref             m_shader;

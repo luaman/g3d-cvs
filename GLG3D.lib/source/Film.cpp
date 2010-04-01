@@ -13,6 +13,8 @@
 
 namespace G3D {
 
+// TODO: on newer GPUs when not in bloom mode, use texelFetch when 
+
 static const char* shaderCode = 
 STR(
 uniform sampler2D sourceTexture;
@@ -25,8 +27,8 @@ uniform float     invGamma;
 
 void main(void) {
  
-    vec3 src   = texture2D(sourceTexture, gl_TexCoord[g3d_Index(sourceTexture)].st).rgb;
-    vec3 bloom = texture2D(bloomTexture, gl_TexCoord[g3d_Index(bloomTexture)].st).rgb;
+    vec3 src   = texture2D(sourceTexture, gl_TexCoord[0].st).rgb;
+    vec3 bloom = texture2D(bloomTexture, gl_TexCoord[0].st).rgb;
 
     // Parens are to force scalar multiplies over vector ones
     // We multiply the bloomStrength by 5 to make a vector mul into a scalar mul.
@@ -82,6 +84,8 @@ void Film::init() {
 
     debugAssertGLOk();
     m_framebuffer = Framebuffer::create("Film");
+    m_blurryFramebuffer = Framebuffer::create("Film blurry");
+    m_tempFramebuffer = Framebuffer::create("Film temp");
 
     // Cache shader
     static WeakReferenceCountedPointer<Shader> commonShader, commonPreBloomShader;
@@ -89,7 +93,9 @@ void Film::init() {
     m_preBloomShader = commonPreBloomShader.createStrongPtr();
     if (m_shader.isNull()) {
         commonShader = m_shader = Shader::fromStrings("", shaderCode);
+        m_shader->setPreserveState(false);
         commonPreBloomShader = m_preBloomShader = Shader::fromStrings("", preBloomShaderCode);
+        m_preBloomShader->setPreserveState(false);
     }
 }
 
@@ -131,11 +137,14 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input, int down
         m_preBloom->clear(Texture::CUBE_POS_X, 0, rd);
         m_temp->clear(Texture::CUBE_POS_X, 0, rd);
         m_blurry->clear(Texture::CUBE_POS_X, 0, rd);
+
+        m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_preBloom);
+        m_tempFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_temp);
+        m_blurryFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_blurry);
     }
 
     // Bloom
     if (bloomStrength > 0) {
-        m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_preBloom);
         rd->push2D(m_framebuffer);
             rd->clear();
             m_preBloomShader->args.set("sourceTexture",  input);
@@ -144,15 +153,13 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input, int down
             Draw::fastRect2D(m_preBloom->rect2DBounds(), rd);
         rd->pop2D();
 
-        // Bind a texture first so that the framebuffer has a size
-        m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_temp);
-        rd->push2D(m_framebuffer);
+        rd->push2D(m_tempFramebuffer);
         {
             // Blur vertically
             GaussianBlur::apply(rd, m_preBloom, Vector2(0, 1), blurDiameter, m_temp->vector2Bounds());
 
             // Blur horizontally
-            m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_blurry);
+            rd->setFramebuffer(m_blurryFramebuffer);
             GaussianBlur::apply(rd, m_temp, Vector2(1, 0), halfBlurDiameter, m_blurry->vector2Bounds());
         }
         rd->pop2D();
@@ -168,7 +175,7 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input, int down
         m_shader->args.set("invGamma",       1.0f / m_gamma);
         rd->setShader(m_shader);
 
-        Draw::rect2D(input->rect2DBounds(), rd);
+        Draw::fastRect2D(input->rect2DBounds(), rd);
     }
     rd->pop2D();
 }
