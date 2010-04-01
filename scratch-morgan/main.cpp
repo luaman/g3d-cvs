@@ -251,15 +251,27 @@ int main(int argc, char** argv) {
     (void)argv;
 
     Any a0;
-    Any a1;
+    a0.parse(
+    "PhysicsFrameSpline {\
+                control = (Matrix3::fromAxisAngle(Vector3(0,1,0), 0.0),\
+                           Matrix3::fromAxisAngle(Vector3(0,1,0), 0.785398163),\
+                           Matrix3::fromAxisAngle(Vector3(0,1,0), 1.57079633),\
+                           Matrix3::fromAxisAngle(Vector3(0,1,0), 2.35619449)),\
+                time = (0,1,2,3),\
+                cyclic = true\
+    }");
 
-    a0.parse("GLight::spot(Vector3(0,1,0), Vector3(0,-1,0), 45, Color3(1,1,1))");
-    a1.parse("GLight { position = Vector4(0,1,0,1), spotTarget = Vector3(0,0,0), spotCutoff = 45, color = Color3(1,1,1)}");
+    PhysicsFrameSpline p(a0);
 
-    GLight light0(a0);
-    GLight light1(a1);
-    debugAssert(light0 == light1);
-    
+    Quat q = p.control[3].rotation.slerp(p.control[0].rotation, 0.5f);
+
+    UprightFrame f0 = p.evaluate(0);
+    UprightFrame f1 = p.evaluate(1);
+    UprightFrame f2 = p.evaluate(2);
+    UprightFrame f3 = p.evaluate(3);
+    UprightFrame f3b = p.evaluate(3.5);
+    UprightFrame f4 = p.evaluate(4);
+
     //GFont::makeFont(256, "c:/font/arial2");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
     //b.writeInt32(1);
