@@ -316,6 +316,25 @@ graphics card using the G3D::RenderDevice methods.
 
 \htmlonly <hr noshade> \endhtmlonly
 
+@section SLI
+
+To use SLI, you must set to the NVIDIA control panel and set the following:
+
+- SLI Performance Mode: Force alternate rendering 1
+- Single display performance mode
+- Triple buffering: On
+
+Use these settings for your GApp:
+
+<pre>
+settings.window.width = OSWindow::primaryDisplaySize().x;
+settings.window.height = OSWindow::primaryDisplaySize().y;
+settings.window.asynchronous = true;
+settings.window.framed = false;
+settings.window.fullScreen = true;
+settings.film.enabled = false;
+</pre>
+
   @section stl STL vs. G3D
 
    In general, we recommend using STL classes like <CODE>std::string</CODE> wherever possible--

@@ -89,9 +89,13 @@ public:
     /** Returns the currently selected value */
     const GuiText& selectedValue() const;
     
-    /** The index of the currently selected value */
+    /** The index of the currently selected value; -1 if the list is empty */
     inline int selectedIndex() const {
-        return iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+        if (m_listValue.size() == 0) {
+            return -1;
+        } else {
+            return iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+        }
     }
 
     inline void setSelectedIndex(int i) {

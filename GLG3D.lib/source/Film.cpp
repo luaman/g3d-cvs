@@ -156,11 +156,13 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input, int down
         Draw::fastRect2D(m_preBloom->rect2DBounds(), rd);
 
         rd->setFramebuffer(m_tempFramebuffer);
+        rd->clear();
         // Blur vertically
         GaussianBlur::apply(rd, m_preBloom, Vector2(0, 1), blurDiameter, m_temp->vector2Bounds());
 
         // Blur horizontally
         rd->setFramebuffer(m_blurryFramebuffer);
+        rd->clear();
         GaussianBlur::apply(rd, m_temp, Vector2(1, 0), halfBlurDiameter, m_blurry->vector2Bounds());
 
         rd->setFramebuffer(oldFB);
@@ -169,7 +171,7 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input, int down
     {
         // Combine, fix saturation, gamma correct and draw
         m_shader->args.set("sourceTexture",  input);
-        m_shader->args.set("bloomTexture",   m_blurry);
+        m_shader->args.set("bloomTexture",   (bloomStrength > 0) ? m_blurry : Texture::zero());
         m_shader->args.set("bloomStrengthScaled",  bloomStrength * 10.0);
         m_shader->args.set("exposure",       m_exposure);
         m_shader->args.set("invGamma",       1.0f / m_gamma);
