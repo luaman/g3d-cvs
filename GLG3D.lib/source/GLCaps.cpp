@@ -465,9 +465,6 @@ bool GLCaps::supportsTexture(const ImageFormat* fmt) {
         if (fmt->floatingPoint && ! supports_GL_ARB_texture_float()) {
             supportsFormat = false;
         } else {
-            // Allocate some space for making a dummy texture
-            uint8 bytes[8 * 8 * 8];
-
             glPushAttrib(GL_TEXTURE_BIT);
             {
                 // Clear the error bit
@@ -901,21 +898,22 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
     int smajor = 1;
     int sminor = 0;
 
-	bool hasGLSL150 = false;
+	bool hasGLSL330 = false;
 	if (glGetString(GL_SHADING_LANGUAGE_VERSION))
 	{
 		sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%d.%d", &smajor, &sminor);
-		hasGLSL150 = ((smajor > 1) || (smajor == 1 && sminor >= 50));
+		hasGLSL330 = ((smajor > 3) || (smajor == 3 && sminor >= 30));
 	}
 
-	supported = supported && hasGLSL150;
-    explanation += format("GLSL version 1.50                   %s (GLSL version on this driver is %d.%d)\n",
-                          hasGLSL150 ? "yes" : "NO", smajor, sminor);
+	supported = supported && hasGLSL330;
+    explanation += format("GLSL version 3.30                   %s (GLSL version on this driver is %d.%d)\n",
+                          hasGLSL330 ? "yes" : "NO", smajor, sminor);
 
-    if (major >= 3 || (major == 3 && minor >= 2)) {
+    if (major > 3 || (major == 3 && minor >= 3)) {
         supported = true;
-        explanation = "GPU Supports OpenGL 3.2 or later";
+        explanation += format("GPU Supports OpenGL 3.3 or later  (OpenGL version on this driver is %d.%d)\n", major, minor);
     } else {
+        explanation += format("                                   OpenGL version on this driver is %d.%d\n", major, minor);
 #       define REQUIRE(ext, alt) \
         { bool has = supports(ext) || supports(alt);\
             explanation += format("%33s  %s\n", ext, (has ? " yes " : " NO - Required for G3D 9.0!"));\
@@ -935,7 +933,9 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
         REQUIRE("GL_ARB_sync", "");
         REQUIRE("GL_ARB_draw_buffers_blend", "");
 #       ifdef G3D_WIN32
-            REQUIRE("WGL_ARB_create_context", "");
+            if (wglGetProcAddress("wglCreateContextAttribsARB") == NULL) {
+                REQUIRE("WGL_ARB_create_context", "");
+            }
 #       else
             REQUIRE("GLX_ARB_create_context", "");
 #       endif
@@ -946,12 +946,12 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
         REQUIRE("GL_ARB_shading_language_100", "");
         REQUIRE("GL_ARB_map_buffer_range", "");
 
-        RECOMMEND("GL_EXT_texture_integer", "");
-        RECOMMEND("GL_ARB_texture_rg", "");
+        REQUIRE("GL_EXT_texture_integer", "");
+        REQUIRE("GL_ARB_texture_rg", "");
     }
    
     RECOMMEND("GL_ARB_seamless_cube_map", "");
-    RECOMMEND("GL_ARB_sample_shading", "");
+    REQUIRE("GL_ARB_sample_shading", "");
 
 
     return supported;
