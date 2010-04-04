@@ -40,6 +40,8 @@ ArticulatedModel::Operation::Ref ArticulatedModel::Operation::create(const Any& 
         return SetMaterialOperation::create(any);
     } else if (any.nameEquals("transform")) {
         return TransformOperation::create(any);
+    } else if (any.nameEquals("merge")) {
+        return MergeOperation::create(any);
     } else {
         any.verify(false, "Unrecognized operation type: " + any.name());
         return NULL;
@@ -250,4 +252,69 @@ void ArticulatedModel::TransformOperation::transform(ArticulatedModel::Part& par
     }
 }
 
+////////////////////////////////////////////////////////////////////////
+
+ArticulatedModel::MergeOperation::Ref ArticulatedModel::MergeOperation::create(const Any& any) {
+    any.verifyName("merge");
+
+    Ref op = new MergeOperation();
+    op->part.resize(any.size());
+    for (int i = 0; i < op->part.size(); ++i) {
+        op->part[i] = any[i];
+    }
+
+    return op;
+}
+        
+
+void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
+    // The target part
+    Part& targetPart = model->partArray[model->partIndex(part[0])];
+
+    alwaysAssertM(targetPart.triList.size() > 0, "No trilists in target part");
+
+    Part::TriList::Ref targetTriList = targetPart.triList[0];
+
+    Array<int>& targetIndexArray = targetTriList->indexArray;
+    // Merge all tri-lists within the target part
+    for (int t = 1; t < targetPart.triList.size(); ++t) {
+        targetIndexArray.append(targetPart.triList[t]->indexArray);
+    }
+
+    // Erase the excesss trilists, which are now unused
+    targetPart.triList.resize(1);
+
+    // Merge all parts 
+    for (int p = 1; p < part.size(); ++p) {
+        const int offset = targetPart.geometry.vertexArray.size();
+        Part& sourcePart = model->partArray[model->partIndex(part[p])];
+        
+        // TODO: (maybe we should apply their transformations)
+
+        // Append the arrays
+        if (targetPart.texCoordArray.size() == sourcePart.geometry.vertexArray.size()) {
+            // We need texture coordinates
+            if (sourcePart.texCoordArray.size() == 0) {
+                // There are no texture coordinates on this part, so make some
+                targetPart.texCoordArray.resize(targetPart.texCoordArray.size() + sourcePart.geometry.vertexArray.size());
+            } else {
+                targetPart.texCoordArray.append(sourcePart.texCoordArray);
+            }
+        }
+        targetPart.geometry.vertexArray.append(sourcePart.geometry.vertexArray);
+        targetPart.geometry.normalArray.append(sourcePart.geometry.normalArray);
+
+        // Offset the indices and add them
+        for (int t = 0; t < sourcePart.triList.size(); ++t) {
+            Part::TriList::Ref sourceTriList = sourcePart.triList[t];
+            const Array<int>& sourceIndexArray = sourceTriList->indexArray;
+            for (int i = 0; i < sourceIndexArray.size(); ++i) {
+                targetIndexArray.append(sourceIndexArray[i] + offset);
+            }
+        }
+
+        // Erase the contents of the part
+        sourcePart.removeGeometry();
+    }
+}
 } // namespace G3D

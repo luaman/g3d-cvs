@@ -374,9 +374,10 @@ public:
             When triList is removed, the triList indexing changes.
             When a part is removed, its geometry is wiped but the part and transform remain.
 
-          merge( target );
-          merge( partid, trilist, trilist );
-          merge( partid, trilist, partid, trilist );
+          merge( partid [, partid]* );
+            Merge all trilists from all parts into the first trilist of the first part,
+            obtaining its material and two-sided flag.  Then executes a remove on all but the first
+            part and trilist.
         </pre>
     */
     class Operation : public ReferenceCountedObject {
@@ -448,6 +449,18 @@ public:
         Array<PartID>       sourcePart;
         Matrix4             xform;
         typedef ReferenceCountedPointer<TransformOperation> Ref;
+        static Ref create(const Any& any);
+        virtual void apply(ArticulatedModel::Ref model);
+    };
+
+    /**
+        Merge all trilists from all parts into the first trilist of the first part,
+        obtaining its material and two-sided flag.
+    */
+    class MergeOperation : public Operation {
+    public:
+        Array<PartID>       part;
+        typedef ReferenceCountedPointer<MergeOperation> Ref;
         static Ref create(const Any& any);
         virtual void apply(ArticulatedModel::Ref model);
     };
