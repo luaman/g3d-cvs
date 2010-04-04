@@ -109,7 +109,7 @@ public:
     	
         /** Number of samples per pixel for anti-aliasing purposes.
             <B>1</B> (none), 4, 8 */
-        int     fsaaSamples;
+        int     msaaSamples;
     	
         /** Will you accept a software rendering pipeline?  Used to
             determine if a hardware only pixel format is
@@ -184,7 +184,7 @@ public:
             alphaBits(0),
             depthBits(24),
             stencilBits(8),
-            fsaaSamples(1),
+            msaaSamples(1),
             hardware(true),
             fullScreen(false),
             asynchronous(true),

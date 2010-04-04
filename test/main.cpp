@@ -705,7 +705,7 @@ int main(int argc, char* argv[]) {
         settings.alphaBits = 0;
         settings.rgbBits = 8;
         settings.stencilBits = 0;
-        settings.fsaaSamples = 1;
+        settings.msaaSamples = 1;
 
         if (!renderDevice) {
             renderDevice = new RenderDevice();

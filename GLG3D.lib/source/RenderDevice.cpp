@@ -339,8 +339,8 @@ void RenderDevice::init(OSWindow* window) {
                  greenBits, "ok", 
                  blueBits, "ok", 
 
-                 settings.fsaaSamples, actualSettings.fsaaSamples,
-                 isOk(settings.fsaaSamples == actualSettings.fsaaSamples),
+                 settings.msaaSamples, actualSettings.msaaSamples,
+                 isOk(settings.msaaSamples == actualSettings.msaaSamples),
 
                  settings.width, "ok",
                  settings.height, "ok",
@@ -3468,7 +3468,7 @@ void RenderDevice::describeSystem(
         var(t, "Stencil bits", settings.stencilBits);
         var(t, "Asynchronous", settings.asynchronous);
         var(t, "Stereo", settings.stereo);
-        var(t, "FSAA samples", settings.fsaaSamples);
+        var(t, "FSAA samples", settings.msaaSamples);
 
     t.popIndent();
     t.writeSymbols("}");

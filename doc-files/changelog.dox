@@ -225,6 +225,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::OSWindow::Settings::fsaaSamples -> G3D::OSWindow::Settings::msaaSamples
      <li> G3D::Texture::Preprocess::brighten -> G3D::Texture::Preprocess::modulate 
      <li> Surface::renderTransmissives -> G3D::Surface::renderTransmissives
      <li> G3D::UserInput has joysticks disabled internally to avoid confusion for new users

@@ -344,11 +344,15 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
         iAttributes.append(WGL_DRAW_TO_WINDOW_ARB, GL_TRUE);
         iAttributes.append(WGL_SUPPORT_OPENGL_ARB, GL_TRUE);
-        // NVIDIA docs say to use WGL_SWAP_EXCHANGE_ARB, but Evan Hart recommended WGL_SWAP_UNDEFINED_ARB instead
-        iAttributes.append(WGL_SWAP_METHOD_ARB,    WGL_SWAP_UNDEFINED_ARB);
+
+        // NVIDIA docs say to use WGL_SWAP_EXCHANGE_ARB, but Evan Hart recommended WGL_SWAP_UNDEFINED_ARB instead for SLI
+        // Setting WGL_SWAP_UNDEFINED_ARB appears to disable multisample, however.
+        //iAttributes.append(WGL_SWAP_METHOD_ARB,    WGL_SWAP_UNDEFINED_ARB);
+        
         if (m_settings.hardware) {
             iAttributes.append(WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB);
         }
+        
         iAttributes.append(WGL_DOUBLE_BUFFER_ARB,  GL_TRUE);
         iAttributes.append(WGL_COLOR_BITS_ARB,     m_settings.rgbBits * 3);
         iAttributes.append(WGL_RED_BITS_ARB,       m_settings.rgbBits);
@@ -364,14 +368,15 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         iAttributes.append(WGL_ACCUM_GREEN_BITS_ARB, 0);        
         iAttributes.append(WGL_ACCUM_BLUE_BITS_ARB, 0);        
 
-        if (hasWGLMultiSampleSupport && (m_settings.fsaaSamples > 1)) {
+
+        if (hasWGLMultiSampleSupport && (m_settings.msaaSamples > 1)) {
             // On some ATI cards, even setting the samples to false will turn it on,
             // so we only take this branch when FSAA is explicitly requested.
-            iAttributes.append(WGL_SAMPLE_BUFFERS_ARB, m_settings.fsaaSamples > 1);
-            iAttributes.append(WGL_SAMPLES_ARB,        m_settings.fsaaSamples);
+            iAttributes.append(WGL_SAMPLE_BUFFERS_ARB, 1);
+            iAttributes.append(WGL_SAMPLES_ARB,        m_settings.msaaSamples);
         } else {
             // Report actual settings
-            m_settings.fsaaSamples = 0;
+            m_settings.msaaSamples = 0;
         }
         iAttributes.append(0, 0); // end sentinel
 
@@ -388,12 +393,9 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         // "If the function succeeds, the return value is TRUE. If the function
         // fails the return value is FALSE. To get extended error information,
         // call GetLastError. If no matching formats are found then nNumFormats
-        // is set to zero and the function returns TRUE."  -- I think this means
-        // that when numFormats == 0 some reasonable format is still selected.
+        // is set to zero and the function returns TRUE."  
 
-        // Corey - I don't think it does, but now I check for valid pixelFormat + valid return only.
-
-        if (valid && (pixelFormat > 0)) {
+        if (valid && (numFormats > 0)) {
             // Found a valid format
             foundARBFormat = true;
             // Write out the description

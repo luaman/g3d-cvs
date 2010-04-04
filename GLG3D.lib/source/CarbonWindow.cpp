@@ -440,9 +440,9 @@ CarbonWindow::CarbonWindow(
     attribs[i++] = AGL_RGBA;
     attribs[i++] = AGL_DOUBLEBUFFER;
     
-    if(m_settings.fsaaSamples > 0) {
+    if(m_settings.msaaSamples > 0) {
         attribs[i++] = AGL_SAMPLE_BUFFERS_ARB; attribs[i++] = 1;
-        attribs[i++] = AGL_SAMPLES_ARB;        attribs[i++] = m_settings.fsaaSamples;
+        attribs[i++] = AGL_SAMPLES_ARB;        attribs[i++] = m_settings.msaaSamples;
         //attribs[i++] = AGL_SUPERSAMPLE;
     }
     

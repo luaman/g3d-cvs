@@ -193,10 +193,12 @@ void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
         rd->endPrimitive();
     } else {
         rd->push2D();
-            rd->setViewport(Rect2D::xywh(100, 0, 100, 100));
-            shader->args.set("viewportOrigin", rd->viewport().x0y0());
-            rd->setShader(shader);
-            Draw::rect2D(Rect2D::xywh(Vector2(0,0),rd->viewport().wh()), rd);
+        rd->setColor(Color3::white());
+        rd->beginPrimitive(PrimitiveType::TRIANGLES);
+        rd->sendVertex(Vector2(0,0));
+        rd->sendVertex(Vector2(10,100));
+        rd->sendVertex(Vector2(100,50));
+        rd->endPrimitive();
         rd->pop2D();
     }
 }
@@ -250,27 +252,6 @@ int main(int argc, char** argv) {
     (void)argc;
     (void)argv;
 
-    Any a0;
-    a0.parse(
-    "PhysicsFrameSpline {\
-                control = (Matrix3::fromAxisAngle(Vector3(0,1,0), 0.0),\
-                           Matrix3::fromAxisAngle(Vector3(0,1,0), 0.785398163),\
-                           Matrix3::fromAxisAngle(Vector3(0,1,0), 1.57079633),\
-                           Matrix3::fromAxisAngle(Vector3(0,1,0), 2.35619449)),\
-                time = (0,1,2,3),\
-                cyclic = true\
-    }");
-
-    PhysicsFrameSpline p(a0);
-
-    Quat q = p.control[3].rotation.slerp(p.control[0].rotation, 0.5f);
-
-    UprightFrame f0 = p.evaluate(0);
-    UprightFrame f1 = p.evaluate(1);
-    UprightFrame f2 = p.evaluate(2);
-    UprightFrame f3 = p.evaluate(3);
-    UprightFrame f3b = p.evaluate(3.5);
-    UprightFrame f4 = p.evaluate(4);
 
     //GFont::makeFont(256, "c:/font/arial2");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
@@ -290,7 +271,9 @@ int main(int argc, char** argv) {
  
     GApp::Settings set;
     set.window.width = 200;
-    set.window.height = 100;
-    set.film.enabled = true;
+    set.window.height = 200;
+    set.film.enabled = false;
+    set.window.msaaSamples = 4;
+    set.window.stencilBits = 0;
     return App(set).run();
 }

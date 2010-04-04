@@ -662,7 +662,7 @@ int main(int argc, char** argv) {
 
     settings.window.fullScreen = false;
     settings.window.framed = ! settings.window.fullScreen;
-    settings.window.fsaaSamples = 1;
+    settings.window.msaaSamples = 1;
     settings.dataDir = "./";
     settings.window.defaultIconFilename = "g3d.ico";
 

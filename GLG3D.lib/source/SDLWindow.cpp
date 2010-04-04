@@ -152,10 +152,10 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
     SDL_GL_SetAttribute(SDL_GL_STEREO,          m_settings.stereo);
 
     #if SDL_FSAA
-        if (m_settings.fsaaSamples > 1) {
+        if (m_settings.msaaSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 
-                                m_settings.fsaaSamples);
+                                m_settings.msaaSamples);
         }
     #endif
 
@@ -198,20 +198,20 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
     glGetIntegerv(GL_GREEN_BITS, &greenBits);
     glGetIntegerv(GL_BLUE_BITS,  &blueBits);
     glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
-    int actualFSAABuffers = 0, actualFSAASamples = 0;
+    int actualFSAABuffers = 0, actualmsaaSamples = 0;
 
     #if SDL_FSAA
         SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &actualFSAABuffers);
-        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &actualFSAASamples);
+        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &actualmsaaSamples);
     #else
         (void)actualFSAABuffers;
-        (void)actualFSAASamples;
+        (void)actualmsaaSamples;
     #endif
     m_settings.rgbBits     = iMin(iMin(redBits, greenBits), blueBits);
     m_settings.alphaBits   = alphaBits;
     m_settings.stencilBits = stencilBits;
     m_settings.depthBits   = depthBits;
-    m_settings.fsaaSamples = actualFSAASamples;
+    m_settings.msaaSamples = actualmsaaSamples;
 
     SDL_version ver;
     SDL_VERSION(&ver);
