@@ -62,6 +62,8 @@ ArticulatedModel::Preprocess::Preprocess(const Any& any) {
             // TODO
         } else if (key == "addbumpmaps") {
             addBumpMaps = it->value.boolean();
+        } else if (key == "replacetwosidedwithgeometry") {
+            replaceTwoSidedWithGeometry = it->value.boolean();
         } else if (key == "xform") {
             xform = it->value;
         } else if (key == "parallaxsteps") {
@@ -97,6 +99,7 @@ ArticulatedModel::Preprocess::operator Any() const {
     a.set("parallaxSteps", parallaxSteps);
     a.set("bumpMapScale", bumpMapScale);
     a.set("normalMapWhiteHeightInPixels", normalMapWhiteHeightInPixels);
+    a.set("replaceTwoSidedWithGeometry", replaceTwoSidedWithGeometry);
     //a["materialSubstitution"] = materialSubstitution
 
     return a;
@@ -235,9 +238,34 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
         preprocess.program[i]->apply(model);
     }
 
+    if (preprocess.replaceTwoSidedWithGeometry) {
+        model->replaceTwoSidedWithGeometry();
+    }
+
     model->updateAll();
 
     return model;
+}
+
+
+void ArticulatedModel::replaceTwoSidedWithGeometry() {
+    for (int p = 0; p < partArray.size(); ++p) {
+        Part& part = partArray[p];
+        for (int t = 0; t < part.triList.size(); ++t) {
+            Part::TriList::Ref triList = part.triList[t];
+            if (triList->twoSided) {
+                triList->twoSided = false;
+                Array<int>& index = triList->indexArray;
+                int N = index.size();
+                debugAssert(triList->primitive = PrimitiveType::TRIANGLES);
+                index.resize(2 * N);
+                // Reverse
+                for (int i = 0; i < N; ++i) {
+                    index[i + N] = index[N - 1 - i];
+                }
+            }
+        }
+    }
 }
 
 

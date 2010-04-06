@@ -2532,7 +2532,7 @@ Texture::Settings::Settings() :
     interpolateMode(TRILINEAR_MIPMAP),
     wrapMode(WrapMode::TILE),
     depthReadMode(DEPTH_NORMAL),
-    maxAnisotropy(2.0),
+    maxAnisotropy(4.0),
     autoMipMap(true),
     maxMipMap(1000),
     minMipMap(-1000){

@@ -505,21 +505,24 @@ public:
             forces stripMaterials to be true.*/
         Material::Ref                 materialOverride;
 
-        /** Operations are performed after all other transformations during loading. */
+        /** \sa ArticulatedModel::replaceTwoSidedWithGeometry */
+        bool                          replaceTwoSidedWithGeometry;
+
+        /** Operations are performed after all other transformations during loading, except for replaceTwoSidedWithGeometry. */
         Array<Operation::Ref>         program;
         
         Preprocess(const Any& any);
         operator Any() const;
 
-        inline Preprocess() : stripMaterials(false), xform(Matrix4::identity()), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        inline Preprocess() : stripMaterials(false), xform(Matrix4::identity()), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f), replaceTwoSidedWithGeometry(false) {}
 
-        explicit inline Preprocess(const Matrix4& m) : stripMaterials(false), xform(m), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const Matrix4& m) : stripMaterials(false), xform(m), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f), replaceTwoSidedWithGeometry(false) {}
 
         /** Initializes with a scale matrix */
-        explicit inline Preprocess(const Vector3& scale) : stripMaterials(false), xform(Matrix4::scale(scale)), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const Vector3& scale) : stripMaterials(false), xform(Matrix4::scale(scale)), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f), replaceTwoSidedWithGeometry(false) {}
  
         /** Initializes with a scale matrix */
-        explicit inline Preprocess(const float scale) : stripMaterials(false), xform(Matrix4::scale(scale)), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
+        explicit inline Preprocess(const float scale) : stripMaterials(false), xform(Matrix4::scale(scale)), addBumpMaps(false), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f), replaceTwoSidedWithGeometry(false) {}
     };
 
 
@@ -687,6 +690,10 @@ public:
      @deprecated
      */
     void facet();
+
+    /** Doubles the geometry for any twoSided triList and then removes the flag. 
+      You need to call updateAll() after invoking this. */
+    void replaceTwoSidedWithGeometry();
 };
 
 }
