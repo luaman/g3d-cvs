@@ -71,7 +71,6 @@ void App::onInit() {
     m_shadowMap = ShadowMap::create();
 
     loadScene();
-    m_scene = Scene::create("Crates", defaultCamera);
 }
 
 
