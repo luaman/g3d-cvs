@@ -839,15 +839,16 @@ void VertexAndPixelShader::addUniformsFromCode(const std::string& code) {
 
             // Read the name
             std::string name = ti.readSymbol();
-
+/*
             if ((ti.peek().type() == Token::SYMBOL) && (ti.peek().string() == "[")) {
                 ti.readSymbol("[");
                 ti.readNumber();
                 ti.readSymbol("]");
-            }
+            }*/
 
-            // Read the semi-colon
-            ti.readSymbol(";");
+            // Read until the semi-colon
+            while (ti.read().string() != ";");
+
 
             // See if this variable is already declared.
             bool found = false;
