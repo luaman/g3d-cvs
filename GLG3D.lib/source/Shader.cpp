@@ -1119,7 +1119,7 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
             // See if this variable was declared
             declared = args.contains(decl.name);
             
-            if (! declared && ! decl.dummy) {
+            if (! declared && ! decl.dummy && ! beginsWith(decl.name, "_noset_") ) {
                 throw ArgumentError(
                     format("No value provided for VertexAndPixelShader uniform variable %s of type %s.",
                         decl.name.c_str(), GLenumToString(decl.type)));
@@ -1237,7 +1237,7 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 
             glUniform4fvARB(location, 1, reinterpret_cast<const float*>(&v));
 
-        } else {
+        } else if (!beginsWith(decl.name, "_noset_")) {
 
             // Normal user defined variable
 

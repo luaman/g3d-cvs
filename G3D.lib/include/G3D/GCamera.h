@@ -171,7 +171,7 @@ public:
        This is the full angle, i.e., from the left side of the
        viewport to the right side.
     */
-    void setFieldOfView(float angle, FOVDirection direction);
+    void setFieldOfView(float edgeToEdgeAngleRadians, FOVDirection direction);
 
     /** Returns the current full field of view angle (from the left side of the
        viewport to the right side) and direction */

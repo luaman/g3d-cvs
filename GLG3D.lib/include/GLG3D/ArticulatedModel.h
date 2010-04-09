@@ -360,7 +360,7 @@ public:
         parts    := partid |  '(' partid [',' partid]* ')'
         trilist  := number
         trilists := trilist  |  '(' trilist [',' trilist]* ')'
-        target   := partids  | parts ',' trilists
+        target   := partid  | parts ',' trilists
 
         Statements:
 

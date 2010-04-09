@@ -62,6 +62,8 @@ SuperSurface::Ref SuperSurface::create
  const CPUGeom&           cpuGeom,
  const ReferenceCountedPointer<ReferenceCountedObject>& source) {
     debugAssert(gpuGeom.notNull());
+
+
     // Cannot check if the gpuGeom is valid because it might not be filled out yet
     return new SuperSurface(name, frame, gpuGeom, cpuGeom, source);
 }

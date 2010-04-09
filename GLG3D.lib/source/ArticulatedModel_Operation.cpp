@@ -291,18 +291,23 @@ void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
         
         // TODO: (maybe we should apply their transformations)
 
+        targetPart.geometry.vertexArray.append(sourcePart.geometry.vertexArray);
+        targetPart.geometry.normalArray.append(sourcePart.geometry.normalArray);
+
         // Append the arrays
-        if (targetPart.texCoordArray.size() == sourcePart.geometry.vertexArray.size()) {
+        if (sourcePart.texCoordArray.size() == sourcePart.geometry.vertexArray.size()) {
             // We need texture coordinates
             if (sourcePart.texCoordArray.size() == 0) {
                 // There are no texture coordinates on this part, so make some
-                targetPart.texCoordArray.resize(targetPart.texCoordArray.size() + sourcePart.geometry.vertexArray.size());
+                targetPart.texCoordArray.resize(targetPart.geometry.vertexArray.size());
             } else {
+                // Copy the tex coords
                 targetPart.texCoordArray.append(sourcePart.texCoordArray);
             }
         }
-        targetPart.geometry.vertexArray.append(sourcePart.geometry.vertexArray);
-        targetPart.geometry.normalArray.append(sourcePart.geometry.normalArray);
+
+        debugAssert(targetPart.texCoordArray.size() == 0 ||
+            targetPart.texCoordArray.size() == targetPart.geometry.vertexArray.size());
 
         // Offset the indices and add them
         for (int t = 0; t < sourcePart.triList.size(); ++t) {

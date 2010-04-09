@@ -1092,6 +1092,8 @@ static const char* tokenTypeToString(Token::Type t) {
         return "Token::NUMBER";
     case Token::END:
         return "Token::END";
+    case Token::NEWLINE:
+        return "Token::NEWLINE";
     default:
         debugAssertM(false, "Fell through switch");
         return "?";

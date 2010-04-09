@@ -2046,7 +2046,6 @@ void computeStats
                 uint32 r = 0, g = 0, b = 0;
                 for (int x = 0; x < width; ++x) {
                     const Color3uint8 i = ptr[x];
-                    const Color3 c(i);
                     mn = mn.min(i);
                     mx = mx.max(i);
                     r += i.r; g += i.g; b += i.b;
@@ -2072,7 +2071,6 @@ void computeStats
                 uint32 r = 0, g = 0, b = 0, a = 0;
                 for (int x = 0; x < width; ++x) {
                     const Color4uint8 i = ptr[x];
-                    const Color4 c(i);
                     mn = mn.min(i);
                     mx = mx.min(i);
                     r += i.r; g += i.g; b += i.b; a += i.a;

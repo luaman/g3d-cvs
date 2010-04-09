@@ -56,6 +56,8 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
     catchCommonExceptions = false;
     renderDevice->setColorClearValue(Color3::black());
     chdir("d:/morgan/G3D/scratch-morgan");
+
+    defaultCamera.setFieldOfView(toRadians(90), GCamera::VERTICAL);
 }
 /*
 
@@ -87,7 +89,7 @@ void drawRect(const Rect2D& rect, RenderDevice* rd) {
     rd->endPrimitive();
 }
 
-
+static bool half = false;
 void App::onInit() {
 
     showRenderingStats = false;
@@ -114,20 +116,12 @@ void App::onInit() {
 
     m_shadowMap = ShadowMap::create();
 
+    debugPane->addCheckBox("Half size viewport", &half);
+
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-//    m_scene = Scene::create("Crates", defaultCamera);
-
-    /*
-    m_spline.append(CFrame::fromXYZYPRDegrees(0, 0, 0));
-    m_spline.append(CFrame::fromXYZYPRDegrees(0, 3, 3, 0, 45));
-    m_spline.append(CFrame::fromXYZYPRDegrees(3, 3, 0));
-    m_spline.append(CFrame::fromXYZYPRDegrees(3, 6, 0, 45));
-    m_spline.append(CFrame::fromXYZYPRDegrees(6, 6, 3, 90, 0, 45));
-    m_spline.append(CFrame::fromXYZYPRDegrees(6, 3, 3, 0, -45));
-    m_spline.cyclic = true;
-    */
+    m_scene = Scene::create("Crates", defaultCamera);
 
 
     shader = Shader::fromStrings("", "uniform vec2 viewportOrigin; void main() {  gl_FragColor.rgb = (gl_FragCoord.xy - viewportOrigin).xyy / 100; }");
@@ -150,6 +144,11 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
     (void)surface;
     if (m_scene.notNull()) {
+        if (half) {
+            rd->setViewport(Rect2D::xywh(rd->width() / 4,0,rd->width() / 2, rd->height()));
+            rd->setProjectionAndCameraMatrix(defaultCamera);
+        }
+
         Draw::skyBox(rd, m_scene->skyBox());
 
         /*
@@ -270,10 +269,9 @@ int main(int argc, char** argv) {
     } 
  
     GApp::Settings set;
-    set.window.width = 200;
-    set.window.height = 200;
     set.film.enabled = false;
     set.window.msaaSamples = 4;
     set.window.stencilBits = 0;
+    set.window.resizable = true;
     return App(set).run();
 }
