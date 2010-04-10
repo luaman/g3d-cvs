@@ -295,7 +295,7 @@ void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
         targetPart.geometry.normalArray.append(sourcePart.geometry.normalArray);
 
         // Append the arrays
-        if (sourcePart.texCoordArray.size() == sourcePart.geometry.vertexArray.size()) {
+        if (targetPart.texCoordArray.size() == targetPart.geometry.vertexArray.size()) {
             // We need texture coordinates
             if (sourcePart.texCoordArray.size() == 0) {
                 // There are no texture coordinates on this part, so make some

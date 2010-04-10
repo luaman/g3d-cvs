@@ -447,6 +447,7 @@ private:
     RealTime               m_realTime;
     SimTime                m_simTime;
 
+protected:
     Array<SurfaceRef>   m_posed3D;
     Array<Surface2DRef> m_posed2D;
 

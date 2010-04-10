@@ -177,6 +177,13 @@ public:
 
     virtual void setManager(WidgetManager* manager);
 
+    /** True if either the manual manipulator or the spline playback manipulator is currently
+     driving the camera */
+    bool manipulatorActive() const {
+        return manualManipulator->active() ||
+            (trackManipulator->mode() == UprightSplineManipulator::PLAY_MODE);
+    }
+
 
     /**
      @param cameraManipulator The manipulator that should drive the camera.  This will be assigned to
