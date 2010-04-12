@@ -248,6 +248,8 @@ void ArticulatedModel::TransformOperation::transform(ArticulatedModel::Part& par
     Matrix4 nform = xform.inverse().transpose();
     for (int i = 0; i < vertex.size(); ++i) {
         vertex[i] = (xform * Vector4(vertex[i], 1.0)).xyz();
+    }
+    for (int i = 0; i < normal.size(); ++i) {
         normal[i] = (nform * Vector4(vertex[i], 0.0)).xyz().direction();
     }
 }
