@@ -42,6 +42,8 @@ ArticulatedModel::Operation::Ref ArticulatedModel::Operation::create(const Any& 
         return TransformOperation::create(any);
     } else if (any.nameEquals("merge")) {
         return MergeOperation::create(any);
+    } else if (any.nameEquals("setCFrame")) {
+        return SetCFrameOperation::create(any);
     } else {
         any.verify(false, "Unrecognized operation type: " + any.name());
         return NULL;
@@ -64,6 +66,36 @@ ArticulatedModel::RenameOperation::Ref ArticulatedModel::RenameOperation::create
 
 void ArticulatedModel::RenameOperation::apply(ArticulatedModel::Ref model) {
     model->partArray[model->partIndex(sourcePart)].name = name;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+ArticulatedModel::SetCFrameOperation::Ref ArticulatedModel::SetCFrameOperation::create(const Any& any) {
+    any.verifyName("setCFrame");
+    any.verifySize(2);
+
+    Ref op = new SetCFrameOperation();
+
+    Any parts = any[0];
+    if (parts.type() == Any::ARRAY) {
+        op->sourcePart.resize(parts.size());
+        for (int i = 0; i < parts.size(); ++i) {            
+            op->sourcePart[i] = parts[i];
+        }
+    } else {
+        op->sourcePart[i].append(parts);
+    }
+    op->cframe = any[1];
+
+    return op;
+}
+        
+
+void ArticulatedModel::SetCFrameOperation::apply(ArticulatedModel::Ref model) {
+    for (int i = 0; i < sourcePart.size(); ++i) {
+        Part& p = model->partArray[model->partIndex(sourcePart[i])];
+        p.cframe = cframe;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -137,11 +169,19 @@ void ArticulatedModel::RemoveOperation::process(ArticulatedModel::Ref model, int
     if ((sourceTriList.size() == 1) && (sourceTriList[0] == ALL)) {
         part.removeGeometry();
     } else {
-        // Remove from back to front so that ordering is not affected while removing
-        sourceTriList.sort(SORT_DECREASING);
         for (int i = 0; i < sourceTriList.size(); ++i) {
-            part.triList.remove(sourceTriList[i]);
+            part.triList[i] = NULL;
         }
+
+        // Compact
+        for (int i = sourceTriList.size() - 1; i >= -1; --i) {
+            if ((i == -1) || part.triList[i].notNull()) {
+                // This is the last non-null
+                part.triList.resize(i + 1);
+                break;
+            }
+        }
+
         if (part.triList.size() == 0) {
             part.removeGeometry();
         }
@@ -165,11 +205,16 @@ ArticulatedModel::SetTwoSidedOperation::Ref ArticulatedModel::SetTwoSidedOperati
 void ArticulatedModel::SetTwoSidedOperation::process(ArticulatedModel::Ref model, int partIndex, Part& part) {
     if ((sourceTriList.size() == 1) && (sourceTriList[0] == ALL)) {
         for (int t = 0; t < part.triList.size(); ++t) {
-            part.triList[t]->twoSided = twoSided;
+            if (part.triList[t].notNull()) {
+                part.triList[t]->twoSided = twoSided;
+            }
         }
     } else {
         for (int t = 0; t < sourceTriList.size(); ++t) {
-            part.triList[sourceTriList[t]]->twoSided = twoSided;
+            Part::TriList::Ref tri = part.triList[sourceTriList[t]];
+            if (tri.notNull()) {
+                tri->twoSided = twoSided;
+            }
         }
     }
 }
@@ -190,11 +235,16 @@ ArticulatedModel::SetMaterialOperation::Ref ArticulatedModel::SetMaterialOperati
 void ArticulatedModel::SetMaterialOperation::process(ArticulatedModel::Ref model, int partIndex, Part& part) {
     if ((sourceTriList.size() == 1) && (sourceTriList[0] == ALL)) {
         for (int t = 0; t < part.triList.size(); ++t) {
-            part.triList[t]->material = material;
+            if (part.triList[t].notNull()) {
+                part.triList[t]->material = material;
+            }
         }
     } else {
         for (int t = 0; t < sourceTriList.size(); ++t) {
-            part.triList[sourceTriList[t]]->material = material;
+            Part::TriList::Ref tri = part.triList[sourceTriList[t]];
+            if (tri.notNull()) {
+                tri->material = material;
+            }
         }
     }
 }

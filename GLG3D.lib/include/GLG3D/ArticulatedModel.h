@@ -200,6 +200,7 @@ public:
                            const VertexRange& normalVAR,
                            const VertexRange& tangentVAR,
                            const VertexRange& texCoord0VAR);
+
         };
 
         /** Each part must have a unique name */
@@ -291,7 +292,7 @@ public:
 
         /** Some parts have no geometry because they are interior nodes in the hierarchy. */
         inline bool hasGeometry() const {
-            return geometry.vertexArray.size() > 0;
+            return (geometry.vertexArray.size() > 0) || (vertexVAR.size() > 0);
         }
 
         /** Recomputes geometry.normalArray and tangentArray.
@@ -364,17 +365,26 @@ public:
 
         Statements:
 
-          rename( partid, string );
+          <b>rename( partid, string );</b>
 
-          setMaterial( [ target ,] materialSpec );
-          setTwoSided( [ target ,] boolean );
+          <b>setMaterial( [ target ,] materialSpec );</b>
+
+          <b>transform( [target ,] matrix4);</b>
+            Transforms all of the vertices and normals of the targets, in their own object
+            spaces.  Note that this is applied after the global preprocess transform
+
+          <b>setTwoSided( [ target ,] boolean );</b>
           
-          
-          remove( target );
-            When triList is removed, the triList indexing changes.
+          <b>setCFrame(parts, cframe);</b>
+
+          <b>remove( target );</b>
+            When triList is removed, it is replaced with an empty triList.  The triList array
+            is shrunk if there are no subsequent triLists, and the part geometry is removed
+            if there are no triLists.  Thus indexing of valid triLists is not affected.
+
             When a part is removed, its geometry is wiped but the part and transform remain.
 
-          merge( partid [, partid]* );
+          <b>merge( partid [, partid]* );</b>
             Merge all trilists from all parts into the first trilist of the first part,
             obtaining its material and two-sided flag.  Then executes a remove on all but the first
             part and trilist.
@@ -395,6 +405,17 @@ public:
         
         PartID              sourcePart;
         std::string         name;
+
+        static Ref create(const Any& any);
+        virtual void apply(ArticulatedModel::Ref model);
+    };
+
+    class SetCFrameOperation : public Operation {
+    public:
+        typedef ReferenceCountedPointer<SetCFrameOperation> Ref;
+        
+        Array<PartID>       sourcePart;
+        CFrame              cframe;
 
         static Ref create(const Any& any);
         virtual void apply(ArticulatedModel::Ref model);

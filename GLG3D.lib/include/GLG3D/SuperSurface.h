@@ -93,8 +93,12 @@ public:
         inline static GPUGeom::Ref create(PrimitiveType p = PrimitiveType::TRIANGLES) {
             return new GPUGeom(p, false);
         }
-    };
 
+        /** True if this part has some geometry */
+        bool hasGeometry() const {
+            return index.size() > 0;
+        }
+    };
 
     class CPUGeom {
     public:
