@@ -79,6 +79,7 @@ href="classes.html">Classes</a>.
     \link G3D::ThirdPersonManipulator ThirdPersonManipulator\endlink,
     \link G3D::UprightSplineManipulator UprightSplineManipulator\endlink,
     \link G3D::UserInput UserInput\endlink,
+    \link G3D::VideoRecordDialog VideoRecordDialog\endlink,
     \link G3D::Widget Widget\endlink,
     \link G3D::WidgetManager WidgetManager\endlink,
     \link G3D::Win32Window Win32Window\endlink,
