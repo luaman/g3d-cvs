@@ -157,23 +157,25 @@ private:
         int numTriLists = indexArrayArray.size();
         int u = 0;
         for (int t = 0; t < numTriLists; ++t) {
-            Array<int>& triList = *(indexArrayArray[t]);
+            if (indexArrayArray[t] != NULL) {
+                Array<int>& triList = *(indexArrayArray[t]);
 
-            // For all vertices in this list
-            for (int v = 0; v < triList.size(); ++v) {
-                // This vertex mapped to u in the flatVertexArray
-                triList[v] = getIndex(vertexArray[u], normalArray[u], texCoordArray[u]);
+                // For all vertices in this list
+                for (int v = 0; v < triList.size(); ++v) {
+                    // This vertex mapped to u in the flatVertexArray
+                    triList[v] = getIndex(vertexArray[u], normalArray[u], texCoordArray[u]);
 
-                /*
-#           ifdef G3D_DEBUG
-            {
-                int i = triList[v];
-                Vector3 N = normalArray[i];
-                debugAssertM(N.length() > 0.9f, "Produced non-unit normal");
-            }
-#           endif
-            */
-                ++u;
+                    /*
+    #           ifdef G3D_DEBUG
+                {
+                    int i = triList[v];
+                    Vector3 N = normalArray[i];
+                    debugAssertM(N.length() > 0.9f, "Produced non-unit normal");
+                }
+    #           endif
+                */
+                    ++u;
+                }
             }
         }
     }
@@ -190,11 +192,13 @@ private:
 
         int numTriLists = indexArrayArray.size();
         for (int t = 0; t < numTriLists; ++t) {
-            const Array<int>& triList = *(indexArrayArray[t]);
-            for (int v = 0; v < triList.size(); ++v) {
-                int i = triList[v];
-                unrolledVertexArray.append(vertexArray[i]);
-                unrolledTexCoordArray.append(texCoordArray[i]);
+            if (indexArrayArray[t] != NULL) {
+                const Array<int>& triList = *(indexArrayArray[t]);
+                for (int v = 0; v < triList.size(); ++v) {
+                    int i = triList[v];
+                    unrolledVertexArray.append(vertexArray[i]);
+                    unrolledTexCoordArray.append(texCoordArray[i]);
+                }
             }
         }
     }

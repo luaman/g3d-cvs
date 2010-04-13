@@ -672,7 +672,11 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace
     Array<Array<int>*> indexArrayArray;
     indexArrayArray.resize(triList.size());
     for (int t = 0; t < triList.size(); ++t) {
-        indexArrayArray[t] = &(triList[t]->indexArray);
+        if (triList[t].notNull()) {
+            indexArrayArray[t] = &(triList[t]->indexArray);
+        } else {
+            indexArrayArray[t] = NULL;
+        }
     }
 
     if (geometry.vertexArray.size() > 0) {
@@ -737,14 +741,18 @@ void ArticulatedModel::Part::updateVAR(VertexBuffer::UsageHint hint) {
     g.copyVertexDataToGPU(vertexVAR, normalVAR, packedTangentVAR, texCoord0VAR, hint);
 
     for (int i = 0; i < triList.size(); ++i) {
-        triList[i]->updateVAR(hint, vertexVAR, normalVAR, packedTangentVAR, texCoord0VAR);
+        if (triList[i].notNull()) {
+            triList[i]->updateVAR(hint, vertexVAR, normalVAR, packedTangentVAR, texCoord0VAR);
+        }
     }
 }
 
 
 void ArticulatedModel::Part::computeBounds() {
     for (int t = 0; t < triList.size(); ++t) {
-        triList[t]->computeBounds(*this);
+        if (triList[t].notNull()) {
+            triList[t]->computeBounds(*this);
+        }
     }
 }
 
@@ -911,7 +919,9 @@ void ArticulatedModel::Part::TriList::computeBounds(const Part& parentPart) {
 void ArticulatedModel::Part::computeIndexArray() {
     indexArray.clear();
     for (int t = 0; t < triList.size(); ++t) {
-        indexArray.append(triList[t]->indexArray);
+        if (triList[t].notNull()) {
+            indexArray.append(triList[t]->indexArray);
+        }
     }
 }
 
