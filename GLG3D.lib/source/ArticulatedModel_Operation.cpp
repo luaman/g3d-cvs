@@ -83,7 +83,7 @@ ArticulatedModel::SetCFrameOperation::Ref ArticulatedModel::SetCFrameOperation::
             op->sourcePart[i] = parts[i];
         }
     } else {
-        op->sourcePart[i].append(parts);
+        op->sourcePart.append(parts);
     }
     op->cframe = any[1];
 
