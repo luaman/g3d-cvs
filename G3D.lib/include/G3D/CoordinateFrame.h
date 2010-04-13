@@ -111,6 +111,8 @@ public:
 
     static CoordinateFrame fromXYZYPRRadians(float x, float y, float z, float yaw = 0.0f, float pitch = 0.0f, float roll = 0.0f);
 
+    std::string toXYZYPRDegreesString() const;
+
     /** Construct a coordinate frame from translation = (x,y,z) and
      rotations (in that order) about Y, object space X, object space
      Z.  Note that because object-space axes are used, these are not

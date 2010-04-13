@@ -357,11 +357,7 @@ std::string CameraControlWindow::cameraLocation() const {
 std::string CameraControlWindow::cameraLocationCode() const {
     CoordinateFrame cframe;
     trackManipulator->camera()->getCoordinateFrame(cframe);
-    UprightFrame uframe(cframe);
-    
-    return format("CFrame::fromXYZYPRDegrees(% 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff)", 
-                  uframe.translation.x, uframe.translation.y, uframe.translation.z, 
-                  toDegrees(uframe.yaw), toDegrees(uframe.pitch), 0.0f);
+    return cframe.toXYZYPRDegreesString();
 }
 
 

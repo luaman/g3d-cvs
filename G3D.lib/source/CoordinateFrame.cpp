@@ -27,8 +27,19 @@
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
 #include "G3D/PhysicsFrame.h"
+#include "G3D/UprightFrame.h"
 
 namespace G3D {
+
+
+std::string CoordinateFrame::toXYZYPRDegreesString() const {
+    UprightFrame uframe(*this);
+    
+    return format("CFrame::fromXYZYPRDegrees(% 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff)", 
+                  uframe.translation.x, uframe.translation.y, uframe.translation.z, 
+                  toDegrees(uframe.yaw), toDegrees(uframe.pitch), 0.0f);
+}
+
 
 CoordinateFrame::CoordinateFrame(const Any& any) {
     *this = CFrame();

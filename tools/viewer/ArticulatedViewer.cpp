@@ -198,31 +198,19 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
 
             for (int t = 0; t < part.triList.size(); ++t) {
                 ArticulatedModel::Part::TriList::Ref triList = part.triList[t];
+                if (triList.notNull()) {
 
-                const Box& wsBox = part.cframe.toWorldSpace(triList->boxBounds);
-                float test = ray.intersectionTime(wsBox);
-                if (test < distance) {
-                    // See if we clicked on an actual triangle
-                    const Ray&              osRay   = part.cframe.toObjectSpace(ray);
-                    const Array<Vector3>&   vertex  = part.geometry.vertexArray;
-                    const Array<int>&       index   = triList->indexArray;
+                    const Box& wsBox = part.cframe.toWorldSpace(triList->boxBounds);
+                    float test = ray.intersectionTime(wsBox);
+                    if (test < distance) {
+                        // See if we clicked on an actual triangle
+                        const Ray&              osRay   = part.cframe.toObjectSpace(ray);
+                        const Array<Vector3>&   vertex  = part.geometry.vertexArray;
+                        const Array<int>&       index   = triList->indexArray;
 
-                    debugAssert(index.size() % 3 == 0);
-                    for (int j = 0; j < index.size(); j += 3) {
-                        test = osRay.intersectionTime(vertex[index[j]], vertex[index[j + 1]], vertex[index[j + 2]]);
-                        if (test < distance) {
-                            m_selectedGeom = triList;
-                            m_selectedPartIndex = i;
-                            m_selectedTriListIndex = t;
-                            m_selectedTriangleIndex = j;
-
-                            distance = test;
-                        }
-                    }
-
-                    if (triList->twoSided) {
+                        debugAssert(index.size() % 3 == 0);
                         for (int j = 0; j < index.size(); j += 3) {
-                            test = osRay.intersectionTime(vertex[index[j + 2]], vertex[index[j + 1]], vertex[index[j]]);
+                            test = osRay.intersectionTime(vertex[index[j]], vertex[index[j + 1]], vertex[index[j + 2]]);
                             if (test < distance) {
                                 m_selectedGeom = triList;
                                 m_selectedPartIndex = i;
@@ -230,6 +218,20 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
                                 m_selectedTriangleIndex = j;
 
                                 distance = test;
+                            }
+                        }
+
+                        if (triList->twoSided) {
+                            for (int j = 0; j < index.size(); j += 3) {
+                                test = osRay.intersectionTime(vertex[index[j + 2]], vertex[index[j + 1]], vertex[index[j]]);
+                                if (test < distance) {
+                                    m_selectedGeom = triList;
+                                    m_selectedPartIndex = i;
+                                    m_selectedTriListIndex = t;
+                                    m_selectedTriangleIndex = j;
+
+                                    distance = test;
+                                }
                             }
                         }
                     }
