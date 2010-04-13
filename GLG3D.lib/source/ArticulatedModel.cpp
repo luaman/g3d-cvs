@@ -253,7 +253,7 @@ void ArticulatedModel::replaceTwoSidedWithGeometry() {
         Part& part = partArray[p];
         for (int t = 0; t < part.triList.size(); ++t) {
             Part::TriList::Ref triList = part.triList[t];
-            if (triList->twoSided) {
+            if (triList.notNull() && triList->twoSided) {
                 triList->twoSided = false;
                 Array<int>& index = triList->indexArray;
                 int N = index.size();

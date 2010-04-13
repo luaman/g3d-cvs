@@ -170,11 +170,11 @@ void ArticulatedModel::RemoveOperation::process(ArticulatedModel::Ref model, int
         part.removeGeometry();
     } else {
         for (int i = 0; i < sourceTriList.size(); ++i) {
-            part.triList[i] = NULL;
+            part.triList[sourceTriList[i]] = NULL;
         }
 
         // Compact
-        for (int i = sourceTriList.size() - 1; i >= -1; --i) {
+        for (int i = part.triList.size() - 1; i >= -1; --i) {
             if ((i == -1) || part.triList[i].notNull()) {
                 // This is the last non-null
                 part.triList.resize(i + 1);
