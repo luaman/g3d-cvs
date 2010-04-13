@@ -166,6 +166,8 @@ void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef
             m_model->partArray[m_selectedPartIndex].name.c_str(),
             m_selectedPartIndex, m_selectedTriListIndex,
             m_selectedTriangleIndex, m_selectedTriangleIndex + 2);
+        screenPrintf(" Selected part CFrame = %s\n",
+            m_model->partArray[m_selectedPartIndex].cframe.toXYZYPRDegreesString().c_str());
     }
 
     screenPrintf("Hierarchy:");
