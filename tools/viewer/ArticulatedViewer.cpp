@@ -23,8 +23,15 @@ void ArticulatedViewer::onInit(const std::string& filename) {
     m_selectedPartIndex = -1;
     m_selectedTriListIndex = -1;
 
-    ArticulatedModel::Preprocess preprocess;
-    m_model = ArticulatedModel::fromFile(filename, preprocess);
+    if (toLower(filenameExt(filename)) == "any") {
+        Any any;
+        any.load(filename);
+
+        m_model = ArticulatedModel::create(ArticulatedModel::Specification(any));
+    } else {
+        m_model = ArticulatedModel::fromFile(filename, ArticulatedModel::Preprocess());
+    }
+
     Array<Surface::Ref> arrayModel;
     m_model->pose(arrayModel);
     
@@ -177,7 +184,7 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
         const Ray& ray = app->defaultCamera.worldRay(e.button.x, e.button.y, 
             app->renderDevice->viewport());
 
-        float distance = inf();
+        float distance = finf();
         m_selectedGeom = NULL;
         m_selectedPartIndex = -1;
         m_selectedTriListIndex = -1;
@@ -206,6 +213,8 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
                             m_selectedPartIndex = i;
                             m_selectedTriListIndex = t;
                             m_selectedTriangleIndex = j;
+
+                            distance = test;
                         }
                     }
 
@@ -217,6 +226,8 @@ bool ArticulatedViewer::onEvent(const GEvent& e, App* app) {
                                 m_selectedPartIndex = i;
                                 m_selectedTriListIndex = t;
                                 m_selectedTriangleIndex = j;
+
+                                distance = test;
                             }
                         }
                     }

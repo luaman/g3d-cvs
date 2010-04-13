@@ -144,13 +144,14 @@ void App::setViewer(const std::string& newFilename) {
     shadowMap->setSize(0);
     
     std::string ext = toLower(filenameExt(filename));
+    std::string base = toLower(filenameBase(filename));
     
     if ((ext == "3ds") ||
         (ext == "ifs") ||
         (ext == "ply2") ||
         (ext == "off") ||
-        (ext == "ply")) {
-       // (ext == "bsp")) {
+        (ext == "ply") ||
+        (ext == "any" && endsWith(base, ".am"))) {
         
         shadowMap->setSize(2048);
         
