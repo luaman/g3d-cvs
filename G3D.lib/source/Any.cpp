@@ -1169,13 +1169,13 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
             } 
             
             key = token.string();
-            // Consume everything up to the = sign
+            // Consume everything up to the = sign, returning the "=" sign.
             token = ti.readSignificant();
 
             if ((token.type() != Token::SYMBOL) || (token.string() != "=")) {
                 throw ParseError(ti.filename(), token.line(), token.character(), "Expected =");
             } else {
-                // Consume (don't consume comments--we want the value pointed to by a to get those).
+                // Read the next token, which is the value (don't consume comments--we want the value pointed to by a to get those).
                 token = ti.read();
             }
         }

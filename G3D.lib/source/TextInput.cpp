@@ -303,13 +303,16 @@ Token TextInput::nextToken() {
             eatInputChar();
             eatInputChar();
 
+            // c is the next character we'll read, c2 is the one after *that*
             c = peekInputChar();
             c2 = peekInputChar(1);
             while (! ((c == '*') && (c2 == '/')) && (c != EOF)) {
                 commentString += c;
 
+                // Eat input char may consume more than one character if there is a newline
                 eatInputChar();
-                c = c2;
+
+                c = peekInputChar();
                 c2 = peekInputChar(1);
             }
             eatInputChar();      // eat closing '*'
