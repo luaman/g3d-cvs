@@ -132,9 +132,9 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
 FileSystem::Dir& FileSystem::getContents(const std::string& path, bool forceUpdate) {
     const std::string& key = 
 #   if defined(G3D_WIN32)
-        FilePath::removeTrailingSlash(toLower(FilePath::canonicalize(resolve(path))));
+        FilePath::canonicalize(FilePath::removeTrailingSlash(toLower(FilePath::canonicalize(resolve(path)))));
 #   else
-        FilePath::removeTrailingSlash(FilePath::canonicalize(resolve(path)));
+        FilePath::canonicalize(FilePath::removeTrailingSlash(FilePath::canonicalize(resolve(path))));
 #   endif
     
     RealTime now = System::time();
@@ -319,10 +319,17 @@ void FileSystem::_clearCache(const std::string& path) {
         Array<std::string> keys;
         m_cache.getKeys(keys);
 
-        const std::string& prefix = FilePath::removeTrailingSlash(_resolve(path));
+        const std::string& prefix = 
+#           ifdef G3D_WIN32
+                toLower(FilePath::canonicalize(FilePath::removeTrailingSlash(_resolve(path))));
+#           else
+                FilePath::canonicalize(FilePath::removeTrailingSlash(_resolve(path)));
+#           endif
+        const std::string& prefixSlash = prefix + "/";
 
         for (int k = 0; k < keys.size(); ++k) {
-            if (beginsWith(keys[k], prefix)) {
+            const std::string& key = keys[k];
+            if ((key == prefix) || beginsWith(key, prefixSlash)) {
                 m_cache.remove(keys[k]);
             }
         }

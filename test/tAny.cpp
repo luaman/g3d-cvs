@@ -208,27 +208,47 @@ static void testPlaceholder() {
 
 
 static void testParse() {
-    const std::string& src =  
-    "{\n\
-       val0 = (1),\n\
-       \n\
-       // Comment 1\n\
-       val1 = 3,\n\
-       \
-       // Comment 2\n\
-       // Comment 3\n\
-       val2 = true\n\
-    }";
+    {
+        const std::string& src =  
+        "{\n\
+           val0 = (1),\n\
+           \n\
+           // Comment 1\n\
+           val1 = 3,\n\
+           \
+           // Comment 2\n\
+           // Comment 3\n\
+           val2 = true\n\
+        }";
 
-    Any a;
-    a.parse(src);
-    debugAssert(a.type() == Any::TABLE);
-    debugAssert(a.size() == 3);
+        Any a;
+        a.parse(src);
+        debugAssert(a.type() == Any::TABLE);
+        debugAssert(a.size() == 3);
 
-    Any val1 = a["val1"];
-    debugAssert(val1.type() == Any::NUMBER);
-    debugAssert(val1.number() == 3);
-    debugAssert(val1.comment() == "Comment 1");
+        Any val1 = a["val1"];
+        debugAssert(val1.type() == Any::NUMBER);
+        debugAssert(val1.number() == 3);
+        debugAssert(val1.comment() == "Comment 1");
+    }
+    {
+        const std::string& src =  
+        "{\n\
+           val0 = 1,\n/* Comment 1*/\n\
+           val1 = 3,\n\
+           val2 = 1,\r\n/* Comment2*/\r\nval3=2,\
+        }";
+
+        Any a;
+        a.parse(src);
+        debugAssert(a.type() == Any::TABLE);
+        debugAssert(a.size() == 4);
+
+        Any val1 = a["val1"];
+        debugAssert(val1.type() == Any::NUMBER);
+        debugAssert(val1.number() == 3);
+        debugAssert(val1.comment() == "Comment 1");
+    }
 }
 
 void testAny() {
