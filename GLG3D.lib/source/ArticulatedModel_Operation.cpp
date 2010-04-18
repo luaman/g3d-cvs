@@ -327,14 +327,20 @@ void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
 
     Part::TriList::Ref targetTriList = targetPart.triList[0];
 
+    debugAssert(targetTriList.notNull());
+
     Array<int>& targetIndexArray = targetTriList->indexArray;
     // Merge all tri-lists within the target part
     for (int t = 1; t < targetPart.triList.size(); ++t) {
-        targetIndexArray.append(targetPart.triList[t]->indexArray);
+        if (targetPart.triList[t].notNull()) {
+            targetIndexArray.append(targetPart.triList[t]->indexArray);
+        }
     }
 
     // Erase the excesss trilists, which are now unused
     targetPart.triList.resize(1);
+
+    const bool needTexCoords = targetPart.texCoordArray.size() == targetPart.geometry.vertexArray.size();
 
     // Merge all parts 
     for (int p = 1; p < part.size(); ++p) {
@@ -347,10 +353,10 @@ void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
         targetPart.geometry.normalArray.append(sourcePart.geometry.normalArray);
 
         // Append the arrays
-        if (targetPart.texCoordArray.size() == targetPart.geometry.vertexArray.size()) {
+        if (needTexCoords) {
             // We need texture coordinates
             if (sourcePart.texCoordArray.size() == 0) {
-                // There are no texture coordinates on this part, so make some
+                // There are no texture coordinates on the source part, so make some
                 targetPart.texCoordArray.resize(targetPart.geometry.vertexArray.size());
             } else {
                 // Copy the tex coords

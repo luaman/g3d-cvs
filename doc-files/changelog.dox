@@ -17,9 +17,9 @@
        <li> Built-in tone mapping and bloom
        <li> Optional data-driven pipeline: make scenes using text files
        <li> New GUI controls: Tab control and Texture inspector
-       <li> 1.3x rendering improvement over 7.00
+       <li> 1.3x rendering performance improvement over 7.00
        <li> 10x file loading improvement over 7.00
-       <li> 200 MB of ready to use data files
+       <li> 200 MB of ready-to-use data files
      </ul>
 
    <p>
