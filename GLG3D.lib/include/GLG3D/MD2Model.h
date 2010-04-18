@@ -7,7 +7,7 @@
 
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2003-02-21
- @edited  2010-01-13
+ @edited  2010-04-18
  */
 
 #ifndef G3D_MD2Model_h
@@ -16,6 +16,7 @@
 #include "G3D/platform.h"
 #include "G3D/AABox.h"
 #include "G3D/Sphere.h"
+#include "G3D/Any.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/RenderDevice.h"
@@ -195,6 +196,16 @@ public:
          bool completelyDead() const;
     };
 
+
+    class Specification {
+    public:
+        std::string             filename;
+        float                   scale;
+        Material::Ref           material;
+
+        Specification() : scale(1.0f) {}
+        Specification(const Any& any);
+    };
 
 protected:
 
@@ -378,6 +389,7 @@ public:
      tall (1/2 the default quake unit scaling)
      */
     static MD2Model::Ref fromFile(const std::string& filename, float scale = 1.0f);
+    static MD2Model::Ref create(const Specification& specification);
 
     virtual ~MD2Model() {}
 
