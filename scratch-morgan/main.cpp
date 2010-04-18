@@ -121,7 +121,7 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    //m_scene = Scene::create("Crates", defaultCamera);
+    m_scene = Scene::create("Crates", defaultCamera);
 
 
     //shader = Shader::fromStrings("", "uniform vec2 viewportOrigin; void main() {  gl_FragColor.rgb = (gl_FragCoord.xy - viewportOrigin).xyy / 100; }");

@@ -25,7 +25,7 @@ protected:
 
     std::string                     m_name;
 
-    MD2Model                        m_md2Model;
+    MD2Model::Ref                   m_md2Model;
     MD2Model::Pose                  m_md2Pose;
 
     ArticulatedModel::Ref           m_model;

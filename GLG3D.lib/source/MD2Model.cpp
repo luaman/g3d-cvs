@@ -4,7 +4,7 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2003-08-07
- \edited  2010-01-02
+ \edited  2010-04-18
  */
 
 #include "G3D/platform.h"
@@ -20,6 +20,25 @@
 #include "GLG3D/SuperSurface.h"
 
 namespace G3D {
+
+MD2Model::Specification::Specification(const Any& any) {
+    any.verifyName("MD2Model::Specification");
+    *this = Specification();
+    for (Table<std::string, Any>::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "filename") {
+            filename = it->value.resolveStringAsFilename();
+        } else if (key == "material") {
+            material = Material::create(it->value);
+        } else if (key == "scale") {
+            scale = it->value;
+        } else {
+            it->value.verify(false, "Unknown key: " + it->key);
+        }
+    }
+}
+
+
 
 MD2Model*           MD2Model::interpolatedModel      = NULL;
 MD2Model::Pose      MD2Model::interpolatedPose;
@@ -59,6 +78,12 @@ const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] =
     // JUMP is not in the table; it is handled specially
 };
 
+MD2Model::Ref MD2Model::create(const Specification& spec) {
+    MD2Model* model = new MD2Model();
+    model->load(spec.filename, spec.scale);
+
+    return model;
+}
 
 MD2Model::Ref MD2Model::fromFile(const std::string& filename, float s) {
     MD2Model* model = new MD2Model();

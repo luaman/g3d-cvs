@@ -4,40 +4,10 @@
     name = "Crates",
    
     models = {
-    
-       sibenikModel = ArticulatedModel::Specification {
-           filename = "D:/morgan/data/3ds/fantasy/sibenik/sibenik.3DS",
-           preprocess = ArticulatedModel::Preprocess {
-               stripMaterials = true,
-               program = (
-                    // 0,1  ground
-                    // 2    outside buildings
-                    // 4    window rim
-                    // 8    doors
-                    // 10   window rim
-                    // 13   windows
-                    // 14   main (checker) floor
-                    // 15   altar floor
-                    // 16,17 walls
-                    // When we remove part 2, something crashes G3D
-                    merge(16, 17);
-                    remove((0,1,2));
-/*
-                    setMaterial((16,17), Material::Specification {
-                        lambertian = Color3(1,0,0)
-                    });
-                    setMaterial((4,10,5), Material::Specification {
-                        lambertian = Color3(0,1,0)
-                    });
-                    setMaterial((14,15), Material::Specification {
-                        lambertian = Color3(0,0,1)
-                    });
-                    */
-                )
-           }
-         
-       },
-       
+        knightModel = MD2Model::Specification {
+            filename = "pknight/tris.md2",
+            material = "ctf_b.pcx"            
+        }       
     },
     
     lighting = Lighting::Specification {
@@ -64,7 +34,7 @@
         // two (optional) arguments: a position spline (which can be a single position), and a 
         // pose spline (which can be a single pose).
         
-        c0 = sibenikModel(Vector3(1.0, 0.5, 0.0)),
+        c0 = knightModel(Vector3(1.0, 0.5, 0.0)),
         
     },
     

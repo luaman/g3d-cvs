@@ -32,7 +32,14 @@ Entity::Ref Entity::create(const std::string& n, const MD2Model::Ref& m, const P
 
 
 void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
-    m_model->pose(surfaceArray, m_frame, m_pose);
+    switch (m_modelType) {
+    case ARTICULATED_MODEL:
+        m_model->pose(surfaceArray, m_frame, m_pose);
+        break;
+    case MD2_MODEL:
+        surfaceArray.append(m_md2Model->pose(m_frame, m_md2Pose, NULL));
+        break;
+    }
 }
 
 
@@ -104,9 +111,20 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
 
     // Load the models
     Any models = any["models"];
-    Table<std::string, ArticulatedModel::Ref> modelTable;
+    typedef ReferenceCountedPointer<ReferenceCountedObject> ModelRef;
+    Table< std::string, ModelRef > modelTable;
     for (Any::AnyTable::Iterator it = models.table().begin(); it.hasMore(); ++it) {
-        modelTable.set(it->key, ArticulatedModel::create(it->value));        
+        ModelRef m;
+        Any v = it->value;
+        if (v.nameBeginsWith("ArticulatedModel")) {
+            m = ArticulatedModel::create(v);
+        } else if (v.nameBeginsWith("MD2Model")) {
+            m = MD2Model::create(v);
+        } else {
+            debugAssertM(false, "Unrecognized model type: " + v.name());
+        }
+
+        modelTable.set(it->key, m);        
     }
 
     // Instance the models
@@ -116,7 +134,7 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
         const Any& modelArgs = it->value;
 
         modelArgs.verifyType(Any::ARRAY);
-        const ArticulatedModel::Ref* model = modelTable.getPointer(modelArgs.name());
+        const ModelRef* model = modelTable.getPointer(modelArgs.name());
         modelArgs.verify((model != NULL), 
             "Can't instantiate undefined model named " + modelArgs.name() + ".");
 
@@ -130,7 +148,13 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
             }
         }
 
-        s->m_entityArray.append(Entity::create(name, *model, frameSpline, poseSpline));
+        ArticulatedModel::Ref artModel = model->downcast<ArticulatedModel>();
+        MD2Model::Ref         md2Model = model->downcast<MD2Model>();
+        if (artModel.notNull()) {
+            s->m_entityArray.append(Entity::create(name, artModel, frameSpline, poseSpline));
+        } else {
+            s->m_entityArray.append(Entity::create(name, md2Model, frameSpline));
+        }
     }
 
     // Load the camera

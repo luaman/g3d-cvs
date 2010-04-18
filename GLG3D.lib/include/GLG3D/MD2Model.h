@@ -209,6 +209,34 @@ public:
 
 protected:
 
+    class MD2AnimInfo {
+    public:
+        int     first;
+        int     last;
+        int     fps;
+        bool    loops;
+    };
+
+    /**
+     One RenderDevice primitive
+     */
+    class Primitive {
+    public:
+        /** PrimitiveType::TRIANGLE_STRIP or PrimitiveType::TRIANGLE_FAN */
+        RenderDevice::Primitive type;
+
+        class PVertex {
+        public:
+            /** Indices into a MeshAlg::Geometry's vertexArray */
+            int                 index;
+
+            /** One texture coordinate for each index */
+            Vector2             texCoord;
+        };
+
+        Array<PVertex>          pvertexArray;
+    };
+
     class PackedGeometry {
     public:        
         Array<Vector3>          vertexArray;
@@ -224,26 +252,11 @@ protected:
      */
     static Vector3              normalTable[162];
 
-    /** Loads data into the normalTable. */
-    static void setNormalTable();
-
-    class MD2AnimInfo {
-    public:
-        int     first;
-        int     last;
-        int     fps;
-        bool    loops;
-    };
-
     /**
      Information relating Animations to keyFrames.  Used by computeFrameNumbers().
      */
     static const MD2AnimInfo    animationTable[MAX_ANIMATIONS];
 
-    /**
-     Computes the previous and next frame indices and how far we are between them.
-     */
-    static void computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, float& alpha);
 
     /** How long we hold in the air as a fraction of jump time. */
     static const float          hangTimePct;
@@ -269,25 +282,6 @@ protected:
 
     Array<std::string>          _textureFilenames;
 
-    /**
-     One RenderDevice primitive
-     */
-    class Primitive {
-    public:
-        /** PrimitiveType::TRIANGLE_STRIP or PrimitiveType::TRIANGLE_FAN */
-        RenderDevice::Primitive type;
-
-        class PVertex {
-        public:
-            /** Indices into a MeshAlg::Geometry's vertexArray */
-            int                 index;
-
-            /** One texture coordinate for each index */
-            Vector2             texCoord;
-        };
-
-        Array<PVertex>          pvertexArray;
-    };
 
     Array<PackedGeometry>       keyFrame;
 
@@ -305,8 +299,18 @@ protected:
     Sphere                      animationBoundingSphere[MAX_ANIMATIONS]; 
     AABox                       animationBoundingBox[MAX_ANIMATIONS]; 
 
+    /**
+     Triangle list array useful for generating all of the triangles,
+     e.g. for collision detection.  Not used for rendering.
+     */
+    Array<int>                  indexArray;
+
     void loadTextureFilenames(BinaryInput& b, int num, int offset);
-    
+
+    /**
+     Computes the previous and next frame indices and how far we are between them.
+     */
+    static void computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, float& alpha);
     /**
      MD2 Models are stored with separate indices into texture coordinate and 
      vertex arrays.  This means that some vertices must be duplicated in order
@@ -326,17 +330,14 @@ protected:
 
     void sendGeometry(RenderDevice* rd, const Pose& pose) const;
 
-    /**
-     Triangle list array useful for generating all of the triangles,
-     e.g. for collision detection.  Not used for rendering.
-     */
-    Array<int>                  indexArray;
-
     /** Called from create */
     MD2Model() {}
 
     /** Called from create */
     void load(const std::string& filename, float scale);
+
+    /** Loads data into the normalTable. */
+    static void setNormalTable();
 
     /**
      Wipe all data structures.  Called from load.

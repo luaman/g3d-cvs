@@ -28,6 +28,12 @@ Material::Specification::Specification() :
 Material::Specification::Specification(const Any& any) {
     *this = Specification();
 
+    if (any.type() == Any::STRING) {
+        // Single filename; treat as a diffuse-only texture map
+        setLambertian(any.resolveStringAsFilename());
+        return;
+    }
+
     any.verifyName("Material::Specification");
 
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
