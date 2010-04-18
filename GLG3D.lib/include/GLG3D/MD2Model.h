@@ -282,7 +282,6 @@ protected:
 
     Array<std::string>          _textureFilenames;
 
-
     Array<PackedGeometry>       keyFrame;
 
     Array<Primitive>            primitiveArray;
@@ -304,6 +303,8 @@ protected:
      e.g. for collision detection.  Not used for rendering.
      */
     Array<int>                  indexArray;
+
+    Material::Ref               m_material;
 
     void loadTextureFilenames(BinaryInput& b, int num, int offset);
 
@@ -389,15 +390,19 @@ public:
      scale of 1.0 is chosen so that a typical character is 2 meters
      tall (1/2 the default quake unit scaling)
      */
-    static MD2Model::Ref fromFile(const std::string& filename, float scale = 1.0f);
+    static MD2Model::Ref fromFile(const std::string& filename, const std::string& diffuseFilename, float scale = 1.0f);
     static MD2Model::Ref create(const Specification& specification);
 
     virtual ~MD2Model() {}
 
-    Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose, const Material::Ref& mat);
+    void pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cframe, const Pose& pose);
 
-    inline const Array<Vector2>& texCoordArray() const {
+    const Array<Vector2>& texCoordArray() const {
         return _texCoordArray;
+    }
+
+    Material::Ref material() const {
+        return m_material;
     }
 
     const Array<MeshAlg::Face>& faces() const;

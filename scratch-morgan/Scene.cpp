@@ -37,7 +37,7 @@ void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
         m_model->pose(surfaceArray, m_frame, m_pose);
         break;
     case MD2_MODEL:
-        surfaceArray.append(m_md2Model->pose(m_frame, m_md2Pose, NULL));
+        m_md2Model->pose(surfaceArray, m_frame, m_md2Pose);
         break;
     }
 }

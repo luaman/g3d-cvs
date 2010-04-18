@@ -13,21 +13,29 @@ public:
     CoordinateFrame     cframe;
     MD2Model::Ref       model;
     MD2Model::Pose      pose;
-    Material::Ref       material;
 
     void load(const std::string& filename) {
-        model = MD2Model::fromFile(filename + ".md2", 2.0f);
+        Texture::Specification tex;
+        tex.filename = filename + ".pcx";
+        tex.preprocess = Texture::Preprocess::quake();
 
-        Any lamb(Any::TABLE, "Texture::Specification");
-        lamb["filename"] = filename + ".pcx";
-        lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");
-        Any anySpec(Any::TABLE, "Material::Specification");
-        anySpec["lambertian"] = lamb;
-        material = Material::create(anySpec);
+        Material::Specification mat;
+        mat.setLambertian(tex);
+
+        MD2Model::Specification spec;
+        spec.filename = filename + ".md2";
+        spec.material = Material::create(mat);
+        spec.scale = 2.0f;
+
+        model = MD2Model::create(spec);
     }
 
     void render(RenderDevice* rd) {
-        model->pose(cframe, pose, material)->render(rd);
+        Array<Surface::Ref> array;
+        model->pose(array, cframe, pose);
+        for (int i = 0; i < array.size(); ++i) {
+            array[i]->render(rd);
+        }
     }
 
     void renderShadow(RenderDevice* rd) {
@@ -36,11 +44,14 @@ public:
         cframe2.translation.y -= 1.7f;
         rd->setColor(Color3(.9f, .9f, 1));
 
-        Surface::Ref m = model->pose(cframe2, pose, material);
-
         // Intentionally render a lot of shadows to gauge rendering performance
-        for (int i = 0; i < 20; ++i) {
-            m->render(rd);
+        Array<Surface::Ref> array;
+        model->pose(array, cframe, pose);
+        for (int j = 0; j < 20; ++j) {
+            for (int i = 0; i < array.size(); ++i) {
+                rd->setObjectToWorldMatrix(array[i]->coordinateFrame());
+                array[i]->sendGeometry(rd);
+            }
         }
     }
 

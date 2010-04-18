@@ -81,13 +81,18 @@ const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] =
 MD2Model::Ref MD2Model::create(const Specification& spec) {
     MD2Model* model = new MD2Model();
     model->load(spec.filename, spec.scale);
+    model->m_material = spec.material;
 
     return model;
 }
 
-MD2Model::Ref MD2Model::fromFile(const std::string& filename, float s) {
+
+MD2Model::Ref MD2Model::fromFile(const std::string& filename, const std::string& diffuseFilename, float s) {
     MD2Model* model = new MD2Model();
     model->load(filename, s);
+    Material::Specification mat;
+    mat.setLambertian(diffuseFilename);
+    model->m_material = Material::create(mat);
 
     return model;
 }
@@ -472,7 +477,7 @@ void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
 }
 
 
-Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const Material::Ref& mat) {
+void MD2Model::pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cframe, const Pose& pose) {
 
     // Keep a back pointer so that the index array can't be deleted
     SuperSurface::Ref surface = SuperSurface::create(name(), cframe, SuperSurface::GPUGeom::create(), 
@@ -489,7 +494,6 @@ Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, con
     cpuGeom.texCoord0     = &_texCoordArray;
 
     getGeometry(pose, *const_cast<MeshAlg::Geometry*>(cpuGeom.geometry));
-
     
     // Upload data to the GPU
     SuperSurface::GPUGeom::Ref gpuGeom = surface->gpuGeom();
@@ -503,9 +507,9 @@ Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, con
     gpuGeom->boxBounds = animationBoundingBox[iAbs(pose.animation)];
     gpuGeom->sphereBounds = animationBoundingSphere[iAbs(pose.animation)];
 
-    gpuGeom->material = mat;
+    gpuGeom->material = m_material;
 
-    return surface;
+    surfaceArray.append(surface);
 }
 
 

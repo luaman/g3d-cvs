@@ -6,7 +6,7 @@
     models = {
         knightModel = MD2Model::Specification {
             filename = "pknight/tris.md2",
-            material = "ctf_b.pcx"            
+            material = "pknight/ctf_b.pcx"            
         }       
     },
     

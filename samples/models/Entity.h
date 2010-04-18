@@ -18,7 +18,6 @@ private:
 
     MD2Model::Ref               md2Model;
     MD2Model::Pose              md2Pose;
-    Material::Ref               md2Material;
 
     IFSModel::Ref               ifsModel;
     GMaterial                   ifsMaterial;
@@ -44,13 +43,11 @@ public:
     
     static Entity::Ref create
     (const MD2Model::Ref& model,
-     const Material::Ref& material = Material::createDiffuse(Color3::white()),
      const CFrame& c = CFrame()) {
 
         Entity* e = new Entity();
 
         e->md2Model = model;
-        e->md2Material = material;
         e->cframe = c;
         return e;
     }
@@ -87,7 +84,7 @@ public:
         }
 
         if (md2Model.notNull()) {
-            array.append(md2Model->pose(cframe, md2Pose, md2Material));
+            md2Model->pose(array, cframe, md2Pose);
         }
 
         if (md3Model.notNull()) {
