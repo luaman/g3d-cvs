@@ -25,7 +25,6 @@ public:
         MD2Model::Specification spec;
         spec.filename = filename + ".md2";
         spec.material = Material::create(mat);
-        spec.scale = 2.0f;
 
         model = MD2Model::create(spec);
     }
@@ -49,8 +48,7 @@ public:
         model->pose(array, cframe, pose);
         for (int j = 0; j < 20; ++j) {
             for (int i = 0; i < array.size(); ++i) {
-                rd->setObjectToWorldMatrix(array[i]->coordinateFrame());
-                array[i]->sendGeometry(rd);
+                array[i]->render(rd);
             }
         }
     }
