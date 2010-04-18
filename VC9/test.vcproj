@@ -192,10 +192,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\test\tAABSPTree.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\test\tAny.cpp"
 				>
 			</File>
@@ -237,6 +233,10 @@
 			</File>
 			<File
 				RelativePath="..\test\tImageConvert.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tKDTree.cpp"
 				>
 			</File>
 			<File

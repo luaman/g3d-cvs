@@ -17,19 +17,20 @@ public:
 protected:
 
     std::string                     m_name;
-    ArticulatedModel::Ref           m_model;
 
     /** Current position */
     CFrame                          m_frame;
 
-    /** Current pose */
-    ArticulatedModel::Pose          m_pose;
-
     /** Root position over time */
     PhysicsFrameSpline              m_frameSpline;
 
+    /** Current pose */
+    ArticulatedModel::Pose          m_pose;
+
     /** Pose over time. */
     ArticulatedModel::PoseSpline    m_poseSpline;
+
+    ArticulatedModel::Ref           m_model;
 
     Entity();
 

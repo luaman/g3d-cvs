@@ -6,10 +6,24 @@ Entity::Entity() {}
 
 Entity::Ref Entity::create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline) {
     Ref e = new Entity();
+    e->m_modelType = ARTICULATED_MODEL;
     e->m_name  = n;
     e->m_model = m;
     e->m_frameSpline = frameSpline;
     e->m_poseSpline = poseSpline;
+
+    // Set the initial position
+    e->onSimulation(0, 0);
+    return e;
+}
+
+
+Entity::Ref Entity::create(const std::string& n, const MD2Model::Ref& m, const PhysicsFrameSpline& frameSpline) {
+    Ref e = new Entity();
+    e->m_modelType = MD2_MODEL;
+    e->m_name  = n;
+    e->m_md2Model = m;
+    e->m_frameSpline = frameSpline;
 
     // Set the initial position
     e->onSimulation(0, 0);
