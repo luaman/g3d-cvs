@@ -533,7 +533,7 @@ void ArticulatedModel::initBSP(const std::string& filename, const Preprocess& pr
 
     // TODO: parse filename to find enclosing directory
 
-    const std::string& pk3File = FilePath::parentPath(FilePath::parentPath(FileSystem::resolve(filename)));
+    const std::string& pk3File = FilePath::parent(FilePath::parent(FileSystem::resolve(filename)));
     const std::string& bspFile = FilePath::baseExt(filename);
 
     // Load the Q3 format map    

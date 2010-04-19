@@ -90,7 +90,7 @@ Shader::Ref GBuffer::getShader(const GBuffer::Specification& specification, cons
 
     if (shader.isNull()) {
 
-        const std::string& path = FilePath::parentPath(System::findDataFile("SS_NonShadowedPass.vrt"));
+        const std::string& path = FilePath::parent(System::findDataFile("SS_NonShadowedPass.vrt"));
         const std::string& currentPath = FileSystem::currentDirectory();
 
         if (path != currentPath) {
@@ -142,7 +142,7 @@ Shader::Ref GBuffer::makePositionShader() {
 
     if (shader.isNull()) {
 
-        const std::string& path = FilePath::parentPath(System::findDataFile("SS_NonShadowedPass.vrt"));
+        const std::string& path = FilePath::parent(System::findDataFile("SS_NonShadowedPass.vrt"));
         const std::string& currentPath = FileSystem::currentDirectory();
 
         if (path != currentPath) {

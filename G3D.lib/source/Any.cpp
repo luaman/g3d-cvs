@@ -1249,7 +1249,7 @@ const Any::Source& Any::source() const {
 
 std::string Any::sourceDirectory() const {
     if (m_data) {
-        return FilePath::parentPath(m_data->source.filename);
+        return FilePath::parent(m_data->source.filename);
     } else {
         return "";
     }

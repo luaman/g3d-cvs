@@ -4,7 +4,7 @@
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2003-08-07
- \edited  2010-04-18
+ \edited  2010-04-19
  */
 
 #include "G3D/platform.h"
@@ -13,6 +13,7 @@
 #endif
 
 #include "G3D/Log.h"
+#include "G3D/FileSystem.h"
 #include "G3D/BinaryInput.h"
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/MD2Model.h"
@@ -20,6 +21,70 @@
 #include "GLG3D/SuperSurface.h"
 
 namespace G3D {
+
+
+MD2Model2::Specification::Specification() : scale(1.0f) {}
+
+MD2Model2::Specification::Specification(const std::string& trisFilename) 
+: filename(trisFilename), scale(1.0f) {
+    // TODO: try and locate appropriate materials and weapons
+}
+
+MD2Model2::Specification::Specification(const Any& any) {
+    any.verifyName("MD2Model::Specification");
+    *this = Specification();
+    for (Table<std::string, Any>::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "filename") {
+            filename = it->value.resolveStringAsFilename();
+        } else if (key == "material") {
+            material = Material::create(it->value);
+        } else if (key == "scale") {
+            scale = it->value;
+        } else if (key == "weaponfilename") {
+            weaponFilename = it->value.resolveStringAsFilename();
+        } else if (key == "weaponmaterial") {
+            weaponMaterial = Material::create(it->value);
+        } else {
+            it->value.verify(false, "Unknown key: " + it->key);
+        }
+    }
+}
+
+
+MD2Model2::Ref MD2Model2::create(const Specification& s) {
+    MD2Model2::Ref m = new MD2Model2();
+
+    Part::Specification ps;
+    ps.filename = s.filename;
+    ps.material = s.material;
+    ps.scale = s.scale;
+    m->m_part.append(Part::create(ps));
+
+    if (! s.weaponFilename.empty()) {
+        ps.filename = s.weaponFilename;
+        ps.material = s.weaponMaterial;
+        m->m_part.append(Part::create(ps));
+    }
+
+    m->m_name = FilePath::base(FilePath::parent(FileSystem::resolve(s.filename)));
+
+    m->m_numTriangles = 0;
+    for (int p = 0; p < m->m_part.size(); ++p) {
+        m->m_numTriangles += m->m_part[p]->indexArray.size() / 3;
+    }
+
+    return m;
+}
+
+
+void MD2Model2::pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame, const MD2Model::Pose& pose) {
+    for (int p = 0; p < m_part.size(); ++p) {
+        m_part[p]->pose(surfaceArray, rootFrame, pose);
+    }
+}
+
+///////////////////////////////////////////////////////
 
 MD2Model::Specification::Specification(const Any& any) {
     any.verifyName("MD2Model::Specification");

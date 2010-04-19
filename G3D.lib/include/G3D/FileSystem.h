@@ -374,7 +374,7 @@ public:
     static std::string base(const std::string& path);
 
     /** Returns everything to the left of the right-most slash */
-    static std::string parentPath(const std::string& path);
+    static std::string parent(const std::string& path);
 
     /** Returns true if '*' or '?' appear in the filename */
     static bool containsWildcards(const std::string& p);

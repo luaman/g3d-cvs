@@ -46,6 +46,8 @@ namespace G3D {
  */
 class MD2Model : public ReferenceCountedObject {
 public:
+    friend class MD2Model2;
+
     typedef ReferenceCountedPointer<class MD2Model> Ref;
 
     /**
@@ -560,6 +562,7 @@ public:
 
         /** Main part .md2 filename.  This typically ends in tris.md2. */
         std::string     filename;
+
         /** Cannot be NULL */
         Material::Ref   material;
 
@@ -568,15 +571,25 @@ public:
         /** May be NULL if weaponFilename is the empty string. */
         Material::Ref   weaponMaterial;
 
+        float           scale;
+
         Specification();
 
         /** Infers the rest of the specification from the path to (and including) the tris.md2 file */
-        Specification(const std::string& trisFile);
+        Specification(const std::string& trisFilename);
 
         Specification(const Any& any);
     };
 
+    /** TODO: remove */
+    typedef MD2Model Part;
+
 protected:
+
+    std::string             m_name;
+    int                     m_numTriangles;
+    Array<Part::Ref>        m_part;
+
 public:
     
     /** Create a new MD2Model.
@@ -585,11 +598,19 @@ public:
         file as an std::string, which will automatically cast to a MD2Model::Specification. */
     static Ref create(const Specification& s);
 
+    const std::string& name() const {
+        return m_name;
+    }
+
     /** Either 1 or 2, depending on whether a weapon is present */
-    int numParts() const;
+    int numParts() const {
+        return m_part.size();
+    }
 
     /** Total number of triangles in the mesh */
-    int numTriangles() const;
+    int numTriangles() const {
+        return m_numTriangles;
+    }
 
     void pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame = CFrame(), const MD2Model::Pose& pose = MD2Model::Pose());
 };

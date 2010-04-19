@@ -304,7 +304,7 @@ FILE* FileSystem::_fopen(const char* filename, const char* mode) {
     for (const char* m = mode; *m != '\0'; ++m) {
         if (*m == 'w') {
             // Purge the cache entry for the parent of this directory
-            _clearCache(FilePath::parentPath(_resolve(filename)));
+            _clearCache(FilePath::parent(_resolve(filename)));
             break;
         }
     }
@@ -392,7 +392,7 @@ void FileSystem::_createDirectory(const std::string& dir) {
         }
     }
 
-    _clearCache(FilePath::parentPath(FilePath::removeTrailingSlash(d)));
+    _clearCache(FilePath::parent(FilePath::removeTrailingSlash(d)));
 }
 
 
@@ -400,7 +400,7 @@ void FileSystem::_copyFile(const std::string& source, const std::string& dest) {
 #   ifdef G3D_WIN32
         // TODO: handle case where srcPath is in a zipfile
         CopyFileA(source.c_str(), dest.c_str(), FALSE);
-        _clearCache(FilePath::parentPath(_resolve(dest)));
+        _clearCache(FilePath::parent(_resolve(dest)));
 #   else
         // Read it all in, then dump it out
         BinaryInput  in(source, G3D_LITTLE_ENDIAN);
@@ -423,7 +423,7 @@ bool FileSystem::_exists(const std::string& f, bool trustCache) {
     }
 
     std::string path = FilePath::removeTrailingSlash(f);
-    std::string parentPath = FilePath::parentPath(path);
+    std::string parentPath = FilePath::parent(path);
 
     const Dir& entry = getContents(parentPath, ! trustCache);
 
@@ -548,7 +548,7 @@ int64 FileSystem::_size(const std::string& filename) {
 
 void FileSystem::_list(const std::string& spec, Array<std::string>& result, bool files, bool directories, bool includeParentPath) {
     std::string shortSpec = FilePath::baseExt(spec);
-    std::string parentPath = FilePath::parentPath(spec);
+    std::string parentPath = FilePath::parent(spec);
 
     Dir& dir = getContents(parentPath, false);
     if (dir.exists) {
@@ -697,7 +697,7 @@ std::string FilePath::base(const std::string& path) {
 }
 
 
-std::string FilePath::parentPath(const std::string& path) {    
+std::string FilePath::parent(const std::string& path) {    
     int i = findLastSlash(removeTrailingSlash(path));
 
 #   ifdef G3D_WIN32
