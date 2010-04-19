@@ -13,7 +13,7 @@
 #include "GLG3D/GLCaps.h"
 #include "G3D/Any.h"
 #include "G3D/FileSystem.h"
-#include "GLG3D/BSPMap.h"
+#include "GLG3D/BSPMAP.h"
 
 namespace G3D {
         

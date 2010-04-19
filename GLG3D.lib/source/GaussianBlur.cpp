@@ -3,6 +3,7 @@
    @author Morgan McGuire, http://graphics.cs.williams.edu
  */
 #include "GLG3D/GaussianBlur.h"
+#include "GLG3D/Shader.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/filter.h"
 #include "G3D/Rect2D.h"
@@ -22,7 +23,6 @@ void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vec
     const Rect2D& dest = Rect2D::xywh(Vector2(0, 0), destSize);
     rd->push2D(dest);
     {
-        rd->clear();
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
         // Must clear so that the GPU knows we are overwriting the whole texture
         rd->clear();
@@ -130,7 +130,9 @@ Shader::Ref GaussianBlur::makeShader(int N) {
     
     
     //debugPrintf("%s\n", pixelSource.c_str());
-    return Shader::fromStrings("", version + pixelSource);
+    Shader::Ref s = Shader::fromStrings("", version + pixelSource);
+    s->setPreserveState(false);
+    return s;
 }
     
 }
