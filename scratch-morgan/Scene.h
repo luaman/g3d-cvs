@@ -25,7 +25,7 @@ protected:
 
     std::string                     m_name;
 
-    MD2Model2::Ref                  m_md2Model;
+    MD2Model::Ref                  m_md2Model;
     MD2Model::Pose                  m_md2Pose;
 
     ArticulatedModel::Ref           m_model;
@@ -55,7 +55,7 @@ public:
     }
 
     static Entity::Ref create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline);
-    static Entity::Ref create(const std::string& n, const MD2Model2::Ref& m, const PhysicsFrameSpline& frameSpline);
+    static Entity::Ref create(const std::string& n, const MD2Model::Ref& m, const PhysicsFrameSpline& frameSpline);
 
     virtual void onSimulation(GameTime absoluteTime, GameTime deltaTime);
 

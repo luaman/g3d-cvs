@@ -23,14 +23,32 @@
 namespace G3D {
 
 
-MD2Model2::Specification::Specification() : scale(1.0f) {}
+MD2Model::Specification::Specification() : scale(1.0f) {}
 
-MD2Model2::Specification::Specification(const std::string& trisFilename) 
+MD2Model::Specification::Specification(const std::string& trisFilename) 
 : filename(trisFilename), scale(1.0f) {
     // TODO: try and locate appropriate materials and weapons
 }
 
-MD2Model2::Specification::Specification(const Any& any) {
+static Material::Ref makeQuakeMaterial(const Any& any) {
+    if ((any.type() == Any::STRING) && endsWith(toLower(any.string()), ".pcx")) {
+        // Brighten PCX textures
+        Texture::Specification tex;
+        tex.filename = any.resolveStringAsFilename();
+        tex.preprocess = Texture::Preprocess::quake();
+
+        Material::Specification mat;
+        mat.setLambertian(tex);
+
+        return Material::create(mat);
+
+    } else {
+        return Material::create(any);
+    }
+}
+
+
+MD2Model::Specification::Specification(const Any& any) {
     if (any.type() == Any::STRING) {
         *this = Specification(any.resolveStringAsFilename());
         return;
@@ -43,13 +61,13 @@ MD2Model2::Specification::Specification(const Any& any) {
         if (key == "filename") {
             filename = it->value.resolveStringAsFilename();
         } else if (key == "material") {
-            material = Material::create(it->value);
+            material = makeQuakeMaterial(it->value);
         } else if (key == "scale") {
             scale = it->value;
         } else if (key == "weaponfilename") {
             weaponFilename = it->value.resolveStringAsFilename();
         } else if (key == "weaponmaterial") {
-            weaponMaterial = Material::create(it->value);
+            weaponMaterial = makeQuakeMaterial(it->value);
         } else {
             it->value.verify(false, "Unknown key: " + it->key);
         }
@@ -57,8 +75,8 @@ MD2Model2::Specification::Specification(const Any& any) {
 }
 
 
-MD2Model2::Ref MD2Model2::create(const Specification& s) {
-    MD2Model2::Ref m = new MD2Model2();
+MD2Model::Ref MD2Model::create(const Specification& s) {
+    MD2Model::Ref m = new MD2Model();
 
     Part::Specification ps;
     ps.filename = s.filename;
@@ -83,7 +101,7 @@ MD2Model2::Ref MD2Model2::create(const Specification& s) {
 }
 
 
-void MD2Model2::pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame, const MD2Model::Pose& pose) {
+void MD2Model::pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame, const MD2Model::Pose& pose) {
     for (int p = 0; p < m_part.size(); ++p) {
         m_part[p]->pose(surfaceArray, rootFrame, pose);
     }
@@ -91,8 +109,8 @@ void MD2Model2::pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame,
 
 ///////////////////////////////////////////////////////
 
-MD2Model::Specification::Specification(const Any& any) {
-    any.verifyName("MD2Model::Specification");
+MD2Model::Part::Specification::Specification(const Any& any) {
+    any.verifyName("MD2Model::Part::Specification");
     *this = Specification();
     for (Table<std::string, Any>::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
@@ -110,17 +128,19 @@ MD2Model::Specification::Specification(const Any& any) {
 
 
 
-MD2Model*           MD2Model::interpolatedModel      = NULL;
-MD2Model::Pose      MD2Model::interpolatedPose;
-VertexBuffer::Ref   MD2Model::varArea[MD2Model::NUM_VAR_AREAS];
-int                 MD2Model::nextVarArea            = MD2Model::NONE_ALLOCATED;
+MD2Model::Part*     MD2Model::Part::interpolatedModel      = NULL;
+MD2Model::Pose MD2Model::Part::interpolatedPose;
+VertexBuffer::Ref   MD2Model::Part::varArea[MD2Model::Part::NUM_VAR_AREAS];
+int                 MD2Model::Part::nextVarArea            = MD2Model::Part::NONE_ALLOCATED;
+
 const GameTime      MD2Model::PRE_BLEND_TIME         = 1.0 / 8.0;
 const float         MD2Model::hangTimePct            = 0.1f;
 
-MD2Model::PackedGeometry::PackedGeometry() {
+MD2Model::Part::PackedGeometry::PackedGeometry() {
     vertexArray.clearAndSetMemoryManager(AlignedMemoryManager::create());
     normalArray.clearAndSetMemoryManager(AlignedMemoryManager::create());
 }
+
 
 const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] = 
 {
@@ -148,8 +168,8 @@ const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] =
     // JUMP is not in the table; it is handled specially
 };
 
-MD2Model::Ref MD2Model::create(const Specification& spec) {
-    MD2Model* model = new MD2Model();
+MD2Model::Part::Ref MD2Model::Part::create(const Specification& spec) {
+    Part::Ref model = new Part();
     model->load(spec.filename, spec.scale);
     model->m_material = spec.material;
 
@@ -157,8 +177,8 @@ MD2Model::Ref MD2Model::create(const Specification& spec) {
 }
 
 
-MD2Model::Ref MD2Model::fromFile(const std::string& filename, const std::string& diffuseFilename, float s) {
-    MD2Model* model = new MD2Model();
+MD2Model::Part::Ref MD2Model::Part::fromFile(const std::string& filename, const std::string& diffuseFilename, float s) {
+    Part::Ref model = new Part();
     model->load(filename, s);
     Material::Specification mat;
     mat.setLambertian(diffuseFilename);
@@ -173,32 +193,32 @@ bool MD2Model::Pose::operator==(const MD2Model::Pose& other) const {
 }
 
 
-const Array<MeshAlg::Face>& MD2Model::faces() const {
+const Array<MeshAlg::Face>& MD2Model::Part::faces() const {
 	return faceArray;
 }
 
 
-const Array<MeshAlg::Edge>& MD2Model::edges() const {
+const Array<MeshAlg::Edge>& MD2Model::Part::edges() const {
 	return edgeArray;
 }
 
 
-const Array<MeshAlg::Vertex>& MD2Model::vertices() const {
+const Array<MeshAlg::Vertex>& MD2Model::Part::vertices() const {
 	return vertexArray;
 }
 
 
-const Array<MeshAlg::Face>& MD2Model::weldedFaces() const {
+const Array<MeshAlg::Face>& MD2Model::Part::weldedFaces() const {
 	return weldedFaceArray;
 }
 
 
-const Array<MeshAlg::Edge>& MD2Model::weldedEdges() const {
+const Array<MeshAlg::Edge>& MD2Model::Part::weldedEdges() const {
 	return weldedEdgeArray;
 }
 
 
-const Array<MeshAlg::Vertex>& MD2Model::weldedVertices() const {
+const Array<MeshAlg::Vertex>& MD2Model::Part::weldedVertices() const {
 	return weldedVertexArray;
 }
 
@@ -529,7 +549,7 @@ int MD2Model::getFrameNumber(const Pose& pose) {
 
 static const uint32 maxVARVerts = 1600; 
 
-void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
+void MD2Model::Part::allocateVertexArrays(RenderDevice* renderDevice) {
     (void)renderDevice;
     size_t size = maxVARVerts * (24 + sizeof(Vector3) * 2 + sizeof(Vector2));
 
@@ -547,7 +567,7 @@ void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
 }
 
 
-void MD2Model::pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cframe, const Pose& pose) {
+void MD2Model::Part::pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cframe, const Pose& pose) {
 
     // Keep a back pointer so that the index array can't be deleted
     SuperSurface::Ref surface = SuperSurface::create(name(), cframe, SuperSurface::GPUGeom::create(), 
@@ -556,7 +576,7 @@ void MD2Model::pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cf
     // Use the internal storage of the surface
     SuperSurface::CPUGeom& cpuGeom = surface->cpuGeom();
 
-    // Need an empty array for the tangents
+    // Need an empty array for the tangents; safe to make static since this is never used.
     const static Array<Vector4> packedTangentArray;
     cpuGeom.index         = &indexArray;
     cpuGeom.geometry      = &surface->internalGeometry();
@@ -583,12 +603,12 @@ void MD2Model::pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cf
 }
 
 
-void MD2Model::render(RenderDevice* renderDevice, const Pose& pose) {
+void MD2Model::Part::render(RenderDevice* renderDevice, const Pose& pose) {
     sendGeometry(renderDevice, pose);    
 }
 
 
-void MD2Model::debugRenderWireframe(RenderDevice* renderDevice, const Pose& pose) {
+void MD2Model::Part::debugRenderWireframe(RenderDevice* renderDevice, const Pose& pose) {
     getGeometry(pose, interpolatedFrame);
 
     renderDevice->pushState();
@@ -609,7 +629,7 @@ void MD2Model::debugRenderWireframe(RenderDevice* renderDevice, const Pose& pose
 }
 
  
-size_t MD2Model::mainMemorySize() const {
+size_t MD2Model::Part::mainMemorySize() const {
 
     size_t frameSize   = keyFrame.size() * (sizeof(PackedGeometry)  + (sizeof(Vector3) + sizeof(uint8)) * keyFrame[0].vertexArray.size());
     size_t indexSize   = indexArray.size() * sizeof(int);
@@ -632,7 +652,7 @@ size_t MD2Model::mainMemorySize() const {
 }
 
 
-MeshAlg::Geometry MD2Model::interpolatedFrame;
+MeshAlg::Geometry MD2Model::Part::interpolatedFrame;
 
 #ifdef _MSC_VER
     // Supress warnings about mutating ebx and ebp; we 
@@ -642,7 +662,7 @@ MeshAlg::Geometry MD2Model::interpolatedFrame;
     #pragma warning( disable : 4731 )
 #endif
 
-void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
+void MD2Model::Part::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
     
     const int numVertices = keyFrame[0].vertexArray.size();
 
@@ -671,7 +691,7 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
     if (&out == &interpolatedFrame) {
         // Make a note about what the cache contains
         interpolatedPose  = pose;
-        interpolatedModel = const_cast<MD2Model*>(this);
+        interpolatedModel = const_cast<MD2Model::Part*>(this);
     }
 
     float alpha;
@@ -692,7 +712,7 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
     bool useSSE = false;
 
     #ifdef G3D_WIN32
-        #pragma message("Port MD2Model::GetGeometry SIMD to all platforms")
+        #pragma message("Port MD2Model::Part::GetGeometry SIMD to all platforms")
         useSSE = true;
     #endif
 
@@ -828,12 +848,12 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
 }
 
 #ifdef _MSC_VER
-    #pragma warning( pop )
+#   pragma warning( pop )
 #endif
 
 
 
-void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const {
+void MD2Model::Part::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const {
     getGeometry(pose, interpolatedFrame);
 
     bool tooBig = ((int)maxVARVerts < keyFrame[0].vertexArray.size());
@@ -841,7 +861,7 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
    
     if (! useVAR && ! tooBig) {
         // Try to allocate some memory
-        const_cast<MD2Model*>(this)->allocateVertexArrays(renderDevice);
+        const_cast<MD2Model::Part*>(this)->allocateVertexArrays(renderDevice);
         useVAR = (nextVarArea != NONE_ALLOCATED);
     }
 
@@ -898,7 +918,7 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
 }
 
 
-Texture::Ref MD2Model::textureFromFile(const std::string& filename) {
+Texture::Ref MD2Model::Part::textureFromFile(const std::string& filename) {
     Texture::Settings settings;
     settings.wrapMode = WrapMode::CLAMP;
 

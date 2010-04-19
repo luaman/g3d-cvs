@@ -5,8 +5,7 @@
 
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  @created 2003-08-07
- @edited  2010-03-10
-
+ @edited  2010-04-19
  */
 
 #include "GLG3D/MD2Model.h"
@@ -76,7 +75,7 @@ public:
 };
 
 
-void MD2Model::reset() {
+void MD2Model::Part::reset() {
     _textureFilenames.clear();
     keyFrame.clear();
     primitiveArray.clear();
@@ -88,7 +87,7 @@ void MD2Model::reset() {
 }
 
 
-void MD2Model::load(const std::string& filename, float resize) {
+void MD2Model::Part::load(const std::string& filename, float resize) {
 
     resize *= 0.55f;
 
@@ -301,7 +300,7 @@ void MD2Model::load(const std::string& filename, float resize) {
 }
 
 
-void MD2Model::loadTextureFilenames(BinaryInput& b, int num, int offset) {
+void MD2Model::Part::loadTextureFilenames(BinaryInput& b, int num, int offset) {
 
     _textureFilenames.resize(num);
     b.setPosition(offset);
@@ -311,7 +310,7 @@ void MD2Model::loadTextureFilenames(BinaryInput& b, int num, int offset) {
 }
 
 
-void MD2Model::computeTexCoords(
+void MD2Model::Part::computeTexCoords(
     const Array<Vector2int16>&   inCoords) {
 
     int numVertices = keyFrame[0].vertexArray.size();

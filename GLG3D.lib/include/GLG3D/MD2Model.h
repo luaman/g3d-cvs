@@ -25,9 +25,12 @@
 namespace G3D {
 
 /**
-   \brief Quake II model class, primarily used for animated characters.
+   \brief Quake II model class primarily used for low-polygon keyframe animated characters.
  <P>
- See samples/models for an example of how to use this class.
+
+ Quake II models contain up to two parts, where the second part is typically a weapon.
+ Each part is a single mesh that is keyframe animated.  Because the vertex positions and normals
+ are highly quantized, these models tend to distort a bit under animation.
 
  <P>
  Models are centered about their waist.  To figure out where the feet are you
@@ -38,19 +41,19 @@ namespace G3D {
 
  <P>
  When getting geometry from the posed model, the normalArray 
- values are interpolated and may have slightly less than unit length.
+ values are interpolated and often have slightly less than unit length.
 
  <P>
   When available, this class uses SSE instructions for fast vertex blending.
   This cuts the time for getGeometry by a factor of 2 on most processors.
+
+  \sa G3D::MD3Model, G3D::ArticulatedModel, G3D::IFSModel
  */
-class MD2Model : public ReferenceCountedObject {
+ class MD2Model : public ReferenceCountedObject {
 public:
-    friend class MD2Model2;
-
-    typedef ReferenceCountedPointer<class MD2Model> Ref;
-
-    /**
+    
+    typedef ReferenceCountedPointer<MD2Model> Ref;
+  /**
      These names are (mostly) from Quake II.
      FLIP, SALUTE, FALLBACK, WAVE, and POINT are all taunts.
      A negative number means to run the specified animation backwards.
@@ -85,6 +88,81 @@ public:
         MAX_ANIMATIONS  = 21
     };
 
+    /**
+     Returns the total time of the animation.  If the animation loops (e.g. walking)
+     this is the time from the first frame until that frame repeats.  If the
+     animation does not loop (e.g. death) this is the time from the first frame
+     until the last frame.
+     */
+    static GameTime animationLength(Animation a);
+
+    /**
+     Returns true for standing, running, crouching, and crouch walking animations.
+     */
+    static bool animationLoops(Animation a);
+
+    /**
+     Returns true for the crouching set of animations.
+     */
+    static bool animationCrouch(Animation a);
+
+    /**
+     Returns true for the death animations
+     */
+    static bool animationDeath(Animation a);
+
+    static bool animationAttack(Animation a);
+
+    static bool animationJump(Animation a);
+
+    static bool animationPain(Animation A);
+
+    /**
+     STAND or CROUCH_STAND.
+     */
+    static bool animationStand(Animation a);
+
+    /**
+     running, forward or backward, standing or crouching
+     */
+    static bool animationRun(Animation a);
+    static bool animationRunForward(Animation a);
+    static bool animationRunBackward(Animation a);
+
+   /**
+     True for actions that can be interrupted, like running or saluting.
+     Jumping (which is really more of a falling animation) is considered
+     interruptible.
+     */
+    static bool animationInterruptible(Animation a);
+
+    /**
+     Quake uses a set of canonical normal vectors.
+     */
+    static Vector3              normalTable[162];
+
+    class MD2AnimInfo {
+    public:
+        int     first;
+        int     last;
+        int     fps;
+        bool    loops;
+    };
+
+    /**
+     Information relating Animations to keyFrames.  Used by computeFrameNumbers().
+     */
+    static const MD2AnimInfo    animationTable[MAX_ANIMATIONS];
+
+
+    /** How long we hold in the air as a fraction of jump time. */
+    static const float          hangTimePct;
+
+    /**
+     Amount of time to blend between two animations.
+     */
+    static const GameTime PRE_BLEND_TIME;
+
     class Pose {
     public:
 
@@ -109,8 +187,9 @@ public:
          */
         GameTime            time;
 
-        inline Pose() : preFrameNumber(0), animation(STAND), time(0) {}
-        inline Pose(Animation a, GameTime t = 0) : preFrameNumber(0), animation(a), time(t) {
+        Pose() : preFrameNumber(0), animation(STAND), time(0) {}
+
+        Pose(Animation a, GameTime t = 0) : preFrameNumber(0), animation(a), time(t) {
             static const GameTime t0 = 100000.0;
             while (time > t0) {
                 // We've been handed a number too big to operate on
@@ -120,7 +199,7 @@ public:
             }
         }
 
-        inline virtual ~Pose() {}
+        virtual ~Pose() {}
         
         bool operator==(const Pose& other) const;
         bool operator!=(const Pose& other) const;
@@ -193,304 +272,6 @@ public:
          bool completelyDead() const;
     };
 
-
-    class Specification {
-    public:
-        std::string             filename;
-        float                   scale;
-        Material::Ref           material;
-
-        Specification() : scale(1.0f) {}
-        Specification(const Any& any);
-    };
-
-    /**
-     Amount of time to blend between two animations.
-     */
-    static const GameTime PRE_BLEND_TIME;
-
-protected:
-
-    enum {NUM_VAR_AREAS = 10, NONE_ALLOCATED = -1};
-
-    class MD2AnimInfo {
-    public:
-        int     first;
-        int     last;
-        int     fps;
-        bool    loops;
-    };
-
-    /**
-     One RenderDevice primitive
-     */
-    class Primitive {
-    public:
-        /** PrimitiveType::TRIANGLE_STRIP or PrimitiveType::TRIANGLE_FAN */
-        RenderDevice::Primitive type;
-
-        class PVertex {
-        public:
-            /** Indices into a MeshAlg::Geometry's vertexArray */
-            int                 index;
-
-            /** One texture coordinate for each index */
-            Vector2             texCoord;
-        };
-
-        Array<PVertex>          pvertexArray;
-    };
-
-    class PackedGeometry {
-    public:        
-        Array<Vector3>          vertexArray;
-
-        /** Indices into the normalTable. */
-        Array<uint8>            normalArray;
-
-        PackedGeometry();
-    };
-
-    /**
-     Quake uses a set of canonical normal vectors.
-     */
-    static Vector3              normalTable[162];
-
-    /**
-     Information relating Animations to keyFrames.  Used by computeFrameNumbers().
-     */
-    static const MD2AnimInfo    animationTable[MAX_ANIMATIONS];
-
-
-    /** How long we hold in the air as a fraction of jump time. */
-    static const float          hangTimePct;
-
-    /** The pose currently stored in interpolatedFrame.  When the animation is MAX_ANIMATIONS
-        interpolatedFrame is not yet initialized. */
-    static MD2Model*            interpolatedModel;
-    static Pose                 interpolatedPose;
-    static MeshAlg::Geometry    interpolatedFrame;
-
-    /** Shared dynamic vertex arrays. Allocated by allocateVertexArrays.
-        We cycle through multiple VARAreas because the models are so small
-        that we can send data to the card faster than it can be rendered
-        and we end up spending all of our time waiting on the GPU.*/
-    static VertexBufferRef      varArea[NUM_VAR_AREAS];
-
-    /**
-     When NONE_ALLOCATED, the vertex arrays have not been allocated. 
-    */
-    static int                  nextVarArea;
-
-    Array<std::string>          _textureFilenames;
-
-    Array<PackedGeometry>       keyFrame;
-
-    Array<Primitive>            primitiveArray;
-
-    /** 1/header.skinWidth, 1/header.skinHeight, used by computeTextureCoords */
-    Vector2                     texCoordScale;
-
-    /**
-     Texture array that parallels vertex and normal arrays.
-     Set up by computeTexCoords
-     */
-    Array<Vector2>              _texCoordArray;
-
-    Sphere                      animationBoundingSphere[MAX_ANIMATIONS]; 
-    AABox                       animationBoundingBox[MAX_ANIMATIONS]; 
-
-    /**
-     Triangle list array useful for generating all of the triangles,
-     e.g. for collision detection.  Not used for rendering.
-     */
-    Array<int>                  indexArray;
-
-    Material::Ref               m_material;
-
-    Array<Vector3>              faceNormalArray;
-    Array<MeshAlg::Face>        faceArray;
-    Array<MeshAlg::Vertex>      vertexArray;
-    Array<MeshAlg::Edge>        edgeArray;
-    Array<MeshAlg::Face>        weldedFaceArray;
-    Array<MeshAlg::Vertex>      weldedVertexArray;
-    Array<MeshAlg::Edge>        weldedEdgeArray;
-    Sphere                      boundingSphere;
-    AABox                       boundingBox;
-    int                         numBoundaryEdges;
-    int                         numWeldedBoundaryEdges;
-    std::string                 _name;
-    VertexRange                 indexVAR;
-
-    /** Called from create */
-    MD2Model() {}
-
-    /** Called from create */
-    void load(const std::string& filename, float scale);
-
-    void loadTextureFilenames(BinaryInput& b, int num, int offset);
-
-    /**
-     Computes the previous and next frame indices and how far we are between them.
-     */
-    static void computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, float& alpha);
-
-    /** Loads data into the normalTable. */
-    static void setNormalTable();
-
-    /**
-     MD2 Models are stored with separate indices into texture coordinate and 
-     vertex arrays.  This means that some vertices must be duplicated in order
-     to render with a single OpenGL-style vertex array.
-
-     Creates a texCoordArray to parallel the vertex and normal arrays,
-     duplicating vertices in the keyframes as needed. Called from load().
-     @param inCoords Texture coords corresponding to the index array
-     */
-    void computeTexCoords(const Array<Vector2int16>& inCoords);
-
-    /**
-      Called from render() to create the vertex arrays.  Assumes VertexRange is
-      available and the arrays are not initialized.
-     */
-    void allocateVertexArrays(RenderDevice* renderDevice);
-
-    void sendGeometry(RenderDevice* rd, const Pose& pose) const;
-
-
-    /**
-     Wipe all data structures.  Called from load.
-     */
-    virtual void reset();
-
-    /**
-     Called from PosedMD2Model::render.
-     */
-    void render(RenderDevice* renderDevice, const Pose& pose);
-
-    /**
-     Fills the geometry out from the pose. 
-
-     Called from PosedMD2Model::getGeometry
-     */
-    void getGeometry(const Pose& pose, MeshAlg::Geometry& geometry) const;
-
-public:
-
-    std::string name() const {
-        return _name;
-    }
-
-    virtual void setName(const std::string& n) {
-        _name = n;
-    }
-
-    /**
-     @param filename The tris.md2 file.  Note that most MD2 
-      files are stored in two files, tris.md2 and weapon.md2.  
-      You will have to load both as separate models.
-
-     @param scale Optional scale factor to apply while loading.  The
-     scale of 1.0 is chosen so that a typical character is 2 meters
-     tall (1/2 the default quake unit scaling)
-     */
-    static MD2Model::Ref fromFile(const std::string& filename, const std::string& diffuseFilename, float scale = 1.0f);
-    static MD2Model::Ref create(const Specification& specification);
-
-    virtual ~MD2Model() {}
-
-    void pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cframe, const Pose& pose);
-
-    const Array<Vector2>& texCoordArray() const {
-        return _texCoordArray;
-    }
-
-    Material::Ref material() const {
-        return m_material;
-    }
-
-    const Array<MeshAlg::Face>& faces() const;
-    const Array<MeshAlg::Face>& weldedFaces() const;
-
-    const Array<MeshAlg::Edge>& edges() const;
-    const Array<MeshAlg::Edge>& weldedEdges() const;
-
-    /** You must get the geometry for the vertex positions-- this only specifies adjacency */
-    const Array<MeshAlg::Vertex>& vertices() const;
-    const Array<MeshAlg::Vertex>& weldedVertices() const;
-
-    /**
-     Render the wireframe mesh.
-     */
-    void debugRenderWireframe(RenderDevice* renderDevice, const Pose& pose);
-
-    /**
-     A bounding sphere on the model.  Covers all vertices in all animations.
-     */
-    inline const Sphere& objectSpaceBoundingSphere() const {
-        return boundingSphere;
-    }
-
-    /**
-     An oriented bounding box on the model.  Covers all vertices in all animations.
-     */
-    inline const AABox& objectSpaceBoundingBox() const {
-        return boundingBox;
-    }
-
-    /**
-     Returns the total time of the animation.  If the animation loops (e.g. walking)
-     this is the time from the first frame until that frame repeats.  If the
-     animation does not loop (e.g. death) this is the time from the first frame
-     until the last frame.
-     */
-    static GameTime animationLength(Animation a);
-
-    /**
-     Returns true for standing, running, crouching, and crouch walking animations.
-     */
-    static bool animationLoops(Animation a);
-
-    /**
-     Returns true for the crouching set of animations.
-     */
-    static bool animationCrouch(Animation a);
-
-    /**
-     Returns true for the death animations
-     */
-    static bool animationDeath(Animation a);
-
-    static bool animationAttack(Animation a);
-
-    static bool animationJump(Animation a);
-
-    static bool animationPain(Animation A);
-
-    /**
-     STAND or CROUCH_STAND.
-     */
-    static bool animationStand(Animation a);
-
-    /**
-     running, forward or backward, standing or crouching
-     */
-    static bool animationRun(Animation a);
-    static bool animationRunForward(Animation a);
-    static bool animationRunBackward(Animation a);
-
-    /**
-     True for actions that can be interrupted, like running or saluting.
-     Jumping (which is really more of a falling animation) is considered
-     interruptible.
-     */
-    static bool animationInterruptible(Animation a);
-
-    /** Filenames of textures this model can use. */
-    inline const Array<std::string>& textureFilenames() const {
-        return _textureFilenames;
-    }
-
     /**
      Returns a value for MD2Model::Pose::preFrameNumber that will
      smoothly blend from this animation to the next one.
@@ -498,64 +279,12 @@ public:
     static int getFrameNumber(const Pose& pose);
 
     /**
-     Returns the approximate amount of main memory, not counting the texture,
-     occupied by this data structure.
+     Computes the previous and next frame indices and how far we are between them.
      */
-    virtual size_t mainMemorySize() const;
+    static void computeFrameNumbers(const Pose& pose, int& kf0, int& kf1, float& alpha);
 
-    /**
-     @brief Loads a Quake2 character texture.  
-
-     Note that you may want to
-     apply gamma correction as well if you are using tone mapping.
-
-
-     Same as:
-
-     <pre>
-     Texture::Settings settings;
-     settings.wrapMode = WrapMode::CLAMP;
-
-     Texture::Preprocess preprocess;
-     preprocess.brighten = 2.0f;
-
-     Texture::fromFile(filename, ImageFormat::AUTO, Texture::DIM_2D, settings, preprocess)
-     </pre>
-     */
-    static Texture::Ref textureFromFile(const std::string& filename);
-
-};
-
-
-/**
-   \brief Quake II model class primarily used for low-polygon keyframe animated characters.
- <P>
-
- Quake II models contain up to two parts, where the second part is typically a weapon.
- Each part is a single mesh that is keyframe animated.  Because the vertex positions and normals
- are highly quantized, these models tend to distort a bit under animation.
-
- <P>
- Models are centered about their waist.  To figure out where the feet are you
- might want to look at the bounding box for the stand/walk animations.
- 
- <P>This class is not threadsafe; you cannot
- even call methods on two different instances on different threads.
-
- <P>
- When getting geometry from the posed model, the normalArray 
- values are interpolated and often have slightly less than unit length.
-
- <P>
-  When available, this class uses SSE instructions for fast vertex blending.
-  This cuts the time for getGeometry by a factor of 2 on most processors.
-
-  \sa G3D::MD3Model, G3D::ArticulatedModel, G3D::IFSModel
- */
- class MD2Model2 : public ReferenceCountedObject {
-public:
-    
-    typedef ReferenceCountedPointer<MD2Model2> Ref;
+    /** Loads data into the normalTable. */
+    static void setNormalTable();
 
     class Specification {
     public:
@@ -581,8 +310,255 @@ public:
         Specification(const Any& any);
     };
 
-    /** TODO: remove */
-    typedef MD2Model Part;
+    class Part : public ReferenceCountedObject {
+    public:
+        friend class MD2Model;
+
+        typedef ReferenceCountedPointer<class Part> Ref;
+
+        class Specification {
+        public:
+            std::string             filename;
+            float                   scale;
+            Material::Ref           material;
+
+            Specification() : scale(1.0f) {}
+            Specification(const Any& any);
+        };
+
+    protected:
+
+        enum {NUM_VAR_AREAS = 10, NONE_ALLOCATED = -1};
+
+        /**
+         One RenderDevice primitive
+         */
+        class Primitive {
+        public:
+            /** PrimitiveType::TRIANGLE_STRIP or PrimitiveType::TRIANGLE_FAN */
+            RenderDevice::Primitive type;
+
+            class PVertex {
+            public:
+                /** Indices into a MeshAlg::Geometry's vertexArray */
+                int                 index;
+
+                /** One texture coordinate for each index */
+                Vector2             texCoord;
+            };
+
+            Array<PVertex>          pvertexArray;
+        };
+
+        class PackedGeometry {
+        public:        
+            Array<Vector3>          vertexArray;
+
+            /** Indices into the normalTable. */
+            Array<uint8>            normalArray;
+
+            PackedGeometry();
+        };
+
+
+        /** The pose currently stored in interpolatedFrame.  When the animation is MAX_ANIMATIONS
+            interpolatedFrame is not yet initialized. */
+        static MD2Model::Part*      interpolatedModel;
+        static Pose                 interpolatedPose;
+        static MeshAlg::Geometry    interpolatedFrame;
+
+        /** Shared dynamic vertex arrays. Allocated by allocateVertexArrays.
+            We cycle through multiple VARAreas because the models are so small
+            that we can send data to the card faster than it can be rendered
+            and we end up spending all of our time waiting on the GPU.*/
+        static VertexBufferRef      varArea[NUM_VAR_AREAS];
+
+        /**
+         When NONE_ALLOCATED, the vertex arrays have not been allocated. 
+        */
+        static int                  nextVarArea;
+
+        Array<std::string>          _textureFilenames;
+
+        Array<PackedGeometry>       keyFrame;
+
+        Array<Primitive>            primitiveArray;
+
+        /** 1/header.skinWidth, 1/header.skinHeight, used by computeTextureCoords */
+        Vector2                     texCoordScale;
+
+        /**
+         Texture array that parallels vertex and normal arrays.
+         Set up by computeTexCoords
+         */
+        Array<Vector2>              _texCoordArray;
+
+        Sphere                      animationBoundingSphere[MAX_ANIMATIONS]; 
+        AABox                       animationBoundingBox[MAX_ANIMATIONS]; 
+
+        /**
+         Triangle list array useful for generating all of the triangles,
+         e.g. for collision detection.  Not used for rendering.
+         */
+        Array<int>                  indexArray;
+
+        Material::Ref               m_material;
+
+        Array<Vector3>              faceNormalArray;
+        Array<MeshAlg::Face>        faceArray;
+        Array<MeshAlg::Vertex>      vertexArray;
+        Array<MeshAlg::Edge>        edgeArray;
+        Array<MeshAlg::Face>        weldedFaceArray;
+        Array<MeshAlg::Vertex>      weldedVertexArray;
+        Array<MeshAlg::Edge>        weldedEdgeArray;
+        Sphere                      boundingSphere;
+        AABox                       boundingBox;
+        int                         numBoundaryEdges;
+        int                         numWeldedBoundaryEdges;
+        std::string                 _name;
+        VertexRange                 indexVAR;
+
+        /** Called from create */
+        Part() {}
+
+        /** Called from create */
+        void load(const std::string& filename, float scale);
+
+        void loadTextureFilenames(BinaryInput& b, int num, int offset);
+
+        /**
+         MD2 Models are stored with separate indices into texture coordinate and 
+         vertex arrays.  This means that some vertices must be duplicated in order
+         to render with a single OpenGL-style vertex array.
+
+         Creates a texCoordArray to parallel the vertex and normal arrays,
+         duplicating vertices in the keyframes as needed. Called from load().
+         @param inCoords Texture coords corresponding to the index array
+         */
+        void computeTexCoords(const Array<Vector2int16>& inCoords);
+
+        /**
+          Called from render() to create the vertex arrays.  Assumes VertexRange is
+          available and the arrays are not initialized.
+         */
+        void allocateVertexArrays(RenderDevice* renderDevice);
+
+        void sendGeometry(RenderDevice* rd, const Pose& pose) const;
+
+
+        /**
+         Wipe all data structures.  Called from load.
+         */
+        virtual void reset();
+
+        /**
+         Called from PosedMD2Model::render.
+         */
+        void render(RenderDevice* renderDevice, const Pose& pose);
+
+        /**
+         Fills the geometry out from the pose. 
+
+         Called from PosedMD2Model::getGeometry
+         */
+        void getGeometry(const Pose& pose, MeshAlg::Geometry& geometry) const;
+
+    public:
+
+        std::string name() const {
+            return _name;
+        }
+
+        virtual void setName(const std::string& n) {
+            _name = n;
+        }
+
+        /**
+         @param filename The tris.md2 file.  Note that most MD2 
+          files are stored in two files, tris.md2 and weapon.md2.  
+          You will have to load both as separate models.
+
+         @param scale Optional scale factor to apply while loading.  The
+         scale of 1.0 is chosen so that a typical character is 2 meters
+         tall (1/2 the default quake unit scaling)
+         */
+        static Ref fromFile(const std::string& filename, const std::string& diffuseFilename, float scale = 1.0f);
+        static Ref create(const Specification& specification);
+
+        virtual ~Part() {}
+
+        void pose(Array<Surface::Ref>& surfaceArray, const CoordinateFrame& cframe, const Pose& pose);
+
+        const Array<Vector2>& texCoordArray() const {
+            return _texCoordArray;
+        }
+
+        Material::Ref material() const {
+            return m_material;
+        }
+
+        const Array<MeshAlg::Face>& faces() const;
+        const Array<MeshAlg::Face>& weldedFaces() const;
+
+        const Array<MeshAlg::Edge>& edges() const;
+        const Array<MeshAlg::Edge>& weldedEdges() const;
+
+        /** You must get the geometry for the vertex positions-- this only specifies adjacency */
+        const Array<MeshAlg::Vertex>& vertices() const;
+        const Array<MeshAlg::Vertex>& weldedVertices() const;
+
+        /**
+         Render the wireframe mesh.
+         */
+        void debugRenderWireframe(RenderDevice* renderDevice, const Pose& pose);
+
+        /**
+         A bounding sphere on the model.  Covers all vertices in all animations.
+         */
+        inline const Sphere& objectSpaceBoundingSphere() const {
+            return boundingSphere;
+        }
+
+        /**
+         An oriented bounding box on the model.  Covers all vertices in all animations.
+         */
+        const AABox& objectSpaceBoundingBox() const {
+            return boundingBox;
+        }
+
+        /** Filenames of textures this model can use. */
+        const Array<std::string>& textureFilenames() const {
+            return _textureFilenames;
+        }
+
+        /**
+         Returns the approximate amount of main memory, not counting the texture,
+         occupied by this data structure.
+         */
+        virtual size_t mainMemorySize() const;
+
+        /**
+         @brief Loads a Quake2 character texture.  
+
+         Note that you may want to
+         apply gamma correction as well if you are using tone mapping.
+
+
+         Same as:
+
+         <pre>
+         Texture::Settings settings;
+         settings.wrapMode = WrapMode::CLAMP;
+
+         Texture::Preprocess preprocess;
+         preprocess.brighten = 2.0f;
+
+         Texture::fromFile(filename, ImageFormat::AUTO, Texture::DIM_2D, settings, preprocess)
+         </pre>
+         */
+        static Texture::Ref textureFromFile(const std::string& filename);
+
+    };
 
 protected:
 
@@ -612,7 +588,7 @@ public:
         return m_numTriangles;
     }
 
-    void pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame = CFrame(), const MD2Model::Pose& pose = MD2Model::Pose());
+    void pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame = CFrame(), const Pose& pose = Pose());
 };
 
 }
