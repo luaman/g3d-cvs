@@ -31,6 +31,11 @@ MD2Model2::Specification::Specification(const std::string& trisFilename)
 }
 
 MD2Model2::Specification::Specification(const Any& any) {
+    if (any.type() == Any::STRING) {
+        *this = Specification(any.resolveStringAsFilename());
+        return;
+    }
+
     any.verifyName("MD2Model::Specification");
     *this = Specification();
     for (Table<std::string, Any>::Iterator it = any.table().begin(); it.hasMore(); ++it) {

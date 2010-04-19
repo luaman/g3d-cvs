@@ -6,7 +6,9 @@
     models = {
         knightModel = MD2Model::Specification {
             filename = "pknight/tris.md2",
-            material = "pknight/ctf_b.pcx"            
+            material = "pknight/ctf_b.pcx",
+            weaponFilename = "pknight/weapon.md2",
+            weaponMaterial = "pknight/weapon.pcx",
         }       
     },
     
@@ -15,7 +17,7 @@
         ambientBottom = Color3::fromARGB(0x262627),
 
         lightArray = (
-            GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d))
+            GLight::directional(Vector3(1,0.5f,1), Color3(1,1,1))
         ),
         shadowedLightArray = (
         ),
@@ -34,7 +36,7 @@
         // two (optional) arguments: a position spline (which can be a single position), and a 
         // pose spline (which can be a single pose).
         
-        c0 = knightModel(Vector3(1.0, 0.5, 0.0)),
+        c0 = knightModel(CFrame::fromXYZYPRDegrees(0,0,0,180)),
         
     },
     

@@ -18,7 +18,7 @@ Entity::Ref Entity::create(const std::string& n, const ArticulatedModel::Ref& m,
 }
 
 
-Entity::Ref Entity::create(const std::string& n, const MD2Model::Ref& m, const PhysicsFrameSpline& frameSpline) {
+Entity::Ref Entity::create(const std::string& n, const MD2Model2::Ref& m, const PhysicsFrameSpline& frameSpline) {
     Ref e = new Entity();
     e->m_modelType = MD2_MODEL;
     e->m_name  = n;
@@ -47,6 +47,9 @@ void Entity::onSimulation(GameTime absoluteTime, GameTime deltaTime) {
     (void)deltaTime;
     m_frame = m_frameSpline.evaluate(float(absoluteTime));
     m_poseSpline.get(float(absoluteTime), m_pose);
+
+    MD2Model::Pose::Action a;
+    m_md2Pose.onSimulation(deltaTime, a);
 }
 
 
@@ -119,7 +122,7 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
         if (v.nameBeginsWith("ArticulatedModel")) {
             m = ArticulatedModel::create(v);
         } else if (v.nameBeginsWith("MD2Model")) {
-            m = MD2Model::create(v);
+            m = MD2Model2::create(v);
         } else {
             debugAssertM(false, "Unrecognized model type: " + v.name());
         }
@@ -149,7 +152,7 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
         }
 
         ArticulatedModel::Ref artModel = model->downcast<ArticulatedModel>();
-        MD2Model::Ref         md2Model = model->downcast<MD2Model>();
+        MD2Model2::Ref         md2Model = model->downcast<MD2Model2>();
         if (artModel.notNull()) {
             s->m_entityArray.append(Entity::create(name, artModel, frameSpline, poseSpline));
         } else {
