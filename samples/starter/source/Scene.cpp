@@ -7,9 +7,25 @@ Entity::Entity() {}
 Entity::Ref Entity::create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline) {
     Ref e = new Entity();
     e->m_name  = n;
-    e->m_model = m;
     e->m_frameSpline = frameSpline;
-    e->m_poseSpline = poseSpline;
+
+    e->m_artModel = m;
+    e->m_artPoseSpline = poseSpline;
+    e->m_modelType = ARTICULATED_MODEL;
+
+
+    // Set the initial position
+    e->onSimulation(0, 0);
+    return e;
+}
+
+
+Entity::Ref Entity::create(const std::string& n, const MD2Model::Ref& m, const PhysicsFrameSpline& frameSpline) {
+    Ref e = new Entity();
+    e->m_modelType = MD2_MODEL;
+    e->m_name  = n;
+    e->m_md2Model = m;
+    e->m_frameSpline = frameSpline;
 
     // Set the initial position
     e->onSimulation(0, 0);
@@ -18,16 +34,27 @@ Entity::Ref Entity::create(const std::string& n, const ArticulatedModel::Ref& m,
 
 
 void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
-    m_model->pose(surfaceArray, m_frame, m_pose);
+    switch (m_modelType) {
+    case ARTICULATED_MODEL:
+        m_artModel->pose(surfaceArray, m_frame, m_artPose);
+        break;
+    case MD2_MODEL:
+        m_md2Model->pose(surfaceArray, m_frame, m_md2Pose);
+        break;
+    }
 }
 
 
 void Entity::onSimulation(GameTime absoluteTime, GameTime deltaTime) {
     (void)deltaTime;
     m_frame = m_frameSpline.evaluate(float(absoluteTime));
-    m_poseSpline.get(float(absoluteTime), m_pose);
+    m_artPoseSpline.get(float(absoluteTime), m_artPose);
+
+    MD2Model::Pose::Action a;
+    m_md2Pose.onSimulation(deltaTime, a);
 }
 
+////////////////////////////////////////////////////////////////////////
 
 void Scene::onSimulation(RealTime deltaTime) {
     m_time += deltaTime;
@@ -90,9 +117,20 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
 
     // Load the models
     Any models = any["models"];
-    Table<std::string, ArticulatedModel::Ref> modelTable;
+    typedef ReferenceCountedPointer<ReferenceCountedObject> ModelRef;
+    Table< std::string, ModelRef > modelTable;
     for (Any::AnyTable::Iterator it = models.table().begin(); it.hasMore(); ++it) {
-        modelTable.set(it->key, ArticulatedModel::create(it->value));        
+        ModelRef m;
+        Any v = it->value;
+        if (v.nameBeginsWith("ArticulatedModel")) {
+            m = ArticulatedModel::create(v);
+        } else if (v.nameBeginsWith("MD2Model")) {
+            m = MD2Model::create(v);
+        } else {
+            debugAssertM(false, "Unrecognized model type: " + v.name());
+        }
+
+        modelTable.set(it->key, m);        
     }
 
     // Instance the models
@@ -102,7 +140,7 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
         const Any& modelArgs = it->value;
 
         modelArgs.verifyType(Any::ARRAY);
-        const ArticulatedModel::Ref* model = modelTable.getPointer(modelArgs.name());
+        const ModelRef* model = modelTable.getPointer(modelArgs.name());
         modelArgs.verify((model != NULL), 
             "Can't instantiate undefined model named " + modelArgs.name() + ".");
 
@@ -116,7 +154,13 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
             }
         }
 
-        s->m_entityArray.append(Entity::create(name, *model, frameSpline, poseSpline));
+        ArticulatedModel::Ref artModel = model->downcast<ArticulatedModel>();
+        MD2Model::Ref         md2Model = model->downcast<MD2Model>();
+        if (artModel.notNull()) {
+            s->m_entityArray.append(Entity::create(name, artModel, frameSpline, poseSpline));
+        } else {
+            s->m_entityArray.append(Entity::create(name, md2Model, frameSpline));
+        }
     }
 
     // Load the camera

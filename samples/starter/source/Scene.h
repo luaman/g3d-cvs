@@ -16,7 +16,14 @@ public:
 
 protected:
 
+    enum ModelType {
+        ARTICULATED_MODEL,
+        MD2_MODEL
+    };
+
     std::string                     m_name;
+
+    ModelType                       m_modelType;
 
     /** Current position */
     CFrame                          m_frame;
@@ -24,13 +31,16 @@ protected:
     /** Root position over time */
     PhysicsFrameSpline              m_frameSpline;
 
+    MD2Model::Ref                   m_md2Model;
+    MD2Model::Pose                  m_md2Pose;
+
     /** Current pose */
-    ArticulatedModel::Pose          m_pose;
+    ArticulatedModel::Pose          m_artPose;
 
     /** Pose over time. */
-    ArticulatedModel::PoseSpline    m_poseSpline;
+    ArticulatedModel::PoseSpline    m_artPoseSpline;
 
-    ArticulatedModel::Ref           m_model;
+    ArticulatedModel::Ref           m_artModel;
 
     Entity();
 
@@ -45,6 +55,7 @@ public:
     }
 
     static Entity::Ref create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline);
+    static Entity::Ref create(const std::string& n, const MD2Model::Ref& m, const PhysicsFrameSpline& frameSpline);
 
     virtual void onSimulation(GameTime absoluteTime, GameTime deltaTime);
 
