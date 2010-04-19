@@ -22,13 +22,7 @@
 
 namespace G3D {
 
-
-MD2Model::Specification::Specification() : scale(1.0f) {}
-
-MD2Model::Specification::Specification(const std::string& trisFilename) 
-: filename(trisFilename), scale(1.0f) {
-    // TODO: try and locate appropriate materials and weapons
-}
+static const char* ext[] = {".jpg", ".png", ".bmp", ".tga", ".ppm", ".pcx", NULL};
 
 static Material::Ref makeQuakeMaterial(const Any& any) {
     if ((any.type() == Any::STRING) && endsWith(toLower(any.string()), ".pcx")) {
@@ -44,6 +38,91 @@ static Material::Ref makeQuakeMaterial(const Any& any) {
 
     } else {
         return Material::create(any);
+    }
+}
+
+
+static Material::Ref makeWeaponMaterial(const std::string& path) {
+    Array<std::string> fileArray;
+    FileSystem::getFiles(FilePath::concat(path, "*"), fileArray, true);
+    for (int i = 0; i < fileArray.size(); ++i) {
+        const std::string& f = fileArray[i];
+        const std::string& b = FilePath::base(f);
+        const std::string& le = "." + toLower(FilePath::ext(f));
+        if (toLower(b) == "weapon") {
+            for (int e = 0; ext[e] != NULL; ++e) {
+                if (le == ext[e]) {
+                    // This is an image
+                    return makeQuakeMaterial(f);
+                }
+            }
+        }
+    }
+
+    return Material::createDiffuse(Color3::white());
+}
+
+
+MD2Model::Specification::Specification() : scale(1.0f) {}
+
+MD2Model::Specification::Specification(const std::string& trisFilename) 
+: filename(trisFilename), scale(1.0f) {
+
+    if (! FileSystem::exists(trisFilename)) {
+        material = Material::createDiffuse(Color3::white());
+        return;
+    }
+
+    std::string path = FilePath::parent(FileSystem::resolve(filename));
+
+    if (toLower(FilePath::base(trisFilename)) == "tris") {
+        // Try to find the primary texture
+        std::string myName = FilePath::base(FilePath::removeTrailingSlash(path));
+        const std::string prefix[] = {toLower(myName), "ctf_r", "ctf_b", "red", "blue"};
+        Array<std::string> fileArray;
+
+        // The case of the filename might not match what we have here.
+
+        for (int e = 0; ext[e] != NULL; ++e) {
+            FileSystem::getFiles(FilePath::concat(path, std::string("*") + ext[e]), fileArray, true);
+            FileSystem::getFiles(FilePath::concat(path, std::string("*") + toUpper(ext[e])), fileArray, true);
+        }
+
+        for (int f = 0; (f < fileArray.size()) && material.isNull(); ++f) {
+            const std::string& s = toLower(FilePath::base(fileArray[f]));
+            for (int p = 0; (p < 5) && material.isNull(); ++p) {
+                if (toLower(s) == prefix[p]) {
+                    // This is a legal prefix
+                    material = makeQuakeMaterial(fileArray[f]);
+                }
+            }
+        }
+
+        if (material.isNull()) {
+            // No material
+            material = Material::createDiffuse(Color3::white());
+        }
+    } else {
+        // Don't load the primary material or a weapon; this isn't the primary part.  It is probably
+        // a weapon, so load the weapon material.
+        material = makeWeaponMaterial(path);
+        return;
+    }
+
+    // Weapons are either named "weapon.md2" or "w_(name).md2".
+    weaponFilename = FilePath::concat(path, "weapon.md2");
+    if (! FileSystem::exists(weaponFilename)) {
+        Array<std::string> fileArray;
+        FileSystem::getFiles(FilePath::concat(path, "w_*.md2"), fileArray, true);
+        if (fileArray.size() > 0) {
+            weaponFilename = fileArray[0];
+        } else {
+            weaponFilename = "";
+        }
+    }
+
+    if (! weaponFilename.empty()) {
+        weaponMaterial = makeWeaponMaterial(path);
     }
 }
 

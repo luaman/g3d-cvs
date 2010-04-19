@@ -692,7 +692,7 @@ std::string FilePath::base(const std::string& path) {
         // No extension
         return filename;
     } else {
-        return filename.substr(0, i - 1);
+        return filename.substr(0, i);
     }
 }
 
