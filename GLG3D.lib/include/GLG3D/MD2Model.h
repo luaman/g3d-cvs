@@ -49,11 +49,6 @@ public:
     typedef ReferenceCountedPointer<class MD2Model> Ref;
 
     /**
-     Amount of time to blend between two animations.
-     */
-    static const GameTime PRE_BLEND_TIME;
-
-    /**
      These names are (mostly) from Quake II.
      FLIP, SALUTE, FALLBACK, WAVE, and POINT are all taunts.
      A negative number means to run the specified animation backwards.
@@ -207,7 +202,14 @@ public:
         Specification(const Any& any);
     };
 
+    /**
+     Amount of time to blend between two animations.
+     */
+    static const GameTime PRE_BLEND_TIME;
+
 protected:
+
+    enum {NUM_VAR_AREAS = 10, NONE_ALLOCATED = -1};
 
     class MD2AnimInfo {
     public:
@@ -267,8 +269,6 @@ protected:
     static Pose                 interpolatedPose;
     static MeshAlg::Geometry    interpolatedFrame;
 
-    enum {NUM_VAR_AREAS = 10, NONE_ALLOCATED = -1};
-
     /** Shared dynamic vertex arrays. Allocated by allocateVertexArrays.
         We cycle through multiple VARAreas because the models are so small
         that we can send data to the card faster than it can be rendered
@@ -306,12 +306,36 @@ protected:
 
     Material::Ref               m_material;
 
+    Array<Vector3>              faceNormalArray;
+    Array<MeshAlg::Face>        faceArray;
+    Array<MeshAlg::Vertex>      vertexArray;
+    Array<MeshAlg::Edge>        edgeArray;
+    Array<MeshAlg::Face>        weldedFaceArray;
+    Array<MeshAlg::Vertex>      weldedVertexArray;
+    Array<MeshAlg::Edge>        weldedEdgeArray;
+    Sphere                      boundingSphere;
+    AABox                       boundingBox;
+    int                         numBoundaryEdges;
+    int                         numWeldedBoundaryEdges;
+    std::string                 _name;
+    VertexRange                 indexVAR;
+
+    /** Called from create */
+    MD2Model() {}
+
+    /** Called from create */
+    void load(const std::string& filename, float scale);
+
     void loadTextureFilenames(BinaryInput& b, int num, int offset);
 
     /**
      Computes the previous and next frame indices and how far we are between them.
      */
     static void computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, float& alpha);
+
+    /** Loads data into the normalTable. */
+    static void setNormalTable();
+
     /**
      MD2 Models are stored with separate indices into texture coordinate and 
      vertex arrays.  This means that some vertices must be duplicated in order
@@ -331,14 +355,6 @@ protected:
 
     void sendGeometry(RenderDevice* rd, const Pose& pose) const;
 
-    /** Called from create */
-    MD2Model() {}
-
-    /** Called from create */
-    void load(const std::string& filename, float scale);
-
-    /** Loads data into the normalTable. */
-    static void setNormalTable();
 
     /**
      Wipe all data structures.  Called from load.
@@ -356,20 +372,6 @@ protected:
      Called from PosedMD2Model::getGeometry
      */
     void getGeometry(const Pose& pose, MeshAlg::Geometry& geometry) const;
-
-    Array<Vector3>              faceNormalArray;
-    Array<MeshAlg::Face>        faceArray;
-    Array<MeshAlg::Vertex>      vertexArray;
-    Array<MeshAlg::Edge>        edgeArray;
-    Array<MeshAlg::Face>        weldedFaceArray;
-    Array<MeshAlg::Vertex>      weldedVertexArray;
-    Array<MeshAlg::Edge>        weldedEdgeArray;
-    Sphere                      boundingSphere;
-    AABox                       boundingBox;
-    int                         numBoundaryEdges;
-    int                         numWeldedBoundaryEdges;
-    std::string                 _name;
-    VertexRange                 indexVAR;
 
 public:
 
@@ -520,6 +522,76 @@ public:
      */
     static Texture::Ref textureFromFile(const std::string& filename);
 
+};
+
+
+/**
+   \brief Quake II model class primarily used for low-polygon keyframe animated characters.
+ <P>
+
+ Quake II models contain up to two parts, where the second part is typically a weapon.
+ Each part is a single mesh that is keyframe animated.  Because the vertex positions and normals
+ are highly quantized, these models tend to distort a bit under animation.
+
+ <P>
+ Models are centered about their waist.  To figure out where the feet are you
+ might want to look at the bounding box for the stand/walk animations.
+ 
+ <P>This class is not threadsafe; you cannot
+ even call methods on two different instances on different threads.
+
+ <P>
+ When getting geometry from the posed model, the normalArray 
+ values are interpolated and often have slightly less than unit length.
+
+ <P>
+  When available, this class uses SSE instructions for fast vertex blending.
+  This cuts the time for getGeometry by a factor of 2 on most processors.
+
+  \sa G3D::MD3Model, G3D::ArticulatedModel, G3D::IFSModel
+ */
+ class MD2Model2 : public ReferenceCountedObject {
+public:
+    
+    typedef ReferenceCountedPointer<MD2Model2> Ref;
+
+    class Specification {
+    public:
+
+        /** Main part .md2 filename.  This typically ends in tris.md2. */
+        std::string     filename;
+        /** Cannot be NULL */
+        Material::Ref   material;
+
+        /** Optional second part .md2 filename, which is typically the weapon. */
+        std::string     weaponFilename;
+        /** May be NULL if weaponFilename is the empty string. */
+        Material::Ref   weaponMaterial;
+
+        Specification();
+
+        /** Infers the rest of the specification from the path to (and including) the tris.md2 file */
+        Specification(const std::string& trisFile);
+
+        Specification(const Any& any);
+    };
+
+protected:
+public:
+    
+    /** Create a new MD2Model.
+
+        Note that this can also be invoked with the path name of a single tris.md2 
+        file as an std::string, which will automatically cast to a MD2Model::Specification. */
+    static Ref create(const Specification& s);
+
+    /** Either 1 or 2, depending on whether a weapon is present */
+    int numParts() const;
+
+    /** Total number of triangles in the mesh */
+    int numTriangles() const;
+
+    void pose(Array<Surface::Ref>& surfaceArray, const CFrame& rootFrame = CFrame(), const MD2Model::Pose& pose = MD2Model::Pose());
 };
 
 }
