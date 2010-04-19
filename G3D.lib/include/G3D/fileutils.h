@@ -156,7 +156,7 @@ std::string filenamePath(const std::string& filename);
 /** Returns true if '*' or '?' appears in the string */
 bool filenameContainsWildcards(const std::string& filename);
 
-/** Appends file onto dirname, ensuring a / if needed. */
+/** Appends file onto dirname, ensuring a / if needed. \deprecated Use FilePath::concat */
 std::string pathConcat(const std::string& dirname, const std::string& file);
 
 } // namespace

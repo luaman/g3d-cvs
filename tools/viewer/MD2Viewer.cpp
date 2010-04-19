@@ -20,25 +20,18 @@ void MD2Viewer::pose(RealTime dt){
 
 	posed.clear();
 	for(int m = 0; m < models.size(); ++m){
-		posed.push(models[m]->pose(cframe, currentPose, materials[m]));
+		models[m]->pose(posed, cframe, currentPose);
 	}
 }
 
 
 void MD2Viewer::onInit(const std::string& filename) {
 	
-	//the equivalent of tris.md2 is stored in filename
-	models.push(MD2Model::fromFile(filename));
-    materials.push(Material::createDiffuse(Color3::white()));
-
 	std::string resourceDir = filenamePath(filename);
-
-	Texture::Preprocess p;
-    p.modulate = Color4::one() * 2.0f;
 
 	//Character texture handling
 	Array<std::string> files;
-	std::string desiredTexture;
+	std::string desiredTexture1, desiredTexture2;
 
 	// By convention, base .md2 models are named tris.md2.
 	// Weapons are either named weapon.md2 or w_(name).md2.
@@ -50,7 +43,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 		textureTest = textureTest.substr(0, textureTest.length() - remove);
 		textureTest = textureTest + "pcx";
 		if (Texture::isSupportedImage(resourceDir + textureTest)) {
-			desiredTexture = resourceDir + textureTest;
+			desiredTexture1 = resourceDir + textureTest;
 		}
 		validWeapon = false;
 	} else {
@@ -59,11 +52,11 @@ void MD2Viewer::onInit(const std::string& filename) {
 		FileSystem::getFiles(resourceDir + "*.tga", files, true);
 		FileSystem::getFiles(resourceDir + "*.png", files, true);
 		for(int f = 0; f < files.length(); ++f){
-            if (FileSystem::size(desiredTexture) < FileSystem::size(files[f])){
+            if (FileSystem::size(desiredTexture1) < FileSystem::size(files[f])){
 				if (beginsWith(filenameBaseExt(files[f]), "w_") || beginsWith(filenameBaseExt(files[f]), "weapon")){
 					//desired texture is unchanged
 				} else {
-					desiredTexture = files[f];
+					desiredTexture1 = files[f];
 				}
 			}
 		}
@@ -73,37 +66,19 @@ void MD2Viewer::onInit(const std::string& filename) {
 			validWeapon = false;
 		}
 	}
-
-
-    if (desiredTexture != "") {
-        Any lamb(Any::TABLE, "Texture::Specification");
-        lamb["filename"] = desiredTexture;
-        if (endsWith(toLower(desiredTexture), ".pcx")) {
-            lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");
-        }
-        Any anySpec(Any::TABLE, "Material::Specification");
-        anySpec["lambertian"] = lamb;
-		materials[0] = Material::create(anySpec);
-	}
 	
-	// If there is a weapon.md2 file and that wasn't the file that was explicitly 
-	// requested, load it as well.  validWeapon is set when the primary file is
-	// loaded, above
-	if (validWeapon){
-		models.push(MD2Model::fromFile(resourceDir + "weapon.md2"));
-        materials.push(Material::createDiffuse(Color3::white()));
-	}
 
 	if (FileSystem::exists(resourceDir + "weapon.pcx") && validWeapon){
-        Any lamb(Any::TABLE, "Texture::Specification");
-        lamb["filename"] = resourceDir + "weapon.pcx";
-        lamb["preprocess"] = Any(Any::ARRAY, "Texture::PreProcess::quake");
-        Any anySpec(Any::TABLE, "Material::Specification");
-        anySpec["lambertian"] = lamb;
-        materials[1] = Material::create(anySpec);
+        desiredTexture2 = resourceDir + "weapon.pcx";
     }
 
-	textureName = filenameBaseExt(desiredTexture);
+    //the equivalent of tris.md2 is stored in filename
+	models.push(MD2Model::fromFile(filename, desiredTexture1));
+    if (validWeapon) {
+	    models.push(MD2Model::fromFile(resourceDir + "weapon.pcx", desiredTexture2));
+    }
+
+	textureName = filenameBaseExt(desiredTexture1);
 	numEdges = models[0]->edges().length();
 	numFaces = models[0]->faces().length();
 	numVertices = models[0]->vertices().length();
