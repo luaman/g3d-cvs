@@ -71,10 +71,20 @@ void png_warning(
 void GImage::encodePNG(
     BinaryOutput&           out) const {
 
-    debugAssert( m_channels == 1 || m_channels == 3 || m_channels == 4 );
+    if (! (m_channels == 1 || m_channels == 3 || m_channels == 4)) {
+        throw GImage::Error(format("Illegal channels for PNG: %d", m_channels), out.getFilename());
+    }
+    if (m_width <= 0) {
+        throw GImage::Error(format("Illegal width for PNG: %d", m_width), out.getFilename());
+    }
+    if (m_height <= 0) {
+        throw GImage::Error(format("Illegal height for PNG: %d", m_height), out.getFilename());
+    }
 
-    if (m_height > (int)(PNG_UINT_32_MAX / png_sizeof(png_bytep)))
+    // PNG library requires that the height * pointer size fit within an int
+    if (png_uint_32(m_height) * png_sizeof(png_bytep) > PNG_UINT_32_MAX) {
         throw GImage::Error("Unsupported PNG height.", out.getFilename());
+    }
 
     out.setEndian(G3D_LITTLE_ENDIAN);
 
