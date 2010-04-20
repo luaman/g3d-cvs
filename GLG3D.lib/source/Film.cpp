@@ -13,40 +13,46 @@
 
 namespace G3D {
 
-// TODO: on newer GPUs when not in bloom mode, use texelFetch when 
-
+/** 
+Prepend #version and #define BLOOM to alter the optimization strategy
+*/
 static const char* shaderCode = 
 STR(
-uniform sampler2D sourceTexture;
-uniform sampler2D bloomTexture;
-uniform float     bloomStrengthScaled;
+uniform sampler2D sourceTexture;\n
+#ifdef BLOOM\n
+    uniform sampler2D bloomTexture;\n
+    uniform float     bloomStrengthScaled;\n
+#endif\n
 uniform float     exposure;
 
 // 1.0 / monitorGamma.  Usually about invGamma = 0.5
 uniform float     invGamma;
 
 void main(void) {
- 
-    vec3 src   = texture2D(sourceTexture, gl_TexCoord[0].st).rgb;
-    vec3 bloom = texture2D(bloomTexture, gl_TexCoord[0].st).rgb;
+    // TODO: should this use glFragCoord instead of texCoord[0]?
+\n
+#   if __VERSION__ >= 150\n
+        vec3 src   = texelFetch(sourceTexture, ivec2(gl_TexCoord[0].st * g3d_sampler2DSize(sourceTexture)), 0).rgb;\n
+#   else\n
+        vec3 src   = texture2D(sourceTexture, gl_TexCoord[0].st).rgb;\n
+#   endif\n
 
-    // Parens are to force scalar multiplies over vector ones
-    // We multiply the bloomStrength by 5 to make a vector mul into a scalar mul.
-/*    src = src   * ((1.0 - bloomStrength) * exposure) + 
-          bloom * (5.0 * bloomStrength * exposure);
-          */
-    src = (src * exposure + bloom * bloomStrengthScaled);
+    src *= exposure;\n
+#   ifdef BLOOM\n
+        vec3 bloom = texture2D(bloomTexture,  gl_TexCoord[0].st).rgb;\n
+        src += bloom * bloomStrengthScaled;\n
+#   endif\n
 
     // Fix out-of-gamut saturation
     // Maximumum channel:
     float m = max(max(src.r, src.g), max(src.b, 1.0));
     // Normalized color
-    src /= m;
+    src *= (1.0 / m);
     // Fade towards white when the max is brighter than 1.0 (like a light saber core)
     src = mix(src, vec3(1.0), clamp((m - 1.0) * 0.2, 0.0, 1.0));
     
     // Invert the gamma curve
-    vec3 dst = pow(src, vec3(invGamma, invGamma, invGamma));
+    vec3 dst = pow(src, vec3(invGamma));
     
     gl_FragColor.rgb = dst;
 });
@@ -56,8 +62,12 @@ STR(
 uniform sampler2D sourceTexture;
 uniform float     exposure;
 
-void main(void) { 
-    vec3 src = texture2D(sourceTexture, gl_TexCoord[g3d_Index(sourceTexture)].st).rgb * exposure;
+void main(void) {\n
+#   if __VERSION__ >= 150\n
+        vec3 src = texelFetch(sourceTexture, ivec2(gl_TexCoord[g3d_Index(sourceTexture)].st * g3d_sampler2DSize(sourceTexture)), 0).rgb * exposure;\n
+#   else\n
+        vec3 src = texture2D(sourceTexture, gl_TexCoord[g3d_Index(sourceTexture)].st).rgb * exposure;\n
+#   endif\n
     float p  = max(max(src.r, src.g), src.b);
     gl_FragColor.rgb = src * smoothstep(1.0, 2.0, p);
 }
@@ -92,9 +102,12 @@ void Film::init() {
     m_shader = commonShader.createStrongPtr();
     m_preBloomShader = commonPreBloomShader.createStrongPtr();
     if (m_shader.isNull()) {
-        commonShader = m_shader = Shader::fromStrings("", shaderCode);
+
+        std::string version = "";//"#version 150 compatibility\n";
+
+        commonShader = m_shader = Shader::fromStrings("", version + "#define BLOOM\n" + std::string(shaderCode));
         m_shader->setPreserveState(false);
-        commonPreBloomShader = m_preBloomShader = Shader::fromStrings("", preBloomShaderCode);
+        commonPreBloomShader = m_preBloomShader = Shader::fromStrings("", version + preBloomShaderCode);
         m_preBloomShader->setPreserveState(false);
     }
 }

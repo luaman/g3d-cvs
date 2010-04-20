@@ -795,6 +795,7 @@ void GuiTheme::drawDelayedText() const {
 
                 thisFont->begin2DQuads(rd);
 
+                glBindTexture(GL_TEXTURE_2D, thisFont->texture()->openGLID());
                 glMatrixMode(GL_TEXTURE);
                 glLoadMatrix(thisFont->textureMatrix());
 
