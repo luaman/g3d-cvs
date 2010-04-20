@@ -385,15 +385,17 @@ void GApp::renderDebugInfo() {
         int pushCalls = renderDevice->stats().pushStates;
 
         renderDevice->push2D();
+            const static float size = 10;
+            if (showRenderingStats) {
+                renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+                Draw::fastRect2D(Rect2D::xywh(2, 2, renderDevice->width() - 4, size * 5.8 + 2), renderDevice, Color4(0, 0, 0, 0.3f));
+            }
+
             debugFont->begin2DQuads(renderDevice);
-            float size = 10;
             float x = 5;
             Vector2 pos(x, 5);
 
             if (showRenderingStats) {
-
-                renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-                Draw::fastRect2D(Rect2D::xywh(2, 2, renderDevice->width() - 4, size * 5.8 + 2), renderDevice, Color4(0, 0, 0, 0.3f));
 
                 Color3 statColor = Color3::yellow();
                 debugFont->begin2DQuads(renderDevice);
@@ -405,12 +407,12 @@ void GApp::renderDebugInfo() {
                     " (Optimized)";
 #               endif
 
-                debugFont->send2DQuads(renderDevice, renderDevice->getCardDescription() + "   " + System::version() + build, 
-                    pos, size, Color3::white());
+                static const std::string description = renderDevice->getCardDescription() + "   " + System::version() + build;
+                debugFont->send2DQuads(renderDevice, description, pos, size, Color3::white());
                 pos.y += size * 1.5f;
                 
                 float fps = renderDevice->stats().smoothFrameRate;
-                std::string s = format(
+                const std::string& s = format(
                     "% 4d fps (% 3d ms)  % 5.1fM tris  GL Calls: %d/%d Maj;  %d/%d Min;  %d push", 
                     iRound(fps),
                     iRound(1000.0f / fps),
@@ -445,7 +447,7 @@ void GApp::renderDebugInfo() {
                 u *= norm;
                 w *= norm;
 
-                std::string str = 
+                const std::string& str = 
                     format("Time:%3.0f%% Gfx,%3.0f%% Swap,%3.0f%% Sim,%3.0f%% AI,%3.0f%% Net,%3.0f%% UI,%3.0f%% idle", 
                         g, swapTime, s, L, n, u, w);
                 debugFont->send2DQuads(renderDevice, str, pos, size, statColor);
