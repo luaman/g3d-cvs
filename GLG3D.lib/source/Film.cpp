@@ -17,61 +17,58 @@ namespace G3D {
 Prepend #version and #define BLOOM to alter the optimization strategy
 */
 static const char* shaderCode = 
-STR(
-uniform sampler2D sourceTexture;\n
-#ifdef BLOOM\n
-    uniform sampler2D bloomTexture;\n
-    uniform float     bloomStrengthScaled;\n
-#endif\n
-uniform float     exposure;
-
-// 1.0 / monitorGamma.  Usually about invGamma = 0.5
-uniform float     invGamma;
-
-void main(void) {
-    // TODO: should this use glFragCoord instead of texCoord[0]?
-\n
-#   if __VERSION__ >= 150\n
-        vec3 src   = texelFetch(sourceTexture, ivec2(gl_TexCoord[0].st * g3d_sampler2DSize(sourceTexture)), 0).rgb;\n
-#   else\n
-        vec3 src   = texture2D(sourceTexture, gl_TexCoord[0].st).rgb;\n
-#   endif\n
-
-    src *= exposure;\n
-#   ifdef BLOOM\n
-        vec3 bloom = texture2D(bloomTexture,  gl_TexCoord[0].st).rgb;\n
-        src += bloom * bloomStrengthScaled;\n
-#   endif\n
-
-    // Fix out-of-gamut saturation
-    // Maximumum channel:
-    float m = max(max(src.r, src.g), max(src.b, 1.0));
-    // Normalized color
-    src *= (1.0 / m);
-    // Fade towards white when the max is brighter than 1.0 (like a light saber core)
-    src = mix(src, vec3(1.0), clamp((m - 1.0) * 0.2, 0.0, 1.0));
-    
-    // Invert the gamma curve
-    vec3 dst = pow(src, vec3(invGamma));
-    
-    gl_FragColor.rgb = dst;
-});
+"uniform sampler2D sourceTexture;\n\
+#ifdef BLOOM\n\
+    uniform sampler2D bloomTexture;\n\
+    uniform float     bloomStrengthScaled;\n\
+#endif\n\
+uniform float     exposure;\
+\
+/* 1.0 / monitorGamma.  Usually about invGamma = 0.5*/\
+uniform float     invGamma;\
+\
+void main(void) {\
+    /* TODO: should this use glFragCoord instead of texCoord[0]?*/\
+\n\
+#   if __VERSION__ >= 150\n\
+        vec3 src   = texelFetch(sourceTexture, ivec2(gl_TexCoord[0].st * g3d_sampler2DSize(sourceTexture)), 0).rgb;\n\
+#   else\n\
+        vec3 src   = texture2D(sourceTexture, gl_TexCoord[0].st).rgb;\n\
+#   endif\n\
+\
+    src *= exposure;\n\
+#   ifdef BLOOM\n\
+        vec3 bloom = texture2D(bloomTexture,  gl_TexCoord[0].st).rgb;\n\
+        src += bloom * bloomStrengthScaled;\n\
+#   endif\n\
+\
+    /* Fix out-of-gamut saturation*/\
+    /* Maximumum channel:*/\
+    float m = max(max(src.r, src.g), max(src.b, 1.0));\
+    /* Normalized color*/\
+    src *= (1.0 / m);\
+    /* Fade towards white when the max is brighter than 1.0 (like a light saber core)*/\
+    src = mix(src, vec3(1.0), clamp((m - 1.0) * 0.2, 0.0, 1.0));\
+    \
+    /* Invert the gamma curve */\
+    vec3 dst = pow(src, vec3(invGamma));\
+    \
+    gl_FragColor.rgb = dst;\
+}";
 
 static const char* preBloomShaderCode = 
-STR(
-uniform sampler2D sourceTexture;
-uniform float     exposure;
-
-void main(void) {\n
-#   if __VERSION__ >= 150\n
-        vec3 src = texelFetch(sourceTexture, ivec2(gl_TexCoord[g3d_Index(sourceTexture)].st * g3d_sampler2DSize(sourceTexture)), 0).rgb * exposure;\n
-#   else\n
-        vec3 src = texture2D(sourceTexture, gl_TexCoord[g3d_Index(sourceTexture)].st).rgb * exposure;\n
-#   endif\n
-    float p  = max(max(src.r, src.g), src.b);
-    gl_FragColor.rgb = src * smoothstep(1.0, 2.0, p);
-}
-);
+"uniform sampler2D sourceTexture;\
+uniform float     exposure;\
+\
+void main(void) {\n\
+#   if __VERSION__ >= 150\n\
+        vec3 src = texelFetch(sourceTexture, ivec2(gl_TexCoord[g3d_Index(sourceTexture)].st * g3d_sampler2DSize(sourceTexture)), 0).rgb * exposure;\n\
+#   else\n\
+        vec3 src = texture2D(sourceTexture, gl_TexCoord[g3d_Index(sourceTexture)].st).rgb * exposure;\n\
+#   endif\n\
+    float p  = max(max(src.r, src.g), src.b);\
+    gl_FragColor.rgb = src * smoothstep(1.0, 2.0, p);\
+}";
 
 Film::Film(const ImageFormat* f) :
     m_intermediateFormat(f),
