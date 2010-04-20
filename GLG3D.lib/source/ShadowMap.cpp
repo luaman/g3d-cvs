@@ -42,7 +42,7 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
     debugAssert(target == GL_TEXTURE_2D);
 
     // Save old texture
-    GLenum oldID = glGetInteger(GL_TEXTURE_BINDING_2D);
+    glPushAttrib(GL_TEXTURE_BIT);
 
     // Bind this texture
     glBindTexture(target, m_depthTexture->openGLID());
@@ -66,7 +66,7 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
     }
     
     // Unbind the texture, restoring whatever was there
-    glBindTexture(target, oldID);
+    glPopAttrib();
 }
 
 

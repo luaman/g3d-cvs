@@ -67,19 +67,27 @@ static Table<const ImageFormat*, bool>& _supportedRenderBufferFormat() {
 Set<std::string> GLCaps::extensionSet;
 
 GLCaps::Vendor GLCaps::computeVendor() {
-    std::string s = vendor();
-    std::string _glVersion = (char*)glGetString(GL_VERSION);
+    static bool initialized = false;
+    static Vendor v;
 
-    if (s == "ATI Technologies Inc.") {
-        return ATI;
-    } else if (s == "NVIDIA Corporation") {
-        return NVIDIA;
-    } else if ((s == "Brian Paul") || (s == "Mesa project: www.mesa3d.org") || 
-               (_glVersion.find("Mesa ") != std::string::npos)) {
-        return MESA;
-    } else {
-        return ARB;
+    if (! initialized) {
+        std::string s = vendor();
+        std::string _glVersion = (char*)glGetString(GL_VERSION);
+
+        if (s == "ATI Technologies Inc.") {
+            v = ATI;
+        } else if (s == "NVIDIA Corporation") {
+            v = NVIDIA;
+        } else if ((s == "Brian Paul") || (s == "Mesa project: www.mesa3d.org") || 
+                   (_glVersion.find("Mesa ") != std::string::npos)) {
+            v = MESA;
+        } else {
+            v = ARB;
+        }
+        initialized = true;
     }
+
+    return v;
 }
 
 GLCaps::Vendor GLCaps::enumVendor() {

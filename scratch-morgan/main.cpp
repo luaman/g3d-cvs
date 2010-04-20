@@ -92,13 +92,13 @@ void drawRect(const Rect2D& rect, RenderDevice* rd) {
 static bool half = false;
 void App::onInit() {
 
-    showRenderingStats = false;
+    showRenderingStats = true;
     developerWindow->cameraControlWindow->setVisible(false);
-    developerWindow->setVisible(false);
+    developerWindow->setVisible(true);
     debugWindow->setVisible(false);
     debugWindow->moveTo(Vector2(0, 300));
 
-    setDesiredFrameRate(60);
+    setDesiredFrameRate(10000);
 
     if (false) {
         model = ArticulatedModel::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3/maps/charon3dm11v2.bsp");
@@ -142,12 +142,9 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
+
     (void)surface;
     if (m_scene.notNull()) {
-        if (half) {
-            rd->setViewport(Rect2D::xywh(rd->width() / 4,0,rd->width() / 2, rd->height()));
-            rd->setProjectionAndCameraMatrix(defaultCamera);
-        }
 
         Draw::skyBox(rd, m_scene->skyBox());
 
@@ -160,8 +157,8 @@ void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
             Draw::physicsFrameSpline(m_spline, rd);
         */
         Surface::sortAndRender(rd, defaultCamera, surface, m_scene->lighting(), m_shadowMap);
-        Draw::lighting(m_scene->lighting(), rd);
-
+ //       Draw::lighting(m_scene->lighting(), rd);
+/*
         rd->setLineWidth(5);
         rd->beginPrimitive(PrimitiveType::LINES);
             Vector3 c(0,2,0);
@@ -190,6 +187,7 @@ void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
             rd->sendVertex(c);
             rd->sendVertex(c - Vector3(-k,0.5,0)*5);
         rd->endPrimitive();
+        */
     } else {
         rd->push2D();
         rd->setColor(Color3::white());
@@ -204,7 +202,6 @@ void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
 
 
 void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
-
     Surface2D::sortAndRender(rd, posed2D);
 }
 
@@ -251,7 +248,6 @@ int main(int argc, char** argv) {
     (void)argc;
     (void)argv;
 
-
     //GFont::makeFont(256, "c:/font/arial2");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
     //b.writeInt32(1);
@@ -269,8 +265,8 @@ int main(int argc, char** argv) {
     } 
  
     GApp::Settings set;
-    set.film.enabled = false;
-    set.window.msaaSamples = 4;
+    set.film.enabled = true;
+    set.window.msaaSamples = 0;
     set.window.stencilBits = 0;
     set.window.resizable = true;
     return App(set).run();

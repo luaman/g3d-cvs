@@ -235,7 +235,6 @@ void Surface::sortAndRender
         visible[m]->renderNonShadowed(rd, lighting);
     }
     SuperSurface::renderNonShadowed(super, rd, lighting);
-
     // Additively blend the additional passes
     rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
     // Opaque shadowed
@@ -270,7 +269,6 @@ void Surface::sortAndRender
     // Transparent, must be rendered from back to front
     renderTranslucent(rd, translucent, lighting, extraAdditivePasses, 
                        shadowMaps, RefractionQuality::BEST, alphaMode);
-
     super.fastClear();
     translucent.fastClear();
     visible.fastClear();

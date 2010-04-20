@@ -1,8 +1,5 @@
-// You can extend this sample scene file format with your own fields.
-// Edit the scene parsing in Scene.cpp.
-{
-    name = "Crates",
-   
+
+   /*
     models = {
         knightModel = MD2Model::Specification {
             filename = "pknight/tris.md2",
@@ -11,15 +8,60 @@
             weaponMaterial = "pknight/weapon.pcx",
         }       
     },
+    */
+    
+    
+// -*- c++ -*-
+// You can extend this sample scene file format with your own fields.
+// Edit the scene parsing in Scene.cpp.
+{
+    name = "Crates",
+   
+    models = {
+       ship = #include("3ds/spaceFighter01/spaceFighter01.am.any"),
+       
+       groundModel = ArticulatedModel::Specification {
+            filename = "ifs/squarex8.ifs",
+            preprocess = ArticulatedModel::Preprocess {
+                xform = Matrix4(12, 0, 0,  0,
+                                0,  0,12, 0,
+                                0,-12, 0,  0,
+                                0,  0, 0,  1),
+
+                materialOverride = Material::Specification {
+                    lambertian   = "material/asphalt/asphalt-L.png",
+                    specular     = "material/asphalt/asphalt-G.png",
+                    shininess    = glossyExponent(20),
+                    bump         = "material/asphalt/asphalt-L.png",
+                }
+
+            }
+       },
+        
+       crateModel = ArticulatedModel::Specification {            
+            filename = "ifs/crate.ifs",
+            preprocess = ArticulatedModel::Preprocess {
+                // You can #include a material file, or simply put all of the
+                // options here as was done for groundModel.  #include can be
+                // used to replace any Any value, including a whole 
+                // ArticulatedModel::Specification.
+                materialOverride = #include("material/metalcrate/metalcrate.mat.any")              
+            }
+       },
+       
+       
+    },
     
     lighting = Lighting::Specification {
         ambientTop    = Color3::fromARGB(0x303842),
         ambientBottom = Color3::fromARGB(0x262627),
 
         lightArray = (
-            GLight::directional(Vector3(1,0.5f,1), Color3(1,1,1))
+            GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d))
         ),
+        
         shadowedLightArray = (
+            GLight::directional(Vector3(1, 2, 1), Color3::fromARGB(0xfcf6eb))
         ),
 
         environmentMap = Texture::Specification {
@@ -36,8 +78,34 @@
         // two (optional) arguments: a position spline (which can be a single position), and a 
         // pose spline (which can be a single pose).
         
-        c0 = knightModel(CFrame::fromXYZYPRDegrees(0,0,0,180)),
+        c0 = crateModel(Vector3(1.0, 0.5, 0.0)),
+
         
+        c1 = crateModel(CFrame::fromXYZYPRDegrees(0.6f, 0.5f, -1.8f, 30.0f)),
+        s0 = ship(PhysicsFrameSpline {
+           control = (
+               CFrame::fromXYZYPRDegrees(  -1.1f,  8.1f, -12.3f,  181.8f, -55.6f,   0.0f),
+               CFrame::fromXYZYPRDegrees(  0.5f,   4.6f,  -7.0f,  184.7f, -53.3f,   0.0f),
+               
+               // Hover:
+               CFrame::fromXYZYPRDegrees(  0.6f,   2.5f,  -2.0f,  175.5f,  -6.9f,   2.0f),
+               CFrame::fromXYZYPRDegrees(  0.6f,   2.5f,  -2.0f,  175.5f,  -6.9f,   -2.0f),
+
+               // Turn:
+               CFrame::fromXYZYPRDegrees(  0.6f,   2.5f,  -2.0f,  175.5f,  -6.9f,   0.0f),
+               
+               // Fly off
+               CFrame::fromXYZYPRDegrees( -0.6f,   2.5f,  -2.0f,  137.1f,  -1.7f,   0.0f),
+               CFrame::fromXYZYPRDegrees( -1.2f,   5.3f,   0.0f,  95.9f,   6.9f,   -45.0f),
+               CFrame::fromXYZYPRDegrees( -2.2f,   6.7f,  -14.9f,  343.0f,   9.7f,   0.0f),
+               CFrame::fromXYZYPRDegrees( -3.0f,   8.3f, -16.1f,  270.8f,   5.2f,  10.0f)               
+           ),
+           time = (0,3,4,6,8,10,12,14,16),
+           cyclic = true
+           }),
+        
+        ground = groundModel(CFrame::fromXYZYPRDegrees(0, -0.01, 0, 45))
+       
     },
     
     camera = GCamera {

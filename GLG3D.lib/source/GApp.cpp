@@ -559,7 +559,6 @@ void GApp::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surfac
     // Clear the entire screen (needed even though we'll render over it because
     // AFR uses clear() to detect that the buffer is not re-used.)
     rd->clear();
-
     if (m_useFilm) {
         // Clear the frameBuffer
         rd->pushState(m_frameBuffer);
