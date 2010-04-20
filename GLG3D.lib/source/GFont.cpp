@@ -271,7 +271,7 @@ Vector2 GFont::computePackedArray(
 }
 
 
-void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
+void GFont::begin2DQuads(RenderDevice* renderDevice) const {
 
     renderDevice->setTextureMatrix(0, m_textureMatrix);
     renderDevice->setTexture(0, m_texture);
@@ -285,6 +285,9 @@ void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
     renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1.0f / 255.0f);
 }
 
+void GFont::end2DQuads(RenderDevice* renderDevice) const {
+    // TODO
+}
 
 // Used for vertex array storage
 static Array<Vector2> array;
@@ -415,8 +418,9 @@ Vector2 GFont::draw2D(
     renderDevice->pushState();
         renderDevice->disableLighting();
 
-        configureRenderDevice(renderDevice);
+        begin2DQuads(renderDevice);
         bounds = send2DQuads(renderDevice, s, pos2D, size, color, border, xalign, yalign, spacing);
+        end2DQuads(renderDevice);
     renderDevice->popState();
     debugAssertGLOk();
 
@@ -501,7 +505,16 @@ Vector2 GFont::draw3D(
         flipY.rotation[1][1] = -1;
         renderDevice->setObjectToWorldMatrix(pos3D * flipY);
 
-        configureRenderDevice(renderDevice);
+        renderDevice->setTextureMatrix(0, m_textureMatrix);
+        renderDevice->setTexture(0, m_texture);
+        
+        renderDevice->setTextureCombineMode(0, RenderDevice::TEX_MODULATE);
+            
+        // This is BLEND_SRC_ALPHA because the texture has no luminance, only alpha
+        renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA,
+                                   RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+
+        renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1.0f / 255.0f);
         renderDevice->setCullFace(RenderDevice::CULL_NONE);
         renderDevice->setDepthTest(RenderDevice::DEPTH_LEQUAL);
 

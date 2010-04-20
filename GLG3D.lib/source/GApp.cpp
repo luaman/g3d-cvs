@@ -376,7 +376,7 @@ void GApp::onRun() {
 
 
 void GApp::renderDebugInfo() {
-    if (debugFont.notNull()) {
+    if (debugFont.notNull() && (showRenderingStats || (showDebugText && (debugText.length() > 0)))) {
         // Capture these values before we render debug output
         int majGL  = renderDevice->stats().majorOpenGLStateChanges;
         int majAll = renderDevice->stats().majorStateChanges;
@@ -385,6 +385,7 @@ void GApp::renderDebugInfo() {
         int pushCalls = renderDevice->stats().pushStates;
 
         renderDevice->push2D();
+            debugFont->begin2DQuads(renderDevice);
             float size = 10;
             float x = 5;
             Vector2 pos(x, 5);
@@ -395,7 +396,7 @@ void GApp::renderDebugInfo() {
                 Draw::fastRect2D(Rect2D::xywh(2, 2, renderDevice->width() - 4, size * 5.8 + 2), renderDevice, Color4(0, 0, 0, 0.3f));
 
                 Color3 statColor = Color3::yellow();
-                debugFont->configureRenderDevice(renderDevice);
+                debugFont->begin2DQuads(renderDevice);
 
                 const char* build = 
 #               ifdef G3D_DEBUG
@@ -410,11 +411,11 @@ void GApp::renderDebugInfo() {
                 
                 float fps = renderDevice->stats().smoothFrameRate;
                 std::string s = format(
-                    "% 4d fps (% 3d ms)  % 5.1fM tris  % 6.2fM tris/s   GL Calls: %d/%d Maj;  %d/%d Min;  %d push", 
+                    "% 4d fps (% 3d ms)  % 5.1fM tris  GL Calls: %d/%d Maj;  %d/%d Min;  %d push", 
                     iRound(fps),
                     iRound(1000.0f / fps),
                     iRound(renderDevice->stats().smoothTriangles / 1e5) * 0.1f,
-                    iRound(renderDevice->stats().smoothTriangleRate / 1e4) * 0.01f,
+                    /*iRound(renderDevice->stats().smoothTriangleRate / 1e4) * 0.01f,*/
                     majGL, majAll, minGL, minAll, pushCalls);
                 debugFont->send2DQuads(renderDevice, s, pos, size, statColor);
 
@@ -489,8 +490,6 @@ void GApp::renderDebugInfo() {
                 pos.x = x;
                 pos.y += size;
 
-            } else if (debugText.length() > 0) {
-                debugFont->configureRenderDevice(renderDevice);
             }
 
             m_debugTextMutex.lock();
@@ -499,7 +498,7 @@ void GApp::renderDebugInfo() {
                 pos.y += size * 1.5;
             }
             m_debugTextMutex.unlock();
-
+            debugFont->end2DQuads(renderDevice);
         renderDevice->pop2D();
     }
 }
@@ -728,7 +727,7 @@ void GApp::oneFrame() {
     // Graphics
     renderDevice->beginFrame();
     m_graphicsWatch.tick();
-    {
+    { //TODO: SLX
         debugAssertGLOk();
         {
             debugAssertGLOk();
@@ -740,6 +739,7 @@ void GApp::oneFrame() {
             renderDebugInfo();
         }
     }
+     //       renderDebugInfo();
     m_graphicsWatch.tock();
     if (m_activeVideoRecordDialog) {
         m_activeVideoRecordDialog->maybeRecord(renderDevice);        

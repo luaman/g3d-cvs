@@ -73,10 +73,10 @@ private:
     Vector2 drawString(
         class RenderDevice*     renderDevice,
         const std::string&      s,
-        float                  x,
-        float                  y,
-        float                  w,
-        float                  h,
+        float                   x,
+        float                   y,
+        float                   w,
+        float                   h,
         Spacing                 spacing) const;
 
     /** Packs vertices for rendering the string
@@ -217,6 +217,9 @@ public:
      in back to front sorted order to achieve proper alpha blending.
 
      @param size In meters of the height of a line of text.
+
+     This doesn't follow the same optimized rendering path as draw2D and is intended
+     mainly for debugging.
      */
     Vector2 draw3D(
         RenderDevice*               renderDevice,
@@ -263,17 +266,19 @@ public:
        call:
 
        <pre>
-       rd->push2D();
-          font->configureRenderDevice(rd);
+       rd->pushState();
+          font->begin2DQuads(rd);
           for (...) {
              font->send2DQuads(...);
           }
-       rd->pop2D();
+          font->end2DQuads(rd);
+       rd->popState();
        </pre>
 
        This amortizes the cost of the font setup across multiple calls.
      */
-    void configureRenderDevice(RenderDevice* rd) const;
+    void begin2DQuads(RenderDevice* rd) const;
+    void end2DQuads(RenderDevice* rd) const;
 
     /** For high-performance rendering of substantial amounts of text. */
     Vector2 send2DQuads(

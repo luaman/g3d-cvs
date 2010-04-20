@@ -142,7 +142,6 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
-
     (void)surface;
     if (m_scene.notNull()) {
 

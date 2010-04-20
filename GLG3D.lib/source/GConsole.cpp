@@ -737,7 +737,7 @@ void GConsole::render(RenderDevice* rd) {
             rd->endPrimitive();
         }
         
-        m_font->configureRenderDevice(rd);
+        m_font->begin2DQuads(rd);
         // Show PGUP/PGDN commands
         if (m_buffer.size() >= m_settings.numVisibleLines) {
             m_font->send2DQuads(rd, "pgup ^", rect.x1y0() - Vector2(2, 0), fontSize * 0.75, Color4(1,1,1,0.7f), Color4::clear(), GFont::XALIGN_RIGHT, GFont::YALIGN_TOP);
@@ -767,6 +767,7 @@ void GConsole::render(RenderDevice* rd) {
 
             m_font->send2DQuads(rd, "_", rect.x0y1() + Vector2(bounds.x, -m_settings.lineHeight), fontSize, m_settings.defaultCommandColor);
         }
+        m_font->end2DQuads(rd);
 
     rd->pop2D();
 }
