@@ -729,7 +729,7 @@ void GApp::oneFrame() {
     // Graphics
     renderDevice->beginFrame();
     m_graphicsWatch.tick();
-    { //TODO: SLX
+    {
         debugAssertGLOk();
         {
             debugAssertGLOk();
@@ -741,7 +741,6 @@ void GApp::oneFrame() {
             renderDebugInfo();
         }
     }
-     //       renderDebugInfo();
     m_graphicsWatch.tock();
     if (m_activeVideoRecordDialog) {
         m_activeVideoRecordDialog->maybeRecord(renderDevice);        

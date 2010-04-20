@@ -47,7 +47,7 @@ static GLenum primitiveToGLenum(RenderDevice::Primitive primitive) {
 }
 
 
-std::string RenderDevice::getCardDescription() const {
+const std::string& RenderDevice::getCardDescription() const {
     return cardDescription;
 }
 

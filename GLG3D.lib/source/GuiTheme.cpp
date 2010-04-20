@@ -779,7 +779,7 @@ void GuiTheme::drawDelayedText() const {
 
     // Only clean out old fonts periodically to avoid frequent
     // memory allocation costs.
-    bool cleanOldFonts = iRandom(0, 100) == 0;
+    bool cleanOldFonts = iRandom(0, 10000) == 0;
     
     beginText();
     {
@@ -792,7 +792,9 @@ void GuiTheme::drawDelayedText() const {
             
             if (label.size() > 0) {
                 // Load this font
-                glBindTexture(GL_TEXTURE_2D, thisFont->texture()->openGLID());
+
+                thisFont->begin2DQuads(rd);
+
                 glMatrixMode(GL_TEXTURE);
                 glLoadMatrix(thisFont->textureMatrix());
 
@@ -802,7 +804,8 @@ void GuiTheme::drawDelayedText() const {
                     thisFont->send2DQuads(rd, text.text, text.position, text.size, text.color, 
                                           text.outlineColor, text.xAlign, text.yAlign);
                 }
-                
+                thisFont->end2DQuads(rd);
+
                 // Fast clear to avoid memory allocation and deallocation
                 const_cast<Array<Text>&>(label).fastClear();
                 

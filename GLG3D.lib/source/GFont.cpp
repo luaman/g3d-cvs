@@ -283,11 +283,24 @@ void GFont::begin2DQuads(RenderDevice* renderDevice) const {
                                RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
 
     renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1.0f / 255.0f);
+
+    renderDevice->beforePrimitive();
+    if (GLCaps::supports_GL_ARB_multitexture()) {
+        glActiveTextureARB(GL_TEXTURE0_ARB);
+    }
+
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
 }
 
+
 void GFont::end2DQuads(RenderDevice* renderDevice) const {
-    // TODO
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    renderDevice->afterPrimitive();
 }
+
 
 // Used for vertex array storage
 static Array<Vector2> array;
@@ -357,14 +370,7 @@ Vector2 GFont::send2DQuads(
     
     int N = numChars * 4;
     
-    renderDevice->beforePrimitive();
-    if (GLCaps::supports_GL_ARB_multitexture()) {
-        glActiveTextureARB(GL_TEXTURE0_ARB);
-    }
 
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    
     // 2 coordinates per element, float elements, stride (for interlacing), count, pointer
     glTexCoordPointer(2, GL_FLOAT, sizeof(Vector2) * 2, &array[0]);
     glVertexPointer(2, GL_FLOAT, sizeof(Vector2) * 2, &array[1]);
@@ -390,12 +396,6 @@ Vector2 GFont::send2DQuads(
     // Draw foreground
     renderDevice->setColor(color);
     glDrawArrays(GL_QUADS, 0, N);
-    
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-    renderDevice->afterPrimitive();
-
     debugAssertGLOk();
 
     return bounds;

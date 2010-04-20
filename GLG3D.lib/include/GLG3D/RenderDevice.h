@@ -1359,7 +1359,7 @@ public:
     /**
      Description of the graphics card and driver version.
      */
-    std::string getCardDescription() const;
+    const std::string& getCardDescription() const;
 
 
     /** When enabled and lighting is enabled, shades backfaces with reversed normals.

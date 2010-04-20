@@ -94,7 +94,7 @@ void App::onInit() {
 
     showRenderingStats = true;
     developerWindow->cameraControlWindow->setVisible(false);
-    developerWindow->setVisible(true);
+    developerWindow->setVisible(false);
     debugWindow->setVisible(false);
     debugWindow->moveTo(Vector2(0, 300));
 
