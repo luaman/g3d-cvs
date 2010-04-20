@@ -166,6 +166,7 @@ int ArticulatedModel::partIndex(const PartID& id) const {
                 return i;
             }
         }
+        debugAssertM(false, "No part named " + id.m_name);
     }
     return -1;
 }

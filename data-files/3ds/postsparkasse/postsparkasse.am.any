@@ -1,0 +1,79 @@
+// The "kassa" room of the Postsparkasse/Postal Savings Bank, by architect Otto Wagner in Austria
+// Model by Christian Bauer
+// See http://hdri.cgtechniques.com/~postspar/show_list.php?free=10
+ArticulatedModel::Specification {
+    filename = "postsparkasse.3DS",
+    preprocess = ArticulatedModel::Preprocess {
+        xform = Matrix4::scale(1),
+        stripMaterials = false,
+        program = (
+
+            
+            setCFrame("fenster 1o", CFrame::fromXYZYPRDegrees(-2.3,29.05,-2,0,-90));
+            setCFrame("fenster 10", CFrame::fromXYZYPRDegrees(-2.5,29.05,26,0,90));
+
+            setCFrame("wall east", CFrame::fromXYZYPRDegrees(-12,3.9,-16.45,90,0,-90));
+
+            setCFrame("wall west", CFrame::fromXYZYPRDegrees(14,3.9,-2.97,90,0,-90));
+
+            setCFrame("rahmen06", CFrame::fromXYZYPRDegrees(-2.35,10.515,3.15,0,90));
+
+            transform("glas", Matrix4::translation(0.15, 0, 0));
+
+            setMaterial(("wall east", "wall west", "wall entry", "wall entr0", "wall north"),
+                Material::Specification {
+                    lambertian = Color3(0.95, 0.95, 0.95)
+                });
+
+            setMaterial(("Kasse_glas","Kasse_gla0","Kasse_gla1","Kasse_gla2","Kasse_gla3","Kasse_gla4",
+                         "Kasse_gla5","Kasse_gla6","Kasse_gla7","Kasse_gla8","Kasse_gla9","Kasse_gl10",
+                         "glas02", "glas", 
+                         "kassa_glas", "kassa_gla0", "kassa_gla1", "kassa_gla2", "kassa_gla3", "kassa_gla4", "kassa_gla5",
+                         "glas_einga", "glas_eing0", "glas_eing1", "glas_eing5", "glas_eing2", "glas_eing4", "glas_eing3"),
+                Material::Specification {
+                    lambertian = Color3(0, 0, 0),
+                    specular = Color3(0.1, 0.1, 0.1),
+                    shininess = glossyExponent(200),
+                    transmissive = Color3(0.8, 0.8, 0.8)
+                });
+
+            setMaterial("floor_full", Material::Specification {
+                lambertian = "floor.JPG",
+                specular = Color3(0.01, 0.01, 0.01),
+                shininess = glossyExponent(100)
+            });
+
+            setMaterial("floor", Material::Specification {
+                lambertian = "floor-glass-lambertian.png",
+                specular = "floor-glass-specular.png",
+                shininess = glossyExponent(100),
+                transmissive = "floor-glass-transmit.png",
+                etaTransmit = 1.0
+            });
+
+            setMaterial("Glasceilin", Material::Specification {
+                lambertian = Color3(0, 0, 0),
+                specular = Color3(0.1, 0.1, 0.1),
+                shininess = glossyExponent(200),
+                transmissive = Color3::fromARGB(0xc7dbda)
+            });
+            // The ceiling has explicit doubled geometry
+            setTwoSided("Glasceilin", false);
+
+            setMaterial("glas roof ", Material::Specification {
+                lambertian = Color3(0, 0, 0),
+                specular = Color3(0.1, 0.1, 0.1),
+                shininess = glossyExponent(200),
+                transmissive = Color3(0.8, 0.8, 0.8)
+            });
+
+            setMaterial("rooms",  Material::Specification {
+                lambertian = Color3::fromARGB(0xda9106),
+            });
+
+            // The ceiling has explicit doubled geometry
+            setTwoSided("glas roof ", false);
+
+        )
+    }
+}

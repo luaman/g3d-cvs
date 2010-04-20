@@ -22,5 +22,7 @@ void EmptyViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& ligh
 	screenPrintf("No valid item to view currently\n");
 	screenPrintf("Drag and drop an item to view it in 3D\n");
 	screenPrintf("\n");
-	screenPrintf("Supported files: ICO, JPG, BMP, PCX, DDS, TGA, PPM, PNG, GIF, PK3, MD2, BSP, FNT, 3DS, IFS, SKN");
+	screenPrintf("Image Formats: ico, jpg, bmp, pcx, dds, tga, ppm, png, gif");
+	screenPrintf("3D Formats:    pk3, md2, md3, bsp, 3ds, ifs, am.any");
+    screenPrintf("GUI Formats:   fnt, skn");
 }

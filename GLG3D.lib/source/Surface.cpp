@@ -721,7 +721,6 @@ void Surface::renderTranslucent
             // Actually opaque
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
         }
-
         static Array<Surface::Ref> oneSurface(NULL);
         if (gmodel.notNull() && ! model->hasTransmission()) {
             if (! inSuperSurfaceAlphaMode) {
@@ -744,7 +743,6 @@ void Surface::renderTranslucent
             // Add lights, or black
             model->renderNonShadowed(rd, lighting);
         }
-
 
         // Add shadowed lights
         if ((alphaMode == ALPHA_BLEND) && model->hasPartialCoverage()) {

@@ -264,7 +264,7 @@ int main(int argc, char** argv) {
     } 
  
     GApp::Settings set;
-    set.film.enabled = true;
+    set.film.enabled = false;
     set.window.msaaSamples = 0;
     set.window.stencilBits = 0;
     set.window.resizable = true;
