@@ -98,6 +98,8 @@ private:
     /** True when checkAllBugs has been called. */
     static bool         m_checkedForBugs;
 
+    static float        m_glslVersion;
+
     static int          m_numTextureCoords;
     static int          m_numTextures;
     static int          m_numTextureUnits;
@@ -204,6 +206,11 @@ public:
     static const std::string& glVersion();
 
     static const std::string& driverVersion();
+
+    /** e.g., 1.50 or 4.00 */
+    static const float glslVersion() {
+        return m_glslVersion;
+    }
 
     static const std::string& vendor();
 

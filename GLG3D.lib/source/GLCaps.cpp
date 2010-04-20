@@ -42,6 +42,8 @@ bool GLCaps::bug_slowVBO = false;
 int GLCaps::m_maxTextureSize = 0;
 int GLCaps::m_maxCubeMapSize = 0;
 
+float GLCaps::m_glslVersion = 0.0f;
+
 /**
  Dummy function to which unloaded extensions can be set.
  */
@@ -222,6 +224,13 @@ std::string GLCaps::getDriverVersion() {
 
 void GLCaps::init() {
     loadExtensions(Log::common());
+
+    if (glGetString(GL_SHADING_LANGUAGE_VERSION)) { 
+        const char* s = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+		sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%f", &m_glslVersion);
+    } else {
+        m_glslVersion = 0;
+    }
 
     checkAllBugs();
     glClearColor(1,1,1,1);
@@ -907,8 +916,7 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
     int sminor = 0;
 
 	bool hasGLSL330 = false;
-	if (glGetString(GL_SHADING_LANGUAGE_VERSION))
-	{
+    if (glGetString(GL_SHADING_LANGUAGE_VERSION)) { 
 		sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%d.%d", &smajor, &sminor);
 		hasGLSL330 = ((smajor > 3) || (smajor == 3 && sminor >= 30));
 	}

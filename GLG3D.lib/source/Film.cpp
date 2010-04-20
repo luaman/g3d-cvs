@@ -103,7 +103,7 @@ void Film::init() {
     m_preBloomShader = commonPreBloomShader.createStrongPtr();
     if (m_shader.isNull()) {
 
-        std::string version = "";//"#version 150 compatibility\n";
+        const std::string& version = (GLCaps::glslVersion() >= 1.50) ? "#version 150 compatibility\n" : "";
 
         commonShader = m_shader = Shader::fromStrings("", version + "#define BLOOM\n" + std::string(shaderCode));
         m_shader->setPreserveState(false);
