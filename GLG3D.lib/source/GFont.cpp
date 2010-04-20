@@ -349,9 +349,6 @@ Vector2 GFont::send2DQuads(
     // Packed vertex array; tex coord and vertex are interlaced
     // For each character we need 4 vertices.
     
-    // MSVC 6 cannot use static allocation with a variable size argument
-    // so we revert to the more compiler specific alloca call. Gcc does not
-    // implement array[variable] well, so we use this everywhere.
     array.resize(numChars * 4 * 2, DONT_SHRINK_UNDERLYING_ARRAY);
     const Vector2 bounds = computePackedArray(s, x, y, w, h, spacing, array);
     
@@ -414,109 +411,16 @@ Vector2 GFont::draw2D(
 
     debugAssert(renderDevice != NULL);
 
-    float x = pos2D.x;
-    float y = pos2D.y;
-
-    float h = size * 1.5f;
-    float w = h * charWidth / charHeight;
-
-    switch (xalign) {
-    case XALIGN_RIGHT:
-        x -= bounds(s, size, spacing).x;
-        break;
-
-    case XALIGN_CENTER:
-        x -= bounds(s, size, spacing).x / 2;
-        break;
-    
-    default:
-        break;
-    }
-
-    switch (yalign) {
-    case YALIGN_CENTER:
-        y -= h / 2.0;
-        break;
-
-    case YALIGN_BASELINE:
-        y -= baseline * h / (float)charHeight;
-        break;
-
-    case YALIGN_BOTTOM:
-        y -= h;
-        break;
-
-    default:
-        break;
-    }
-
+    Vector2 bounds;
     renderDevice->pushState();
         renderDevice->disableLighting();
 
         configureRenderDevice(renderDevice);
-
-        if (GLCaps::supports_GL_ARB_multitexture()) {
-            glActiveTextureARB(GL_TEXTURE0_ARB);
-        }
-
-
-        int numChars = 0;
-        for (unsigned int i = 0; i < s.length(); ++i) {
-            numChars += ((s[i] & (charsetSize - 1)) != ' ') ? 1 : 0;
-        }
-        if (numChars == 0) {
-            renderDevice->popState();
-            return Vector2(0, h);
-        }
-
-        // Packed vertex array; tex coord and vertex are interlaced.
-        // For each character we need 4 vertices.
-        array.resize(numChars * 4 * 2, DONT_SHRINK_UNDERLYING_ARRAY);
-
-        const Vector2 b = computePackedArray(s, x, y, w, h, spacing, array);
-
-        int N = numChars * 4;
-
-        renderDevice->beforePrimitive();
-
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_VERTEX_ARRAY);
-
-        // 2 coordinates per element, float elements, stride (for interlacing), count, pointer
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Vector2) * 2, &array[0]);
-        glVertexPointer(2, GL_FLOAT, sizeof(Vector2) * 2, &array[1]);
-
-        if (border.a > 0.05f) {
-            renderDevice->setColor(border);
-            glMatrixMode(GL_MODELVIEW);
-            float lastDx = 0, lastDy = 0;
-            for (int dy = -1; dy <= 1; dy += 2) {
-                for (int dx = -1; dx <= 1; dx += 2) {
-                    if ((dx != 0) || (dy != 0)) {
-                        // Shift modelview matrix by dx, dy, but also undo the 
-                        // shift from the previous outline
-                        glTranslatef(dx - lastDx, dy - lastDy, 0);
-                        glDrawArrays(GL_QUADS, 0, N);
-                        lastDx = dx; lastDy = dy;
-                    }
-                }
-            }
-            glTranslatef(-lastDx, -lastDy, 0);
-        }
-
-        // Draw foreground
-        renderDevice->setColor(color);
-        glDrawArrays(GL_QUADS, 0, N);
-
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);
-
-        renderDevice->afterPrimitive();
+        bounds = send2DQuads(renderDevice, s, pos2D, size, color, border, xalign, yalign, spacing);
     renderDevice->popState();
-
     debugAssertGLOk();
 
-    return b;
+    return bounds;
 }
 
 
