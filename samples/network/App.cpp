@@ -124,7 +124,7 @@ void App::browseServers() {
 
     Discovery::ServerDescription description;
     bool selected = Discovery::Client::browse(APPLICATION_NAME, window(), debugWindow->theme(), description);
-
+    (void)selected;
     // In an actual program, we would now connect to the specified server.
     // See also browseAndConnect, which performs the connection step as well.
 }
