@@ -265,6 +265,7 @@ void GLCaps::init() {
     DECLARE_EXT(GL_EXT_geometry_shader4);
     DECLARE_EXT(GL_EXT_framebuffer_object);
     DECLARE_EXT(GL_SGIS_generate_mipmap);
+	DECLARE_EXT(GL_EXT_texture_mirror_clamp);
 #undef DECLARE_EXT
 
 
@@ -340,6 +341,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
             DECLARE_EXT(GL_EXT_geometry_shader4);
             DECLARE_EXT_GL2(GL_EXT_framebuffer_object);
             DECLARE_EXT(GL_SGIS_generate_mipmap);
+        	DECLARE_EXT(GL_EXT_texture_mirror_clamp);
 #       undef DECLARE_EXT
 
         // Some extensions have aliases

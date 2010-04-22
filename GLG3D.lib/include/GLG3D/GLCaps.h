@@ -70,6 +70,7 @@ namespace G3D {
     <LI>GL_EXT_geometry_shader4
     <LI>GL_EXT_framebuffer_object
     <LI>GL_SGIS_generate_mipmap
+    <LI>GL_EXT_texture_mirror_clamp
 	</UL>
 
   These methods do not appear in the documentation because they
@@ -155,6 +156,7 @@ private:
     DECLARE_EXT(GL_EXT_geometry_shader4);
     DECLARE_EXT(GL_EXT_framebuffer_object);
     DECLARE_EXT(GL_SGIS_generate_mipmap);
+    DECLARE_EXT(GL_EXT_texture_mirror_clamp);
     
 #undef DECLARE_EXT
 

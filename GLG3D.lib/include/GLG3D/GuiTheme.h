@@ -164,12 +164,9 @@ public:
         Color4              outlineColor;
         float               size;
 
-        inline TextStyle() : color(-1,-1,-1,-1), outlineColor(-1,-1,-1,-1), size(-1) {}
+        TextStyle() : color(-1,-1,-1,-1), outlineColor(-1,-1,-1,-1), size(-1) {}
 
-        /**
-         @param path Path to search for font files
-         */
-        void deserialize(const std::string& path, const std::string& name, TextInput& t);
+        void load(const Any& any);
     };
 
 private:
@@ -230,9 +227,9 @@ private:
             up to the correct dimensions if source is too small.  If too source
             is too large it is cropped on the bottom and right.
          */
-        Rect2D          rect;
+        Rect2D          source;
 
-        void deserialize(const std::string& name, TextInput& b);
+        void load(const Any& any);
         void render(class RenderDevice* rd, const Rect2D& bounds, const Vector2& texOffset) const;        
     };
 
@@ -245,27 +242,14 @@ private:
         Fill           center;
         Rect2D         right;
 
-        /** Name is prepended onto Left, Center, Right */
-        void deserialize(const std::string& name, TextInput& b);
+        void load(const Any& any);
 
         /** Bounds height must match left.height and right.height */
         void render(class RenderDevice* rd, const Rect2D& bounds, const Vector2& texOffset) const;
         
-        inline float height() const {
+        float height() const {
             return left.height();
         }
-    };
-
-    /** 
-        Vertical stretch--two caps and a center fill
-     */
-    class StretchRectV {
-    public:
-        Rect2D         top;
-        Rect2D         bottom;
-        Fill           center;
-        void deserialize(TextInput& b);
-        void render(class RenderDevice* rd, const Rect2D& bounds, const Vector2& texOffset) const;
     };
     
     /** Stretchable in horizontal and vertical direction. */
@@ -277,7 +261,7 @@ private:
         Fill               centerRight;
         StretchRectH       bottom;
 
-        void deserialize(const std::string& name, TextInput& b);
+        void load(const Any& any);
         void render(class RenderDevice* rd, const Rect2D& bounds, const Vector2& texOffset) const;
     };
 
@@ -286,7 +270,7 @@ private:
         Vector2      topLeft;
         Vector2      bottomRight;
         
-        void deserialize(const std::string& name, TextInput& b);
+        void load(const Any& any);
         
         /** Net width and height of the padding */
         inline Vector2 wh() const {
@@ -308,14 +292,14 @@ private:
             Vector2         down;
 
             Vector2         up;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
         
         class Focus {
         public:
             Pair            focused;
             Vector2         defocused;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
  
         Focus               enabled;
@@ -324,7 +308,7 @@ private:
         TextStyle           textStyle;
         TextStyle           disabledTextStyle;
 
-        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
     };
 
@@ -352,20 +336,20 @@ private:
 
             /** TexOffset from base of this image */
             Vector2          up;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
 
         class Focus {
         public:
             Pair      focused;
             Pair      defocused;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
     
         Focus         enabled;
         Pair          disabled;
 
-        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
     };
 
@@ -391,13 +375,13 @@ private:
         public:
             Vector2    focused;
             Vector2    defocused;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
     
         Focus         enabled;
         Vector2       disabled;
 
-        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused) const;
     };
 
@@ -430,14 +414,14 @@ private:
         public:
             Rect2D    checked;
             Rect2D    unchecked;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
 
         class Focus {
         public:
             Pair      focused;
             Pair      defocused;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
     
         Focus         enabled;
@@ -449,14 +433,14 @@ private:
         TextStyle            textStyle;
         TextStyle            disabledTextStyle;
 
-        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool checked) const;
         
-        inline float width() const {
+        float width() const {
             return disabled.checked.width();
         }
 
-        inline float height() const {
+        float height() const {
             return disabled.checked.height();
         }
     };
@@ -471,7 +455,7 @@ private:
         Vector2      defocused;
         Vector2      windowDefocused;
 
-        void deserialize(const std::string& name, TextInput& b);
+        void load(const Any& any);
     };
 
 
@@ -495,7 +479,7 @@ private:
         TextStyle        textStyle;
         TextStyle        defocusedTextStyle;
 
-        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
 
         /** Pass the bounds outside the border; the borderPad will automatically be added. */
         void render(RenderDevice* rd, const Rect2D& bounds, bool focused) const;
@@ -509,7 +493,7 @@ private:
             StretchRectH     base;
             Vector2          enabled;
             Vector2          disabled;
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
 
         class Thumb {
@@ -519,13 +503,13 @@ private:
             public:
                 Vector2      focused;
                 Vector2      defocused;
-                void deserialize(const std::string& name, TextInput& b);
+                void load(const Any& any);
             };
 
             Focus            enabled;
             Vector2          disabled;
 
-            void deserialize(const std::string& name, TextInput& b);
+            void load(const Any& any);
         };
 
         Bar                  bar;
@@ -534,7 +518,7 @@ private:
         /** Defaults */
         TextStyle            textStyle;
         TextStyle        disabledTextStyle;
-        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
 
         /** Renders along the center of the vertical bounds and stretches to fill horizontally.*/
         void render(RenderDevice* rd, const Rect2D& bounds, float thumbPos, bool enabled, bool focused) const;
@@ -551,7 +535,7 @@ private:
         TextStyle        disabledTextStyle;
         StretchRectHV    frame;
         Pad              clientPad;
-        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
     };
 
     Checkable         m_checkBox;
@@ -575,7 +559,7 @@ private:
     TextStyle         m_textStyle;
     TextStyle         m_disabledTextStyle;
     
-    TextureRef        texture;
+    Texture::Ref      m_texture;
 
     /**
        The transformation matrix used to scale texture coordinates
@@ -603,8 +587,6 @@ private:
     /** Used by push/popClientRect */
     Array<CoordinateFrame> coordinateFrameStack;
 
-    static StretchMode readStretchMode(TextInput& t);
-
     static void drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevice* rd);
     
     void drawCheckable(const Checkable& control, const Rect2D& bounds, bool enabled, bool focused,
@@ -613,9 +595,7 @@ private:
     void drawWindow(const Window& window, const Rect2D& bounds, bool focused, 
                     bool close, bool closeDown, bool closeIsFocused, const GuiText& text) const;
 
-    static Rect2D readRect2D(const std::string& name, TextInput& b);
-
-    static Vector2 readVector2(const std::string& name, TextInput& b);
+    static StretchMode stringToStretchMode(const std::string& name);
 
     /** Only used for testing the formatting of text during skin creation */
     GuiTheme();
@@ -626,10 +606,11 @@ private:
         const Color4&       fallbackColor, 
         const Color4&       fallbackOutlineColor);
     
-    void deserialize(const std::string& path, BinaryInput& b);
+    /** Unpacks a .skn file and loads the theme.  Usually called from constructor. */
+    void loadSkin(BinaryInput& b);
 
-    /** Called from deserialize(BinaryInput) */
-    void deserialize(const std::string& path, TextInput& t);
+    /** Loads the theme specification. */
+    void loadCoords(const Any& any);
 
     /** Call before GFont::send2DQuads */
     void beginText() const;   
@@ -646,7 +627,7 @@ private:
 
 public:
     /** Return the default text style */
-    inline const TextStyle& defaultStyle() const {
+    const TextStyle& defaultStyle() const {
         return m_textStyle;
     }
 

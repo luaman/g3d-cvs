@@ -1130,7 +1130,7 @@ Texture::Ref Texture::fromMemory(
                     
                 } else {
 
-                    const bool useNPOT = (dimension == DIM_2D_NPOT) || (dimension == DIM_CUBE_MAP_NPOT);
+                    const bool useNPOT = (dimension == DIM_2D_NPOT) || (dimension == DIM_CUBE_MAP_NPOT) || (dimension == DIM_3D_NPOT);
 
                     createTexture(target, 
                                   reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]), 
@@ -1160,7 +1160,9 @@ Texture::Ref Texture::fromMemory(
     glStatePop();
 
     if ((dimension != DIM_2D_RECT) &&
-        ((dimension != DIM_2D_NPOT && (dimension != DIM_CUBE_MAP_NPOT)))) {
+        (dimension != DIM_2D_NPOT) && 
+        (dimension != DIM_3D_NPOT) &&
+        (dimension != DIM_CUBE_MAP_NPOT)) {
         width  = ceilPow2(width);
         height = ceilPow2(height);
         depth  = ceilPow2(depth);
@@ -1749,18 +1751,19 @@ int Texture::sizeInMemory() const {
 
 unsigned int Texture::openGLTextureTarget() const {
     switch (m_dimension) {
-    case DIM_CUBE_MAP_NPOT:
     case DIM_CUBE_MAP:
+    case DIM_CUBE_MAP_NPOT:
         return GL_TEXTURE_CUBE_MAP_ARB;
 
-    case DIM_2D_NPOT:
     case DIM_2D:
+    case DIM_2D_NPOT:
         return GL_TEXTURE_2D;
 
     case Texture::DIM_2D_RECT:
         return GL_TEXTURE_RECTANGLE_EXT;
 
     case Texture::DIM_3D:
+    case Texture::DIM_3D_NPOT:
         return GL_TEXTURE_3D;
 
     default:
@@ -1879,7 +1882,7 @@ void Texture::setTexParameters
         } else {
             mode = GL_CLAMP;
         }
-      break;
+        break;
 
     case WrapMode::ZERO:
         if (GLCaps::supports_GL_ARB_texture_border_clamp()) {
@@ -1889,7 +1892,7 @@ void Texture::setTexParameters
         }
         glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, reinterpret_cast<const float*>(&Color4::clear()));
         debugAssertGLOk();
-      break;
+        break;
 
     default:
         debugAssertM(Texture::supportsWrapMode(settings.wrapMode), "Unsupported wrap mode for Texture");
@@ -1998,19 +2001,20 @@ static bool hasAutoMipMap() {
 
 static GLenum dimensionToTarget(Texture::Dimension d) {
     switch (d) {
-    case Texture::DIM_CUBE_MAP_NPOT:
     case Texture::DIM_CUBE_MAP:
+    case Texture::DIM_CUBE_MAP_NPOT:
         return GL_TEXTURE_CUBE_MAP_ARB;
         
-    case Texture::DIM_3D:
-        return GL_TEXTURE_3D;
-
-    case Texture::DIM_2D_NPOT:
     case Texture::DIM_2D:
+    case Texture::DIM_2D_NPOT:
         return GL_TEXTURE_2D;
 
     case Texture::DIM_2D_RECT:
         return GL_TEXTURE_RECTANGLE_EXT;
+
+    case Texture::DIM_3D:
+    case Texture::DIM_3D_NPOT:
+        return GL_TEXTURE_3D;
 
     default:
         debugAssert(false);
@@ -2404,18 +2408,18 @@ const char* Texture::toString(DepthReadMode m) {
 Texture::Dimension Texture::toDimension(const std::string& s) {
     if (s == "DIM_2D") {
         return DIM_2D;
-    } else if (s == "DIM_3D") {
-        return DIM_3D;
-    } else if (s == "DIM_2D_RECT") {
-        return DIM_2D_RECT;
-    } else if (s == "DIM_CUBE_MAP") {
-        return DIM_CUBE_MAP;
     } else if (s == "DIM_2D_NPOT") {
         return DIM_2D_NPOT;
-    } else if (s == "DIM_CUBE_MAP_NPOT") {
-        return DIM_CUBE_MAP_NPOT;
+    } else if (s == "DIM_2D_RECT") {
+        return DIM_2D_RECT;
+    } else if (s == "DIM_3D") {
+        return DIM_3D;
     } else if (s == "DIM_3D_NPOT") {
         return DIM_3D_NPOT;
+    } else if (s == "DIM_CUBE_MAP") {
+        return DIM_CUBE_MAP;
+    } else if (s == "DIM_CUBE_MAP_NPOT") {
+        return DIM_CUBE_MAP_NPOT;
     } else {
         debugAssertM(false, "Unrecognized dimension");
         return DIM_2D;

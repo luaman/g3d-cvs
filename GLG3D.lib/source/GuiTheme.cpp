@@ -18,6 +18,7 @@
 #include "G3D/Image3.h"
 #include "G3D/Log.h"
 #include "G3D/FileSystem.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
@@ -63,7 +64,7 @@ GuiTheme::GuiTheme(const std::string& filename,
     m_textStyle.size = fallbackSize;
     m_textStyle.color = fallbackColor;
     m_textStyle.outlineColor = fallbackOutlineColor;
-    deserialize(filenamePath(filename), b);
+    loadSkin(b);
 }
 
 
@@ -93,54 +94,69 @@ GuiThemeRef GuiTheme::fromFile(
 }
 
 
-static Color4 readColor(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "(");
-    float R,G,B,A;
-    R = b.readNumber();
-    b.readSymbol(","); G = b.readNumber();
-    b.readSymbol(",");
-    B = b.readNumber();
-    b.readSymbol(",");
-    A = b.readNumber();
-    b.readSymbol(")");
-    return Color4(R, G, B, A);
+void GuiTheme::loadSkin(BinaryInput& b) {
+    std::string f = b.readString32();
+    (void)f;
+    debugAssert(f == "G3D Skin File");
+
+    float version = b.readFloat32();
+    (void)version;
+    debugAssert(fuzzyEq(version, 0.1f));
+
+    // Read specification file
+    std::string coords = b.readString32();
+    TextInput t(TextInput::FROM_STRING, coords);
+
+    // Load theme specification
+    Any any;
+    any.deserialize(t);
+    loadCoords(any);
+
+    // Read theme texture
+    GImage image;
+    image.decode(b, GImage::TGA);
+
+    Texture::Preprocess p;
+    p.computeMinMaxMean = false;
+    
+    // Load theme texture
+    m_texture = Texture::fromGImage(b.getFilename(), image, ImageFormat::RGBA8(), Texture::DIM_2D, Texture::Settings::video(), p);
+
+    toGLMatrix(Matrix4(1.0f / m_texture->width(), 0, 0, 0,
+            0, 1.0f / m_texture->height(), 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1), guiTextureMatrix);
 }
 
-
-void GuiTheme::deserialize(const std::string& path, TextInput& b) {
-    b.readSymbols("name", "=");
-    std::string name = b.readString();
-
-    b.readSymbols("format", "=");
-    float version = b.readNumber();
+void GuiTheme::loadCoords(const Any& any) {
+    float version = any["format"];
     (void)version;
     debugAssertM(fuzzyEq(version, 0.1), format("Only version 0.1 is supported (version = %f)", version));
 
-    m_textStyle.deserialize(path, "font", b);
+    m_textStyle.load(any["font"]);
     m_disabledTextStyle = m_textStyle;
-    m_disabledTextStyle.deserialize(path, "disabledFont", b);
+    m_disabledTextStyle.load(any["disabledFont"]);
     
     // Controls (all inherit the default text style and may override)
     m_checkBox.textStyle = m_textStyle;
     m_checkBox.disabledTextStyle = m_disabledTextStyle;
-    m_checkBox.deserialize("checkBox",path,  b);
+    m_checkBox.load(any["checkBox"]);
     
     m_radioButton.textStyle = m_textStyle;
     m_radioButton.disabledTextStyle = m_disabledTextStyle;
-    m_radioButton.deserialize("radioButton",path,  b);
+    m_radioButton.load(any["radioButton"]);
 
     m_button[NORMAL_BUTTON_STYLE].textStyle = m_textStyle;
     m_button[NORMAL_BUTTON_STYLE].disabledTextStyle = m_disabledTextStyle;
-    m_button[NORMAL_BUTTON_STYLE].deserialize("button", path, b);
+    m_button[NORMAL_BUTTON_STYLE].load(any["button"]);
 
     m_button[TOOL_BUTTON_STYLE].textStyle = m_textStyle;
     m_button[TOOL_BUTTON_STYLE].disabledTextStyle = m_disabledTextStyle;
-    m_button[TOOL_BUTTON_STYLE].deserialize("toolButton", path, b);
+    m_button[TOOL_BUTTON_STYLE].load(any["toolButton"]);
 
-    m_closeButton.deserialize("closeButton", b);
+    m_closeButton.load(any["closeButton"]);
 
-    b.readSymbols("windowButtonStyle", "=");
-    m_osxWindowButtons = (b.readSymbol() == "osx");
+    m_osxWindowButtons = (any["windowButtonStyle"] == "osx");
 
 
     static std::string windowStyleName[WINDOW_STYLE_COUNT] = {"window", "toolWindow", "dialogWindow", "drawer", "menu", "no"};
@@ -148,28 +164,28 @@ void GuiTheme::deserialize(const std::string& path, TextInput& b) {
     // Skip the no-style window
     for (int i = 0; i < WINDOW_STYLE_COUNT - 1; ++i) {
         m_window[i].textStyle = m_textStyle;
-        m_window[i].deserialize(windowStyleName[i], path, b);
+        m_window[i].load(any[windowStyleName[i]]);
     }
 
     m_hSlider.textStyle = m_textStyle;
     m_hSlider.disabledTextStyle = m_disabledTextStyle;
-    m_hSlider.deserialize("horizontalSlider", path, b);
+    m_hSlider.load(any["horizontalSlider"]);
 
     m_pane[SIMPLE_PANE_STYLE].textStyle = m_textStyle;
     m_pane[SIMPLE_PANE_STYLE].disabledTextStyle = m_disabledTextStyle;
-    m_pane[SIMPLE_PANE_STYLE].deserialize("simplePane", path, b);
+    m_pane[SIMPLE_PANE_STYLE].load(any["simplePane"]);
 
     m_pane[ORNATE_PANE_STYLE].textStyle = m_textStyle;
     m_pane[ORNATE_PANE_STYLE].disabledTextStyle = m_disabledTextStyle;
-    m_pane[ORNATE_PANE_STYLE].deserialize("ornatePane", path, b);
+    m_pane[ORNATE_PANE_STYLE].load(any["ornatePane"]);
 
     m_textBox.textStyle = m_textStyle;
     m_textBox.disabledTextStyle = m_disabledTextStyle;
-    m_textBox.deserialize("textBox", path, b);
+    m_textBox.load(any["textBox"]);
 
     m_dropDownList.textStyle = m_textStyle;
     m_dropDownList.disabledTextStyle = m_disabledTextStyle;
-    m_dropDownList.deserialize("dropDownList", path, b);
+    m_dropDownList.load(any["dropDownList"]);
 
     // TODO: eventually, set canvas separately when the skin files have been updated
     m_canvas.base = m_textBox.base;
@@ -182,35 +198,7 @@ void GuiTheme::deserialize(const std::string& path, TextInput& b) {
     m_canvas.pad.bottomRight -= Vector2(4, 2);
     m_canvas.pad.topLeft     -= Vector2(5, 2);
 
-    m_selection.deserialize("selection", b);
-}
-
-
-void GuiTheme::deserialize(const std::string& path, BinaryInput& b) {
-    std::string f = b.readString32();
-    (void)f;
-    debugAssert(f == "G3D Skin File");
-
-    float version = b.readFloat32();
-    (void)version;
-    debugAssert(fuzzyEq(version, 0.1f));
-
-    std::string coords = b.readString32();
-    TextInput t(TextInput::FROM_STRING, coords);
-    deserialize(path, t);
-
-    GImage image;
-    image.decode(b, GImage::TGA);
-
-    Texture::Preprocess p;
-    p.computeMinMaxMean = false;
-    
-    texture = Texture::fromGImage(b.getFilename(), image, ImageFormat::RGBA8(), Texture::DIM_2D, Texture::Settings::video(), p);
-
-    toGLMatrix(Matrix4(1.0f / texture->width(), 0, 0, 0,
-            0, 1.0f / texture->height(), 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1), guiTextureMatrix);
+    m_selection.load(any["selection"]);
 }
 
 
@@ -227,7 +215,7 @@ void GuiTheme::beginRendering(RenderDevice* rd) {
     rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0);
     rd->setColor(Color3::white());
 
-    rd->setTexture(TEXTURE_UNIT, texture);
+    rd->setTexture(TEXTURE_UNIT, m_texture);
     rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
     rd->beginPrimitive(PrimitiveType::QUADS);
 }
@@ -239,7 +227,7 @@ void GuiTheme::beginText() const {
 
 
 void GuiTheme::endText() const {
-    glBindTexture(GL_TEXTURE_2D, texture->openGLID());
+    glBindTexture(GL_TEXTURE_2D, m_texture->openGLID());
     glMatrixMode(GL_TEXTURE);
     glLoadMatrix(guiTextureMatrix);
 
@@ -263,7 +251,7 @@ void GuiTheme::pauseRendering() {
 void GuiTheme::resumeRendering() {
     rd->popState();
 
-    rd->setTexture(TEXTURE_UNIT, texture);
+    rd->setTexture(TEXTURE_UNIT, m_texture);
     rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
     rd->setColor(Color3::white());
     rd->beginPrimitive(PrimitiveType::QUADS);
@@ -660,8 +648,8 @@ Vector2 GuiTheme::minButtonSize(const GuiText& text, ButtonStyle buttonStyle) co
     Vector2 textBounds = bounds(text);
 
     Vector2 borderPadding = 
-        m_button[buttonStyle].base.centerLeft.rect.wh() + 
-        m_button[buttonStyle].base.centerRight.rect.wh();
+        m_button[buttonStyle].base.centerLeft.source.wh() + 
+        m_button[buttonStyle].base.centerRight.source.wh();
 
     return textBounds + borderPadding;
 }
@@ -743,32 +731,6 @@ void GuiTheme::renderLabel(const Rect2D& bounds, const GuiText& text, GFont::XAl
 
         addDelayedText(text, style, pos, xalign, yalign);
     }
-}
-
-
-Rect2D GuiTheme::readRect2D(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "(");
-    float x = b.readNumber();
-    b.readSymbol(",");
-    float y = b.readNumber();
-    b.readSymbol(",");
-    float w = b.readNumber();
-    b.readSymbol(",");
-    float h = b.readNumber();
-    b.readSymbol(")");
-
-    return Rect2D::xywh(x, y, w, h);
-}
-
-
-Vector2 GuiTheme::readVector2(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "(");
-    float x = b.readNumber();
-    b.readSymbol(",");
-    float y = b.readNumber();
-    b.readSymbol(")");
-
-    return Vector2(x, y);
 }
 
 
@@ -881,18 +843,6 @@ void GuiTheme::drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevi
 }
 
 
-GuiTheme::StretchMode GuiTheme::readStretchMode(TextInput& t) {
-    std::string modeStr = t.readSymbol();
-    if (modeStr == "STRETCH") {
-        return STRETCH;
-    } else if (modeStr == "TILE") {
-        return TILE;
-    } else {
-        debugAssertM(false, "Illegal stretch mode: " + modeStr);
-    }
-    return STRETCH;
-}
-
 float GuiTheme::paneTopPadding(const GuiText& caption, PaneStyle paneStyle) const {
     if (caption.empty()) {
         return 0.0f;
@@ -931,8 +881,8 @@ void GuiTheme::makeThemeFromSourceFiles
  const std::string& coordsFile,
  const std::string& destFile) {
 
-    Image3Ref white = Image3::fromFile(sourceDir + whiteName);
-    Image3Ref black = Image3::fromFile(sourceDir + blackName);
+    Image3Ref white = Image3::fromFile(pathConcat(sourceDir, whiteName));
+    Image3Ref black = Image3::fromFile(pathConcat(sourceDir, blackName));
     GImage out(white->width(), white->height(), 4);
 
     for (int y = 0; y < (int)out.height(); ++y) {
@@ -958,14 +908,17 @@ void GuiTheme::makeThemeFromSourceFiles
         }
     }
 
-    std::string coords = readWholeFile(sourceDir + coordsFile);
+    std::string coords = readWholeFile(pathConcat(sourceDir, coordsFile));
 
     // Test the text formatting
     {
         GuiTheme skin;
         TextInput t(TextInput::FROM_STRING, coords);
-        std::string s;
-        skin.deserialize(s, t);
+        
+        Any any;
+        any.deserialize(t);
+
+        skin.loadCoords(any);
     }
     
     BinaryOutput b(destFile, G3D_LITTLE_ENDIAN);
@@ -1016,52 +969,59 @@ void GuiTheme::popClientRect() {
 
 /////////////////////////////////////////////
 
-void GuiTheme::Pane::deserialize(const std::string& name, const std::string& path, TextInput& t) {
-    t.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, "font", t);
-    disabledTextStyle.deserialize(path, "disabledFont", t);
+void GuiTheme::Pane::load(const Any& any) {
+    any.verifyName("");
 
-    frame.deserialize("frame", t);
-    clientPad.deserialize("clientPad", t);
-    t.readSymbol("}");
+    // Custom text styles are optional
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
+    if (any.containsKey("disabledFont")) {
+        disabledTextStyle.load(any["disabledFont"]);
+    }
+
+    frame.load(any["frame"]);
+    clientPad.load(any["clientPad"]);
 }
 
 ///////////////////////////////////////////////
 
-void GuiTheme::HSlider::deserialize(const std::string& name, const std::string& path, TextInput& t) {
-    t.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, "font", t);
-    disabledTextStyle.deserialize(path, "disabledFont", t);
+void GuiTheme::HSlider::load(const Any& any) {
+    any.verifyName("HSlider");
 
-    bar.deserialize("bar", t);
-    thumb.deserialize("thumb", t);
-    t.readSymbol("}");
+    // Custom text styles are optional
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
+    if (any.containsKey("disabledFont")) {
+        disabledTextStyle.load(any["disabledFont"]);
+    }
+
+    bar.load(any["bar"]);
+    thumb.load(any["thumb"]);
 }
 
 
-void GuiTheme::HSlider::Bar::deserialize(const std::string& name, TextInput& t) {
-    t.readSymbols(name, "=", "{");
-    base.deserialize("base", t);
-    enabled = readVector2("enabled", t);
-    disabled = readVector2("disabled", t);
-    t.readSymbol("}");
+void GuiTheme::HSlider::Bar::load(const Any& any) {
+    any.verifyName("HSlider::Bar");
+    base.load(any["base"]);
+    enabled = any["enabled"];
+    disabled = any["disabled"];
 }
 
 
-void GuiTheme::HSlider::Thumb::deserialize(const std::string& name, TextInput& t) {
-    t.readSymbols(name, "=", "{");
-    base = readRect2D("base", t);
-    enabled.deserialize("enabled", t);
-    disabled = readVector2("disabled", t);
-    t.readSymbol("}");
+void GuiTheme::HSlider::Thumb::load(const Any& any) {
+    any.verifyName("HSlider::Thumb");
+    base = any["base"];
+    enabled.load(any["enabled"]);
+    disabled = any["disabled"];
 }
 
 
-void GuiTheme::HSlider::Thumb::Focus::deserialize(const std::string& name, TextInput& t) {
-    t.readSymbols(name, "=", "{");
-    focused = readVector2("focused", t);
-    defocused = readVector2("defocused", t);
-    t.readSymbol("}");
+void GuiTheme::HSlider::Thumb::Focus::load(const Any& any) {
+    any.verifyName("HSlider::Thumb::Focus");
+    focused = any["focused"];
+    defocused = any["defocused"];
 }
 
 
@@ -1101,48 +1061,49 @@ Rect2D GuiTheme::HSlider::thumbBounds(const Rect2D& sliderBounds, float pos) con
     
 //////////////////////////////////////////////////////////////////////////////
 
-void GuiTheme::WindowButton::deserialize(const std::string& name, TextInput& t) {
-    t.readSymbols(name, "=", "{");
-    base = readRect2D("base", t);
+void GuiTheme::WindowButton::load(const Any& any) {
+    any.verifyName("WindowButton");
+    base = any["base"];
     
-    t.readSymbols("focused", "=", "{");
-    focusedDown = readVector2("down", t);
-    focusedUp = readVector2("up", t);
-    t.readSymbol("}");
+    focusedDown = any["focusedDown"];
+    focusedUp = any["focusedUp"];
 
-    defocused = readVector2("defocused", t);
-    windowDefocused = readVector2("windowDefocused", t);
-    t.readSymbol("}");
+    defocused = any["defocused"];
+    windowDefocused = any["windowDefocused"];
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GuiTheme::Window::deserialize(const std::string& name, const std::string& path, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, "font", b);
+void GuiTheme::Window::load(const Any& any) {
+    any.verifyName("Window");
+
+    // Custom text styles are optional
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
 
     defocusedTextStyle = textStyle;
-    defocusedTextStyle.deserialize(path, "defocuseFont", b);
+    if (any.containsKey("defocusedFont")) {
+        defocusedTextStyle.load(any["defocusedFont"]);
+    }
 
-    base.deserialize("base", b);
-    borderPad.deserialize("borderPad", b);
-    borderThickness.deserialize("borderThickness", b);
+    base.load(any["base"]);
+    borderPad.load(any["borderPad"]);
+    borderThickness.load(any["borderThickness"]);
     Pad clientPad;
-    clientPad.deserialize("clientPad", b);
+    clientPad.load(any["clientPad"]);
     netClientPad.topLeft = borderThickness.topLeft + clientPad.topLeft; 
     netClientPad.bottomRight = borderThickness.bottomRight + clientPad.bottomRight; 
 
-    focused = readVector2("focused", b);
-    defocused = readVector2("defocused", b);
-    b.readSymbol("}");
+    focused = any["focused"];
+    defocused = any["defocused"];
 }
 
 
-void GuiTheme::Pad::deserialize(const std::string& name, TextInput& t) {
-    t.readSymbols(name, "=", "{");
-    topLeft = readVector2("topLeft", t);
-    bottomRight = readVector2("bottomRight", t);
-    t.readSymbol("}");
+void GuiTheme::Pad::load(const Any& any) {
+    any.verifyName("Pad");
+    topLeft = any["topLeft"];
+    bottomRight = any["bottomRight"];
 }
 
 
@@ -1157,31 +1118,34 @@ void GuiTheme::Window::render(RenderDevice* rd, const Rect2D& bounds, bool _focu
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GuiTheme::Checkable::deserialize(const std::string& name, const std::string& path, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, "font", b);
-    disabledTextStyle.deserialize(path, "disabledFont", b);
+void GuiTheme::Checkable::load(const Any& any) {
+    any.verifyName("Checkable");
 
-    enabled.deserialize("enabled", b);
-    disabled.deserialize("disabled", b);
-    textOffset = readVector2("textOffset", b);
-    b.readSymbol("}");
+    // Custom text styles are optional
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
+    if (any.containsKey("disabledFont")) {
+        disabledTextStyle.load(any["disabledFont"]);
+    }
+
+    enabled.load(any["enabled"]);
+    disabled.load(any["disabled"]);
+    textOffset = any["textOffset"];
 }
 
 
-void GuiTheme::Checkable::Focus::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    focused.deserialize("focused", b);
-    defocused.deserialize("defocused", b);
-    b.readSymbol("}");
+void GuiTheme::Checkable::Focus::load(const Any& any) {
+    any.verifyName("Checkable::Focus");
+    focused.load(any["focused"]);
+    defocused.load(any["defocused"]);
 }
 
 
-void GuiTheme::Checkable::Pair::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    checked   = readRect2D("checked", b);
-    unchecked = readRect2D("unchecked", b);
-    b.readSymbol("}");
+void GuiTheme::Checkable::Pair::load(const Any& any) {
+    any.verifyName("Checkable::Pair");
+    checked   = any["checked"];
+    unchecked = any["unchecked"];
 }
 
 
@@ -1216,18 +1180,16 @@ void GuiTheme::Checkable::render(RenderDevice* rd, const Rect2D& bounds, bool _e
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GuiTheme::StretchRectHV::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
+void GuiTheme::StretchRectHV::load(const Any& any) {
+    any.verifyName("StretchRectHV");
 
-    top.deserialize("top", b);
+    top.load(any["top"]);
 
-    centerLeft.deserialize("centerLeft", b);
-    centerCenter.deserialize("centerCenter", b);
-    centerRight.deserialize("centerRight", b);
+    centerLeft.load(any["centerLeft"]);
+    centerCenter.load(any["centerCenter"]);
+    centerRight.load(any["centerRight"]);
 
-    bottom.deserialize("bottom", b);
-
-    b.readSymbol("}");
+    bottom.load(any["bottom"]);
 }
 
 
@@ -1258,15 +1220,24 @@ void GuiTheme::StretchRectHV::render(class RenderDevice* rd, const Rect2D& bound
 }
 
 //////////////////////////////////////////////////////////////////////////////
+GuiTheme::StretchMode GuiTheme::stringToStretchMode(const std::string& name) {
+    if (name == "STRETCH") {
+        return GuiTheme::STRETCH;
+    } else if (name == "TILE") {
+        return GuiTheme::TILE;
+    } else {
+        debugAssertM(false, "Invalid stretch mode name loading GuiTheme.");
+        return GuiTheme::STRETCH;
+    }
+}
 
-void GuiTheme::Fill::deserialize(const std::string& name, TextInput& b) {
-    rect   = readRect2D(name, b);
-    b.readSymbols(",", "(");
-    
-    horizontalMode = readStretchMode(b);
-    b.readSymbol(",");
-    verticalMode = readStretchMode(b);
-    b.readSymbol(")");
+void GuiTheme::Fill::load(const Any& any) {
+    any.verifyName("Fill");
+
+    source = any["source"];
+
+    horizontalMode = GuiTheme::stringToStretchMode(any["hmode"]);
+    verticalMode = GuiTheme::stringToStretchMode(any["vmode"]);
 }
 
 
@@ -1274,24 +1245,24 @@ void GuiTheme::Fill::render(class RenderDevice* rd, const Rect2D& bounds, const 
     if (horizontalMode == STRETCH) {
         if (verticalMode == STRETCH) {
             // Stretch, Stretch
-            drawRect(bounds, rect + texOffset, rd);
+            drawRect(bounds, source + texOffset, rd);
         } else {
             // Stretch, Tile
 
             // Draw horizontal strips
-            float height = rect.height();
+            float height = source.height();
             float x0 = bounds.x0();
             float y1 = bounds.y1();
             float y = bounds.y0();
-            Rect2D strip = Rect2D::xywh(0, 0, bounds.width(), rect.height());
+            Rect2D strip = Rect2D::xywh(0, 0, bounds.width(), source.height());
             while (y <= y1 - height) {
-                drawRect(strip + Vector2(x0, y), rect + texOffset, rd);
+                drawRect(strip + Vector2(x0, y), source + texOffset, rd);
                 y += height;
             }
 
             if (y < y1) {
                 // Draw the remaining fraction of a strip
-                Rect2D src = Rect2D::xywh(rect.x0y0() + texOffset, Vector2(rect.width(), y1 - y));
+                Rect2D src = Rect2D::xywh(source.x0y0() + texOffset, Vector2(source.width(), y1 - y));
                 Rect2D dst = Rect2D::xywh(Vector2(x0, y), Vector2(bounds.width(), src.height()));
                 drawRect(dst, src, rd);
             }
@@ -1300,19 +1271,19 @@ void GuiTheme::Fill::render(class RenderDevice* rd, const Rect2D& bounds, const 
         if (verticalMode == STRETCH) {
             // Tile, Stretch
             // Draw vertical strips
-            float width = rect.width();
+            float width = source.width();
             float y0 = bounds.y0();
             float x1 = bounds.x1();
             float x = bounds.x0();
-            Rect2D strip = Rect2D::xywh(0, 0, rect.width(), bounds.height());
+            Rect2D strip = Rect2D::xywh(0, 0, source.width(), bounds.height());
             while (x <= x1 - width) {
-                drawRect(strip + Vector2(x, y0), rect + texOffset, rd);
+                drawRect(strip + Vector2(x, y0), source + texOffset, rd);
                 x += width;
             }
 
             if (x < x1) {
                 // Draw the remaining fraction of a strip
-                Rect2D src = Rect2D::xywh(rect.x0y0() + texOffset, Vector2(x1 - x, rect.height()));
+                Rect2D src = Rect2D::xywh(source.x0y0() + texOffset, Vector2(x1 - x, source.height()));
                 Rect2D dst = Rect2D::xywh(Vector2(x, y0), Vector2(src.width(), bounds.height()));
                 drawRect(dst, src, rd);
             }
@@ -1322,25 +1293,25 @@ void GuiTheme::Fill::render(class RenderDevice* rd, const Rect2D& bounds, const 
 
             // Work in horizontal strips first
 
-            float width = rect.width();
-            float height = rect.height();
+            float width = source.width();
+            float height = source.height();
             float x0 = bounds.x0();
             float x1 = bounds.x1();
             float y1 = bounds.y1();
             float y = bounds.y0();
 
-            Rect2D tile = Rect2D::xywh(Vector2(0, 0), rect.wh());
+            Rect2D tile = Rect2D::xywh(Vector2(0, 0), source.wh());
 
             while (y <= y1 - height) {
                 float x = x0;
                 while (x <= x1 - width) {
-                    drawRect(tile + Vector2(x, y), rect + texOffset, rd);
+                    drawRect(tile + Vector2(x, y), source + texOffset, rd);
                     x += width;
                 }
                 
                 // Draw the remaining fraction of a tile
                 if (x < x1) {
-                    Rect2D src = Rect2D::xywh(rect.x0y0() + texOffset, Vector2(x1 - x, height));
+                    Rect2D src = Rect2D::xywh(source.x0y0() + texOffset, Vector2(x1 - x, height));
                     Rect2D dst = Rect2D::xywh(Vector2(x, y), src.wh());
                     drawRect(dst, src, rd);
                 }
@@ -1354,13 +1325,13 @@ void GuiTheme::Fill::render(class RenderDevice* rd, const Rect2D& bounds, const 
                 float height = y1 - y;
                 tile = Rect2D::xywh(0, 0, width, height);
                 while (x <= x1 - width) {
-                    drawRect(tile + Vector2(x, y), tile + (rect.x0y0() + texOffset), rd);
+                    drawRect(tile + Vector2(x, y), tile + (source.x0y0() + texOffset), rd);
                     x += width;
                 }
                 
                 // Draw the remaining fraction of a tile
                 if (x < x1) {
-                    Rect2D src = Rect2D::xywh(rect.x0y0() + texOffset, Vector2(x1 - x, height));
+                    Rect2D src = Rect2D::xywh(source.x0y0() + texOffset, Vector2(x1 - x, height));
                     Rect2D dst = Rect2D::xywh(Vector2(x, y), src.wh());
                     drawRect(dst, src, rd);
                 }
@@ -1371,10 +1342,11 @@ void GuiTheme::Fill::render(class RenderDevice* rd, const Rect2D& bounds, const 
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GuiTheme::StretchRectH::deserialize(const std::string& name, TextInput& b) {
-    left   = readRect2D(name + "Left", b);
-    center.deserialize(name + "Center", b);
-    right = readRect2D(name + "Right", b);
+void GuiTheme::StretchRectH::load(const Any& any) {
+    any.verifyName("StretchRectH");
+    left = any["left"];
+    center.load(any["center"]);
+    right = any["right"];
 }
 
 
@@ -1387,31 +1359,35 @@ void GuiTheme::StretchRectH::render(class RenderDevice* rd, const Rect2D& bounds
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GuiTheme::Button::deserialize(const std::string& name, const std::string& path, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, "font", b);
-    disabledTextStyle.deserialize(path, "disabledFont", b);
-    base.deserialize("base", b);
-    textOffset = readVector2("textOffset", b);
-    enabled.deserialize("enabled", b);
-    disabled.deserialize("disabled", b);
-    b.readSymbol("}");
+void GuiTheme::Button::load(const Any& any) {
+    any.verifyName("Button");
+
+    // Custom text styles are optional
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
+    if (any.containsKey("disabledFont")) {
+        disabledTextStyle.load(any["disabledFont"]);
+    }
+
+    base.load(any["base"]);
+    textOffset = any["textOffset"];
+    enabled.load(any["enabled"]);
+    disabled.load(any["disabled"]);
 }
 
 
-void GuiTheme::Button::Focus::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    focused.deserialize("focused", b);
-    defocused.deserialize("defocused", b);
-    b.readSymbol("}");
+void GuiTheme::Button::Focus::load(const Any& any) {
+    any.verifyName("Button::Focus");
+    focused.load(any["focused"]);
+    defocused.load(any["defocused"]);
 }
 
 
-void GuiTheme::Button::Pair::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    down = readVector2("down", b);
-    up = readVector2("up", b);
-    b.readSymbol("}");
+void GuiTheme::Button::Pair::load(const Any& any) {
+    any.verifyName("Button::Pair");
+    down = any["down"];
+    up = any["up"];
 }
 
 
@@ -1445,28 +1421,33 @@ void GuiTheme::Button::render(RenderDevice* rd, const Rect2D& bounds, bool _enab
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void GuiTheme::TextBox::deserialize(const std::string& name, const std::string& path, TextInput& b) {
-    b.readSymbols(name, "=", "{");
+void GuiTheme::TextBox::load(const Any& any) {
+    any.verifyName("TextBox");
 
-    textStyle.deserialize(path, "font", b);
-    disabledTextStyle.deserialize(path, "disabledFont", b);
+    // Custom text styles are optional
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
+    if (any.containsKey("disabledFont")) {
+        disabledTextStyle.load(any["disabledFont"]);
+    }
 
     contentStyle = textStyle;
-    contentStyle.deserialize(path, "contentFont", b);
+    if (any.containsKey("contentFont")) {
+        contentStyle.load(any["contentFont"]);
+    }
 
-    base.deserialize("base", b);
-    textPad.deserialize("textPad", b);
-    enabled.deserialize("enabled", b);
-    disabled = readVector2("disabled", b);
-    b.readSymbol("}");
+    base.load(any["base"]);
+    textPad.load(any["textPad"]);
+    enabled.load(any["enabled"]);
+    disabled = any["disabled"];
 }
 
 
-void GuiTheme::TextBox::Focus::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    focused = readVector2("focused", b);
-    defocused = readVector2("defocused", b);
-    b.readSymbol("}");
+void GuiTheme::TextBox::Focus::load(const Any& any) {
+    any.verifyName("TextBox::Focus");
+    focused = any["focused"];
+    defocused = any["defocused"];
 }
 
 
@@ -1527,92 +1508,72 @@ void GuiTheme::DropDownList::render(RenderDevice* rd, const Rect2D& bounds, bool
 }
 
 
-void GuiTheme::DropDownList::deserialize(const std::string& name, const std::string& path, TextInput& b) {
-    b.readSymbols(name, "=", "{");
+void GuiTheme::DropDownList::load(const Any& any) {
+    any.verifyName("DropDownList");
 
-    textStyle.deserialize(path, "font", b);
-    disabledTextStyle.deserialize(path, "disabledFont", b);
+    // Custom text styles are optional
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
+    if (any.containsKey("disabledFont")) {
+        disabledTextStyle.load(any["disabledFont"]);
+    }
 
-    base.deserialize("base", b);
-    textPad.deserialize("textPad", b);
+    base.load(any["base"]);
+    textPad.load(any["textPad"]);
 
-    enabled.deserialize("enabled", b);
-    disabled = readVector2("disabled", b);
-    b.readSymbol("}");
+    enabled.load(any["enabled"]);
+    disabled = any["disabled"];
 }
 
-void GuiTheme::DropDownList::Focus::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    focused.deserialize("focused", b);
-    defocused = readVector2("defocused", b);
-    b.readSymbol("}");
+void GuiTheme::DropDownList::Focus::load(const Any& any) {
+    any.verifyName("DropDownList::Focus");
+    focused.load(any["focused"]);
+    defocused = any["defocused"];
 }
 
-void GuiTheme::DropDownList::Pair::deserialize(const std::string& name, TextInput& b) {
-    b.readSymbols(name, "=", "{");
-    down = readVector2("down", b);
-    up = readVector2("up", b);
-    b.readSymbol("}");
+void GuiTheme::DropDownList::Pair::load(const Any& any) {
+    any.verifyName("DropDownList::Pair");
+    down = any["down"];
+    up = any["up"];
 }
 
 
 ///////////////////////////////////////////////////////
 
-void GuiTheme::TextStyle::deserialize(const std::string& path, const std::string& name, TextInput& t) {
+void GuiTheme::TextStyle::load(const Any& any) {
 
-    Token token = t.peek();
+    any.verifyName("TextStyle");
 
-    if ((token.type() == Token::SYMBOL) &&
-        (token.string() == name)) {
-        // Font
-        t.readSymbols(name, "=", "{");
+    // All of these are optional
+    if (any.containsKey("face")) {
+        // Try to load the font
+        std::string fontFilename = any["face"];
 
-        do {
-            token = t.peek();
-
-            alwaysAssertM(token.type() == Token::SYMBOL, 
-                format("Unexpected token at line %d", token.line()));
-
-            std::string s = token.string();
-
-            if (s == "face") {
-                t.readSymbols("face", "=");
-
-                // Try to load the font
-                std::string fontFilename = t.readString();
-
-                if (FileSystem::exists(fontFilename)) {
-                    font = GFont::fromFile(fontFilename);
-                } else {
-                    std::string x = System::findDataFile(fontFilename);
-                    if (x != "") {
-                        font = GFont::fromFile(x);
-                    } else {
-                        std::string x = System::findDataFile(path + filenameBaseExt(fontFilename));
-                        if (x != "") {
-                            font = GFont::fromFile(x);
-                        } else {
-                            logPrintf("GuiTheme Warning: could not find font %s\n", fontFilename.c_str());
-                        }
-                    }
-                }
-
-            } else if (s == "size") {
-
-                t.readSymbols("size", "=");
-                size = t.readNumber();
-            } else if (s == "color") {
-                color = readColor("color", t);
-            } else if (s == "outlineColor") {
-                outlineColor = readColor("outlineColor", t);
-            } else if (s == "}") {
-                t.readSymbol("}");
-                return;
+        if (FileSystem::exists(fontFilename)) {
+            font = GFont::fromFile(fontFilename);
+        } else {
+            std::string x = System::findDataFile(fontFilename);
+            if (! x.empty()) {
+                font = GFont::fromFile(x);
             } else {
-                alwaysAssertM(false, format("Bad symbol: %s at line %d", s.c_str(), token.line()));
+                logPrintf("GuiTheme Warning: could not find font %s\n", fontFilename.c_str());
             }
-        } while (true);
+        }
+    }
+
+    if (any.containsKey("size")) {
+        size = any["size"];
+    }
+
+    if (any.containsKey("color")) {
+        color = any["color"];
+    }
+
+    if (any.containsKey("outlineColor")) {
+        outlineColor = any["outlineColor"];
     }
 }
+
 
 } // namespace G3D
