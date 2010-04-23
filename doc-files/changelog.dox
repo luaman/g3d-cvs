@@ -225,6 +225,9 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> Linux/FreeBSD build now depends on libzip and is not built internally.  
+          OSX/Windows version of zip.lib was replaced with libzip.
+          The original implementation was based on minizip.
      <li> G3D::OSWindow::Settings::fsaaSamples -> G3D::OSWindow::Settings::msaaSamples
      <li> G3D::Texture::Preprocess::brighten -> G3D::Texture::Preprocess::modulate 
      <li> Surface::renderTransmissives -> G3D::Surface::renderTransmissives
@@ -235,9 +238,6 @@
      <li> Removed G3D::Texture::invertY (See G3D::RenderDevice::invertY)
      <li> G3D::Matrix4::perspectiveProjection flips the y-axis by default (see upDirection argument to get the old behavior)
      <li> Removed G3D::ToneMap (use G3D::Film instead)
-     <li> Linux/FreeBSD build now depends on libzip and is not built internally.  
-          OSX/Windows version of zip.lib was replaced with libzip.
-          The original implementation was based on minizip.
      <li> G3D::Vector3, G3D::Vector3 and G3D::Vector4 operator float* are gone
      <li> G3D::Array(int size) constructor is gone
      <li> Redesigned G3D::MD2Model API to match MD3Model API

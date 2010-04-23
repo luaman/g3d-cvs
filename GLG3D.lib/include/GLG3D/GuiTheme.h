@@ -170,6 +170,7 @@ public:
     };
 
 private:
+    friend class GuiThemeEditor;
 
     /** Used for delayed text rendering. */
     class Text {
@@ -184,11 +185,11 @@ private:
     };
 
     /** Delayed text, organized by the associated font.*/
-    Table<GFont::Ref, Array<Text> >     delayedText;
+    Table<GFont::Ref, Array<Text> >     m_delayedText;
 
     /** Number of values in delayedText's arrays.  Used to 
         detect when we need to enter font rendering mode. */
-    int                                 delayedTextCount;
+    int                                 m_delayedTextCount;
 
 
     /** Clears the delayedText array. */
@@ -403,7 +404,7 @@ private:
         TextBox::Focus       enabled;
         Vector2              disabled;
 
-        //void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void load(const Any& any);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused) const;
     };
 
@@ -567,25 +568,18 @@ private:
        
        OpenGL-style matrix
      */
-    float             guiTextureMatrix[16];
-
-    float             fontTextureMatrix[16];
-    
-    /** The font and gui share a single texture unit (this is faster than
-        using two units and selectively disabling).
-     */
-    int               fontTextureID;
+    float             m_guiTextureMatrix[16];
 
     /** True between beginRendering and endRendering */
-    bool              inRendering;
+    bool              m_inRendering;
 
-    RenderDevice*     rd;
-
-    /** Used by push/popClientRect */
-    Array<Rect2D>     scissorStack;
+    RenderDevice*     m_rd;
 
     /** Used by push/popClientRect */
-    Array<CoordinateFrame> coordinateFrameStack;
+    Array<Rect2D>     m_scissorStack;
+
+    /** Used by push/popClientRect */
+    Array<CoordinateFrame> m_coordinateFrameStack;
 
     static void drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevice* rd);
     
@@ -597,9 +591,6 @@ private:
 
     static StretchMode stringToStretchMode(const std::string& name);
 
-    /** Only used for testing the formatting of text during skin creation */
-    GuiTheme();
-
     GuiTheme(const std::string& filename,
         const GFont::Ref&   fallbackFont,
         float               fallbackSize, 
@@ -607,7 +598,7 @@ private:
         const Color4&       fallbackOutlineColor);
     
     /** Unpacks a .skn file and loads the theme.  Usually called from constructor. */
-    void loadSkin(BinaryInput& b);
+    void loadTheme(BinaryInput& b);
 
     /** Loads the theme specification. */
     void loadCoords(const Any& any);

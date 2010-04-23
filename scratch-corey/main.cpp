@@ -92,7 +92,7 @@ void App::onInit() {
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
     /*
-    GuiTheme::makeThemeFromSourceFiles(pathConcat(dataDir, "gui"), "osx_white.png", "osx_black.png", "osx.txt", "osx_new.skn");
+    GuiTheme::makeThemeFromSourceFiles(pathConcat(dataDir, "skin"), "osx_white.png", "osx_black.png", "osx.txt", "osx_new.skn");
 
     GuiTheme::Ref theme = GuiTheme::fromFile("osx_new.skn");
     */

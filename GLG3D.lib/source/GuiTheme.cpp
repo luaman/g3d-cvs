@@ -55,7 +55,7 @@ GuiTheme::GuiTheme(const std::string& filename,
         const GFont::Ref&   fallbackFont,
         float               fallbackSize, 
         const Color4&       fallbackColor, 
-        const Color4&       fallbackOutlineColor) : delayedTextCount(0), inRendering(false){
+        const Color4&       fallbackOutlineColor) : m_delayedTextCount(0), m_inRendering(false){
 
     alwaysAssertM(FileSystem::exists(filename), "Cannot find " + filename);
 
@@ -64,7 +64,7 @@ GuiTheme::GuiTheme(const std::string& filename,
     m_textStyle.size = fallbackSize;
     m_textStyle.color = fallbackColor;
     m_textStyle.outlineColor = fallbackOutlineColor;
-    loadSkin(b);
+    loadTheme(b);
 }
 
 
@@ -94,7 +94,7 @@ GuiThemeRef GuiTheme::fromFile(
 }
 
 
-void GuiTheme::loadSkin(BinaryInput& b) {
+void GuiTheme::loadTheme(BinaryInput& b) {
     std::string f = b.readString32();
     (void)f;
     debugAssert(f == "G3D Skin File");
@@ -123,9 +123,10 @@ void GuiTheme::loadSkin(BinaryInput& b) {
     m_texture = Texture::fromGImage(b.getFilename(), image, ImageFormat::RGBA8(), Texture::DIM_2D, Texture::Settings::video(), p);
 
     toGLMatrix(Matrix4(1.0f / m_texture->width(), 0, 0, 0,
-            0, 1.0f / m_texture->height(), 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1), guiTextureMatrix);
+                       0, 1.0f / m_texture->height(), 0, 0,
+                       0, 0, 1, 0,
+                       0, 0, 0, 1),
+               m_guiTextureMatrix);
 }
 
 void GuiTheme::loadCoords(const Any& any) {
@@ -187,26 +188,25 @@ void GuiTheme::loadCoords(const Any& any) {
     m_dropDownList.disabledTextStyle = m_disabledTextStyle;
     m_dropDownList.load(any["dropDownList"]);
 
-    // TODO: eventually, set canvas separately when the skin files have been updated
+    // Canvas now loads from the coordinates spec,
+    // but still defaults everything to TextBox
     m_canvas.base = m_textBox.base;
     m_canvas.disabled = m_textBox.disabled;
     m_canvas.disabledTextStyle = m_textBox.disabledTextStyle;
     m_canvas.enabled = m_textBox.enabled;
     m_canvas.pad = m_textBox.textPad;
     m_canvas.textStyle = m_textBox.textStyle;
-
-    m_canvas.pad.bottomRight -= Vector2(4, 2);
-    m_canvas.pad.topLeft     -= Vector2(5, 2);
+    m_canvas.load(any["canvas"]);
 
     m_selection.load(any["selection"]);
 }
 
 
 void GuiTheme::beginRendering(RenderDevice* rd) {
-    this->rd = rd;
+    m_rd = rd;
 
-    debugAssert(! inRendering);
-    inRendering = true;
+    debugAssert(! m_inRendering);
+    m_inRendering = true;
 
     rd->push2D();
 
@@ -216,45 +216,45 @@ void GuiTheme::beginRendering(RenderDevice* rd) {
     rd->setColor(Color3::white());
 
     rd->setTexture(TEXTURE_UNIT, m_texture);
-    rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
+    rd->setTextureMatrix(TEXTURE_UNIT, m_guiTextureMatrix);
     rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
 void GuiTheme::beginText() const {
-    rd->endPrimitive();
+    m_rd->endPrimitive();
 }
 
 
 void GuiTheme::endText() const {
     glBindTexture(GL_TEXTURE_2D, m_texture->openGLID());
     glMatrixMode(GL_TEXTURE);
-    glLoadMatrix(guiTextureMatrix);
+    glLoadMatrix(m_guiTextureMatrix);
 
     glColor3f(1,1,1);
         
-    rd->beginPrimitive(PrimitiveType::QUADS);
+    m_rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
 void GuiTheme::pauseRendering() {
     drawDelayedText();
-    debugAssert(inRendering);
-    rd->endPrimitive();
+    debugAssert(m_inRendering);
+    m_rd->endPrimitive();
 
-    rd->setTexture(TEXTURE_UNIT, NULL);
-    rd->setTextureMatrix(TEXTURE_UNIT, Matrix4::identity());
-    rd->pushState();
+    m_rd->setTexture(TEXTURE_UNIT, NULL);
+    m_rd->setTextureMatrix(TEXTURE_UNIT, Matrix4::identity());
+    m_rd->pushState();
 }
 
 
 void GuiTheme::resumeRendering() {
-    rd->popState();
+    m_rd->popState();
 
-    rd->setTexture(TEXTURE_UNIT, m_texture);
-    rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
-    rd->setColor(Color3::white());
-    rd->beginPrimitive(PrimitiveType::QUADS);
+    m_rd->setTexture(TEXTURE_UNIT, m_texture);
+    m_rd->setTextureMatrix(TEXTURE_UNIT, m_guiTextureMatrix);
+    m_rd->setColor(Color3::white());
+    m_rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
@@ -262,15 +262,15 @@ void GuiTheme::endRendering() {
     // Draw any remaining text
     drawDelayedText();
 
-    debugAssert(inRendering);
+    debugAssert(m_inRendering);
 
-    debugAssertM( coordinateFrameStack.size() == 0, 
+    debugAssertM( m_coordinateFrameStack.size() == 0, 
         "pushClientRect without matching popClientRect");
 
-    rd->endPrimitive();
-    rd->pop2D();
-    inRendering = false;
-    rd = NULL;
+    m_rd->endPrimitive();
+    m_rd->pop2D();
+    m_inRendering = false;
+    m_rd = NULL;
 }
 
 
@@ -278,8 +278,8 @@ void GuiTheme::drawCheckable
     (const Checkable& control, const Rect2D& bounds, 
      bool enabled, bool focused, bool selected, const GuiText& text) const {
 
-    debugAssert(inRendering);
-    control.render(rd, bounds, enabled, focused, selected);
+    debugAssert(m_inRendering);
+    control.render(m_rd, bounds, enabled, focused, selected);
 
     if (text.numElements() > 0) {
         const TextStyle& style = enabled ? control.textStyle : control.disabledTextStyle;
@@ -334,7 +334,7 @@ void GuiTheme::renderDropDownList
     // Offset by left_caption_width
     const Rect2D& bounds = dropDownListToClickBounds(initialBounds, captionWidth);
 
-    m_dropDownList.render(rd, bounds, enabled, focused, down);
+    m_dropDownList.render(m_rd, bounds, enabled, focused, down);
 
     // Area in which text appears
     Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_dropDownList.textPad.topLeft, 
@@ -353,7 +353,7 @@ void GuiTheme::renderDropDownList
 
 
 void GuiTheme::renderSelection(const Rect2D& bounds) const {
-    m_selection.render(rd, bounds, Vector2(0, 0));
+    m_selection.render(m_rd, bounds, Vector2(0, 0));
 }
 
 
@@ -369,7 +369,7 @@ void GuiTheme::renderTextBox
 
     const Rect2D& bounds = textBoxToClickBounds(fullBounds, captionWidth);
 
-    m_textBox.render(rd, bounds, enabled, focused);
+    m_textBox.render(m_rd, bounds, enabled, focused);
 
     alwaysAssertM(text.numElements() < 2, "Text box cannot contain GuiText with more than 1 element");
 
@@ -467,7 +467,7 @@ void GuiTheme::renderCanvas
 
     const Rect2D& bounds = canvasToClickBounds(fullBounds, captionHeight);
 
-    m_canvas.render(rd, bounds, enabled, focused);
+    m_canvas.render(m_rd, bounds, enabled, focused);
 
     addDelayedText(caption, m_canvas.textStyle, Vector2(fullBounds.x0(), bounds.y0()), 
                    GFont::XALIGN_LEFT, GFont::YALIGN_BOTTOM);
@@ -492,7 +492,7 @@ void GuiTheme::renderPane(const Rect2D& fullBounds, const GuiText& caption, Pane
     }
 
     if (paneStyle != NO_PANE_STYLE) {
-        m_pane[paneStyle].frame.render(rd, paneRenderBounds, Vector2::zero());
+        m_pane[paneStyle].frame.render(m_rd, paneRenderBounds, Vector2::zero());
     }
 }
 
@@ -542,7 +542,7 @@ void GuiTheme::drawWindow(const Window& window, const Rect2D& bounds,
     // Update any pending text since the window may overlap another window
     drawDelayedText();
 
-    window.render(rd, bounds, focused);
+    window.render(m_rd, bounds, focused);
 
     if (hasClose) {
 
@@ -563,7 +563,7 @@ void GuiTheme::drawWindow(const Window& window, const Rect2D& bounds,
             offset = m_closeButton.windowDefocused;
         }
 
-        drawRect(vertex, m_closeButton.base + offset, rd);
+        drawRect(vertex, m_closeButton.base + offset, m_rd);
     }
     
     if (window.borderThickness.topLeft.y > 4) {
@@ -658,9 +658,9 @@ Vector2 GuiTheme::minButtonSize(const GuiText& text, ButtonStyle buttonStyle) co
 void GuiTheme::renderButton(const Rect2D& bounds, bool enabled, bool focused, 
                            bool pushed, const GuiText& text, ButtonStyle buttonStyle) const {
 
-    debugAssert(inRendering);
+    debugAssert(m_inRendering);
     if (buttonStyle != NO_BUTTON_STYLE) {
-        m_button[buttonStyle].render(rd, bounds, enabled, focused, pushed);
+        m_button[buttonStyle].render(m_rd, bounds, enabled, focused, pushed);
     }
 
     const TextStyle& style = 
@@ -682,9 +682,9 @@ void GuiTheme::renderHorizontalSlider
  const GuiText& text,
  float captionWidth) const {
     
-    debugAssert(inRendering);
+    debugAssert(m_inRendering);
     m_hSlider.render
-        (rd, 
+        (m_rd, 
          horizontalSliderToSliderBounds(bounds, captionWidth),
          pos, enabled, focused);
 
@@ -697,7 +697,7 @@ void GuiTheme::renderHorizontalSlider
 
 
 void GuiTheme::renderLabel(const Rect2D& bounds, const GuiText& text, GFont::XAlign xalign, GFont::YAlign yalign, bool enabled) const {
-    debugAssert(inRendering);
+    debugAssert(m_inRendering);
 
     if (text.numElements() > 0) {
         Vector2 pos;
@@ -735,7 +735,7 @@ void GuiTheme::renderLabel(const Rect2D& bounds, const GuiText& text, GFont::XAl
 
 
 void GuiTheme::drawDelayedText() const {
-    if (delayedTextCount == 0) {
+    if (m_delayedTextCount == 0) {
         return;
     }
 
@@ -746,16 +746,16 @@ void GuiTheme::drawDelayedText() const {
     beginText();
     {
         static Array<GFont::Ref> delayedFont;
-        delayedText.getKeys(delayedFont);
+        m_delayedText.getKeys(delayedFont);
         
         for (int f = 0; f < delayedFont.size(); ++f) {
             const GFont::Ref& thisFont = delayedFont[f];
-            const Array<Text>& label = delayedText[thisFont];
+            const Array<Text>& label = m_delayedText[thisFont];
             
             if (label.size() > 0) {
                 // Load this font
 
-                thisFont->begin2DQuads(rd);
+                thisFont->begin2DQuads(m_rd);
 
                 glBindTexture(GL_TEXTURE_2D, thisFont->texture()->openGLID());
                 glMatrixMode(GL_TEXTURE);
@@ -764,10 +764,10 @@ void GuiTheme::drawDelayedText() const {
                 // Render the text in this font
                 for (int t = 0; t < label.size(); ++t) {
                     const Text& text = label[t];
-                    thisFont->send2DQuads(rd, text.text, text.position, text.size, text.color, 
+                    thisFont->send2DQuads(m_rd, text.text, text.position, text.size, text.color, 
                                           text.outlineColor, text.xAlign, text.yAlign);
                 }
-                thisFont->end2DQuads(rd);
+                thisFont->end2DQuads(m_rd);
 
                 // Fast clear to avoid memory allocation and deallocation
                 const_cast<Array<Text>&>(label).fastClear();
@@ -775,14 +775,14 @@ void GuiTheme::drawDelayedText() const {
             } else if (cleanOldFonts) {
                 // Old font that is no longer in use.  Remove the reference in case the font itself
                 // needs to be garbage collected
-                const_cast<GuiTheme*>(this)->delayedText.remove(thisFont);
+                const_cast<GuiTheme*>(this)->m_delayedText.remove(thisFont);
             }
         }
     }
     endText();
 
     // Reset the count
-    const_cast<GuiTheme*>(this)->delayedTextCount = 0;
+    const_cast<GuiTheme*>(this)->m_delayedTextCount = 0;
 }
 
     
@@ -807,13 +807,13 @@ void GuiTheme::addDelayedText
 
     GuiTheme* me = const_cast<GuiTheme*>(this);
     
-    ++(me->delayedTextCount);
+    ++(me->m_delayedTextCount);
 
-    if (! delayedText.containsKey(font)) {
-        me->delayedText.set(font, Array<Text>());
+    if (! m_delayedText.containsKey(font)) {
+        me->m_delayedText.set(font, Array<Text>());
     }
     
-    Text& text = me->delayedText[font].next();
+    Text& text = me->m_delayedText[font].next();
     text.text       = label;
     text.position   = position;
     text.xAlign     = xalign;
@@ -871,8 +871,6 @@ Rect2D GuiTheme::clientToPaneBounds(const Rect2D& bounds, const GuiText& caption
 }
 
 
-GuiTheme::GuiTheme() {}
-
 void GuiTheme::makeThemeFromSourceFiles
 (
  const std::string& sourceDir,
@@ -910,17 +908,6 @@ void GuiTheme::makeThemeFromSourceFiles
 
     std::string coords = readWholeFile(pathConcat(sourceDir, coordsFile));
 
-    // Test the text formatting
-    {
-        GuiTheme skin;
-        TextInput t(TextInput::FROM_STRING, coords);
-        
-        Any any;
-        any.deserialize(t);
-
-        skin.loadCoords(any);
-    }
-    
     BinaryOutput b(destFile, G3D_LITTLE_ENDIAN);
     
     b.writeString32("G3D Skin File");
@@ -933,38 +920,38 @@ void GuiTheme::makeThemeFromSourceFiles
 }
 
 void GuiTheme::pushClientRect(const Rect2D& r) {
-    debugAssert(inRendering);
+    debugAssert(m_inRendering);
 
     // Must draw old text since we don't keep track of which text 
     // goes with which client rect.
     drawDelayedText();
-    rd->endPrimitive();
+    m_rd->endPrimitive();
 
-    const CoordinateFrame& oldMatrix = rd->objectToWorldMatrix();
-    coordinateFrameStack.append(oldMatrix);
-    const Rect2D& oldRect = rd->clip2D();
-    scissorStack.append(oldRect);
+    const CoordinateFrame& oldMatrix = m_rd->objectToWorldMatrix();
+    m_coordinateFrameStack.append(oldMatrix);
+    const Rect2D& oldRect = m_rd->clip2D();
+    m_scissorStack.append(oldRect);
 
     Rect2D newRect = r + oldMatrix.translation.xy();
     newRect = oldRect.intersect(newRect);
-    rd->setClip2D(newRect);
+    m_rd->setClip2D(newRect);
 
     const CoordinateFrame& newMatrix = oldMatrix * CoordinateFrame(Vector3(r.x0y0(), 0));
-    rd->setObjectToWorldMatrix(newMatrix);
-    rd->beginPrimitive(PrimitiveType::QUADS);
+    m_rd->setObjectToWorldMatrix(newMatrix);
+    m_rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
 void GuiTheme::popClientRect() {
-    debugAssertM( coordinateFrameStack.size() > 0, 
+    debugAssertM( m_coordinateFrameStack.size() > 0, 
         "popClientRect without matching pushClientRect");
 
     drawDelayedText();
-    rd->endPrimitive();
+    m_rd->endPrimitive();
 
-    rd->setObjectToWorldMatrix(coordinateFrameStack.pop());
-    rd->setClip2D(scissorStack.pop());
-    rd->beginPrimitive(PrimitiveType::QUADS);
+    m_rd->setObjectToWorldMatrix(m_coordinateFrameStack.pop());
+    m_rd->setClip2D(m_scissorStack.pop());
+    m_rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 /////////////////////////////////////////////
@@ -1468,6 +1455,34 @@ void GuiTheme::TextBox::render(RenderDevice* rd, const Rect2D& bounds, bool _ena
 }
 ///////////////////////////////////////////////////////
 
+void GuiTheme::Canvas::load(const Any& any) {
+    any.verifyName("Canvas");
+
+    // All of Canvas is optional (defaults to same as text box)
+    if (any.containsKey("font")) {
+        textStyle.load(any["font"]);
+    }
+    if (any.containsKey("disabledFont")) {
+        disabledTextStyle.load(any["disabledFont"]);
+    }
+
+    if (any.containsKey("base")) {
+        base.load(any["base"]);
+    }
+
+    if (any.containsKey("pad")) {
+        pad.load(any["pad"]);
+    }
+
+    if (any.containsKey("enabled")) {
+        enabled.load(any["enabled"]);
+    }
+
+    if (any.containsKey("disabled")) {
+        disabled = any["disabled"];
+    }
+
+}
 
 void GuiTheme::Canvas::render(RenderDevice* rd, const Rect2D& bounds, bool _enabled, bool focused) const {
     const Vector2* r = NULL;
@@ -1548,17 +1563,11 @@ void GuiTheme::TextStyle::load(const Any& any) {
     // All of these are optional
     if (any.containsKey("face")) {
         // Try to load the font
-        std::string fontFilename = any["face"];
-
-        if (FileSystem::exists(fontFilename)) {
-            font = GFont::fromFile(fontFilename);
+        std::string filename = any["face"].resolveStringAsFilename();
+        if (! filename.empty()) {
+            font = GFont::fromFile(filename);
         } else {
-            std::string x = System::findDataFile(fontFilename);
-            if (! x.empty()) {
-                font = GFont::fromFile(x);
-            } else {
-                logPrintf("GuiTheme Warning: could not find font %s\n", fontFilename.c_str());
-            }
+            logPrintf("GuiTheme Warning: could not find font %s\n", any["face"]);
         }
     }
 

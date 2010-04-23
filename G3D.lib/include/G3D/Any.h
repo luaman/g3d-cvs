@@ -438,12 +438,14 @@ public:
     const std::string& string() const;
     bool boolean() const;
 
-    /** Treat this string value as if it were a filename and resolve it relative to the directory from which
-     the Any was parsed.  If not found, use System::findDataFile to try and locate the file. 
-     
-     See the actual
-     implementation in Any.cpp for the precise specification. It is hard to explain in English and the fallback
-     cases may change between G3D releases. */
+    /** If a valid string, takes the string value and creates a fully qualified filename.
+        If not found, the returned string is empty.
+
+        The file is searched for the following ways:
+        
+        - In the directory from which the Any was loaded.
+        - By calling System::findDataFile as you would with other data files.
+     */
     std::string resolveStringAsFilename() const;
 
 
