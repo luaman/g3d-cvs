@@ -12,10 +12,12 @@
 #include "GLG3D/MD3Model.h"
 #include "G3D/FileSystem.h"
 #include "G3D/Any.h"
+#include "GLG3D/SuperSurface.h"
 
 namespace G3D {
 
 static Material::Ref makeMD3Material(const std::string& skinFilename) {
+
     return NULL;
 }
 
@@ -769,7 +771,87 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
             continue;
         }
 
-        MD3Surface* md3Surface = new MD3Surface;
+#if 1  // New code
+        // Set up blending
+        /////////////////////////////////////////////////////////////////
+        // TODO: abstract this blending code into a method
+        // TODO: handle blends between different animations the way that MD2Model does)
+
+        float frameNum = 0.0f;
+
+        if (partType == PART_LEGS) {
+            frameNum = findFrameNum(pose.legsAnim, pose.legsTime);
+        } else if (partType == PART_TORSO) {
+            frameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
+        }
+
+        // Calculate frames for blending
+        int frame1 = iFloor(frameNum);
+        int frame2 = iClamp(iCeil(frameNum), 0, surfaceData.m_numFrames - 1);
+        float interp = fmod(frameNum, 1.0f);
+
+        /////////////////////////////////////////////////////////////////
+
+        // Keep a back pointer so that the index array can't be deleted
+        CFrame partFrame = cframe;
+
+        // TODO: shouldn't this translation be in the reference frame of CFrame?  That is,
+        // should this be: trans += cframe.rotation * (...)
+        partFrame.translation += part->m_frames[frame1].m_localOrigin.lerp(part->m_frames[frame2].m_localOrigin, interp);
+
+        SuperSurface::Ref surface = 
+            SuperSurface::create
+               (part->m_modelName + "::" + surfaceData.m_name, 
+                partFrame, 
+                SuperSurface::GPUGeom::create(), 
+                SuperSurface::CPUGeom(), 
+                this);
+
+        // Use the internal storage of the surface
+        SuperSurface::CPUGeom& cpuGeom = surface->cpuGeom();
+
+        // Need an empty array for the tangents; safe to make static since this is never used.
+        const static Array<Vector4> packedTangentArray;
+        cpuGeom.index         = &surfaceData.m_indexArray;
+        cpuGeom.geometry      = &surface->internalGeometry();
+        cpuGeom.packedTangent = &packedTangentArray;
+        cpuGeom.texCoord0     = &surfaceData.m_textureCoords;
+
+        // TODO: Replace with the actual part's material
+        surface->gpuGeom()->material = Material::createDiffuse(Color3(1.0, 1.0, 0.0));
+
+        // Copy blended vertex data for frame
+        const MeshAlg::Geometry& geom1 = surfaceData.m_geometry[frame1];
+        const MeshAlg::Geometry& geom2 = surfaceData.m_geometry[frame2];
+
+        const int N = geom1.vertexArray.size();
+        Array<Vector3>& vertexArray = const_cast< Array<Vector3>& >(cpuGeom.geometry->vertexArray);
+        Array<Vector3>& normalArray = const_cast< Array<Vector3>& >(cpuGeom.geometry->normalArray);
+        vertexArray.resize(N);
+        normalArray.resize(N);
+        for (int v = 0; v < N; ++v) {
+            vertexArray[v] = geom1.vertexArray[v].lerp(geom2.vertexArray[v], interp);
+            normalArray[v] = geom1.normalArray[v].lerp(geom2.normalArray[v], interp);
+        }
+
+        // Upload data to the GPU
+        SuperSurface::GPUGeom::Ref gpuGeom = surface->gpuGeom();
+        cpuGeom.copyVertexDataToGPU(gpuGeom->vertex, gpuGeom->normal, gpuGeom->packedTangent, 
+                                    gpuGeom->texCoord0, VertexBuffer::WRITE_EVERY_FRAME);
+
+        // TODO: Store the VertexRange index inside each part; it never changes so there's no reason to upload
+        // every frame
+        VertexBuffer::Ref vb = VertexBuffer::create(cpuGeom.index->size() * sizeof(int), VertexBuffer::WRITE_EVERY_FRAME, VertexBuffer::INDEX);
+        gpuGeom->index = VertexRange(*cpuGeom.index, vb);
+        
+        // TODO: replace with accurate bounds
+        gpuGeom->boxBounds = AABox(-Vector3::inf(), Vector3::inf());
+        gpuGeom->sphereBounds = Sphere(Vector3::zero(), inf());
+
+        posedModelArray.append(surface);
+#else // Original code
+
+        MD3Surface::Ref md3Surface = new MD3Surface();
         md3Surface->m_texture = surfaceTexture;
 
         float frameNum = 0.0f;
@@ -807,6 +889,7 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         md3Surface->m_name = part->m_modelName + "::" + surfaceData.m_name;
 
         posedModelArray.append(md3Surface);
+#endif
     }
 }
 
