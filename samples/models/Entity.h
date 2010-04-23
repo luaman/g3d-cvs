@@ -88,7 +88,7 @@ public:
         }
 
         if (md3Model.notNull()) {
-            md3Model->pose(md3Pose, array, cframe);
+            md3Model->pose(array, cframe, md3Pose);
         }
 
         if (ifsModel.notNull()) {

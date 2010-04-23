@@ -193,13 +193,13 @@ public:
         void setShininess(float constant);
 
         /** Same as <code>setShininess(SuperBSDF::packedSpecularMirror())</code> */
-        inline void setMirrorShininess() {
+        void setMirrorShininess() {
             setShininess(SuperBSDF::packedSpecularMirror());
         }
 
         /** Same as <code>setShininess(SuperBSDF::packSpecularExponent(e))</code> */
-        inline void setGlossyExponentShininess(int e) {
-            setShininess(SuperBSDF::packSpecularExponent(e));
+        void setGlossyExponentShininess(int e) {
+            setShininess(SuperBSDF::packSpecularExponent(float(e)));
         }
 
         /** This is an approximation of attenuation due to extinction

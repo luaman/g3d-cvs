@@ -4,7 +4,7 @@
  Quake III MD3 model loading and posing
 
   \created 2009-01-01
-  \edited  2010-01-13
+  \edited  2010-04-23
  */
 #ifndef G3D_MD3Model_h
 #define G3D_MD3Model_h
@@ -15,6 +15,7 @@
 #include "GLG3D/Surface.h"
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/Texture.h"
+#include "GLG3D/Material.h"
 
 
 namespace G3D {
@@ -48,6 +49,13 @@ public:
         NUM_PARTS
     };
 
+
+    enum PartName {
+        UPPER,
+        LOWER,
+        HEAD,
+        NUM_PARTNAMES
+    };
     /**
         All standard animation types expected to 
         have parameters in the animation.cfg file.
@@ -169,6 +177,28 @@ public:
         Order of part loading is: lower.md3 -> upper.md3 -> head.md3 -> weapon.md3
      */
     static MD3Model::Ref fromDirectory(const std::string& modelDir);
+
+    static const char* partName(PartName p);
+
+    class Specification {
+    public:
+        /** Directory containing head.md3, upper.md3, lower.md3, torso.md3, and animation.cfg */
+        std::string     directory;
+
+        Material::Ref   material[NUM_PARTS];
+
+        Specification() {}
+
+        /** 
+          Formats are
+          - "MD3Model::Specification(path, skinname)", where the actual skin names are "lower_" + skinname + ".skin", etc. 
+          - "MD3Model::Specification {directory = ..., material = (Material::Specification {...}, ...)}", where the materials are in the order: lower, upper, head
+          - "MD3Model::Specification {directory = ..., material = Material::Specification {...} }" 
+        */
+        Specification(const Any& any);
+    };
+
+    static Ref create(const Specification& spec);
 
     /**
         Poses then adds all available parts to \a posedModelArray.

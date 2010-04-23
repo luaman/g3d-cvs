@@ -11,8 +11,58 @@
 #include "G3D/TextInput.h"
 #include "GLG3D/MD3Model.h"
 #include "G3D/FileSystem.h"
+#include "G3D/Any.h"
 
 namespace G3D {
+
+static Material::Ref makeMD3Material(const std::string& skinFilename) {
+    return NULL;
+}
+
+const char* MD3Model::partName(PartName p) {
+    static const char* names[] = {"lower", "upper", "head"};
+    debugAssert(p >= 0 && p < 3);
+    return names[p];
+}
+
+
+MD3Model::Specification::Specification(const Any& any) {
+    any.verifyName("MD3Model::Specification");
+    
+    if (any.type() == Any::ARRAY) {
+        directory = any[0].resolveStringAsFilename();
+        std::string skinName = any[1];
+        for (int i = 0; i < NUM_PARTNAMES; ++i) {
+            material[i] = makeMD3Material(FilePath::concat(directory, std::string(partName(PartName(i))) + "_" + skinName + ".skin"));
+        }
+    } else {
+        for (Table<std::string, Any>::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "directory") {
+                directory = it->value.resolveStringAsFilename();
+            } else if (key == "material") {
+                Any m = it->value;
+                if (m.type() == Any::ARRAY) {
+                    for (int i = 0; i < NUM_PARTNAMES; ++i) {
+                        material[i] = Material::create(m[i]);
+                    }
+                } else {
+                    Material::Ref mat = Material::create(m);
+                    for (int i = 0; i < NUM_PARTNAMES; ++i) {
+                        material[i] = mat;
+                    }
+                }
+            } else {
+                any.verify(false, "Unexpected key: " + it->key);
+            }
+        }
+    }
+}
+
+MD3Model::Ref MD3Model::create(const MD3Model::Specification& spec) {
+    // TODO
+    return NULL;
+}
 
 
 // 60 quake units ~= 2 meters
