@@ -634,7 +634,7 @@ void MD3Model::loadSkin(const std::string& filename, PartSkin& partSkin) {
     }
 }
 
-void MD3Model::pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe) {
+void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe, const Pose& pose) {
 
     // Coordinate frame built up from legs
     CoordinateFrame baseFrame = cframe;

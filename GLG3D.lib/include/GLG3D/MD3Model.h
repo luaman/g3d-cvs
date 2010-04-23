@@ -184,7 +184,7 @@ public:
         The initial \a cframe transformation is applied to the base 
         lower.md3 part before the whole model is posed.
      */
-    void pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame());
+    void pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame(),const Pose& pose = Pose());
 
     /**
         Retrieves all available skin names for \a partType.

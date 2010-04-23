@@ -12,9 +12,6 @@
 class App : public GApp {
 public:
 
-    ArticulatedModel::Ref   model;
-    ArticulatedModel::Ref   glassModel;
-
     ShadowMap::Ref          m_shadowMap;
 
     PhysicsFrameSpline      m_spline;
@@ -23,6 +20,8 @@ public:
 
     Shader::Ref             shader;
     Scene::Ref              m_scene;
+
+    MD3Model::Ref           m_model;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -100,20 +99,7 @@ void App::onInit() {
 
     setDesiredFrameRate(10000);
 
-    if (false) {
-        model = ArticulatedModel::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3/maps/charon3dm11v2.bsp");
-    }
-    if (false) {
-        m_film->setBloomStrength(0.3f);
-        m_film->setBloomRadiusFraction(0.02f);
-        ArticulatedModel::Preprocess p;
-        Material::Specification s;
-        s.setLambertian(Color3(1.0f, 0.7f, 0.2f));
-        p.materialOverride = Material::create(s);
-        p.xform = Matrix4::scale(2.0f, 2.0f, 2.0f);
-        glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), p);
-    }
-
+    m_model = MD3Model::fromDirectory("d:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine/");
     m_shadowMap = ShadowMap::create();
 
     debugPane->addCheckBox("Half size viewport", &half);
@@ -121,7 +107,7 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    m_scene = Scene::create("Crates", defaultCamera);
+//    m_scene = Scene::create("Crates", defaultCamera);
 
 
     //shader = Shader::fromStrings("", "uniform vec2 viewportOrigin; void main() {  gl_FragColor.rgb = (gl_FragCoord.xy - viewportOrigin).xyy / 100; }");
@@ -134,15 +120,16 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     if (m_scene.notNull()) {
         m_scene->onPose(posed3D);
     }
-    if (model.notNull()) {
-        model->pose(posed3D);
-    }
-//    glassModel->pose(posed3D, Vector3(0,8,0));
+    m_model->pose(posed3D);
 }
 
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
     (void)surface;
+    for (int i = 0; i < surface.size(); ++i) {
+        surface[i]->render(rd);
+    }
+
     if (m_scene.notNull()) {
 
         Draw::skyBox(rd, m_scene->skyBox());
