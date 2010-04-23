@@ -771,10 +771,9 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
             continue;
         }
 
-#if 1  // New code
         // Set up blending
         /////////////////////////////////////////////////////////////////
-        // TODO: abstract this blending code into a method
+        // TODO: abstract this blending logic into a method
         // TODO: handle blends between different animations the way that MD2Model does)
 
         float frameNum = 0.0f;
@@ -849,47 +848,6 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         gpuGeom->sphereBounds = Sphere(Vector3::zero(), inf());
 
         posedModelArray.append(surface);
-#else // Original code
-
-        MD3Surface::Ref md3Surface = new MD3Surface();
-        md3Surface->m_texture = surfaceTexture;
-
-        float frameNum = 0.0f;
-
-        if (partType == PART_LEGS) {
-            frameNum = findFrameNum(pose.legsAnim, pose.legsTime);
-        } else if (partType == PART_TORSO) {
-            frameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
-        }
-
-        // Calculate frames for blending
-        int frame1 = iFloor(frameNum);
-        int frame2 = iClamp(iCeil(frameNum), 0, surfaceData.m_numFrames - 1);
-        float interp = fmod(frameNum, 1.0f);
-
-        // copy blended vertex data for frame (TODO: eventually SSE this, but wait until everything is converted to use SuperSurface::CPUData)
-        const MeshAlg::Geometry& geom1 = surfaceData.m_geometry[frame1];
-        const MeshAlg::Geometry& geom2 = surfaceData.m_geometry[frame2];
-        for (int vertexIndex = 0; vertexIndex < surfaceData.m_numVertices; ++vertexIndex) {
-            md3Surface->m_geometry.vertexArray.append(geom1.vertexArray[vertexIndex].lerp(geom2.vertexArray[vertexIndex], interp));
-
-            md3Surface->m_geometry.normalArray.append(geom1.normalArray[vertexIndex].lerp(geom2.normalArray[vertexIndex], interp));
-
-            md3Surface->m_texCoords.append(surfaceData.m_textureCoords[vertexIndex]);
-        }
-
-        // Copy static triangle data
-        md3Surface->m_indexArray.append(surfaceData.m_indexArray);
-
-        // Add blended frame-specific translation
-        md3Surface->m_coordFrame = cframe;
-        md3Surface->m_coordFrame.translation += part->m_frames[frame1].m_localOrigin.lerp(part->m_frames[frame2].m_localOrigin, interp);
-
-        // Set name
-        md3Surface->m_name = part->m_modelName + "::" + surfaceData.m_name;
-
-        posedModelArray.append(md3Surface);
-#endif
     }
 }
 
