@@ -16,57 +16,6 @@
 
 namespace G3D {
 
-static Material::Ref makeMD3Material(const std::string& skinFilename) {
-
-    return NULL;
-}
-
-const char* MD3Model::partName(PartName p) {
-    static const char* names[] = {"lower", "upper", "head"};
-    debugAssert(p >= 0 && p < 3);
-    return names[p];
-}
-
-
-MD3Model::Specification::Specification(const Any& any) {
-    any.verifyName("MD3Model::Specification");
-    
-    if (any.type() == Any::ARRAY) {
-        directory = any[0].resolveStringAsFilename();
-        std::string skinName = any[1];
-        for (int i = 0; i < NUM_PARTNAMES; ++i) {
-            material[i] = makeMD3Material(FilePath::concat(directory, std::string(partName(PartName(i))) + "_" + skinName + ".skin"));
-        }
-    } else {
-        for (Table<std::string, Any>::Iterator it = any.table().begin(); it.hasMore(); ++it) {
-            const std::string& key = toLower(it->key);
-            if (key == "directory") {
-                directory = it->value.resolveStringAsFilename();
-            } else if (key == "material") {
-                Any m = it->value;
-                if (m.type() == Any::ARRAY) {
-                    for (int i = 0; i < NUM_PARTNAMES; ++i) {
-                        material[i] = Material::create(m[i]);
-                    }
-                } else {
-                    Material::Ref mat = Material::create(m);
-                    for (int i = 0; i < NUM_PARTNAMES; ++i) {
-                        material[i] = mat;
-                    }
-                }
-            } else {
-                any.verify(false, "Unexpected key: " + it->key);
-            }
-        }
-    }
-}
-
-MD3Model::Ref MD3Model::create(const MD3Model::Specification& spec) {
-    // TODO
-    return NULL;
-}
-
-
 // 60 quake units ~= 2 meters
 #define Q3_LOAD_SCALE (2.0f / 60.0f)
 
@@ -78,6 +27,59 @@ inline static Vector3 vectorToG3D(const Vector3& v) {
 inline static Vector3 pointToG3D(const Vector3& v) {
     return vectorToG3D(v) * Q3_LOAD_SCALE;
 }
+
+
+MD3Model::Specification::Part::Part(const Any& any) {
+    any.verifyName("Part");
+
+    load = true;
+
+    if (any.containsKey("skin")) {
+        skinName = any["skin"];
+    }
+
+    if (any.containsKey("material")) {
+        material = Material::create(any["material"]);
+    }
+}
+
+MD3Model::Specification::Specification(const Any& any) {
+    any.verifyName("MD3Model::Specification");
+    
+    directory = any["directory"];
+
+    // Expect the base part (legs/lower)
+    parts[PART_LEGS] = any.containsKey("legs") ? any["legs"] : any["lower"];
+
+    // Rest of parts are optional
+    if (any.containsKey("torso")) {
+        parts[PART_TORSO] = any["torso"];
+    }
+    if (any.containsKey("upper")) {
+        parts[PART_TORSO] = any["upper"];
+    }
+
+    if (parts[PART_TORSO].load) {
+        if (any.containsKey("head")) {
+            parts[PART_HEAD] = any["head"];
+        }
+
+        if (any.containsKey("weapon")) {
+            parts[PART_HEAD] = any["weapon"];
+        }
+    }
+}
+
+MD3Model::Ref MD3Model::create(const MD3Model::Specification& spec) {
+    MD3Model* model = new MD3Model;
+
+    model->loadSpecification(spec);
+    model->loadAllSkins(spec.directory);
+
+    return model;
+}
+
+
 
 // Definition of MD3 file surface header structure
 struct MD3SurfaceHeader {
@@ -389,7 +391,7 @@ void MD3Part::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
         const std::string& shaderName = filenameBaseExt(shaderPath);
 
         // Ignore empty shader names for now (filled in with .skin file)
-        if (! shaderName.empty() && FileSystem::exists(m_modelDir + shaderName)) {
+        if (! shaderName.empty() && FileSystem::exists(pathConcat(m_modelDir, shaderName))) {
             surfaceData.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
         }
     }
@@ -517,19 +519,27 @@ MD3Model::~MD3Model() {
 MD3Model::Ref MD3Model::fromDirectory(const std::string& modelDir) {
     MD3Model* model = new MD3Model;
 
-    model->loadDirectory(modelDir);
+    // Create default spec to load all parts with default skin and materials
+    Specification spec;
+    spec.directory = modelDir;
+    spec.parts[PART_LEGS].load = true;
+    spec.parts[PART_TORSO].load = true;
+    spec.parts[PART_HEAD].load = true;
+    spec.parts[PART_WEAPON].load = true;
+
+    model->loadSpecification(spec);
     model->loadAllSkins(modelDir);
 
     return model;
 }
 
 
-void MD3Model::loadDirectory(const std::string& modelDir) {
+void MD3Model::loadSpecification(const Specification& spec) {
     // Load animation.cfg file
-    loadAnimationCfg(pathConcat(modelDir, "animation.cfg"));
+    loadAnimationCfg(pathConcat(spec.directory, "animation.cfg"));
 
     // Load legs
-    std::string filename = pathConcat(modelDir, "lower.md3");
+    std::string filename = pathConcat(spec.directory, "lower.md3");
 
     m_parts[PART_LEGS] = new MD3Part;
     
@@ -539,36 +549,42 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
     }
 
     // Load torso
-    filename = pathConcat(modelDir, "upper.md3");
+    if (spec.parts[PART_TORSO].load) {
+        filename = pathConcat(spec.directory, "upper.md3");
 
-    m_parts[PART_TORSO] = new MD3Part;
-    
-    if (!m_parts[PART_TORSO]->loadFile(filename)) {
-        debugAssertM(false, format ("Unable to load %s.", filename.c_str()));
-        return;
+        m_parts[PART_TORSO] = new MD3Part;
+        
+        if (!m_parts[PART_TORSO]->loadFile(filename)) {
+            debugAssertM(false, format ("Unable to load %s.", filename.c_str()));
+            return;
+        }
     }
 
     // Load head
-    filename = pathConcat(modelDir, "head.md3");
+    if (spec.parts[PART_HEAD].load) {
+        filename = pathConcat(spec.directory, "head.md3");
 
-    m_parts[PART_HEAD] = new MD3Part;
-    
-    if (!m_parts[PART_HEAD]->loadFile(filename)) {
-        debugAssertM(false, format("Unable to load %s.", filename.c_str()));
-        return;
+        m_parts[PART_HEAD] = new MD3Part;
+        
+        if (!m_parts[PART_HEAD]->loadFile(filename)) {
+            debugAssertM(false, format("Unable to load %s.", filename.c_str()));
+            return;
+        }
     }
 
     // Load weapon (if it exists, optional)
-    filename = pathConcat(modelDir, "weapon.md3");
-    if (! FileSystem::exists(filename)) {
-        return;
-    }
+    if (spec.parts[PART_WEAPON].load) {
+        filename = pathConcat(spec.directory, "weapon.md3");
+        if (! FileSystem::exists(filename)) {
+            return;
+        }
 
-    m_parts[PART_WEAPON] = new MD3Part;
-    
-    if (!m_parts[PART_WEAPON]->loadFile(filename)) {
-        debugAssertM(false, format("Unable to load %s.", filename.c_str()));
-        return;
+        m_parts[PART_WEAPON] = new MD3Part;
+        
+        if (!m_parts[PART_WEAPON]->loadFile(filename)) {
+            debugAssertM(false, format("Unable to load %s.", filename.c_str()));
+            return;
+        }
     }
 }
 
@@ -845,7 +861,7 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         
         // TODO: replace with accurate bounds
         gpuGeom->boxBounds = AABox(-Vector3::inf(), Vector3::inf());
-        gpuGeom->sphereBounds = Sphere(Vector3::zero(), inf());
+        gpuGeom->sphereBounds = Sphere(Vector3::zero(), finf());
 
         posedModelArray.append(surface);
     }

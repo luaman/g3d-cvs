@@ -8,6 +8,9 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
+    MD3Model::Ref       model;
+    MD3Model::Pose      modelPose;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -96,6 +99,8 @@ void App::onInit() {
 
     GuiTheme::Ref theme = GuiTheme::fromFile("osx_new.skn");
     */
+
+    model = MD3Model::fromDirectory("C:\\dev\\data\\md3\\chaos-marine\\models\\players\\Chaos-Marine");
 }
 
 
@@ -136,6 +141,9 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
+    modelPose.legsTime = realTime();
+    modelPose.torsoTime = realTime();
+    model->pose(surfaceArray, CoordinateFrame(), modelPose);
 }
 
 

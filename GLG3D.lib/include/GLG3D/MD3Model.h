@@ -50,12 +50,6 @@ public:
     };
 
 
-    enum PartName {
-        UPPER,
-        LOWER,
-        HEAD,
-        NUM_PARTNAMES
-    };
     /**
         All standard animation types expected to 
         have parameters in the animation.cfg file.
@@ -125,6 +119,44 @@ public:
         inline Pose() : legsTime(0), legsAnim(LEGS_IDLE), torsoTime(0), torsoAnim(TORSO_STAND) {}
     };
 
+    class Specification {
+    public:
+        class Part {
+        public:
+            bool            load;
+            std::string     skinName;
+            Material::Ref   material;
+
+            Part() : load(false) {}
+
+            Part(const Any& any);
+        };
+
+        /** Directory containing head.md3, upper.md3, lower.md3, torso.md3, and animation.cfg */
+        std::string     directory;
+
+        Part            parts[NUM_PARTS];
+
+        Specification() {}
+
+        /** 
+          Format is:
+			 MD3Model::Specification {
+                directory = ...,
+
+                // Optional parts are lower/legs, upper/torso, head, weapon
+                // torso must be provided if head or weapon is specified
+
+                // skin is optional and can be overriden by MD3Model::Pose otherwise defaults to the first skin found in the model directory
+                lower/legs = Part {
+                    // The skin name is the base name of the skin.  e.g., legs_blue.skin - the skin name is "blue"
+                    skin = ...,
+                    material = Material::Specification,
+                },
+            }
+        */
+        Specification(const Any& any);
+    };
 private:
 
     /** Animation data from animation.cfg */
@@ -152,7 +184,7 @@ private:
 
     MD3Model();
 
-    void loadDirectory(const std::string& modelDir);
+    void loadSpecification(const Specification& spec);
 
     void loadAnimationCfg(const std::string& filename);
 
@@ -178,27 +210,7 @@ public:
      */
     static MD3Model::Ref fromDirectory(const std::string& modelDir);
 
-    static const char* partName(PartName p);
-
-    class Specification {
-    public:
-        /** Directory containing head.md3, upper.md3, lower.md3, torso.md3, and animation.cfg */
-        std::string     directory;
-
-        Material::Ref   material[NUM_PARTS];
-
-        Specification() {}
-
-        /** 
-          Formats are
-          - "MD3Model::Specification(path, skinname)", where the actual skin names are "lower_" + skinname + ".skin", etc. 
-          - "MD3Model::Specification {directory = ..., material = (Material::Specification {...}, ...)}", where the materials are in the order: lower, upper, head
-          - "MD3Model::Specification {directory = ..., material = Material::Specification {...} }" 
-        */
-        Specification(const Any& any);
-    };
-
-    static Ref create(const Specification& spec);
+	static MD3Model::Ref create(const Specification& spec);
 
     /**
         Poses then adds all available parts to \a posedModelArray.
@@ -214,7 +226,7 @@ public:
         The initial \a cframe transformation is applied to the base 
         lower.md3 part before the whole model is posed.
      */
-    void pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame(),const Pose& pose = Pose());
+    void pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame(), const Pose& pose = Pose());
 
     /**
         Retrieves all available skin names for \a partType.
