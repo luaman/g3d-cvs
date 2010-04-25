@@ -101,7 +101,7 @@ void GuiTheme::loadTheme(BinaryInput& b) {
 
     float version = b.readFloat32();
     (void)version;
-    debugAssert(fuzzyEq(version, 0.1f));
+    debugAssert(fuzzyEq(version, 1.0f));
 
     // Read specification file
     std::string coords = b.readString32();
@@ -132,7 +132,7 @@ void GuiTheme::loadTheme(BinaryInput& b) {
 void GuiTheme::loadCoords(const Any& any) {
     float version = any["format"];
     (void)version;
-    debugAssertM(fuzzyEq(version, 0.1), format("Only version 0.1 is supported (version = %f)", version));
+    debugAssertM(fuzzyEq(version, 1.0), format("Only version 1.0 is supported (version = %f)", version));
 
     m_textStyle.load(any["font"]);
     m_disabledTextStyle = m_textStyle;
@@ -188,14 +188,8 @@ void GuiTheme::loadCoords(const Any& any) {
     m_dropDownList.disabledTextStyle = m_disabledTextStyle;
     m_dropDownList.load(any["dropDownList"]);
 
-    // Canvas now loads from the coordinates spec,
-    // but still defaults everything to TextBox
-    m_canvas.base = m_textBox.base;
-    m_canvas.disabled = m_textBox.disabled;
-    m_canvas.disabledTextStyle = m_textBox.disabledTextStyle;
-    m_canvas.enabled = m_textBox.enabled;
-    m_canvas.pad = m_textBox.textPad;
-    m_canvas.textStyle = m_textBox.textStyle;
+    m_canvas.textStyle = m_textStyle;
+    m_canvas.disabledTextStyle = m_disabledTextStyle;
     m_canvas.load(any["canvas"]);
 
     m_selection.load(any["selection"]);
@@ -911,7 +905,7 @@ void GuiTheme::makeThemeFromSourceFiles
     BinaryOutput b(destFile, G3D_LITTLE_ENDIAN);
     
     b.writeString32("G3D Skin File");
-    b.writeFloat32(0.1f);
+    b.writeFloat32(1.0f);
     b.writeString32(coords);
     out.encode(GImage::TGA, b);
 
@@ -1458,7 +1452,7 @@ void GuiTheme::TextBox::render(RenderDevice* rd, const Rect2D& bounds, bool _ena
 void GuiTheme::Canvas::load(const Any& any) {
     any.verifyName("Canvas");
 
-    // All of Canvas is optional (defaults to same as text box)
+    // Custom text styles are optional
     if (any.containsKey("font")) {
         textStyle.load(any["font"]);
     }
@@ -1466,22 +1460,10 @@ void GuiTheme::Canvas::load(const Any& any) {
         disabledTextStyle.load(any["disabledFont"]);
     }
 
-    if (any.containsKey("base")) {
-        base.load(any["base"]);
-    }
-
-    if (any.containsKey("pad")) {
-        pad.load(any["pad"]);
-    }
-
-    if (any.containsKey("enabled")) {
-        enabled.load(any["enabled"]);
-    }
-
-    if (any.containsKey("disabled")) {
-        disabled = any["disabled"];
-    }
-
+    base.load(any["base"]);
+    pad.load(any["pad"]);
+    enabled.load(any["enabled"]);
+    disabled = any["disabled"];
 }
 
 void GuiTheme::Canvas::render(RenderDevice* rd, const Rect2D& bounds, bool _enabled, bool focused) const {

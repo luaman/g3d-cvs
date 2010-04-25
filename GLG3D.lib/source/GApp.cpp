@@ -209,9 +209,9 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
         addWidget(splineManipulator);
         
         GFont::Ref arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
-        GuiTheme::Ref skin = GuiTheme::fromFile(System::findDataFile("osx.skn"), arialFont);
+        GuiTheme::Ref theme = GuiTheme::fromFile(System::findDataFile("osx.gtm"), arialFont);
 
-        debugWindow = GuiWindow::create("Debug Controls", skin, 
+        debugWindow = GuiWindow::create("Debug Controls", theme, 
             Rect2D::xywh(0, settings.window.height - 150, 150, 150), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE);
         debugWindow->setVisible(false);
         debugPane = debugWindow->pane();
@@ -223,7 +223,7 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
              splineManipulator,
              Pointer<Manipulator::Ref>(this, &GApp::cameraManipulator, &GApp::setCameraManipulator), 
              m_film,
-             skin,
+             theme,
              console,
              Pointer<bool>(debugWindow, &GuiWindow::visible, &GuiWindow::setVisible),
              &showRenderingStats,

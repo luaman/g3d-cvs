@@ -1,7 +1,7 @@
 /**
  @file GUIViewer.cpp
  
- Viewer for testing and examining .skn files
+ Viewer for testing and examining .gtm files
  
  @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  

@@ -24,5 +24,5 @@ void EmptyViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& ligh
 	screenPrintf("\n");
 	screenPrintf("Image Formats: ico, jpg, bmp, pcx, dds, tga, ppm, png, gif");
 	screenPrintf("3D Formats:    pk3, md2, md3, bsp, 3ds, ifs, am.any");
-    screenPrintf("GUI Formats:   fnt, skn");
+    screenPrintf("GUI Formats:   fnt, gtm");
 }

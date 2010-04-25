@@ -54,7 +54,7 @@ typedef ReferenceCountedPointer<class GuiTheme> GuiThemeRef;
 
 /**
    Renders UI elements.
-   Loads and renders G3D GUI .skn files, which can be used with G3D::Gui.  .skn files
+   Loads and renders G3D GUI .gtm files, which can be used with G3D::Gui.  .gtm files
    can be found in the data module data/gui directory.
 
    Can also be used to explicitly render a UI without actual controls behind it, for example:
@@ -597,7 +597,7 @@ private:
         const Color4&       fallbackColor, 
         const Color4&       fallbackOutlineColor);
     
-    /** Unpacks a .skn file and loads the theme.  Usually called from constructor. */
+    /** Unpacks a .gtm file and loads the theme.  Usually called from constructor. */
     void loadTheme(BinaryInput& b);
 
     /** Loads the theme specification. */
@@ -625,7 +625,7 @@ public:
     /** 
      May return a cached copy.  
 
-     @param filename Name of the .skn file.
+     @param filename Name of the .gtm file.
     */
     static GuiTheme::Ref fromFile(
         const std::string&  filename, 
@@ -760,16 +760,16 @@ public:
     void renderPane(const Rect2D& fullBounds, const GuiText& caption, PaneStyle paneStyle) const;
     
     /** 
-        Create a .skn file from source files.  Used as a preprocess
-        when creating new skins.  You probably don't need to call this
+        Create a .gtm file from source files.  Used as a preprocess
+        when creating new themes.  You probably don't need to call this
         because most people will want to use pre-existing skins
-        (making a skin is a time-consuming artistic process!)
+        (making a theme is a time-consuming artistic process!)
 
         @param sourceDir Must end in a slash. 
         @param whiteName Image of controls on a white background, must be in sourceDir
         @param blackName Image of controls on a black background, must be in sourceDir
         @param coordsFile Text file describing the location of controls
-        @param destFile Output .skn file, not relative to sourceDir
+        @param destFile Output .gtm file, not relative to sourceDir
     */
     static void makeThemeFromSourceFiles(
               const std::string& sourceDir,

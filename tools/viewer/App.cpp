@@ -177,7 +177,7 @@ void App::setViewer(const std::string& newFilename) {
         
         viewer = new MD2Viewer();
         
-    } else if (ext == "skn") {
+    } else if (ext == "gtm") {
         
         viewer = new GUIViewer(this);
 

@@ -101,7 +101,7 @@ public:
 
         /** If true, the G3D::DeveleloperWindow and G3D::CameraControlWindow will be enabled and
             accessible by pushing F12.
-            These require osx.skn, arial.fnt, greek.fnt, and icon.fnt to be in locations where
+            These require osx.gtm, arial.fnt, greek.fnt, and icon.fnt to be in locations where
             System::findDataFile can locate them (the program working directory is one such location).
         */  
         bool                    useDeveloperTools;

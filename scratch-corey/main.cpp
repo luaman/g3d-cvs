@@ -94,13 +94,13 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    /*
-    GuiTheme::makeThemeFromSourceFiles(pathConcat(dataDir, "skin"), "osx_white.png", "osx_black.png", "osx.txt", "osx_new.skn");
+    
+    //GuiTheme::makeThemeFromSourceFiles(pathConcat(dataDir, "skin"), "osx_white.png", "osx_black.png", "osx.txt", pathConcat(dataDir, "osx_new.gtm"));
 
-    GuiTheme::Ref theme = GuiTheme::fromFile("osx_new.skn");
-    */
+    //GuiTheme::Ref theme = GuiTheme::fromFile("osx_new.gtm");
+    
 
-    model = MD3Model::fromDirectory("C:\\dev\\data\\md3\\chaos-marine\\models\\players\\Chaos-Marine");
+    //model = MD3Model::fromDirectory("C:\\dev\\data\\md3\\chaos-marine\\models\\players\\Chaos-Marine");
 }
 
 
@@ -141,9 +141,9 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
-    modelPose.legsTime = realTime();
-    modelPose.torsoTime = realTime();
-    model->pose(surfaceArray, CoordinateFrame(), modelPose);
+    //modelPose.legsTime = realTime();
+    //modelPose.torsoTime = realTime();
+    //model->pose(surfaceArray, CoordinateFrame(), modelPose);
 }
 
 
