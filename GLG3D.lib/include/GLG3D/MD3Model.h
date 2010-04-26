@@ -56,9 +56,12 @@ public:
     enum PartType {
         PART_LOWER,
         PART_UPPER,
-        PART_HEAD,
-        NUM_PARTS
+        /** Heads are never animated */
+        PART_HEAD
     };
+
+    enum {NUM_PARTS = 3, NUM_ANIMATED_PARTS = 2};
+
 
     static const std::string& toString(PartType t);
 
@@ -182,20 +185,17 @@ public:
      */
     class Pose {
     public:
-        GameTime    legsTime;
-        AnimType    legsAnim;
-
-        GameTime    torsoTime;
-        AnimType    torsoAnim;
+        GameTime    time[NUM_ANIMATED_PARTS];
+        AnimType    anim[NUM_ANIMATED_PARTS];
 
         /** If NULL, use the model's default skin */
         Skin::Ref   skin;
 
-        Pose(GameTime lt, AnimType la, GameTime tt, AnimType ta) :
-            legsTime(lt), legsAnim(la), torsoTime(tt), torsoAnim(ta) {}
-
-        Pose() : legsTime(0), legsAnim(LOWER_IDLE), torsoTime(0), torsoAnim(UPPER_STAND) {}
+        Pose();
     };
+
+    /** Advances the pose based on this character's animations. */
+    void simulatePose(Pose& pose, GameTime dt) const;
 
     class Specification {
     public:

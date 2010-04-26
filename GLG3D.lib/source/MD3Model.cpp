@@ -42,6 +42,23 @@ static Material::Ref defaultMaterial() {
     return m;
 }
 
+
+MD3Model::Pose::Pose() {
+    for (int i = 0; i < NUM_ANIMATED_PARTS; ++i) {
+        time[i] = 0;
+    }
+    anim[PART_LOWER] = LOWER_IDLE;
+    anim[PART_UPPER] = UPPER_STAND;
+}
+
+
+void MD3Model::simulatePose(Pose& pose, GameTime dt) const {
+    for (int i = 0; i < NUM_ANIMATED_PARTS; ++i) {
+        pose.time[i] += dt;
+    }
+    // TODO: Check if we need to advance to the next animation
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void MD3Model::Skin::loadSkinFile(const std::string& filename, PartSkin& partSkin) {
@@ -657,7 +674,7 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
 
     posePart(PART_LOWER, pose, posedModelArray, baseFrame);
 
-    float legsFrameNum = findFrameNum(pose.legsAnim, pose.legsTime);
+    float legsFrameNum = findFrameNum(pose.anim[PART_LOWER], pose.time[PART_LOWER]);
     baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
 
     // Pose upper part
@@ -667,7 +684,7 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
 
     posePart(PART_UPPER, pose, posedModelArray, baseFrame);
 
-    float torsoFrameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
+    float torsoFrameNum = findFrameNum(pose.anim[PART_UPPER], pose.time[PART_UPPER]);
 
     baseFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_head");
 
@@ -690,10 +707,10 @@ CoordinateFrame MD3Model::weaponFrame(const CoordinateFrame& cframe, const Pose&
         return baseFrame;
     }
 
-    float legsFrameNum = findFrameNum(pose.legsAnim, pose.legsTime);
+    float legsFrameNum = findFrameNum(pose.anim[PART_LOWER], pose.time[PART_LOWER]);
     baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
 
-    float torsoFrameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
+    float torsoFrameNum = findFrameNum(pose.anim[PART_UPPER], pose.time[PART_UPPER]);
 
     return baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_weapon");
 }
@@ -742,10 +759,8 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
         float frameNum = 0.0f;
 
-        if (partType == PART_LOWER) {
-            frameNum = findFrameNum(pose.legsAnim, pose.legsTime);
-        } else if (partType == PART_UPPER) {
-            frameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
+        if (partType != PART_HEAD) {
+            frameNum = findFrameNum(pose.anim[partType], pose.time[partType]);
         }
 
         // Calculate frames for blending
