@@ -35,7 +35,11 @@ const std::string& MD3Model::toString(PartType t) {
 }
 
 static Material::Ref defaultMaterial() {
-    return Material::createDiffuse(Color3::white() * 0.99f);
+    static Material::Ref m;
+    if (m.isNull()) {
+        m = Material::createDiffuse(Color3::white() * 0.99f);
+    }
+    return m;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -755,11 +759,11 @@ void MD3Model::loadSkin(const std::string& filename, PartSkin& partSkin) {
 
 void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe, const Pose& pose) {
 
-    // Coordinate frame built up from legs
+    // Coordinate frame built up from lower part
     CoordinateFrame baseFrame = cframe;
 
-    // Pose legs part
-    if (!m_parts[PART_LOWER]) {
+    // Pose lower part
+    if (! m_parts[PART_LOWER]) {
         return;
     }
 
@@ -768,8 +772,8 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
     float legsFrameNum = findFrameNum(pose.legsAnim, pose.legsTime);
     baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
 
-    // Pose torso part
-    if (!m_parts[PART_UPPER]) {
+    // Pose upper part
+    if (! m_parts[PART_UPPER]) {
         return;
     }
 
@@ -786,7 +790,7 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
     baseFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_head");
 
     // Pose head part
-    if (!m_parts[PART_HEAD]) {
+    if (! m_parts[PART_HEAD]) {
         return;
     }
 
@@ -797,44 +801,34 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
 void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe) {
     const MD3Part* part = m_parts[partType];
 
+    Skin::Ref skin;
+    if (pose.skin.isNull()) {
+        skin = m_defaultSkin;
+    } else {
+        skin = pose.skin;
+    }
+
     for (int surfaceIndex = 0; surfaceIndex < part->m_triListArray.length(); ++surfaceIndex) {
 
         const MD3Part::TriList& triList = part->m_triListArray[surfaceIndex];
+        Material::Ref material;
 
-        // Find surface skin if available and load textures as needed
-        Texture::Ref surfaceTexture;
+        // Make sure there is a skin for this part
+        if (skin->partSkin.size() > partType) {
+            const Skin::PartSkin& partSkin = skin->partSkin[partType];
 
-        if (triList.m_texture.notNull()) {
-            // Use default surface texture if it was valid
-            surfaceTexture = triList.m_texture;
-
-        } else {
-            // Otherwise find skin
-            std::string skinFilename = pathConcat(part->m_modelDir, pose.skinNames[partType] + ".skin");
-
-            // Default to first skin if not specified
-            if (pose.skinNames[partType].length() == 0) {
-                skinFilename = pathConcat(part->m_modelDir, part->m_defaultSkin + ".skin");
-            }
-
-            size_t skinHash = HashTrait<std::string>::hashCode(skinFilename);
-
-            if (m_skins[partType].containsKey(skinHash)) {
-
-                if (m_skins[partType][skinHash].containsKey(triList.m_name)) {
-                    SkinValue& skinValue = m_skins[partType][skinHash][triList.m_name];
-
-                    if (skinValue.texture.isNull()) {
-                        skinValue.texture = Texture::fromFile(skinValue.filename, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
-                    }
-
-                    surfaceTexture = skinValue.texture;
-                }
+            // See if there is a skin for this trilist
+            Material::Ref* ptr = partSkin.getPointer(triList.m_name);
+            if (ptr) {
+                material = *ptr;
+            } else {
+                // Use default material
+                material = defaultMaterial();
             }
         }
 
-        // Don't set geometry to render if no texture
-        if (surfaceTexture.isNull()) {
+        if (material.isNull()) {
+            // triLists with an intentionally NULL material do not render
             continue;
         }
 
@@ -883,8 +877,7 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         cpuGeom.packedTangent = &packedTangentArray;
         cpuGeom.texCoord0     = &triList.m_textureCoords;
 
-        // TODO: Replace with the actual part's material
-        surface->gpuGeom()->material = Material::createDiffuse(Color3(1.0, 1.0, 0.0));
+        surface->gpuGeom()->material = material;
 
         // Copy blended vertex data for frame
         const MeshAlg::Geometry& geom1 = triList.m_geometry[frame1];
