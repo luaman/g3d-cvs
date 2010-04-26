@@ -35,6 +35,27 @@ const std::string& MD3Model::toString(PartType t) {
 }
 
 
+MD3Model::Skin::Ref MD3Model::Skin::create(const Any& any) {
+    Skin::Ref s = new Skin();
+    any.verifyType(Any::ARRAY);
+    any.verifyName("MD3Model::Skin");
+    s->partSkin.resize(any.size());
+    for (int i = 0; i < s->partSkin.size(); ++i) {
+        const Any& src = any[i];
+        PartSkin& dst = s->partSkin[i];
+        for (Table<std::string, Any>::Iterator it = src.table().begin(); it.hasMore(); ++it) {
+            if (it->value.type() == Any::NONE) {
+                dst.set(it->key, NULL);
+            } else {
+                dst.set(it->key, Material::create(it->value));
+            }
+        }
+    }
+
+    return s;
+}
+
+
 MD3Model::Specification::Part::Part(const Any& any) {
     any.verifyName("Part");
 

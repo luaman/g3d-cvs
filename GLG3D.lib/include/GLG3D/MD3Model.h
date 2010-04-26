@@ -103,6 +103,11 @@ public:
     public:
         typedef ReferenceCountedPointer<Skin> Ref;
 
+    private:
+        
+        Skin() {}
+
+    public:
         /** Maps triList names to materials.  If a material is specified as NULL
             (which corresponds to Quake's common/nodraw), that means "do not draw this triList". */
         typedef Table<std::string, Material::Ref>   PartSkin;
@@ -110,6 +115,34 @@ public:
         /** Table for each part.  Indices are PartTypes.*/
         Array<PartSkin> partSkin;
 
+        static Ref create() {
+            return new Skin();
+        }
+
+        /** 
+          Format is MD3Model::Skin( <list of part skins> );
+
+          Each part skin is an Any table mapping a tri list name to a material.  It may have an optional name;
+          it is optional but convenient to make this the name of the part. For example:
+
+          <pre>
+              MD3Model::Skin( 
+                 lower { ... },
+                 upper { ... },
+                 head {
+                   h_cap = NONE, 
+                   h_head = Material::Specification {
+                      diffuse = "Happy.tga"
+                   },
+                   h_Visor = NONE,
+                   h_Helmet = Material::Specification {
+                      diffuse = "Knight2A1.tga"
+                   }
+                 }
+             )
+          </pre>
+        */
+        static Ref create(const Any& a);
     };
 
     /**
