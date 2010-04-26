@@ -4,7 +4,7 @@
  Quake III MD3 model loading and posing
 
   \created 2009-01-01
-  \edited  2010-04-23
+  \edited  2010-04-26
  */
 #ifndef G3D_MD3Model_h
 #define G3D_MD3Model_h
@@ -190,9 +190,6 @@ public:
         /** If NULL, use the model's default skin */
         Skin::Ref   skin;
 
-        // TODO: remove
-        std::string skinNames[NUM_PARTS];
-
         Pose(GameTime lt, AnimType la, GameTime tt, AnimType ta) :
             legsTime(lt), legsAnim(la), torsoTime(tt), torsoAnim(ta) {}
 
@@ -229,7 +226,7 @@ public:
 
                 // skin is optional and can be overriden by MD3Model::Pose otherwise defaults to the first skin found in the model directory
                 lower = Part {
-                    // Optional; if unspecified, this is assumed to be "lower", "upper", "head", or "weapon" + ".md3", as based on
+                    // Optional; if unspecified, this is assumed to be "lower", "upper", or "head" + ".md3", as based on
                     // the key name for this part.  Filename is relative to the specified directory.
                     filename = "lower.md3",
 
