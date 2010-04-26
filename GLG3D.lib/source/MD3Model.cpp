@@ -187,7 +187,6 @@ MD3Model::Ref MD3Model::create(const MD3Model::Specification& spec) {
     MD3Model* model = new MD3Model;
 
     model->loadSpecification(spec);
-    model->loadAllSkins(spec.directory);
 
     return model;
 }
@@ -571,8 +570,8 @@ MD3Model::~MD3Model() {
 }
 
 
-MD3Model::Ref MD3Model::fromDirectory(const std::string& modelDir) {
-    MD3Model* model = new MD3Model;
+MD3Model::Ref MD3Model::fromDirectory(const std::string& modelDir, const Skin::Ref& defaultSkin) {
+    MD3Model* model = new MD3Model();
 
     // Create default spec to load all parts with default skin and materials
     Specification spec;
@@ -583,7 +582,7 @@ MD3Model::Ref MD3Model::fromDirectory(const std::string& modelDir) {
     spec.parts[PART_WEAPON].load = true;
 
     model->loadSpecification(spec);
-    model->loadAllSkins(modelDir);
+    model->m_defaultSkin = defaultSkin;
 
     return model;
 }
@@ -687,76 +686,6 @@ void MD3Model::loadAnimationCfg(const std::string& filename) {
 }
 
 
-void MD3Model::loadAllSkins(const std::string& skinDir) {
-
-    static const char* const skinNameMask[NUM_PARTS] = {
-        "lower*.skin", "upper*.skin", "head*.skin", "weapon*.skin" };
-
-    // Loop through all parts and load all skins for that part
-    for (int partIndex = 0; partIndex < NUM_PARTS; ++partIndex) {
-        // ignore unused parts
-        if (! m_parts[partIndex]) {
-            continue;
-        }
-
-        const std::string& filespec = pathConcat(skinDir, skinNameMask[partIndex]);
-
-        Array<std::string> filenames;
-        FileSystem::getFiles(filespec, filenames, true);
-
-        if (filenames.length() > 0) {
-            m_parts[partIndex]->m_defaultSkin = filenameBase(filenames[0]);
-        }
-
-        for (int fileIndex = 0; fileIndex < filenames.size(); ++fileIndex) {
-            const std::string& filename = filenames[fileIndex];
-
-            uint32 skinHash = HashTrait<std::string>::hashCode(filename);
-
-            if (! m_skins[partIndex].containsKey(skinHash)) {
-                m_skins[partIndex].set(skinHash, PartSkin());
-            }
-
-            loadSkin(filename, m_skins[partIndex][skinHash]);
-        }
-    }
-}
-
-void MD3Model::loadSkin(const std::string& filename, PartSkin& partSkin) {
-    // Read file as string to parse easily
-    const std::string& skinFile = readWholeFile(filename);
-
-    // Split the file into lines
-    Array<std::string> lines = stringSplit(skinFile, '\n');
-
-    // Parse each line for surface name + texture
-    for (int lineIndex = 0; lineIndex < lines.length(); ++lineIndex) {
-        std::string line = trimWhitespace(lines[lineIndex]);
-
-        std::string::size_type commaPos = line.find(',');
-
-        // Quit parsing if invalid name,texture as this is probably the end of file
-        if (commaPos == (line.length() - 1)) {
-            continue;
-        }
-
-        // Figure out actual texture filename
-        std::string surfaceName = line.substr(0, commaPos);
-        std::string shaderName = filenameBaseExt(line.substr(commaPos + 1));
-
-        std::string textureFilename = pathConcat(filenamePath(filename), shaderName);
-
-        // Verify texture exists, but do not load yet.  Textures will be loaded on use.
-        if (FileSystem::exists(textureFilename)) {
-
-            SkinValue skinValue;
-            skinValue.filename = textureFilename;
-            
-            partSkin.set(surfaceName, skinValue);
-        }
-    }
-}
-
 void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe, const Pose& pose) {
 
     // Coordinate frame built up from lower part
@@ -814,7 +743,9 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         Material::Ref material;
 
         // Make sure there is a skin for this part
-        if (skin->partSkin.size() > partType) {
+        if (skin.isNull()) {
+            material = defaultMaterial();
+        } else if (skin->partSkin.size() > partType) {
             const Skin::PartSkin& partSkin = skin->partSkin[partType];
 
             // See if there is a skin for this trilist
@@ -942,20 +873,6 @@ float MD3Model::findFrameNum(AnimType animType, GameTime animTime) {
     }
 
     return frameNum;
-}
-
-void MD3Model::skinNames(PartType partType, Array<std::string>& names) const {
-    static const char* const skinNameMask[NUM_PARTS] = {
-    "lower*.skin", "upper*.skin", "head*.skin", "weapon*.skin" };
-
-    const std::string& filespec = FilePath::concat(m_parts[partType]->m_modelDir, skinNameMask[partType]);
-
-    Array<std::string> filenames;
-    FileSystem::getFiles(filespec, filenames, false);
-
-    for (int fileIndex = 0; fileIndex < filenames.length(); ++fileIndex) {
-        names.append(filenameBase(filenames[fileIndex]));
-    }
 }
 
 

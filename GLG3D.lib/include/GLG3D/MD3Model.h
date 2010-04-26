@@ -255,23 +255,11 @@ private:
 
     Skin::Ref       m_defaultSkin;
 
-    struct SkinValue { std::string filename; Texture::Ref texture; };
-    typedef Table<std::string, SkinValue>   PartSkin;
-    typedef Table<uint32, PartSkin>         SkinCollection;
-
-    // Collection of shared skins across all models to avoid texture re-loading
-    SkinCollection m_skins[NUM_PARTS];
-
     MD3Model();
 
     void loadSpecification(const Specification& spec);
 
     void loadAnimationCfg(const std::string& filename);
-
-    /** Loads all skins into s_skins but leaves texture loading to pose. */
-    void loadAllSkins(const std::string& skinDir);
-
-    void loadSkin(const std::string& filename, PartSkin& skinCollection);
 
     /** Calculates relative frame number for part */
     float findFrameNum(AnimType animType, GameTime animTime);
@@ -290,7 +278,7 @@ public:
 
         \deprecated Use MD3Model::create()
      */
-    static MD3Model::Ref fromDirectory(const std::string& modelDir);
+    static MD3Model::Ref fromDirectory(const std::string& modelDir, const Skin::Ref& defaultSkin = NULL);
 
 	static MD3Model::Ref create(const Specification& spec);
 
@@ -310,10 +298,9 @@ public:
      */
     void pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame(), const Pose& pose = Pose());
 
-    /**
-        Retrieves all available skin names for \a partType.
-     */
-    void skinNames(PartType partType, Array<std::string>& names) const;
+    const Skin::Ref defaultSkin() const {
+        return m_defaultSkin;
+    }
 };
 
 
