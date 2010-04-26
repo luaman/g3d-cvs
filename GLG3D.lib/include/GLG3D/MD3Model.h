@@ -58,7 +58,6 @@ public:
         PART_LOWER,
         PART_UPPER,
         PART_HEAD,
-        PART_WEAPON,
         NUM_PARTS
     };
 
@@ -136,7 +135,7 @@ public:
 
         /** Loads commonPath + "lower_" + commonSuffix + ".skin", etc. for other parts */
         static Ref create
-            (const std::string& commonPath,
+           (const std::string& commonPath,
             const std::string& commonSuffix);
 
         /**
@@ -201,45 +200,27 @@ public:
 
     class Specification {
     public:
-        class Part {
-        public:
-            bool            load;
-            std::string     skinName;
-            Material::Ref   material;
-
-            Part() : load(false) {}
-
-            Part(const Any& any);
-        };
-
         /** Directory containing head.md3, upper.md3, lower.md3, torso.md3, and animation.cfg */
         std::string     directory;
 
-        Part            parts[NUM_PARTS];
+        Skin::Ref       defaultSkin;
 
         Specification() {}
 
         /** 
           Format is:
+             <pre>
 			 MD3Model::Specification {
-                directory = ...,
 
-                // Optional parts are lower, upper, head, weapon
-                // torso must be provided if head or weapon is specified
+                // Directory containing the *.md3 files
+                directory = "...",
 
-                // skin is optional and can be overriden by MD3Model::Pose otherwise defaults to the first skin found in the model directory
-                lower = Part {
-                    // Optional; if unspecified, this is assumed to be "lower", "upper", or "head" + ".md3", as based on
-                    // the key name for this part.  Filename is relative to the specified directory.
-                    filename = "lower.md3",
-
-                    // If the filename ends in ".skin"
-                    // The skin name is the base name of the skin.  e.g., lower_blue.skin - the skin name is "blue"
-                    skin = ...,
-
-                    material = Material::Specification {...},
-                },
+                defaultSkin = MD3Model::Skin( ... )
             }
+            </pre>
+
+           or just a string specifying a directory.
+
         */
         Specification(const Any& any);
     };
