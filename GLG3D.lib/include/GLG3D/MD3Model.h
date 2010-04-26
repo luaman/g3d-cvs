@@ -44,7 +44,10 @@ class MD3Part;
     \cite http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
     \cite http://www.misfitcode.com/misfitmodel3d/olh_quakemd3.html
 
-    TODO: export the weapon cframe given a pose
+    TODO: Export the weapon cframe given a pose
+    TODO: Revise Specification
+    TODO: Implement free blending
+    TODO: Implement nice pose animation API
 */
 class MD3Model : public ReferenceCountedObject {
 
