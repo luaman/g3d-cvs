@@ -178,7 +178,7 @@ private:
     friend class MD3Model;
 
     /** TriMesh */
-    struct SurfaceData {
+    struct TriList {
         /** helper data copied from the surface header */
         int                                     m_numFrames;
 
@@ -213,7 +213,7 @@ private:
     };
 
     /** surface data */
-    Array<SurfaceData>          m_surfaces;
+    Array<TriList>              m_triListArray;
 
     /** per-frame bounding box and translation information */
     Array<FrameData>            m_frames;
@@ -233,7 +233,7 @@ private:
 
     bool loadFile(const std::string& filename);
 
-    void loadSurface(BinaryInput& bi, SurfaceData& surfaceData);
+    void loadSurface(BinaryInput& bi, TriList& surfaceData);
 
     void loadFrame(BinaryInput& bi, FrameData& frameData);
 
@@ -341,19 +341,19 @@ bool MD3Part::loadFile(const std::string& filename) {
     }
 
     // Allocate surfaces
-    m_surfaces.resize(md3File.numSurfaces, false);
+    m_triListArray.resize(md3File.numSurfaces, false);
 
     // Read in surface data
     bi.setPosition(md3File.offsetSurfaces);
     for (int surfaceIndex = 0; surfaceIndex < md3File.numSurfaces; ++surfaceIndex) {
-        loadSurface(bi, m_surfaces[surfaceIndex]);
+        loadSurface(bi, m_triListArray[surfaceIndex]);
     }
 
     return true;
 }
 
 
-void MD3Part::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
+void MD3Part::loadSurface(BinaryInput& bi, TriList& surfaceData) {
     // Save start of surface
     int surfaceStart = static_cast<int>(bi.getPosition());
 
@@ -746,9 +746,9 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
 void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe) {
     const MD3Part* part = m_parts[partType];
 
-    for (int surfaceIndex = 0; surfaceIndex < part->m_surfaces.length(); ++surfaceIndex) {
+    for (int surfaceIndex = 0; surfaceIndex < part->m_triListArray.length(); ++surfaceIndex) {
 
-        const MD3Part::SurfaceData& surfaceData = part->m_surfaces[surfaceIndex];
+        const MD3Part::TriList& surfaceData = part->m_triListArray[surfaceIndex];
 
         // Find surface skin if available and load textures as needed
         Texture::Ref surfaceTexture;
