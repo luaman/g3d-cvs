@@ -95,6 +95,20 @@ public:
         NUM_ANIMATIONS
     };
 
+    /** A set of materials for a MD3Model. */
+    class Skin : ReferenceCountedObject {
+    public:
+        typedef ReferenceCountedPointer<Skin> Ref;
+
+        /** Maps triList names to materials.  If a material is specified as NULL
+            (which corresponds to Quake's common/nodraw), that means "do not draw this triList". */
+        typedef Table<std::string, Material::Ref>   PartSkin;
+
+        /** Table for each part.  Indices are PartTypes.*/
+        Array<PartSkin> partSkin;
+
+    };
+
     /**
         Animation pose based on AnimType and animation time.
         Each animation time ( \a legsTime and \a torsoTime )
@@ -114,6 +128,10 @@ public:
         GameTime    torsoTime;
         AnimType    torsoAnim;
 
+        /** If NULL, use the model's default skin */
+        Skin::Ref   skin;
+
+        // TODO: remove
         std::string skinNames[NUM_PARTS];
 
         Pose(GameTime lt, AnimType la, GameTime tt, AnimType ta) :
@@ -186,10 +204,6 @@ private:
 
     AnimFrame       m_animations[NUM_ANIMATIONS];
 
-    /** If mapped to a NULL material, do not draw that mesh */
-//    typedef Material::Ref                       PrimitiveSkin;
-//    typedef Table<std::string, PrimitiveSkin>   PartSkin;
-//    typedef Array<PartSkin>                     Skin;
 
     struct SkinValue { std::string filename; Texture::Ref texture; };
     typedef Table<std::string, SkinValue>   PartSkin;

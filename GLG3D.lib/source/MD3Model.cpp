@@ -81,7 +81,7 @@ MD3Model::Ref MD3Model::create(const MD3Model::Specification& spec) {
 
 
 
-// Definition of MD3 file surface header structure
+/** Definition of MD3 file surface header structure.  These correspond to triLists */
 struct MD3SurfaceHeader {
 public:
     std::string ident;
@@ -163,7 +163,7 @@ public:
     }
 };
 
-//    MD3Part Model loader helper for MD3Model.  Loads an individual .md3 model.
+/** MD3Part Model loader helper for MD3Model.  Loads an individual .md3 model. */
 class MD3Part : public ReferenceCountedObject {
     // See: http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
 
@@ -189,6 +189,7 @@ private:
 
         /** Indexed triangle list. */
         Array<int>                              m_indexArray;
+        VertexRange                             m_gpuIndex;
 
         /** array of texture coordinates for each vertex */
         Array<Vector2>                          m_textureCoords;
@@ -378,6 +379,9 @@ void MD3Part::loadSurface(BinaryInput& bi, TriList& triList) {
         triList.m_indexArray[index * 3 + 1] = bi.readInt32();
         triList.m_indexArray[index * 3 + 2] = bi.readInt32();
     }
+
+    VertexBuffer::Ref vb = VertexBuffer::create(triList.m_indexArray.size() * sizeof(int), VertexBuffer::WRITE_ONCE, VertexBuffer::INDEX);
+    triList.m_gpuIndex = VertexRange(triList.m_indexArray, vb);
 
     // Read shaders
     bi.setPosition(surfaceStart + md3Surface.offsetShaders);
@@ -854,11 +858,8 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         cpuGeom.copyVertexDataToGPU(gpuGeom->vertex, gpuGeom->normal, gpuGeom->packedTangent, 
                                     gpuGeom->texCoord0, VertexBuffer::WRITE_EVERY_FRAME);
 
-        // TODO: Store the VertexRange index inside each part; it never changes so there's no reason to upload
-        // every frame
-        VertexBuffer::Ref vb = VertexBuffer::create(cpuGeom.index->size() * sizeof(int), VertexBuffer::WRITE_EVERY_FRAME, VertexBuffer::INDEX);
-        gpuGeom->index = VertexRange(*cpuGeom.index, vb);
-        
+        gpuGeom->index = triList.m_gpuIndex;
+
         // TODO: replace with accurate bounds
         gpuGeom->boxBounds = AABox(-Vector3::inf(), Vector3::inf());
         gpuGeom->sphereBounds = Sphere(Vector3::zero(), finf());
