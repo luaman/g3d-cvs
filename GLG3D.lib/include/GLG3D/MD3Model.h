@@ -38,6 +38,8 @@ class MD3Part;
 
     See http://bit.ly/acgNj9 for some models
     \beta
+
+    \cite http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
 */
 class MD3Model : public ReferenceCountedObject {
 
