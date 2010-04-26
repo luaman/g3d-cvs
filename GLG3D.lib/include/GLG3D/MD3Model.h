@@ -119,19 +119,24 @@ public:
             return new Skin();
         }
 
+        static Ref create
+            (const std::string& lowerSkin, 
+            const std::string& upperSkin = "", 
+            const std::string& headSkin = "", 
+            const std::string& weaponSkin = "");
+
         /**
           Format is either: 
 
            - MD3Model::Skin( <list of part skins> )
-           - skinname
 
-          Each part skin is an Any table mapping a tri list name to a material.  It may have an optional name;
+          Each part skin is either a .skin file relative to the md3 directory or an Any table mapping a tri list name to a material.  It may have an optional name;
           it is optional but convenient to make this the name of the part. For example:
 
           <pre>
               MD3Model::Skin(
-                 lower { ... },
-                 upper { ... },
+                 "lower_dragon.skin",
+                 "upper_dragon.skin",
                  head {
                    h_cap = NONE, 
                    h_head = Material::Specification {
@@ -146,7 +151,9 @@ public:
           </pre>
         */
         static Ref create(const Any& a);
-    };
+    private:
+        static void loadSkinFile(const std::string& filename, PartSkin& partSkin);
+   };
 
     /**
         Animation pose based on AnimType and animation time.
@@ -243,6 +250,7 @@ private:
 
     AnimFrame       m_animations[NUM_ANIMATIONS];
 
+    Skin::Ref       m_defaultSkin;
 
     struct SkinValue { std::string filename; Texture::Ref texture; };
     typedef Table<std::string, SkinValue>   PartSkin;

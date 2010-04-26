@@ -35,6 +35,34 @@ const std::string& MD3Model::toString(PartType t) {
 }
 
 
+void MD3Model::Skin::loadSkinFile(const std::string& filename, PartSkin& partSkin) {
+    // TODO:
+}
+
+MD3Model::Skin::Ref MD3Model::Skin::create
+   (const std::string& lowerSkin, 
+    const std::string& upperSkin, 
+    const std::string& headSkin, 
+    const std::string& weaponSkin) {
+    
+    Skin::Ref s = new Skin();
+    if (! weaponSkin.empty()) {
+        s->partSkin.resize(4);
+    } else if (headSkin.empty()) {
+        s->partSkin.resize(3);
+    } else if (upperSkin.empty()) {
+        s->partSkin.resize(2);
+    } else if (lowerSkin.empty()) {
+        s->partSkin.resize(1);
+    } else {
+        alwaysAssertM(false, "No skins specified!");
+    }
+
+    // TODO: load actual .skin files 
+    
+    return s;
+}
+
 MD3Model::Skin::Ref MD3Model::Skin::create(const Any& any) {
     Skin::Ref s = new Skin();
     any.verifyType(Any::ARRAY);
@@ -43,11 +71,15 @@ MD3Model::Skin::Ref MD3Model::Skin::create(const Any& any) {
     for (int i = 0; i < s->partSkin.size(); ++i) {
         const Any& src = any[i];
         PartSkin& dst = s->partSkin[i];
-        for (Table<std::string, Any>::Iterator it = src.table().begin(); it.hasMore(); ++it) {
-            if (it->value.type() == Any::NONE) {
-                dst.set(it->key, NULL);
-            } else {
-                dst.set(it->key, Material::create(it->value));
+        if (src.type() == Any::STRING) {
+            loadSkinFile(src.resolveStringAsFilename(), dst);
+        } else {
+            for (Table<std::string, Any>::Iterator it = src.table().begin(); it.hasMore(); ++it) {
+                if (it->value.type() == Any::NONE) {
+                    dst.set(it->key, NULL);
+                } else {
+                    dst.set(it->key, Material::create(it->value));
+                }
             }
         }
     }
