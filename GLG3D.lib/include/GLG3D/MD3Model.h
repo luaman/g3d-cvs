@@ -40,6 +40,9 @@ class MD3Part;
     \beta
 
     \cite http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
+    \cite http://www.misfitcode.com/misfitmodel3d/olh_quakemd3.html
+
+    TODO: export the weapon cframe given a pose
 */
 class MD3Model : public ReferenceCountedObject {
 
@@ -101,6 +104,7 @@ public:
     /** A set of materials for a MD3Model. */
     class Skin : ReferenceCountedObject {
     public:
+
         typedef ReferenceCountedPointer<Skin> Ref;
 
     private:

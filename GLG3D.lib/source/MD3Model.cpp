@@ -306,9 +306,6 @@ private:
         /** array of texture coordinates for each vertex */
         Array<Vector2>                          m_textureCoords;
 
-        /** TODO: make this a Material */
-        Texture::Ref                            m_texture;
-
         std::string                             m_name;
     };
 
@@ -335,8 +332,6 @@ private:
 
     std::string                 m_modelDir;
     std::string                 m_modelName;
-
-    std::string                 m_defaultSkin;
 
     MD3Part();
 
@@ -441,13 +436,16 @@ void MD3Part::loadSurface(BinaryInput& bi, TriList& triList) {
         const std::string& shaderPath = bi.readString(64);
         const int unusedIndex = bi.readInt32();
         
+        /*
         // Find base filename for shader
         const std::string& shaderName = filenameBaseExt(shaderPath);
 
+        Shader/textures loaded elsewhere in the current implementation
         // Ignore empty shader names for now (filled in with .skin file)
         if (! shaderName.empty() && FileSystem::exists(pathConcat(m_modelDir, shaderName))) {
             triList.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
         }
+        */
     }
 
     // Read texture coordinates
