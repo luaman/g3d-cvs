@@ -68,17 +68,17 @@ public:
         END_BOTH = BOTH_DEAD3,
 
         UPPER_GESTURE,
-        START_TORSO = UPPER_GESTURE,
+        START_UPPER = UPPER_GESTURE,
         UPPER_ATTACK,
         UPPER_ATTACK2,
         UPPER_DROP,
         UPPER_RAISE,
         UPPER_STAND,
         UPPER_STAND2,
-        END_TORSO = UPPER_STAND2,
+        END_UPPER = UPPER_STAND2,
 
         LOWER_WALKCR,
-        START_LEGS = LOWER_WALKCR,
+        START_LOWER = LOWER_WALKCR,
         LOWER_WALK,
         LOWER_RUN,
         LOWER_BACK,
@@ -90,7 +90,7 @@ public:
         LOWER_IDLE,
         LOWER_IDLECR,
         LOWER_TURN,
-        END_LEGS = LOWER_TURN,
+        END_LOWER = LOWER_TURN,
 
         NUM_ANIMATIONS
     };

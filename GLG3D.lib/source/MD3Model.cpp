@@ -625,8 +625,8 @@ void MD3Model::loadAnimationCfg(const std::string& filename) {
     }
 
     // Loop through all legs animations and adjust starting frame number to be relative to part
-    float numTorsoAnimations = m_animations[START_LEGS].start - m_animations[START_TORSO].start;
-    for (int animIndex = START_LEGS; animIndex <= END_LEGS; ++animIndex) {
+    float numTorsoAnimations = m_animations[START_LOWER].start - m_animations[START_UPPER].start;
+    for (int animIndex = START_LOWER; animIndex <= END_LOWER; ++animIndex) {
         m_animations[animIndex].start -= numTorsoAnimations;
     }
 }
