@@ -47,6 +47,12 @@ Material::Ref Material::createDiffuse(const Color3& p_Lambertian) {
 }
 
 
+Material::Ref Material::createDiffuse(const std::string& lambertianFilename) {
+    Settings s;
+    s.setLambertian(lambertianFilename);
+    return create(s);
+}
+
 typedef WeakCache<Material::Settings, Material::Ref> MaterialCache;
 
 /** Provides access to the cache.  This is not a global because the order of initialization

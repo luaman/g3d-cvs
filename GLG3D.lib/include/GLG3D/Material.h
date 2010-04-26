@@ -316,6 +316,7 @@ public:
      Create a G3D::Material using a Lambertian (pure diffuse) G3D::BSDF with color @a p_Lambertian.
      */
     static Material::Ref createDiffuse(const Color3& p_Lambertian);
+    static Material::Ref createDiffuse(const std::string& textureFilename);
 
     void setStorage(ImageStorage s) const;
 

@@ -34,9 +34,46 @@ const std::string& MD3Model::toString(PartType t) {
     return name[t];
 }
 
+static Material::Ref defaultMaterial() {
+    return Material::createDiffuse(Color3::white() * 0.99f);
+}
 
 void MD3Model::Skin::loadSkinFile(const std::string& filename, PartSkin& partSkin) {
-    // TODO:
+// Read file as string to parse easily
+    const std::string& skinFile = readWholeFile(filename);
+
+    // Split the file into lines
+    Array<std::string> lines = stringSplit(skinFile, '\n');
+
+    // Parse each line for surface name + texture
+    for (int lineIndex = 0; lineIndex < lines.length(); ++lineIndex) {
+        std::string line = trimWhitespace(lines[lineIndex]);
+
+        std::string::size_type commaPos = line.find(',');
+
+        // Quit parsing this line if no comma is found or it is at the end of the line
+        if ((commaPos == (line.length() - 1)) || (commaPos == std::string::npos)) {
+            continue;
+        }
+
+        // Figure out actual texture filename
+        const std::string& triListName = line.substr(0, commaPos);
+        const std::string& textureName = filenameBaseExt(line.substr(commaPos + 1));
+
+        if (textureName == "nodraw") {
+            // Intentionally NULL material
+            partSkin.set(triListName, NULL);
+        } else {
+            // Assume textures are relative to the current .skin file
+            const std::string& textureFilename = FilePath::concat(FilePath::parent(filename), textureName);
+
+            if (FileSystem::exists(textureFilename)) {
+                partSkin.set(triListName, Material::createDiffuse(textureFilename));
+            } else {
+                partSkin.set(triListName, defaultMaterial());
+            }
+        }
+    }
 }
 
 MD3Model::Skin::Ref MD3Model::Skin::create
@@ -58,7 +95,12 @@ MD3Model::Skin::Ref MD3Model::Skin::create
         alwaysAssertM(false, "No skins specified!");
     }
 
-    // TODO: load actual .skin files 
+    // Load actual .skin files
+    Array<std::string> filename(lowerSkin, upperSkin, headSkin, weaponSkin);
+
+    for (int i = 0; i < s->partSkin.size(); ++i) {
+        loadSkinFile(filename[i], s->partSkin[i]);
+    }
     
     return s;
 }
