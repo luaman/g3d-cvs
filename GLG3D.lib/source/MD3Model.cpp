@@ -28,11 +28,6 @@ inline static Vector3 pointToG3D(const Vector3& v) {
     return vectorToG3D(v) * Q3_LOAD_SCALE;
 }
 
-const std::string& MD3Model::toString(PartType t) {
-    const std::string name[] = {"lower", "upper", "head", "weapon"};
-    debugAssert(t >= 0 && t <= 3);
-    return name[t];
-}
 
 static Material::Ref defaultMaterial() {
     static Material::Ref m;

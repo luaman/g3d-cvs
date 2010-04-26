@@ -98,7 +98,7 @@ void App::onInit() {
     debugWindow->setVisible(false);
     debugWindow->moveTo(Vector2(0, 300));
 
-    setDesiredFrameRate(10000);
+    setDesiredFrameRate(60);
 
     std::string path = "d:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine/";
     MD3Model::Skin::Ref skin = MD3Model::Skin::create(path, "lower_blue.skin", "upper_blue.skin", "head_blue.skin");
@@ -128,6 +128,7 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     if (m_scene.notNull()) {
         m_scene->onPose(posed3D);
     }
+    m_model->simulatePose(m_pose, 1.0f / 60.0f);
     m_model->pose(posed3D, CFrame::fromXYZYPRDegrees(0,10,0,00,0), m_pose);
 }
 

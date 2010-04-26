@@ -61,36 +61,28 @@ public:
     };
 
     enum {NUM_PARTS = 3, NUM_ANIMATED_PARTS = 2};
-
-
-    static const std::string& toString(PartType t);
-
+   
     /**
         All standard animation types expected to 
         have parameters in the animation.cfg file.
      */
     enum AnimType {
         BOTH_DEATH1,
-        START_BOTH = BOTH_DEATH1,
         BOTH_DEAD1,
         BOTH_DEATH2,
         BOTH_DEAD2,
         BOTH_DEATH3,
         BOTH_DEAD3,
-        END_BOTH = BOTH_DEAD3,
 
         UPPER_GESTURE,
-        START_UPPER = UPPER_GESTURE,
         UPPER_ATTACK,
         UPPER_ATTACK2,
         UPPER_DROP,
         UPPER_RAISE,
         UPPER_STAND,
         UPPER_STAND2,
-        END_UPPER = UPPER_STAND2,
 
         LOWER_WALKCR,
-        START_LOWER = LOWER_WALKCR,
         LOWER_WALK,
         LOWER_RUN,
         LOWER_BACK,
@@ -102,9 +94,17 @@ public:
         LOWER_IDLE,
         LOWER_IDLECR,
         LOWER_TURN,
-        END_LOWER = LOWER_TURN,
 
-        NUM_ANIMATIONS
+        NUM_ANIMATIONS,
+
+        START_BOTH = BOTH_DEATH1,
+        END_BOTH = BOTH_DEAD3,
+
+        START_UPPER = UPPER_GESTURE,
+        END_UPPER = UPPER_STAND2,
+
+        START_LOWER = LOWER_WALKCR,
+        END_LOWER = LOWER_TURN
     };
 
     /** A set of materials for a MD3Model. */
@@ -264,7 +264,7 @@ public:
         Loads all available parts of a Quake III model in \a modelDir
         as well as the animation.cfg file containing all standard animation values.
 
-        Order of part loading is: lower.md3 -> upper.md3 -> head.md3 -> weapon.md3
+        Order of part loading is: lower.md3 -> upper.md3 -> head.md3
 
         \deprecated Use MD3Model::create()
      */
@@ -279,8 +279,7 @@ public:
         to Quake III model standards.
 
         The lower.md3 part is the based.  The upper.md3 part is attached
-        to "tag_torso" in lower.md3.  The weapon.md3 part is attached to
-        "tag_weapon" in upper.md3.  The head.md3 part is attached to 
+        to "tag_torso" in lower.md3.  The head.md3 part is attached to 
         "tag_head" in upper.md3.
 
         The initial \a cframe transformation is applied to the base 
