@@ -45,8 +45,8 @@ public:
     typedef ReferenceCountedPointer<MD3Model> Ref;
 
     enum PartType {
-        PART_LEGS,
-        PART_TORSO,
+        PART_LOWER,
+        PART_UPPER,
         PART_HEAD,
         PART_WEAPON,
         NUM_PARTS
@@ -67,30 +67,30 @@ public:
         BOTH_DEAD3,
         END_BOTH = BOTH_DEAD3,
 
-        TORSO_GESTURE,
-        START_TORSO = TORSO_GESTURE,
-        TORSO_ATTACK,
-        TORSO_ATTACK2,
-        TORSO_DROP,
-        TORSO_RAISE,
-        TORSO_STAND,
-        TORSO_STAND2,
-        END_TORSO = TORSO_STAND2,
+        UPPER_GESTURE,
+        START_TORSO = UPPER_GESTURE,
+        UPPER_ATTACK,
+        UPPER_ATTACK2,
+        UPPER_DROP,
+        UPPER_RAISE,
+        UPPER_STAND,
+        UPPER_STAND2,
+        END_TORSO = UPPER_STAND2,
 
-        LEGS_WALKCR,
-        START_LEGS = LEGS_WALKCR,
-        LEGS_WALK,
-        LEGS_RUN,
-        LEGS_BACK,
-        LEGS_SWIM,
-        LEGS_JUMP,
-        LEGS_LAND,
-        LEGS_JUMPB,
-        LEGS_LANDB,
-        LEGS_IDLE,
-        LEGS_IDLECR,
-        LEGS_TURN,
-        END_LEGS = LEGS_TURN,
+        LOWER_WALKCR,
+        START_LEGS = LOWER_WALKCR,
+        LOWER_WALK,
+        LOWER_RUN,
+        LOWER_BACK,
+        LOWER_SWIM,
+        LOWER_JUMP,
+        LOWER_LAND,
+        LOWER_JUMPB,
+        LOWER_LANDB,
+        LOWER_IDLE,
+        LOWER_IDLECR,
+        LOWER_TURN,
+        END_LEGS = LOWER_TURN,
 
         NUM_ANIMATIONS
     };
@@ -119,7 +119,7 @@ public:
         Pose(GameTime lt, AnimType la, GameTime tt, AnimType ta) :
             legsTime(lt), legsAnim(la), torsoTime(tt), torsoAnim(ta) {}
 
-        Pose() : legsTime(0), legsAnim(LEGS_IDLE), torsoTime(0), torsoAnim(TORSO_STAND) {}
+        Pose() : legsTime(0), legsAnim(LOWER_IDLE), torsoTime(0), torsoAnim(UPPER_STAND) {}
     };
 
     class Specification {

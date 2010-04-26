@@ -49,17 +49,17 @@ MD3Model::Specification::Specification(const Any& any) {
     directory = any["directory"];
 
     // Expect the base part (legs/lower)
-    parts[PART_LEGS] = any.containsKey("legs") ? any["legs"] : any["lower"];
+    parts[PART_LOWER] = any.containsKey("legs") ? any["legs"] : any["lower"];
 
     // Rest of parts are optional
     if (any.containsKey("torso")) {
-        parts[PART_TORSO] = any["torso"];
+        parts[PART_UPPER] = any["torso"];
     }
     if (any.containsKey("upper")) {
-        parts[PART_TORSO] = any["upper"];
+        parts[PART_UPPER] = any["upper"];
     }
 
-    if (parts[PART_TORSO].load) {
+    if (parts[PART_UPPER].load) {
         if (any.containsKey("head")) {
             parts[PART_HEAD] = any["head"];
         }
@@ -233,7 +233,7 @@ private:
 
     bool loadFile(const std::string& filename);
 
-    void loadSurface(BinaryInput& bi, TriList& surfaceData);
+    void loadSurface(BinaryInput& bi, TriList& triList);
 
     void loadFrame(BinaryInput& bi, FrameData& frameData);
 
@@ -353,7 +353,7 @@ bool MD3Part::loadFile(const std::string& filename) {
 }
 
 
-void MD3Part::loadSurface(BinaryInput& bi, TriList& surfaceData) {
+void MD3Part::loadSurface(BinaryInput& bi, TriList& triList) {
     // Save start of surface
     int surfaceStart = static_cast<int>(bi.getPosition());
 
@@ -362,21 +362,21 @@ void MD3Part::loadSurface(BinaryInput& bi, TriList& surfaceData) {
 
 
     // Read surface data
-    surfaceData.m_name = md3Surface.name;
+    triList.m_name = md3Surface.name;
 
     // Store off some helper data
-    surfaceData.m_numFrames = md3Surface.numFrames;
-    surfaceData.m_numVertices = md3Surface.numVertices;
+    triList.m_numFrames = md3Surface.numFrames;
+    triList.m_numVertices = md3Surface.numVertices;
 
     // Read triangles
     bi.setPosition(surfaceStart + md3Surface.offsetTriangles);
 
-    surfaceData.m_indexArray.resize(md3Surface.numTriangles * 3);
+    triList.m_indexArray.resize(md3Surface.numTriangles * 3);
 
     for (int index = 0; index < md3Surface.numTriangles; ++index) {
-        surfaceData.m_indexArray[index * 3] = bi.readInt32();
-        surfaceData.m_indexArray[index * 3 + 1] = bi.readInt32();
-        surfaceData.m_indexArray[index * 3 + 2] = bi.readInt32();
+        triList.m_indexArray[index * 3] = bi.readInt32();
+        triList.m_indexArray[index * 3 + 1] = bi.readInt32();
+        triList.m_indexArray[index * 3 + 2] = bi.readInt32();
     }
 
     // Read shaders
@@ -392,28 +392,28 @@ void MD3Part::loadSurface(BinaryInput& bi, TriList& surfaceData) {
 
         // Ignore empty shader names for now (filled in with .skin file)
         if (! shaderName.empty() && FileSystem::exists(pathConcat(m_modelDir, shaderName))) {
-            surfaceData.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
+            triList.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
         }
     }
 
     // Read texture coordinates
     bi.setPosition(surfaceStart + md3Surface.offsetUVs);
 
-    surfaceData.m_textureCoords.resize(md3Surface.numVertices);
+    triList.m_textureCoords.resize(md3Surface.numVertices);
 
     for (int coordIndex = 0; coordIndex < md3Surface.numVertices; ++coordIndex) {
-        surfaceData.m_textureCoords[coordIndex].x = bi.readFloat32();
-        surfaceData.m_textureCoords[coordIndex].y = bi.readFloat32();
+        triList.m_textureCoords[coordIndex].x = bi.readFloat32();
+        triList.m_textureCoords[coordIndex].y = bi.readFloat32();
     }
 
     // Read vertices
     bi.setPosition(surfaceStart + md3Surface.offsetVertices);
 
-    surfaceData.m_geometry.resize(md3Surface.numFrames);
+    triList.m_geometry.resize(md3Surface.numFrames);
 
     const int N = md3Surface.numVertices;
     for (int frameIndex = 0; frameIndex < md3Surface.numFrames; ++frameIndex) {
-        MeshAlg::Geometry& geom = surfaceData.m_geometry[frameIndex];
+        MeshAlg::Geometry& geom = triList.m_geometry[frameIndex];
         geom.vertexArray.resize(N);
         geom.normalArray.resize(N);
 
@@ -522,8 +522,8 @@ MD3Model::Ref MD3Model::fromDirectory(const std::string& modelDir) {
     // Create default spec to load all parts with default skin and materials
     Specification spec;
     spec.directory = modelDir;
-    spec.parts[PART_LEGS].load = true;
-    spec.parts[PART_TORSO].load = true;
+    spec.parts[PART_LOWER].load = true;
+    spec.parts[PART_UPPER].load = true;
     spec.parts[PART_HEAD].load = true;
     spec.parts[PART_WEAPON].load = true;
 
@@ -541,20 +541,20 @@ void MD3Model::loadSpecification(const Specification& spec) {
     // Load legs
     std::string filename = pathConcat(spec.directory, "lower.md3");
 
-    m_parts[PART_LEGS] = new MD3Part;
+    m_parts[PART_LOWER] = new MD3Part;
     
-    if (!m_parts[PART_LEGS]->loadFile(filename)) {
+    if (!m_parts[PART_LOWER]->loadFile(filename)) {
         debugAssertM(false, format("Unable to load %s.", filename.c_str()));
         return;
     }
 
     // Load torso
-    if (spec.parts[PART_TORSO].load) {
+    if (spec.parts[PART_UPPER].load) {
         filename = pathConcat(spec.directory, "upper.md3");
 
-        m_parts[PART_TORSO] = new MD3Part;
+        m_parts[PART_UPPER] = new MD3Part;
         
-        if (!m_parts[PART_TORSO]->loadFile(filename)) {
+        if (!m_parts[PART_UPPER]->loadFile(filename)) {
             debugAssertM(false, format ("Unable to load %s.", filename.c_str()));
             return;
         }
@@ -708,31 +708,31 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
     CoordinateFrame baseFrame = cframe;
 
     // Pose legs part
-    if (!m_parts[PART_LEGS]) {
+    if (!m_parts[PART_LOWER]) {
         return;
     }
 
-    posePart(PART_LEGS, pose, posedModelArray, baseFrame);
+    posePart(PART_LOWER, pose, posedModelArray, baseFrame);
 
     float legsFrameNum = findFrameNum(pose.legsAnim, pose.legsTime);
-    baseFrame = baseFrame * m_parts[PART_LEGS]->tag(legsFrameNum, "tag_torso");
+    baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
 
     // Pose torso part
-    if (!m_parts[PART_TORSO]) {
+    if (!m_parts[PART_UPPER]) {
         return;
     }
 
-    posePart(PART_TORSO, pose, posedModelArray, baseFrame);
+    posePart(PART_UPPER, pose, posedModelArray, baseFrame);
 
     float torsoFrameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
 
     // Pose weapon part (since it uses a torso tag)
     if (m_parts[PART_WEAPON]) {
-        CoordinateFrame weaponFrame = baseFrame * m_parts[PART_TORSO]->tag(torsoFrameNum, "tag_weapon");
+        CoordinateFrame weaponFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_weapon");
         posePart(PART_WEAPON, pose, posedModelArray, baseFrame);
     }
 
-    baseFrame = baseFrame * m_parts[PART_TORSO]->tag(torsoFrameNum, "tag_head");
+    baseFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_head");
 
     // Pose head part
     if (!m_parts[PART_HEAD]) {
@@ -748,14 +748,14 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
     for (int surfaceIndex = 0; surfaceIndex < part->m_triListArray.length(); ++surfaceIndex) {
 
-        const MD3Part::TriList& surfaceData = part->m_triListArray[surfaceIndex];
+        const MD3Part::TriList& triList = part->m_triListArray[surfaceIndex];
 
         // Find surface skin if available and load textures as needed
         Texture::Ref surfaceTexture;
 
-        if (surfaceData.m_texture.notNull()) {
+        if (triList.m_texture.notNull()) {
             // Use default surface texture if it was valid
-            surfaceTexture = surfaceData.m_texture;
+            surfaceTexture = triList.m_texture;
 
         } else {
             // Otherwise find skin
@@ -770,8 +770,8 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
             if (m_skins[partType].containsKey(skinHash)) {
 
-                if (m_skins[partType][skinHash].containsKey(surfaceData.m_name)) {
-                    SkinValue& skinValue = m_skins[partType][skinHash][surfaceData.m_name];
+                if (m_skins[partType][skinHash].containsKey(triList.m_name)) {
+                    SkinValue& skinValue = m_skins[partType][skinHash][triList.m_name];
 
                     if (skinValue.texture.isNull()) {
                         skinValue.texture = Texture::fromFile(skinValue.filename, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
@@ -794,15 +794,15 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
         float frameNum = 0.0f;
 
-        if (partType == PART_LEGS) {
+        if (partType == PART_LOWER) {
             frameNum = findFrameNum(pose.legsAnim, pose.legsTime);
-        } else if (partType == PART_TORSO) {
+        } else if (partType == PART_UPPER) {
             frameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
         }
 
         // Calculate frames for blending
         int frame1 = iFloor(frameNum);
-        int frame2 = iClamp(iCeil(frameNum), 0, surfaceData.m_numFrames - 1);
+        int frame2 = iClamp(iCeil(frameNum), 0, triList.m_numFrames - 1);
         float interp = fmod(frameNum, 1.0f);
 
         /////////////////////////////////////////////////////////////////
@@ -816,7 +816,7 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
         SuperSurface::Ref surface = 
             SuperSurface::create
-               (part->m_modelName + "::" + surfaceData.m_name, 
+               (part->m_modelName + "::" + triList.m_name, 
                 partFrame, 
                 SuperSurface::GPUGeom::create(), 
                 SuperSurface::CPUGeom(), 
@@ -827,17 +827,17 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
         // Need an empty array for the tangents; safe to make static since this is never used.
         const static Array<Vector4> packedTangentArray;
-        cpuGeom.index         = &surfaceData.m_indexArray;
+        cpuGeom.index         = &triList.m_indexArray;
         cpuGeom.geometry      = &surface->internalGeometry();
         cpuGeom.packedTangent = &packedTangentArray;
-        cpuGeom.texCoord0     = &surfaceData.m_textureCoords;
+        cpuGeom.texCoord0     = &triList.m_textureCoords;
 
         // TODO: Replace with the actual part's material
         surface->gpuGeom()->material = Material::createDiffuse(Color3(1.0, 1.0, 0.0));
 
         // Copy blended vertex data for frame
-        const MeshAlg::Geometry& geom1 = surfaceData.m_geometry[frame1];
-        const MeshAlg::Geometry& geom2 = surfaceData.m_geometry[frame2];
+        const MeshAlg::Geometry& geom1 = triList.m_geometry[frame1];
+        const MeshAlg::Geometry& geom2 = triList.m_geometry[frame2];
 
         const int N = geom1.vertexArray.size();
         Array<Vector3>& vertexArray = const_cast< Array<Vector3>& >(cpuGeom.geometry->vertexArray);
