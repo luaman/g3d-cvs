@@ -119,14 +119,17 @@ public:
             return new Skin();
         }
 
-        /** 
-          Format is MD3Model::Skin( <list of part skins> );
+        /**
+          Format is either: 
+
+           - MD3Model::Skin( <list of part skins> )
+           - skinname
 
           Each part skin is an Any table mapping a tri list name to a material.  It may have an optional name;
           it is optional but convenient to make this the name of the part. For example:
 
           <pre>
-              MD3Model::Skin( 
+              MD3Model::Skin(
                  lower { ... },
                  upper { ... },
                  head {

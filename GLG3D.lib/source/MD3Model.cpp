@@ -62,7 +62,7 @@ MD3Model::Specification::Part::Part(const Any& any) {
     load = true;
 
     if (any.containsKey("skin")) {
-        skinName = any["skin"];
+        skinName = any["skin"].string();
     }
 
     if (any.containsKey("material")) {
@@ -73,7 +73,7 @@ MD3Model::Specification::Part::Part(const Any& any) {
 MD3Model::Specification::Specification(const Any& any) {
     any.verifyName("MD3Model::Specification");
     
-    directory = any["directory"];
+    directory = any["directory"].resolveStringAsFilename();
 
     // Expect the base part (legs/lower)
     parts[PART_LOWER] = any.containsKey("legs") ? any["legs"] : any["lower"];
