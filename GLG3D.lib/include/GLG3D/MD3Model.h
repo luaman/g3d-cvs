@@ -44,8 +44,6 @@ class MD3Part;
     \cite http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
     \cite http://www.misfitcode.com/misfitmodel3d/olh_quakemd3.html
 
-    TODO: Export the weapon cframe given a pose
-    TODO: Revise Specification
     TODO: Implement free blending
     TODO: Implement nice pose animation API
 */
@@ -253,7 +251,7 @@ private:
     void loadAnimationCfg(const std::string& filename);
 
     /** Calculates relative frame number for part */
-    float findFrameNum(AnimType animType, GameTime animTime);
+    float findFrameNum(AnimType animType, GameTime animTime) const;
 
     void posePart(PartType partType, const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe);
 
@@ -288,6 +286,9 @@ public:
         lower.md3 part before the whole model is posed.
      */
     void pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame(), const Pose& pose = Pose());
+
+    /** Return the coordinate frame of the tag_weapon; this is where a simulator should place objects carried by the character.*/
+    CoordinateFrame weaponFrame(const CFrame& cframe = CoordinateFrame(), const Pose& pose = Pose()) const;
 
     const Skin::Ref defaultSkin() const {
         return m_defaultSkin;
