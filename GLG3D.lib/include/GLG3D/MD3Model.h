@@ -54,6 +54,7 @@ public:
         NUM_PARTS
     };
 
+    static const std::string& toString(PartType t);
 
     /**
         All standard animation types expected to 

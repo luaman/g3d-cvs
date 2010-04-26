@@ -28,6 +28,12 @@ inline static Vector3 pointToG3D(const Vector3& v) {
     return vectorToG3D(v) * Q3_LOAD_SCALE;
 }
 
+const std::string& MD3Model::toString(PartType t) {
+    const std::string name[] = {"lower", "upper", "head", "weapon"};
+    debugAssert(t >= 0 && t <= 3);
+    return name[t];
+}
+
 
 MD3Model::Specification::Part::Part(const Any& any) {
     any.verifyName("Part");
@@ -846,7 +852,7 @@ void MD3Model::skinNames(PartType partType, Array<std::string>& names) const {
     static const char* const skinNameMask[NUM_PARTS] = {
     "lower*.skin", "upper*.skin", "head*.skin", "weapon*.skin" };
 
-    const std::string& filespec = pathConcat(m_parts[partType]->m_modelDir, skinNameMask[partType]);
+    const std::string& filespec = FilePath::concat(m_parts[partType]->m_modelDir, skinNameMask[partType]);
 
     Array<std::string> filenames;
     FileSystem::getFiles(filespec, filenames, false);
