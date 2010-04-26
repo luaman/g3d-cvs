@@ -390,6 +390,7 @@ static std::string enableEntry(GLenum which) {
 
 std::string getOpenGLState(bool showDisabled) {
     {
+        debugAssertGLOk();
         glGetInteger(GL_BLEND);
         debugAssertM(glGetError() != GL_INVALID_OPERATION, 
              "Can't call getOpenGLState between glBegin() and glEnd()");

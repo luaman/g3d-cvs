@@ -487,7 +487,7 @@ bool GLCaps::supportsTexture(const ImageFormat* fmt) {
             glPushAttrib(GL_TEXTURE_BIT);
             {
                 // Clear the error bit
-                glGetError();
+                glGetErrors();
 
                 // See if we can create a texture in this format
                 unsigned int id;
@@ -495,7 +495,7 @@ bool GLCaps::supportsTexture(const ImageFormat* fmt) {
                 glBindTexture(GL_TEXTURE_2D, id);
 
                 // Clear the old error flag
-                glGetError();
+                glGetErrors();
                 // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
                 // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
                 glTexImage2D(GL_TEXTURE_2D, 0, fmt->openGLFormat, 8, 8, 0, 
@@ -512,6 +512,7 @@ bool GLCaps::supportsTexture(const ImageFormat* fmt) {
 
         _supportedImageFormat().set(fmt, supportsFormat);
     }
+    glGetErrors();
 
     return _supportedImageFormat()[fmt];
 }
@@ -534,14 +535,14 @@ bool GLCaps::supportsRenderBuffer(const ImageFormat* fmt) {
             glPushAttrib(GL_COLOR_BUFFER_BIT);
             {
                 // Clear the error bit
-                glGetError();
+                glGetErrors();
 
                 // See if we can create a render buffer in this format
                 unsigned int id;
                 glGenRenderbuffersEXT (1, &id);
 
                 // Clear the old error flag
-                glGetError();
+                glGetErrors();
 
                 glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, id);
                 glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, fmt->openGLFormat, 8, 8);
@@ -555,6 +556,7 @@ bool GLCaps::supportsRenderBuffer(const ImageFormat* fmt) {
             glPopAttrib();
         }
 
+        glGetErrors();
         _supportedRenderBufferFormat().set(fmt, supportsFormat);
     }
 

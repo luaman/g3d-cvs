@@ -300,7 +300,7 @@ LOADSHADER:
     genPrograms(1, &glProgram);
     bindProgram(unit, glProgram);
     // Clear the error flag.
-    glGetError();
+    glGetErrors();
 
     loadProgram(code);
 

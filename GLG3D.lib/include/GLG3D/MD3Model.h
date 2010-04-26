@@ -28,12 +28,15 @@ class MD3Part;
 
     Quake 3 uses MD3 models for both characters and non-character objects.  
     Character objects contain three individual "models" inside of them with attachment points.
+    
+    MD3Models are composed of up to four parts, which are named lower (legs), upper (torso), head, and weapon.
+    The coordinate frame for each relative to its parent can be specified as part of the pose.
+    Each part contains a set of triangle lists.  The triangle lists may have different materials and are 
+    key-frame animated. A skin is a set of materials for the triangle lists.  The model is created
+    with a default skin, although an alternative skin may be provided as part of the pose.  This allows
+    sharing geometry over characters with different appearance.
 
-    TODO:
-    - Add pose animation helpers, ala MD2 model (although the function with all of the bool arguments really sucks on MD2Model)
-    - Render using SuperSurface [Morgan]
-
-    See http://nutsak.net/quake_3_models.htm for some models
+    See http://bit.ly/acgNj9 for some models
     \beta
 */
 class MD3Model : public ReferenceCountedObject {
@@ -113,10 +116,10 @@ public:
 
         std::string skinNames[NUM_PARTS];
 
-        inline Pose(GameTime lt, AnimType la, GameTime tt, AnimType ta) :
+        Pose(GameTime lt, AnimType la, GameTime tt, AnimType ta) :
             legsTime(lt), legsAnim(la), torsoTime(tt), torsoAnim(ta) {}
 
-        inline Pose() : legsTime(0), legsAnim(LEGS_IDLE), torsoTime(0), torsoAnim(TORSO_STAND) {}
+        Pose() : legsTime(0), legsAnim(LEGS_IDLE), torsoTime(0), torsoAnim(TORSO_STAND) {}
     };
 
     class Specification {
@@ -144,19 +147,27 @@ public:
 			 MD3Model::Specification {
                 directory = ...,
 
-                // Optional parts are lower/legs, upper/torso, head, weapon
+                // Optional parts are lower, upper, head, weapon
                 // torso must be provided if head or weapon is specified
 
                 // skin is optional and can be overriden by MD3Model::Pose otherwise defaults to the first skin found in the model directory
-                lower/legs = Part {
-                    // The skin name is the base name of the skin.  e.g., legs_blue.skin - the skin name is "blue"
+                lower = Part {
+                    // Optional; if unspecified, this is assumed to be "lower", "upper", "head", or "weapon" + ".md3", as based on
+                    // the key name for this part.  Filename is relative to the specified directory.
+                    filename = "lower.md3",
+
+                    // If the filename ends in ".skin"
+                    // The skin name is the base name of the skin.  e.g., lower_blue.skin - the skin name is "blue"
                     skin = ...,
-                    material = Material::Specification,
+
+                    material = Material::Specification {...},
                 },
             }
         */
         Specification(const Any& any);
     };
+
+
 private:
 
     /** Animation data from animation.cfg */
@@ -174,6 +185,11 @@ private:
     MD3Part*        m_parts[NUM_PARTS];
 
     AnimFrame       m_animations[NUM_ANIMATIONS];
+
+    /** If mapped to a NULL material, do not draw that mesh */
+//    typedef Material::Ref                       PrimitiveSkin;
+//    typedef Table<std::string, PrimitiveSkin>   PartSkin;
+//    typedef Array<PartSkin>                     Skin;
 
     struct SkinValue { std::string filename; Texture::Ref texture; };
     typedef Table<std::string, SkinValue>   PartSkin;
@@ -207,6 +223,8 @@ public:
         as well as the animation.cfg file containing all standard animation values.
 
         Order of part loading is: lower.md3 -> upper.md3 -> head.md3 -> weapon.md3
+
+        \deprecated Use MD3Model::create()
      */
     static MD3Model::Ref fromDirectory(const std::string& modelDir);
 

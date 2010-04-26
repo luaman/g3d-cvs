@@ -220,6 +220,7 @@
      <li> Fix: Alpha cutout for transmissive surfaces
      <li> Fix: Color3uint8::operator!=
      <li> Fix: Texture::Preprocess::modulate now affects alpha channel
+     <li> Fix: debugAssertGLOk and GLCapps::supports now call glGetError until the entire error stack is cleared
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

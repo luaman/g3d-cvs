@@ -22,7 +22,7 @@ verbosity = '1' # for icompile
 class Version:
     major = '8'
     minor = '00'
-    beta  = '05'
+    beta  = ''
     
     def toString(self):
         if (self.beta != ''):

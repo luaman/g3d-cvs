@@ -435,8 +435,8 @@ void MD3Part::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
             float nlat = static_cast<float>((encNormal >> 8) & 0xFF);
             float nlng = static_cast<float>(encNormal & 0xFF);
 
-            nlat *= static_cast<float>(pi() / 128);
-            nlng *= static_cast<float>(pi() / 128);
+            nlat *= static_cast<float>(pi() / 128.0f);
+            nlng *= static_cast<float>(pi() / 128.0f);
 
             Vector3 normal;
             normal.x = cosf(nlat) * sinf(nlng);
@@ -502,7 +502,7 @@ CoordinateFrame MD3Part::tag(float frameNum, const std::string& name) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 MD3Model::MD3Model() {
-    memset(m_parts, 0, sizeof(m_parts));
+    System::memset(m_parts, 0, sizeof(m_parts));
 }
 
 

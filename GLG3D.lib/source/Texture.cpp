@@ -1611,13 +1611,7 @@ void Texture::copyFromScreen(const Rect2D& rect, const ImageFormat* fmt) {
 
     debugAssertGLOk();
     glBindTexture(target, m_textureID);
-#   ifdef G3D_DEBUG
-    {
-        int e = glGetError();
-        alwaysAssertM(e == GL_NONE, 
-            std::string("Error encountered during glBindTexture: ") + GLenumToString(e));
-    }
-#   endif
+    debugAssertGLOk();
 
     glCopyTexImage2D(target, 0, format()->openGLFormat,
                      iRound(rect.x0()), 
@@ -1661,9 +1655,7 @@ void Texture::copyFromScreen(
 
     GLenum target = cubeFaceTarget[(int)face];
 
-    int e = glGetError();
-    alwaysAssertM(e == GL_NONE, 
-        std::string("Error encountered during glBindTexture: ") + GLenumToString(e));
+    debugAssertGLOk();
 
     double viewport[4];
     glGetDoublev(GL_VIEWPORT, viewport);

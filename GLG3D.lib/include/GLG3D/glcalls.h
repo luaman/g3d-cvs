@@ -46,7 +46,17 @@ class Matrix4;
  the debug build.
  */
 #ifdef _DEBUG
-#   define debugAssertGLOk() {GLenum e = glGetError(); debugAssertM(e == GL_NO_ERROR, G3D::GLenumToString(e));}
+#   define debugAssertGLOk() {\
+      GLenum e = glGetError(); \
+      if (e != GL_NO_ERROR) {\
+        std::string errors;\
+        while (e != GL_NO_ERROR) {\
+            errors += G3D::GLenumToString(e) + std::string("\n");\
+            e = glGetError();\
+        }\
+        debugAssertM(false, errors);\
+      }\
+    }
 #else
 #   define debugAssertGLOk()
 #endif
@@ -65,6 +75,11 @@ GLfloat glGetFloat(GLenum which);
  A functional version of glGetDoublev
  */
 GLboolean glGetBoolean(GLenum which);
+
+/** Read all errors off the OpenGL stack */
+inline void glGetErrors() {
+    while (glGetError() != GL_NO_ERROR); 
+}
 
 /**
  A functional version of glGetDoublev
