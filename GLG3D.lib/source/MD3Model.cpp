@@ -86,13 +86,10 @@ MD3Model::Skin::Ref MD3Model::Skin::create
  (const std::string& path,
   const std::string& lowerSkin, 
   const std::string& upperSkin, 
-  const std::string& headSkin, 
-  const std::string& weaponSkin) {
+  const std::string& headSkin) {
     
     Skin::Ref s = new Skin();
-    if (! weaponSkin.empty()) {
-        s->partSkin.resize(4);
-    } else if (! headSkin.empty()) {
+    if (! headSkin.empty()) {
         s->partSkin.resize(3);
     } else if (! upperSkin.empty()) {
         s->partSkin.resize(2);
@@ -106,8 +103,7 @@ MD3Model::Skin::Ref MD3Model::Skin::create
     const Array<std::string> filename
         (FilePath::concat(path, lowerSkin), 
          FilePath::concat(path, upperSkin),
-         FilePath::concat(path, headSkin),
-         FilePath::concat(path, weaponSkin));
+         FilePath::concat(path, headSkin));
 
     for (int i = 0; i < s->partSkin.size(); ++i) {
         loadSkinFile(filename[i], s->partSkin[i]);
@@ -115,6 +111,18 @@ MD3Model::Skin::Ref MD3Model::Skin::create
     
     return s;
 }
+
+
+MD3Model::Skin::Ref MD3Model::Skin::create
+(const std::string& commonPath,
+ const std::string& commonSuffix) {
+    return MD3Model::Skin::create(
+        commonPath,
+        "lower_" + commonSuffix + ".skin",
+        "upper_" + commonSuffix + ".skin",
+        "head_" + commonSuffix + ".skin");
+}
+
 
 MD3Model::Skin::Ref MD3Model::Skin::create(const Any& any) {
     Skin::Ref s = new Skin();

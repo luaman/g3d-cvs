@@ -29,12 +29,14 @@ class MD3Part;
     Quake 3 uses MD3 models for both characters and non-character objects.  
     Character objects contain three individual "models" inside of them with attachment points.
     
-    MD3Models are composed of up to four parts, which are named lower (legs), upper (torso), head, and weapon.
+    MD3Models are composed of up to four parts, which are named lower (legs), upper (torso), and head.
     The coordinate frame for each relative to its parent can be specified as part of the pose.
     Each part contains a set of triangle lists.  The triangle lists may have different materials and are 
     key-frame animated. A skin is a set of materials for the triangle lists.  The model is created
     with a default skin, although an alternative skin may be provided as part of the pose.  This allows
     sharing geometry over characters with different appearance.
+
+    It also contains a coordinate frame for a weapon's attachment location.
 
     See http://bit.ly/acgNj9 for some models
     \beta
@@ -126,9 +128,13 @@ public:
         static Ref create
             (const std::string& commonPath,
             const std::string& lowerSkin, 
-            const std::string& upperSkin = "", 
-            const std::string& headSkin = "", 
-            const std::string& weaponSkin = "");
+            const std::string& upperSkin, 
+            const std::string& headSkin);
+
+        /** Loads commonPath + "lower_" + commonSuffix + ".skin", etc. for other parts */
+        static Ref create
+            (const std::string& commonPath,
+            const std::string& commonSuffix);
 
         /**
           Format is either: 
