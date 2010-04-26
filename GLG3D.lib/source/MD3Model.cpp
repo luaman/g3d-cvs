@@ -669,9 +669,6 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
 
     float torsoFrameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
 
-    // TODO: here's the weapon
-    // CoordinateFrame weaponFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_weapon");
-
     baseFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_head");
 
     // Pose head part
@@ -680,6 +677,25 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
     }
 
     posePart(PART_HEAD, pose, posedModelArray, baseFrame);
+}
+
+
+CoordinateFrame MD3Model::weaponFrame(const CoordinateFrame& cframe, const Pose& pose) const {
+
+    // Coordinate frame built up from lower part
+    CoordinateFrame baseFrame = cframe;
+
+    // Pose lower part
+    if (! m_parts[PART_LOWER] || ! m_parts[PART_UPPER]) {
+        return baseFrame;
+    }
+
+    float legsFrameNum = findFrameNum(pose.legsAnim, pose.legsTime);
+    baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
+
+    float torsoFrameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
+
+    return baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_weapon");
 }
 
 
@@ -741,10 +757,7 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
         // Keep a back pointer so that the index array can't be deleted
         CFrame partFrame = cframe;
-
-        // TODO: shouldn't this translation be in the reference frame of CFrame?  That is,
-        // should this be: trans += cframe.rotation * (...)
-        partFrame.translation += part->m_frames[frame1].m_localOrigin.lerp(part->m_frames[frame2].m_localOrigin, interp);
+        partFrame.translation += cframe.rotation * (part->m_frames[frame1].m_localOrigin.lerp(part->m_frames[frame2].m_localOrigin, interp));
 
         SuperSurface::Ref surface = 
             SuperSurface::create
@@ -796,7 +809,7 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 }
 
 
-float MD3Model::findFrameNum(AnimType animType, GameTime animTime) {
+float MD3Model::findFrameNum(AnimType animType, GameTime animTime) const {
     debugAssert(animType < NUM_ANIMATIONS);
 
     float frameNum = m_animations[animType].start;

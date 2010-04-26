@@ -46,6 +46,7 @@ class MD3Part;
 
     TODO: Implement free blending
     TODO: Implement nice pose animation API
+    TODO: Add to starter code
 */
 class MD3Model : public ReferenceCountedObject {
 

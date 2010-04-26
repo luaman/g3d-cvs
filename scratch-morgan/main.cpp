@@ -100,14 +100,13 @@ void App::onInit() {
 
     setDesiredFrameRate(10000);
 
-//    std::string path = "d:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine/";
-//    MD3Model::Skin::Ref skin = MD3Model::Skin::create(path, "lower_blue.skin", "upper_blue.skin", "head_blue.skin");
+    std::string path = "d:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine/";
+    MD3Model::Skin::Ref skin = MD3Model::Skin::create(path, "lower_blue.skin", "upper_blue.skin", "head_blue.skin");
 
-    std::string path = "D:/morgan/data/md3/dragon/models/players/dragon/";
-    MD3Model::Skin::Ref skin = MD3Model::Skin::create(path, "lazzaridus");
+//    std::string path = "D:/morgan/data/md3/dragon/models/players/dragon/";
+//    MD3Model::Skin::Ref skin = MD3Model::Skin::create(path, "Percy");
 
     m_model = MD3Model::fromDirectory(path, skin);
-//    m_pose.skin = ;
 
     m_shadowMap = ShadowMap::create();
 
@@ -129,12 +128,14 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     if (m_scene.notNull()) {
         m_scene->onPose(posed3D);
     }
-    m_model->pose(posed3D, CFrame(), m_pose);
+    m_model->pose(posed3D, CFrame::fromXYZYPRDegrees(0,10,0,00,0), m_pose);
 }
 
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
     (void)surface;
+    rd->setAmbientLightColor(Color3::white() * 0.5f);
+    rd->setLight(0, GLight::directional(Vector3(1,1,1), Color3::white()));
     for (int i = 0; i < surface.size(); ++i) {
         surface[i]->render(rd);
     }
