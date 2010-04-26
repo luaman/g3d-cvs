@@ -38,8 +38,10 @@ static Material::Ref defaultMaterial() {
     return Material::createDiffuse(Color3::white() * 0.99f);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 void MD3Model::Skin::loadSkinFile(const std::string& filename, PartSkin& partSkin) {
-// Read file as string to parse easily
+    // Read file as string to parse easily
     const std::string& skinFile = readWholeFile(filename);
 
     // Split the file into lines
@@ -77,26 +79,31 @@ void MD3Model::Skin::loadSkinFile(const std::string& filename, PartSkin& partSki
 }
 
 MD3Model::Skin::Ref MD3Model::Skin::create
-   (const std::string& lowerSkin, 
-    const std::string& upperSkin, 
-    const std::string& headSkin, 
-    const std::string& weaponSkin) {
+ (const std::string& path,
+  const std::string& lowerSkin, 
+  const std::string& upperSkin, 
+  const std::string& headSkin, 
+  const std::string& weaponSkin) {
     
     Skin::Ref s = new Skin();
     if (! weaponSkin.empty()) {
         s->partSkin.resize(4);
-    } else if (headSkin.empty()) {
+    } else if (! headSkin.empty()) {
         s->partSkin.resize(3);
-    } else if (upperSkin.empty()) {
+    } else if (! upperSkin.empty()) {
         s->partSkin.resize(2);
-    } else if (lowerSkin.empty()) {
+    } else if (! lowerSkin.empty()) {
         s->partSkin.resize(1);
     } else {
         alwaysAssertM(false, "No skins specified!");
     }
 
     // Load actual .skin files
-    Array<std::string> filename(lowerSkin, upperSkin, headSkin, weaponSkin);
+    const Array<std::string> filename
+        (FilePath::concat(path, lowerSkin), 
+         FilePath::concat(path, upperSkin),
+         FilePath::concat(path, headSkin),
+         FilePath::concat(path, weaponSkin));
 
     for (int i = 0; i < s->partSkin.size(); ++i) {
         loadSkinFile(filename[i], s->partSkin[i]);
@@ -128,6 +135,7 @@ MD3Model::Skin::Ref MD3Model::Skin::create(const Any& any) {
 
     return s;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 
 MD3Model::Specification::Part::Part(const Any& any) {

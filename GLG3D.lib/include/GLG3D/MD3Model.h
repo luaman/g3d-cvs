@@ -120,7 +120,8 @@ public:
         }
 
         static Ref create
-            (const std::string& lowerSkin, 
+            (const std::string& commonPath,
+            const std::string& lowerSkin, 
             const std::string& upperSkin = "", 
             const std::string& headSkin = "", 
             const std::string& weaponSkin = "");
@@ -151,7 +152,9 @@ public:
           </pre>
         */
         static Ref create(const Any& a);
+
     private:
+
         static void loadSkinFile(const std::string& filename, PartSkin& partSkin);
    };
 
