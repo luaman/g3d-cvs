@@ -188,6 +188,11 @@ public:
         GameTime    time[NUM_ANIMATED_PARTS];
         AnimType    anim[NUM_ANIMATED_PARTS];
 
+        /** Applying a rotation rotates this part and everything 
+          attached to it relative to its parent.  Rotations are typically used to
+          make the torso point towards a target or the head in the look direction.*/
+        Matrix3     rotation[NUM_PARTS];
+
         /** If NULL, use the model's default skin */
         Skin::Ref   skin;
 

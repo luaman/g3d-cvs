@@ -128,6 +128,9 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     if (m_scene.notNull()) {
         m_scene->onPose(posed3D);
     }
+    static float a = 0;
+    a += 0.5f;
+    m_pose.rotation[1] = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(a));
     m_model->simulatePose(m_pose, 1.0f / 60.0f);
     m_model->pose(posed3D, CFrame::fromXYZYPRDegrees(0,10,0,00,0), m_pose);
 }

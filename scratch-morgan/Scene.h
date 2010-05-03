@@ -18,29 +18,40 @@ protected:
 
     enum ModelType {
         ARTICULATED_MODEL,
-        MD2_MODEL
+        MD2_MODEL,
+        MD3_MODEL
     };
-
-    ModelType                       m_modelType;
 
     std::string                     m_name;
 
-    MD2Model::Ref                   m_md2Model;
-    MD2Model::Pose                  m_md2Pose;
-
-    ArticulatedModel::Ref           m_model;
-
-    /** Current pose */
-    ArticulatedModel::Pose          m_pose;
-
-    /** Pose over time. */
-    ArticulatedModel::PoseSpline    m_poseSpline;
+    ModelType                       m_modelType;
 
     /** Current position */
     CFrame                          m_frame;
 
     /** Root position over time */
     PhysicsFrameSpline              m_frameSpline;
+
+    //////////////////////////////////////////////
+
+    /** Current pose */
+    ArticulatedModel::Pose          m_artPose;
+
+    /** Pose over time. */
+    ArticulatedModel::PoseSpline    m_artPoseSpline;
+
+    ArticulatedModel::Ref           m_artModel;
+
+    //////////////////////////////////////////////
+
+    MD2Model::Ref                   m_md2Model;
+    MD2Model::Pose                  m_md2Pose;
+
+    //////////////////////////////////////////////
+
+    MD3Model::Ref                   m_md3Model;
+    MD3Model::Pose                  m_md3Pose;
+
 
     Entity();
 
@@ -56,6 +67,7 @@ public:
 
     static Entity::Ref create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline);
     static Entity::Ref create(const std::string& n, const MD2Model::Ref& m, const PhysicsFrameSpline& frameSpline);
+    static Entity::Ref create(const std::string& n, const MD3Model::Ref& m, const PhysicsFrameSpline& frameSpline);
 
     virtual void onSimulation(GameTime absoluteTime, GameTime deltaTime);
 
@@ -75,7 +87,7 @@ public:
 class Scene : public ReferenceCountedObject {
 protected:
     /** Current time */
-    RealTime                    m_time;
+    GameTime                    m_time;
     Lighting::Ref               m_lighting;
     Texture::Ref                m_skyBox;
     Array<Entity::Ref>          m_entityArray;
@@ -92,11 +104,15 @@ public:
 
     virtual void onSimulation(GameTime deltaTime);
 
-    inline Lighting::Ref lighting() const {
+    Lighting::Ref lighting() const {
         return m_lighting;
     }
 
-    inline Texture::Ref skyBox() const {
+    GameTime time() const {
+        return m_time;
+    }
+
+    Texture::Ref skyBox() const {
         return m_skyBox;
     }
 

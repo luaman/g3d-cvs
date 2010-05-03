@@ -33,25 +33,56 @@ Entity::Ref Entity::create(const std::string& n, const MD2Model::Ref& m, const P
 }
 
 
-void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
-    switch (m_modelType) {
-    case ARTICULATED_MODEL:
-        m_artModel->pose(surfaceArray, m_frame, m_artPose);
-        break;
-    case MD2_MODEL:
-        m_md2Model->pose(surfaceArray, m_frame, m_md2Pose);
-        break;
-    }
+Entity::Ref Entity::create(const std::string& n, const MD3Model::Ref& m, const PhysicsFrameSpline& frameSpline) {
+    Ref e = new Entity();
+    e->m_modelType = MD3_MODEL;
+    e->m_name  = n;
+    e->m_md3Model = m;
+    e->m_frameSpline = frameSpline;
+
+    // Set the initial position
+    e->onSimulation(0, 0);
+    return e;
 }
 
 
 void Entity::onSimulation(GameTime absoluteTime, GameTime deltaTime) {
     (void)deltaTime;
     m_frame = m_frameSpline.evaluate(float(absoluteTime));
-    m_artPoseSpline.get(float(absoluteTime), m_artPose);
 
-    MD2Model::Pose::Action a;
-    m_md2Pose.onSimulation(deltaTime, a);
+    switch (m_modelType) {
+    case ARTICULATED_MODEL:
+        m_artPoseSpline.get(float(absoluteTime), m_artPose);
+        break;
+
+    case MD2_MODEL:
+        {
+            MD2Model::Pose::Action a;
+            m_md2Pose.onSimulation(deltaTime, a);
+            break;
+        }
+
+    case MD3_MODEL:
+        m_md3Model->simulatePose(m_md3Pose, deltaTime);
+        break;
+    }
+}
+
+
+void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
+    switch (m_modelType) {
+    case ARTICULATED_MODEL:
+        m_artModel->pose(surfaceArray, m_frame, m_artPose);
+        break;
+
+    case MD2_MODEL:
+        m_md2Model->pose(surfaceArray, m_frame, m_md2Pose);
+        break;
+
+    case MD3_MODEL:
+        m_md3Model->pose(surfaceArray, m_frame, m_md3Pose);
+        break;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -126,6 +157,8 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
             m = ArticulatedModel::create(v);
         } else if (v.nameBeginsWith("MD2Model")) {
             m = MD2Model::create(v);
+        } else if (v.nameBeginsWith("MD3Model")) {
+            m = MD3Model::create(v);
         } else {
             debugAssertM(false, "Unrecognized model type: " + v.name());
         }
@@ -156,10 +189,14 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
 
         ArticulatedModel::Ref artModel = model->downcast<ArticulatedModel>();
         MD2Model::Ref         md2Model = model->downcast<MD2Model>();
+        MD3Model::Ref         md3Model = model->downcast<MD3Model>();
+
         if (artModel.notNull()) {
             s->m_entityArray.append(Entity::create(name, artModel, frameSpline, poseSpline));
-        } else {
+        } else if (md2Model.notNull()) {
             s->m_entityArray.append(Entity::create(name, md2Model, frameSpline));
+        } else if (md3Model.notNull()) {
+            s->m_entityArray.append(Entity::create(name, md3Model, frameSpline));
         }
     }
 

@@ -44,6 +44,10 @@ MD3Model::Pose::Pose() {
     }
     anim[PART_LOWER] = LOWER_IDLE;
     anim[PART_UPPER] = UPPER_STAND;
+
+    for (int i = 0; i < NUM_PARTS; ++i) {
+        rotation[i] = Matrix3::identity();
+    }
 }
 
 
@@ -307,6 +311,7 @@ private:
     struct FrameData {
         Vector3                                 m_bounds[2];
 
+        /** Parts are offset by a translation only. */
         Vector3                                 m_localOrigin;
 
         float                                   m_radius;
@@ -427,7 +432,7 @@ void MD3Part::loadSurface(BinaryInput& bi, TriList& triList) {
     bi.setPosition(surfaceStart + md3Surface.offsetShaders);
 
     for (int shaderIndex = 0; shaderIndex < md3Surface.numShaders; ++shaderIndex) {
-        // Read shader name and index
+        // Read shader name and index (need this code to update the file position correctly)
         const std::string& shaderPath = bi.readString(64);
         const int unusedIndex = bi.readInt32();
         
@@ -667,27 +672,29 @@ void MD3Model::pose(Array<Surface::Ref>& posedModelArray, const CoordinateFrame&
         return;
     }
 
+    baseFrame.rotation *= pose.rotation[PART_LOWER];
     posePart(PART_LOWER, pose, posedModelArray, baseFrame);
 
     float legsFrameNum = findFrameNum(pose.anim[PART_LOWER], pose.time[PART_LOWER]);
-    baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
 
     // Pose upper part
     if (! m_parts[PART_UPPER]) {
         return;
     }
 
+    baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
+    baseFrame.rotation *= pose.rotation[PART_UPPER];
     posePart(PART_UPPER, pose, posedModelArray, baseFrame);
 
     float torsoFrameNum = findFrameNum(pose.anim[PART_UPPER], pose.time[PART_UPPER]);
-
-    baseFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_head");
 
     // Pose head part
     if (! m_parts[PART_HEAD]) {
         return;
     }
 
+    baseFrame = baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_head");
+    baseFrame.rotation *= pose.rotation[PART_HEAD];
     posePart(PART_HEAD, pose, posedModelArray, baseFrame);
 }
 
@@ -703,6 +710,7 @@ CoordinateFrame MD3Model::weaponFrame(const CoordinateFrame& cframe, const Pose&
     }
 
     float legsFrameNum = findFrameNum(pose.anim[PART_LOWER], pose.time[PART_LOWER]);
+    baseFrame.rotation *= pose.rotation[PART_LOWER];
     baseFrame = baseFrame * m_parts[PART_LOWER]->tag(legsFrameNum, "tag_torso");
 
     float torsoFrameNum = findFrameNum(pose.anim[PART_UPPER], pose.time[PART_UPPER]);
@@ -710,6 +718,15 @@ CoordinateFrame MD3Model::weaponFrame(const CoordinateFrame& cframe, const Pose&
     return baseFrame * m_parts[PART_UPPER]->tag(torsoFrameNum, "tag_weapon");
 }
 
+struct BlendWeights {
+    int frame[2];
+    float weight[2];
+
+    BlendWeights() {
+        frame[0] = frame[1] = -1;
+        weight[0] = weight[1] = 0;
+    }
+};
 
 void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe) {
     const MD3Part* part = m_parts[partType];
@@ -747,10 +764,9 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
             continue;
         }
 
-        // Set up blending
         /////////////////////////////////////////////////////////////////
         // TODO: abstract this blending logic into a method
-        // TODO: handle blends between different animations the way that MD2Model does)
+        BlendWeights b;
 
         float frameNum = 0.0f;
 
@@ -759,16 +775,19 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         }
 
         // Calculate frames for blending
-        int frame1 = iFloor(frameNum);
-        int frame2 = iClamp(iCeil(frameNum), 0, triList.m_numFrames - 1);
-        float interp = fmod(frameNum, 1.0f);
+        // TODO: handle blends between different animations the way that MD2Model does
+        b.frame[0] = iFloor(frameNum);
+        b.frame[1] = iClamp(iCeil(frameNum), 0, triList.m_numFrames - 1);
+        b.weight[1] = frameNum - float(b.frame[0]);
+        b.weight[0] = 1.0f - b.weight[1];
+
+        CFrame partFrame = cframe;
+        partFrame.translation += cframe.rotation * (part->m_frames[b.frame[0]].m_localOrigin.lerp(part->m_frames[b.frame[1]].m_localOrigin, b.weight[1]));
 
         /////////////////////////////////////////////////////////////////
 
-        // Keep a back pointer so that the index array can't be deleted
-        CFrame partFrame = cframe;
-        partFrame.translation += cframe.rotation * (part->m_frames[frame1].m_localOrigin.lerp(part->m_frames[frame2].m_localOrigin, interp));
-
+        // The final "this" argument is a back pointer so that the index array can't be 
+        // garbage collected while the surface still exists.
         SuperSurface::Ref surface = 
             SuperSurface::create
                (part->m_modelName + "::" + triList.m_name, 
@@ -790,8 +809,8 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         surface->gpuGeom()->material = material;
 
         // Copy blended vertex data for frame
-        const MeshAlg::Geometry& geom1 = triList.m_geometry[frame1];
-        const MeshAlg::Geometry& geom2 = triList.m_geometry[frame2];
+        const MeshAlg::Geometry& geom1 = triList.m_geometry[b.frame[0]];
+        const MeshAlg::Geometry& geom2 = triList.m_geometry[b.frame[1]];
 
         const int N = geom1.vertexArray.size();
         Array<Vector3>& vertexArray = const_cast< Array<Vector3>& >(cpuGeom.geometry->vertexArray);
@@ -799,8 +818,8 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         vertexArray.resize(N);
         normalArray.resize(N);
         for (int v = 0; v < N; ++v) {
-            vertexArray[v] = geom1.vertexArray[v].lerp(geom2.vertexArray[v], interp);
-            normalArray[v] = geom1.normalArray[v].lerp(geom2.normalArray[v], interp);
+            vertexArray[v] = geom1.vertexArray[v].lerp(geom2.vertexArray[v], b.weight[1]);
+            normalArray[v] = geom1.normalArray[v].lerp(geom2.normalArray[v], b.weight[1]);
         }
 
         // Upload data to the GPU

@@ -4,12 +4,13 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2001-07-08
- @edited  2009-01-15
+ @edited  2010-04-03
  */
 
 #include "G3D/platform.h"
 #include "G3D/Log.h"
 #include "G3D/GCamera.h"
+#include "G3D/FileSystem.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Texture.h"
@@ -2793,7 +2794,7 @@ void RenderDevice::screenshotPic(GImage& dest, bool getAlpha, bool invertY) cons
 std::string RenderDevice::screenshot(const std::string& filepath) const {
     GImage screen;
 
-    std::string filename = pathConcat(filepath, generateFilenameBase("", "_" + System::appName()) + ".jpg");
+    std::string filename = FilePath::concat(filepath, generateFilenameBase("", "_" + System::appName()) + ".jpg");
 
     screenshotPic(screen);
     screen.save(filename);
