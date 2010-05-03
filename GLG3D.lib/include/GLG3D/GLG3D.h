@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2002-08-07
- @edited  2010-03-04
+ @edited  2010-04-04
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
@@ -125,6 +125,7 @@
 #include "GLG3D/GBuffer.h"
 
 #include "GLG3D/Discovery.h"
+#include "GLG3D/GEntity.h"
 
 #ifdef G3D_OSX
 #include "GLG3D/CarbonWindow.h"

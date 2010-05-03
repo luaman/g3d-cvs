@@ -269,6 +269,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GEntity.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\getOpenGLState.cpp"
 				>
 			</File>
@@ -620,6 +624,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GConsole.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GEntity.h"
 				>
 			</File>
 			<File
