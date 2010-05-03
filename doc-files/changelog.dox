@@ -39,6 +39,7 @@
      <li> G3D::GuiTabPane, GuiPane::addTabPane
      <li> G3D::GFont::nativeSize
      <li> G3D::FilePath
+     <li> Updated documentation style sheets to be more friendly to mobile devices
      <li> Added support for run-length encoded truecolor TGA files
      <li> G3D::OSWindow::primaryDisplaySize, G3D::OSWindow::virtualDisplaySize, G3D::OSWindow::primaryDisplayWindowSize, G3D::OSWindow::numDisplays
      <li> G3D::RenderDevice::shader

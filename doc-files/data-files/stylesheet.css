@@ -18,9 +18,22 @@ a {
     font-weight: normal; 
 }
 
+
+/* Highlight visited links (assuming we'd probably want to visit again) */
+a:visited {
+    color: #2929ee; 
+    font-weight: bold;
+}
+
+/* Linked code */
 a.el { 
-    text-decoration: none; 
-    font-weight: normal; 
+    font-family: Geneva;
+    font-size: 100%;
+}
+
+a.el:visited { 
+    font-family: Geneva;
+    font-size: 95%;
 }
 
 
@@ -50,9 +63,6 @@ a.anchor:hover{
     background-color: #FFFFFF; 
 }
 
-a:visited {
-    color: #2929ee; 
-}
 
 body {
     background: white; 
@@ -235,7 +245,7 @@ A.qindexHL:hover {
 	color: #ffffff;
 }
 A.qindexHL:visited { text-decoration: none; background-color: #6666cc; color: #ffffff }
-A.el { text-decoration: none; /* font-weight: bold */ }
+A.el { text-decoration: none; font-family: Geneva; }
 A.elRef { font-weight: bold }
 A.code:link { text-decoration: none; font-weight: normal; color: #0000FF}
 A.code:visited { text-decoration: none; font-weight: normal; color: #0000FF}
@@ -537,50 +547,50 @@ HR { height: 1px;
 
 /* Menu at top from header.html */
 span.menu_tab a {
-            min-width:      72px;
-            background:     #FFE183; 
-            border-width:   1px; 
-            border-style:   solid; 
-            border-color:   #FFB143; 
-            padding:        5px;
-            margin:         0px;
-            margin-left:    3px;
-            margin-top:     10px;
-            margin-bottom:  -1px;
-            font-size:      11px; 
-            font-weight:    bold;	
-            font-family:    arial;
-            color:          #704000;
-            position:       relative;
-			display:        inline;
-            float:          left;
-            text-align:     center;
-		}
+    min-width:      72px;
+    background:     #FFE183; 
+    border-width:   1px; 
+    border-style:   solid; 
+    border-color:   #FFB143; 
+    padding:        5px;
+    margin:         0px;
+    margin-left:    3px;
+    margin-top:     10px;
+    margin-bottom:  -1px;
+    font-size:      11px; 
+    font-weight:    bold;	
+    font-family:    arial;
+    color:          #704000;
+    position:       relative;
+    display:        inline;
+    float:          left;
+    text-align:     center;
+}
 
-                span.menu_tab a:link, a:visited {
-			            font-size:          11px; 
-			            font-weight:        bold;	
-			            font-family:        arial;
-                        text-decoration:    none;
-                }
+span.menu_tab a:link, a:visited {
+        font-size:          11px; 
+        font-weight:        bold;	
+        font-family:        arial;
+        text-decoration:    none;
+}
 
-                span.menu_tab a:hover {
-			            font-size:          11px; 
-			            font-weight:        bold;	
-			            font-family:        arial;
-                        background:         #FDEFA0;
-                        color:              #000000;
-                        text-decoration:    none;
-		}
+span.menu_tab a:hover {
+        font-size:          11px; 
+        font-weight:        bold;	
+        font-family:        arial;
+        background:         #FDEFA0;
+        color:              #000000;
+        text-decoration:    none;
+}
 
-		.widthadjust {
-			min-width:		800px;
-			width:			80%;
-			background:		#FFFFFF; 
-			padding-left:		5px;
-			padding-right:		5px;
-		}
+.widthadjust {
+    min-width:		768px;
+    width:			100%;
+    background:		#FFFFFF; 
+    padding-left:		5px;
+    padding-right:		5px;
+}
 
-		* html .widthadjust {
-			width:			expression(document.body.clientWidth < 1000? "1000px": "auto";
-		}
+* html .widthadjust {
+	width:			expression(document.body.clientWidth < 768 ? "768px": "auto";
+}
