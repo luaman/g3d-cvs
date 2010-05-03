@@ -258,7 +258,10 @@ void GBuffer::resize(int w, int h) {
 #   undef BUFFER
 
     m_depth = Texture::createEmpty("Depth", w, h, m_specification.depthFormat, Texture::DIM_2D_NPOT, settings);
-    m_framebuffer->set(Framebuffer::DEPTH, m_depth);
+
+    if (m_framebuffer.notNull()) {
+        m_framebuffer->set(Framebuffer::DEPTH, m_depth);
+    }
 
     if (m_specification.wsPosition || m_specification.csPosition) {
 
