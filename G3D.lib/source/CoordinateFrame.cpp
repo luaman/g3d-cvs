@@ -399,12 +399,12 @@ CoordinateFrame CoordinateFrame::lerp(
     } else if (alpha == 0.0f) {
         return *this;
     } else {
-        Quat q1 = Quat(this->rotation);
-        Quat q2 = Quat(other.rotation);
+        const Quat q1(this->rotation);
+        const Quat q2(other.rotation);
 
         return CoordinateFrame(
             q1.slerp(q2, alpha).toRotationMatrix(),
-            this->translation * (1 - alpha) + other.translation * alpha);
+            translation * (1 - alpha) + other.translation * alpha);
     }
 } 
 
@@ -412,7 +412,7 @@ CoordinateFrame CoordinateFrame::lerp(
 void CoordinateFrame::pointToWorldSpace(const Array<Vector3>& v, Array<Vector3>& vout) const {
     vout.resize(v.size());
 
-    for (int i = v.size() - 1; i >= 0; --i) {
+    for (int i = 0; i < v.size(); ++i) {
         vout[i] = pointToWorldSpace(v[i]);
     }
 }
@@ -421,7 +421,7 @@ void CoordinateFrame::pointToWorldSpace(const Array<Vector3>& v, Array<Vector3>&
 void CoordinateFrame::normalToWorldSpace(const Array<Vector3>& v, Array<Vector3>& vout) const  {
     vout.resize(v.size());
 
-    for (int i = v.size() - 1; i >= 0; --i) {
+    for (int i = 0; i < v.size(); ++i) {
         vout[i] = normalToWorldSpace(v[i]);
     }
 }
