@@ -41,6 +41,9 @@ void App::onInit() {
 
     GBuffer::Specification specification;
     specification.wsPosition = true;
+    specification.wsNormal = true;
+    specification.lambertian = true;
+    specification.specular = true;
     m_gbuffer = GBuffer::create("GBuffer", specification);
     m_gbuffer->resize((window()->width() - 4) / 2, window()->height() - GUI_HEIGHT - 2);
 
