@@ -55,7 +55,15 @@ static Table<std::string, std::string>& filenameTable() {
     if (filenameTable.size() == 0) {
         // Create a table mapping scene names to filenames
         Array<std::string> filenameArray;
-		FileSystem::getFiles("*.scn.any", filenameArray, true);
+
+        FileSystem::ListSettings settings;
+        settings.files = true;
+        settings.directories = false;
+        settings.includeParentPath = true;
+        settings.recursive = true;
+
+		FileSystem::list("*.scn.any", filenameArray, settings);
+
         for (int i = 0; i < filenameArray.size(); ++i) {
             Any a;
             a.load(filenameArray[i]);
