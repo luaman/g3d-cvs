@@ -41,6 +41,37 @@ namespace G3D {
  TODO: make threadsafe!
 */
 class FileSystem {
+public:
+
+    class ListSettings {
+    public:
+        /** Defaults to true */
+        bool    files;
+
+        /** Defaults to true */
+        bool    directories;
+
+        /** Defaults to true on Windows, false on other platforms.*/
+        bool    caseSensitive;
+
+        /** Can get recurse into subdirectories? Defaults to true. */
+        bool    recursive;
+
+        /** Prefix the full path onto names that are returned. Defaults to true */
+        bool    includeParentPath;
+
+        ListSettings() :
+            files(true),
+            directories(true),
+#           ifdef G3D_WIN32
+                caseSensitive(true),
+#           else
+              caseSensitive(false),
+#           endif
+            recursive(false),
+            includeParentPath(true) {}
+    };
+
 private:
 
     /** Drive letters.  Only used on windows, but defined on all platforms to help
@@ -192,6 +223,9 @@ private:
     /** Returns the length of the file in bytes, or -1 if the file could not be opened. */
     int64 _size(const std::string& path);
 
+    /** Called from list() */
+    void listHelper(const std::string& shortSpec, const std::string& parentPath, Array<std::string>& result, const ListSettings& settings);
+
     /** Appends all nodes matching \a spec to the \a result array.
 
       Wildcards can only appear to the right of the last slash in \a spec.
@@ -201,8 +235,7 @@ private:
       is fully qualified (can be done with resolveFilename). 
       
      */
-    void _list(const std::string& spec, Array<std::string>& result,
-        bool files = true, bool directories = true, bool includeParentPath = false);
+    void _list(const std::string& spec, Array<std::string>& result, const ListSettings& listSettings = ListSettings());
 
     /** Returns true if \a path is a file that is a zipfile. Note that G3D requires zipfiles to have
         some extension, although it is not required to be "zip" */
@@ -210,12 +243,20 @@ private:
 
     /** list() files */
     void _getFiles(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
-        _list(spec, result, true, false, includeParentPath);
+        ListSettings set;
+        set.includeParentPath = includeParentPath;
+        set.directories = false;
+        set.files = true;
+        return list(spec, result, set);
     }
 
     /** list() directories */
     void _getDirectories(const std::string& spec, Array<std::string>& result, bool includeParentPath = false) {
-        _list(spec, result, false, true, includeParentPath);
+        ListSettings set;
+        set.includeParentPath = includeParentPath;
+        set.directories = true;
+        set.files = false;
+        return list(spec, result, set);
     }
 
     /** Same as the C standard library fopen, but updates the file cache
@@ -323,8 +364,8 @@ public:
 
     /** \copydoc _list */
     static void list(const std::string& spec, Array<std::string>& result,
-        bool files = true, bool directories = true, bool includeParentPath = false) {
-        return instance()._list(spec, result, files, directories, includeParentPath);
+        const ListSettings& listSettings = ListSettings()) {
+        return instance()._list(spec, result, listSettings);
     }
 
     /** \copydoc _getFiles */

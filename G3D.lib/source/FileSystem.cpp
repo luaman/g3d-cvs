@@ -4,7 +4,7 @@
  @author Morgan McGuire, http://graphics.cs.williams.edu
  
  @author  2002-06-06
- @edited  2010-03-05
+ @edited  2010-04-10
  */
 #include "G3D/FileSystem.h"
 #include "G3D/System.h"
@@ -546,42 +546,48 @@ int64 FileSystem::_size(const std::string& filename) {
 }
 
 
-void FileSystem::_list(const std::string& spec, Array<std::string>& result, bool files, bool directories, bool includeParentPath) {
-    std::string shortSpec = FilePath::baseExt(spec);
-    std::string parentPath = FilePath::parent(spec);
-
+void FileSystem::listHelper(const std::string& shortSpec, const std::string& parentPath, Array<std::string>& result, const ListSettings& settings) {
     Dir& dir = getContents(parentPath, false);
-    if (dir.exists) {
-        for (int i = 0; i < dir.nodeArray.size(); ++i) {
-            Entry& entry = dir.nodeArray[i];
-            
-#           ifdef G3D_WIN32
-                static const int flags = FNM_CASEFOLD;
-#           else
-                static const int flags = 0;
-#           endif
 
-            // See if it matches the spec
-            if (FilePath::matches(entry.name, shortSpec, flags)) {
-
-                if ((entry.type == UNKNOWN) && ! (files && directories)) {
-                    // Update the type
-                    entry.type = isDirectory(FilePath::concat(parentPath, entry.name)) ? DIR_TYPE : FILE_TYPE;
-                }
-                
-                if ((files && directories) ||
-                    (files && (entry.type == FILE_TYPE)) ||
-                    (directories && (entry.type == DIR_TYPE))) {
-                    
-                    if (includeParentPath) {
-                        result.append(FilePath::concat(parentPath, entry.name));
-                    } else {
-                        result.append(entry.name);
-                    }
-                }
-            } // match
-        } // for
+    if (! dir.exists) {
+        return;
     }
+
+    for (int i = 0; i < dir.nodeArray.size(); ++i) {
+        Entry& entry = dir.nodeArray[i];
+
+        // See if it matches the spec
+        if (FilePath::matches(entry.name, shortSpec, settings.caseSensitive)) {
+
+            if ((entry.type == UNKNOWN) && ! (settings.files && settings.directories)) {
+                // Update the type
+                entry.type = isDirectory(FilePath::concat(parentPath, entry.name)) ? DIR_TYPE : FILE_TYPE;
+            }
+            
+            if ((settings.files && settings.directories) ||
+                (settings.files && (entry.type == FILE_TYPE)) ||
+                (settings.directories && (entry.type == DIR_TYPE))) {
+                
+                if (settings.includeParentPath) {
+                    result.append(FilePath::concat(parentPath, entry.name));
+                } else {
+                    result.append(entry.name);
+                }
+            }
+        } // match
+
+        if (settings.recursive && (entry.type == DIR_TYPE)) {
+            listHelper(shortSpec, FilePath::concat(parentPath, entry.name), result, settings);
+        }
+    } // for
+}
+
+
+void FileSystem::_list(const std::string& spec, Array<std::string>& result, const ListSettings& settings) {
+    const std::string& shortSpec = FilePath::baseExt(spec);
+    const std::string& parentPath = FilePath::parent(spec);
+
+    listHelper(shortSpec, parentPath, result, settings);
 }
 
 

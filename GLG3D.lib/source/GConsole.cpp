@@ -293,9 +293,9 @@ void GConsole::generateFilenameCompletions(Array<string>& files) {
         --i;
     }
 
-    string filespec = m_currentLine.substr(i, m_cursorPos - i + 1) + "*";
+    const std::string& filespec = m_currentLine.substr(i, m_cursorPos - i + 1) + "*";
 
-    FileSystem::list(filespec, files, true, true);
+    FileSystem::list(filespec, files);
 }
 
 
