@@ -28,7 +28,7 @@ GLight::GLight(const Any& any) {
             } else if (key == "rightdirection") {
                 rightDirection = it->value;
             } else if (key == "spotdirection") {
-                spotDirection = it->value;
+                spotDirection = Vector3(it->value).directionOrZero();
             } else if (key == "spottarget") {
                 spotTarget = it->value;
                 hasSpotTarget = true;
