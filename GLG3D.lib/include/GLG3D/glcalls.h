@@ -76,9 +76,9 @@ GLfloat glGetFloat(GLenum which);
  */
 GLboolean glGetBoolean(GLenum which);
 
-/** Read all errors off the OpenGL stack */
+/** Read all errors off the OpenGL stack and ignore them.*/
 inline void glGetErrors() {
-    while (glGetError() != GL_NO_ERROR); 
+    while (glGetError() != GL_NO_ERROR) {};
 }
 
 /**
