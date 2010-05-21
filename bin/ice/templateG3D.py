@@ -20,7 +20,7 @@ def findG3DStarter(state):
         '/usr/local/G3D/']
     
     for path in locations:
-        f = pathConcat(path, 'demos/starter')
+        f = pathConcat(path, 'samples/starter')
         if os.path.exists(f):
             return f
 
