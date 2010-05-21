@@ -123,7 +123,7 @@ DirectionHistogram::DirectionHistogram(int numSlices, const Vector3& axis) : m_s
             const float x = cos(phi) * r;
             const float y = sin(phi) * r;
 
-            const bool unique = ! firstRow && ! lastRow || (p == 0);
+            const bool unique = (! firstRow && ! lastRow) || (p == 0);
                 
             // Only insert one vertex at each pole
             if (unique) {

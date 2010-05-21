@@ -226,8 +226,7 @@ void GLCaps::init() {
     loadExtensions(Log::common());
 
     if (glGetString(GL_SHADING_LANGUAGE_VERSION)) { 
-        const char* s = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-		sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%f", &m_glslVersion);
+        sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%f", &m_glslVersion);
     } else {
         m_glslVersion = 0;
     }

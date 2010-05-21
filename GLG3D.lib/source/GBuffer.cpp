@@ -16,7 +16,7 @@
 namespace G3D {
 
 GBuffer::Indices::Indices(const GBuffer::Specification& spec) 
-    : L(-1), s(-1), t(-1), e(-1), wsN(-1), csN(-1), csF(-1), wsF(-1), z(-1), c(-1), csP(-1), wsP(-1) {
+    : L(-1), s(-1), t(-1), e(-1), csN(-1), wsN(-1), csF(-1), wsF(-1), z(-1), c(-1), csP(-1), wsP(-1) {
 
     int i = 0;
 

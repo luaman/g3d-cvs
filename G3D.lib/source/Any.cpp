@@ -926,12 +926,6 @@ static bool isClose(const char c) {
 }
 
 
-/** True if \a s is a C++ name operator */
-static bool isNameOperator(const std::string& s) {
-    return s == "." || s == "::" || s == "->";
-}
-
-
 void Any::deserializeName(TextInput& ti, Token& token, std::string& name) {
     debugAssert(token.type() == Token::SYMBOL);
     std::string s = token.string();
@@ -1109,9 +1103,9 @@ static bool isSeparator(char c) {
 
 
 void Any::readUntilCommaOrClose(TextInput& ti, Token& token) {
-    while (! ((token.type() == Token::SYMBOL) && 
-              (isClose(token.string()[0])) || 
-               isSeparator(token.string()[0]))) {
+    bool atClose = (token.type() == Token::SYMBOL) && isClose(token.string()[0]);
+    bool atComma = isSeparator(token.string()[0]);
+    while (! (atClose || atComma)) {
         switch (token.type()) {
         case Token::NEWLINE:
         case Token::COMMENT:
@@ -1123,6 +1117,10 @@ void Any::readUntilCommaOrClose(TextInput& ti, Token& token) {
             throw ParseError(ti.filename(), token.line(), token.character(), 
                 "Expected a comma or close paren");
         }
+
+	// Update checks
+        atComma = isSeparator(token.string()[0]);
+        atClose = (token.type() == Token::SYMBOL) && isClose(token.string()[0]);
     }
 }
 

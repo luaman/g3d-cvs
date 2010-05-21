@@ -1573,7 +1573,7 @@ unsigned int Texture::newGLTextureID() {
     // Clear the OpenGL error flag
 #   ifdef G3D_DEBUG
         glGetError();
-#   endif G3D_DEBUG
+#   endif 
 
     unsigned int id;
     glGenTextures(1, &id);
@@ -2135,9 +2135,9 @@ static void createTexture(
 
     case GL_TEXTURE_2D:
         if ((rescaleFactor != 1.0) || 
-            (! isPow2(m_width) || ! isPow2(m_height)) &&
-            (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two() ||
-             (m_width > maxSize) || (m_height > maxSize))) {
+            ( (! isPow2(m_width) || ! isPow2(m_height)) &&
+              (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two() ||
+              (m_width > maxSize) || (m_height > maxSize)) )) {
             // NPOT texture with useNPOT disabled: resize to a power of two
 
             debugAssertM(! compressed,

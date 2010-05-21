@@ -433,8 +433,9 @@ void MD3Part::loadSurface(BinaryInput& bi, TriList& triList) {
 
     for (int shaderIndex = 0; shaderIndex < md3Surface.numShaders; ++shaderIndex) {
         // Read shader name and index (need this code to update the file position correctly)
-        const std::string& shaderPath = bi.readString(64);
-        const int unusedIndex = bi.readInt32();
+	// Currently discarding shader name and index
+        bi.readString(64);
+        bi.readInt32();
         
         /*
         // Find base filename for shader

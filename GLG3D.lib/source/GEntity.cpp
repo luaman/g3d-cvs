@@ -10,9 +10,11 @@ GEntity::GEntity
 const ArticulatedModel::Ref& artModel, const ArticulatedModel::PoseSpline& artPoseSpline,
 const MD2Model::Ref& md2Model,
 const MD3Model::Ref& md3Model) : 
-    m_name(n), m_frameSpline(frameSpline), m_artModel(artModel), 
+    m_name(n), 
     m_modelType(ARTICULATED_MODEL),
+    m_frameSpline(frameSpline),
     m_artPoseSpline(artPoseSpline), 
+    m_artModel(artModel),
     m_md2Model(md2Model), m_md3Model(md3Model) {
 
     m_name  = n;

@@ -1549,7 +1549,7 @@ void GuiTheme::TextStyle::load(const Any& any) {
         if (! filename.empty()) {
             font = GFont::fromFile(filename);
         } else {
-            logPrintf("GuiTheme Warning: could not find font %s\n", any["face"]);
+            logPrintf("GuiTheme Warning: could not find font %s\n", any["face"].string().c_str());
         }
     }
 

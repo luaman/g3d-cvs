@@ -190,6 +190,7 @@ int64 fileLength(const std::string& filename) {
                                 struct zip_stat info;
                                 zip_stat_init( &info );    // TODO: Docs unclear if zip_stat_init is required.
                                 int success = zip_stat( z, contents.c_str(), ZIP_FL_NOCASE, &info );
+				(void)success;
                                 debugAssertM(success == 0, zip + ": " + contents + ": zip stat failed.");
                                 requiredMem = info.size;
 			}
@@ -201,44 +202,6 @@ int64 fileLength(const std::string& filename) {
     }
 
     return st.st_size;
-}
-
-/** Used by robustTmpfile.  Returns nonzero if fread, fwrite, and fseek all
-succeed on the file.
-  @author Morgan McGuire, http://graphics.cs.williams.edu  */
-static int isFileGood(FILE* f) {
-
-	int x, n, result;
-
-	/* Must be a valid file handle */
-	if (f == NULL) {
-		return 0;
-	}
-
-	/* Try to write */
-	x = 1234;
-	n = fwrite(&x, sizeof(int), 1, f);
-
-	if (n != 1) {
-		return 0;
-	}
-
-	/* Seek back to the beginning */
-	result = fseek(f, 0, SEEK_SET);
-	if (result != 0) {
-		return 0;
-	}
-
-	/* Read */
-	n =	fread(&x, sizeof(int), 1, f);
-	if (n != 1) {
-		return 0;
-	}
-
-	/* Seek back to the beginning again */
-	fseek(f, 0, SEEK_SET);
-
-	return 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

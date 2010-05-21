@@ -241,9 +241,9 @@ void SuperSurface::renderShadowMappedLightPass
         return;
     }
 
-    RenderDevice::CullFace oldCullFace;
-    RenderDevice::BlendFunc oldSrcBlendFunc, oldDstBlendFunc;
-    RenderDevice::BlendEq oldBlendEq;
+    RenderDevice::CullFace oldCullFace = RenderDevice::CULL_NONE;
+    RenderDevice::BlendFunc oldSrcBlendFunc = RenderDevice::BLEND_ONE, oldDstBlendFunc = RenderDevice::BLEND_ONE;
+    RenderDevice::BlendEq oldBlendEq = RenderDevice::BLENDEQ_MIN;
     if (preserveState) {
         rd->pushState();
     } else {
