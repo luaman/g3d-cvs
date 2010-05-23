@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2003-05-23
-  @edited  2010-01-01
+  @edited  2010-05-01
 */
 
 #ifndef GLG3D_ImageFormat_H
@@ -13,6 +13,7 @@
 #include "G3D/platform.h"
 #include "G3D/Table.h"
 #include "G3D/enumclass.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
@@ -388,9 +389,18 @@ public:
             NEAREST,
             BILINEAR,
             MHC,
-            HIGH_QUALITY = MHC
+            BEST = MHC
         };
     private:
+        static const char* toString(int i, Value& v) {
+            static const char* str[] = {"NEAREST", "BILINEAR", "MHC", "BEST", NULL}; 
+            static const Value val[] = {NEAREST, BILINEAR, MHC, BEST};
+            const char* s = str[i];
+            if (s) {
+                v = val[i];
+            }
+            return s;
+        }
 
         Value value;
 
@@ -411,7 +421,7 @@ public:
     */
     static bool convert(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits,
 	                    const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits,
-	                    bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::HIGH_QUALITY);
+	                    bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::MHC);
 
     /* Checks if a conversion between two formats is available. */
     static bool conversionAvailable(const ImageFormat* srcFormat, int srcRowPadBits, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY = false);

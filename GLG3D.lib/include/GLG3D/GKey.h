@@ -3,14 +3,15 @@
 
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2006-10-20
-  @edited  2007-01-27
+  @edited  2010-05-27
 */
-#ifndef GLG3D_GKEY_H
-#define GLG3D_GKEY_H
+#ifndef GLG3D_GKey_h
+#define GLG3D_GKey_h
 
 #include "G3D/platform.h"
 #include "G3D/enumclass.h"
 #include "G3D/g3dmath.h"
+#include "G3D/Any.h"
 #include <string>
 
 namespace G3D {
@@ -271,20 +272,347 @@ public:
         LAST};
 
 private:
-    
+
+#if 0
+    static const char* str[] = {
+/** Don't use this enum; use GKey instances instead. */
+    enum Value {
+        UNKNOWN,
+        FIRST,
+        BACKSPACE,
+        TAB,
+
+        CLEAR,
+        RETURN,
+
+        PAUSE,
+
+        ESCAPE,
+
+        SPACE,
+        EXCLAIM,
+        QUOTEDBL,
+        HASH,
+        DOLLAR,
+        AMPERSAND,
+        QUOTE,
+        LEFTPAREN,
+        RIGHTPAREN,
+        ASTERISK,
+        PLUS,
+        COMMA,
+        MINUS,
+        PERIOD,
+        SLASH,
+        // 0 through 9 are '0' through '9'
+        COLON,
+        SEMICOLON,
+        LESS,
+        EQUALS,
+        GREATER,
+        QUESTION,
+        AT,
+        /* 
+           Skip uppercase letters
+        */
+        LEFTBRACKET,
+        BACKSLASH,
+        RIGHTBRACKET,
+        CARET,
+        UNDERSCORE,
+        BACKQUOTE,
+
+        // a through z are 'a' through 'z'
+
+        DELETE,
+        WORLD_0,
+        WORLD_1,
+        WORLD_2,
+        WORLD_3,
+        WORLD_4,
+        WORLD_5,
+        WORLD_6,
+        WORLD_7,
+        WORLD_8,
+        WORLD_9,
+        WORLD_10,
+        WORLD_11,
+        WORLD_12,
+        WORLD_13,
+        WORLD_14,
+        WORLD_15,
+        WORLD_16,
+        WORLD_17,
+        WORLD_18,
+        WORLD_19,
+        WORLD_20,
+        WORLD_21,
+        WORLD_22,
+        WORLD_23,
+        WORLD_24,
+        WORLD_25,
+        WORLD_26,
+        WORLD_27,
+        WORLD_28,
+        WORLD_29,
+        WORLD_30,
+        WORLD_31,
+        WORLD_32,
+        WORLD_33,
+        WORLD_34,
+        WORLD_35,
+        WORLD_36,
+        WORLD_37,
+        WORLD_38,
+        WORLD_39,
+        WORLD_40,
+        WORLD_41,
+        WORLD_42,
+        WORLD_43,
+        WORLD_44,
+        WORLD_45,
+        WORLD_46,
+        WORLD_47,
+        WORLD_48,
+        WORLD_49,
+        WORLD_50,
+        WORLD_51,
+        WORLD_52,
+        WORLD_53,
+        WORLD_54,
+        WORLD_55,
+        WORLD_56,
+        WORLD_57,
+        WORLD_58,
+        WORLD_59,
+        WORLD_60,
+        WORLD_61,
+        WORLD_62,
+        WORLD_63,
+        WORLD_64,
+        WORLD_65,
+        WORLD_66,
+        WORLD_67,
+        WORLD_68,
+        WORLD_69,
+        WORLD_70,
+        WORLD_71,
+        WORLD_72,
+        WORLD_73,
+        WORLD_74,
+        WORLD_75,
+        WORLD_76,
+        WORLD_77,
+        WORLD_78,
+        WORLD_79,
+        WORLD_80,
+        WORLD_81,
+        WORLD_82,
+        WORLD_83,
+        WORLD_84,
+        WORLD_85,
+        WORLD_86,
+        WORLD_87,
+        WORLD_88,
+        WORLD_89,
+        WORLD_90,
+        WORLD_91,
+        WORLD_92,
+        WORLD_93,
+        WORLD_94,
+        WORLD_95,
+        KP0,
+        KP1,
+        KP2,
+        KP3,
+        KP4,
+        KP5,
+        KP6,
+        KP7,
+        KP8,
+        KP9,
+        KP_PERIOD,
+        KP_DIVIDE,
+        KP_MULTIPLY,
+        KP_MINUS,
+        KP_PLUS,
+        KP_ENTER,
+        KP_EQUALS,
+        UP,
+        DOWN,
+        RIGHT,
+        LEFT,
+        INSERT,
+        HOME,
+        END,
+        PAGEUP,
+        PAGEDOWN,
+        F1,
+        F2,
+        F3,
+        F4,
+        F5,
+        F6,
+        F7,
+        F8,
+        F9,
+        F10,
+        F11,
+        F12,
+        F13,
+        F14,
+        F15,
+        NUMLOCK,
+        CAPSLOCK,
+        SCROLLOCK,
+        RSHIFT,
+        LSHIFT,
+        RCTRL,
+        LCTRL,
+        RALT,
+        LALT,
+        RMETA,
+        LMETA,
+        LSUPER,
+        RSUPER,
+        MODE,		
+        COMPOSE,
+        HELP,
+        PRINT,
+        SYSREQ,
+        BREAK,
+        MENU,
+        POWER,
+        EURO,
+        UNDO,
+        LEFT_MOUSE,
+        MIDDLE_MOUSE,
+        RIGHT_MOUSE,
+        MOUSE_WHEEL_UP,
+        MOUSE_WHEEL_DOWN,
+        LAST}
+#endif
+       
     Value value;
 
 public:
 
-    G3D_DECLARE_ENUM_CLASS_METHODS(GKey);
+    GKey fromString(const std::string& _s);
 
-
-    /** Creates a key code from a standardized description. */
-    static GKey fromString(const std::string& s);
-
-    /** Converts to a standarized description; convenient for 
-        displaying key codes in a configuration window. */
     std::string toString() const;
+
+#define Classname GKey
+
+
+    operator Any() const {\
+        return Any(toString());\
+    }\
+\
+    Classname(char v) : value((Value)v) {}\
+\
+    Classname() : value((Value)0) {}\
+\
+    Classname(const Value v) : value(v) {}\
+\
+    explicit Classname(int v) : value((Value)v) {}\
+\
+    /** Support cast back to the Value type, which is needed to allow implicit assignment inside unions. */\
+    /*inline operator Value() const {
+        return value;
+	}*/\
+\
+    operator int() const {\
+        return (int)value;\
+    }\
+\
+    bool operator== (const Classname other) const {\
+        return value == other.value;\
+    }\
+\
+    bool operator== (const Classname::Value other) const {\
+        return value == other;\
+    }\
+\
+    bool operator!= (const Classname other) const {\
+        return value != other.value;\
+    }\
+\
+    bool operator!= (const Classname::Value other) const {\
+        return value != other;\
+    }\
+\
+    bool operator< (const Classname other) const {\
+        return value < other.value;\
+    }\
+\
+    bool operator> (const Classname other) const {\
+        return value > other.value;\
+    }\
+\
+    bool operator>= (const Classname other) const {\
+        return value >= other.value;\
+    }\
+\
+    bool operator<= (const Classname other) const {\
+        return value <= other.value;\
+    }\
+\
+    bool operator< (const Value other) const {\
+        return value < other;\
+    }\
+\
+    bool operator> (const Value other) const {\
+        return value > other;\
+    }\
+\
+    bool operator<= (const Value other) const {\
+        return value <= other;\
+    }\
+\
+    bool operator>= (const Value other) const {\
+        return value >= other;\
+    }\
+\
+    Classname& operator-- () {\
+        value = (Value)((int)value - 1);\
+        return *this;\
+    }\
+\
+    Classname& operator++ () {\
+        value = (Value)((int)value + 1);\
+        return *this;\
+    }\
+\
+    Classname& operator+= (const int x) {\
+        value = (Value)((int)value + x);\
+        return *this;\
+    }\
+\
+    Classname& operator-= (const int x) {\
+        value = (Value)((int)value - x);\
+        return *this;\
+    }\
+\
+    Classname operator+ (const int x) const {\
+        return Classname((int)value + x);\
+    }\
+\
+    Classname operator- (const int x) const {\
+        return Classname((int)value - x);\
+    }\
+\
+    unsigned int hashCode() const {\
+        return (unsigned int)value;\
+    }\
+\
+    void serialize(BinaryOutput& b) const {\
+        b.writeInt32(value);\
+    }\
+\
+    void deserialize(BinaryInput& b) {\
+        value = (Value)b.readInt32();\
+    }
+#undef Classname
 };
 } // namespace G3D
 

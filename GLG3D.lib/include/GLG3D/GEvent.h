@@ -24,7 +24,16 @@ public:
     };
 
 private:
-    
+    static const char* toString(int i, Value& v) {
+        static const char* str[] = {"RELEASED", "PRESSED", NULL};
+        static const Value val[] = {RELEASED, PRESSED};
+        const char* s = str[i];
+        if (s) {
+            v = val[i];
+        }
+        return s;
+    }
+
     Value value;
 
 public:
@@ -93,6 +102,16 @@ public:
 private:
     
     Value value;
+
+    static const char* toString(int i, Value& v) {
+        static const char* str[] = {"NONE", "LSHIFT", "RSHIFT", "LCTRL", "RCTRL", "LALT", "RALT", "LMETA", "RMETA", "NUM", "CAPS", "MODE", "RESERVED", "CTRL", "SHIFT", "ALT", "META", NULL};
+        static const Value val[] = {NONE, LSHIFT, RSHIFT, LCTRL, RCTRL, LALT, RALT, LMETA, RMETA, NUM, CAPS, MODE, RESERVED, CTRL, SHIFT, ALT, META};
+        const char* s = str[i];
+        if (s) {
+            v = val[i];
+        }
+        return s;
+    }
 
 public:
 
@@ -205,7 +224,85 @@ public:
        NUMEVENTS
     };
 private:
+    static const char* toString(int i, Value& v) {
+        static const char* str[] = {
+            "NONE",	        /* Unused (do not remove) */
+       "ACTIVE",	        	/* Application loses/gains visibility */
+       "KEY_DOWN",	        /* Keys pressed */
+       "KEY_UP",	            /* Keys released */
+       "MOUSE_MOTION",		/* Mouse moved */
+       "MOUSE_BUTTON_DOWN",	/* Mouse button pressed */
+       "MOUSE_BUTTON_UP",		/* Mouse button released */
+       "JOY_AXIS_MOTION",		/* Joystick axis motion */
+       "JOY_BALL_MOTION",		/* Joystick trackball motion */
+       "JOY_HAT_MOTION",		/* Joystick hat position change */
+       "JOY_BUTTON_DOWN",		/* Joystick button pressed */
+       "JOY_BUTTON_UP",		/* Joystick button released */
+       "QUIT",		        /* User-requested quit */
+       "SYSWMEVENT",	        /* System specific event */
+       "EVENT_RESERVEDA",		/* Reserved for future use.. */
+       "EVENT_RESERVEDB",		/* Reserved for future use.. */
+       "VIDEO_RESIZE",		/* User resized video mode */
+       "VIDEO_EXPOSE",		/* Screen needs to be redrawn */
+       "EVENT_RESERVED2",		/* Reserved for future use.. */
+       "EVENT_RESERVED3",		/* Reserved for future use.. */
+       "EVENT_RESERVED4",		/* Reserved for future use.. */
+       "EVENT_RESERVED5",		/* Reserved for future use.. */
+       "EVENT_RESERVED6",		/* Reserved for future use.. */
+       "EVENT_RESERVED7",		/* Reserved for future use.. */
+       "GUI_DOWN",            /* GuiControl button, etc. pressed. */
+       "GUI_UP",              /* GuiControl button, etc. released. */
+       "GUI_ACTION",          /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
+       "GUI_CHANGE",          /* Continuous changing (e.g., typing in text box, slider dragged.) */
+       "GUI_CANCEL",          /* Esc pressed in a text box or menu */
+       "GUI_CLOSE",           /* GuiWindow close button pressed. */
+       "FILE_DROP",           /* Signifies that files have been dropped onto the program. Call 
+                               OSWindow.getDroppedFilenames to receive the actual data.*/
+       "MOUSE_SCROLL_2D",     /* A 2D scroll event has occured */
+       "MOUSE_BUTTON_CLICK",  /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
+         "NUMEVENTS", NULL};
+        static const Value val[] = {NONE,	        /* Unused (do not remove) */
+       ACTIVE,	        	/* Application loses/gains visibility */
+       KEY_DOWN,	        /* Keys pressed */
+       KEY_UP,	            /* Keys released */
+       MOUSE_MOTION,		/* Mouse moved */
+       MOUSE_BUTTON_DOWN,	/* Mouse button pressed */
+       MOUSE_BUTTON_UP,		/* Mouse button released */
+       JOY_AXIS_MOTION,		/* Joystick axis motion */
+       JOY_BALL_MOTION,		/* Joystick trackball motion */
+       JOY_HAT_MOTION,		/* Joystick hat position change */
+       JOY_BUTTON_DOWN,		/* Joystick button pressed */
+       JOY_BUTTON_UP,		/* Joystick button released */
+       QUIT,		        /* User-requested quit */
+       SYSWMEVENT,	        /* System specific event */
+       EVENT_RESERVEDA,		/* Reserved for future use.. */
+       EVENT_RESERVEDB,		/* Reserved for future use.. */
+       VIDEO_RESIZE,		/* User resized video mode */
+       VIDEO_EXPOSE,		/* Screen needs to be redrawn */
+       EVENT_RESERVED2,		/* Reserved for future use.. */
+       EVENT_RESERVED3,		/* Reserved for future use.. */
+       EVENT_RESERVED4,		/* Reserved for future use.. */
+       EVENT_RESERVED5,		/* Reserved for future use.. */
+       EVENT_RESERVED6,		/* Reserved for future use.. */
+       EVENT_RESERVED7,		/* Reserved for future use.. */
+       GUI_DOWN,            /* GuiControl button, etc. pressed. */
+       GUI_UP,              /* GuiControl button, etc. released. */
+       GUI_ACTION,          /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
+       GUI_CHANGE,          /* Continuous changing (e.g., typing in text box, slider dragged.) */
+       GUI_CANCEL,          /* Esc pressed in a text box or menu */
+       GUI_CLOSE,           /* GuiWindow close button pressed. */
+       FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
+                               OSWindow.getDroppedFilenames to receive the actual data.*/
+       MOUSE_SCROLL_2D,     /* A 2D scroll event has occured */
+       MOUSE_BUTTON_CLICK,  /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
+         NUMEVENTS};
 
+        const char* s = str[i];
+        if (s) {
+            v = val[i];
+        }
+        return s;
+    }
     Value value;
 
 public:
