@@ -127,7 +127,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\gzio.c"
+				RelativePath="..\zlib.lib\source\gzclose.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\gzguts.h"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\gzlib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\gzread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\gzwrite.c"
 				>
 			</File>
 			<File
@@ -172,10 +188,6 @@
 			</File>
 			<File
 				RelativePath="..\zlib.lib\source\uncompr.c"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\zconf.h"
 				>
 			</File>
 			<File
