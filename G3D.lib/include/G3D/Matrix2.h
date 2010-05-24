@@ -24,6 +24,10 @@ public:
         data[1][0] = v10; data[1][1] = v11;
     }
 
+    static Matrix2 identity() {
+        return Matrix2(1.0f, 0.0f, 0.0f, 1.0f);
+    }
+
     Vector2 operator*(const Vector2& v) const {
         return Vector2(data[0][0] * v[0] + data[0][1] * v[1],
                        data[1][0] * v[0] + data[1][1] * v[1]);

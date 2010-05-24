@@ -80,6 +80,7 @@
      <li> G3D::Array provides constructors that accept up to 6 initial elements
      <li> G3D::Texture::readTexel
      <li> G3D::Texture::clear
+     <li> G3D::Matrix2::identity
      <li> G3D::GCamera default field of view is now 90-degrees horizontal (to match CounterStrike:Source)
      <li> Added 1024^2 default skybox sky/noonclouds/noonclouds_*.jpg
      <li> G3D::GLCaps::firstSupportedTexture
@@ -174,6 +175,7 @@
      <li> G3D::Matrix3::squaredFrobeniusNorm, G3D::Matrix3::frobeniusNorm, G3D::Matrix3::l1Norm, G3D::Matrix3::lInfNorm, G3D::Matrix3::diffOneNorm
      <li> G3D::Matrix3::polarDecomposition 
      <li> Switched .tga textures to .png in the data/image directory
+     <li> Fix: GKey::toString for F10-F15 [Shawn]
      <li> Fix: Matrix2::inverse() [Dan Lipsa]
      <li> Fix: Vector3int16::operator+= [Dan Lipsa]
      <li> Fix: ImageFormat::RGBA16F now uses the correct "code" (it was RGB16F in previous builds)

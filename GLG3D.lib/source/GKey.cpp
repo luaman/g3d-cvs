@@ -203,13 +203,16 @@ std::string GKey::toString() const {
     case F7:
     case F8:
     case F9:
+        return std::string("F") + (char)('1' + (int)(value - F1));
+
     case F10:
     case F11:
     case F12:
     case F13:
     case F14:
     case F15:
-        return std::string("F") + (char)('1' + (int)(value - F1));
+        // Key codes for F10...F15 require two characters
+        return std::string("F1") + (char)('0' + (int)(value - F10));
 
     case NUMLOCK:
         return "Num Lock";
