@@ -67,9 +67,6 @@ public:
         return data[i];
     }
 
-    Vector2 operator*(const Vector2& v) const {
-        return Vector2(v.x * data[0][0] + v.y * data[0][1], v.x * data[1][0] + v.y * data[1][1]);
-    }
 };
 
 }
