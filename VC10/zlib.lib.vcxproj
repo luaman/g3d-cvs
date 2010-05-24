@@ -101,7 +101,10 @@
     <ClCompile Include="..\zlib.lib\source\compress.c" />
     <ClCompile Include="..\zlib.lib\source\crc32.c" />
     <ClCompile Include="..\zlib.lib\source\deflate.c" />
-    <ClCompile Include="..\zlib.lib\source\gzio.c" />
+    <ClCompile Include="..\zlib.lib\source\gzclose.c" />
+    <ClCompile Include="..\zlib.lib\source\gzlib.c" />
+    <ClCompile Include="..\zlib.lib\source\gzread.c" />
+    <ClCompile Include="..\zlib.lib\source\gzwrite.c" />
     <ClCompile Include="..\zlib.lib\source\infback.c" />
     <ClCompile Include="..\zlib.lib\source\inffast.c" />
     <ClCompile Include="..\zlib.lib\source\inflate.c" />
@@ -115,12 +118,12 @@
     <ClInclude Include="..\zlib.lib\include\zlib.h" />
     <ClInclude Include="..\zlib.lib\source\crc32.h" />
     <ClInclude Include="..\zlib.lib\source\deflate.h" />
+    <ClInclude Include="..\zlib.lib\source\gzguts.h" />
     <ClInclude Include="..\zlib.lib\source\inffast.h" />
     <ClInclude Include="..\zlib.lib\source\inffixed.h" />
     <ClInclude Include="..\zlib.lib\source\inflate.h" />
     <ClInclude Include="..\zlib.lib\source\inftrees.h" />
     <ClInclude Include="..\zlib.lib\source\trees.h" />
-    <ClInclude Include="..\zlib.lib\source\zconf.h" />
     <ClInclude Include="..\zlib.lib\source\zutil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

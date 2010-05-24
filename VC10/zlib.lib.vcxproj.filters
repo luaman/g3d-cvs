@@ -23,9 +23,6 @@
     <ClCompile Include="..\zlib.lib\source\deflate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\zlib.lib\source\gzio.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\zlib.lib\source\infback.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,6 +42,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\zlib.lib\source\zutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\zlib.lib\source\gzclose.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\zlib.lib\source\gzlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\zlib.lib\source\gzread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\zlib.lib\source\gzwrite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -70,9 +79,6 @@
     <ClInclude Include="..\zlib.lib\source\trees.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\zlib.lib\source\zconf.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\zlib.lib\source\zutil.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -81,6 +87,9 @@
     </ClInclude>
     <ClInclude Include="..\zlib.lib\include\zlib.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\zlib.lib\source\gzguts.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
