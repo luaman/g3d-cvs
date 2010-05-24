@@ -1,5 +1,5 @@
-#ifndef G3D_MATRIX2_H
-#define G3D_MATRIX2_H
+#ifndef G3D_Matrix2_h
+#define G3D_Matrix2_h
 
 #include "G3D/platform.h"
 #include "G3D/Vector2.h"
@@ -43,28 +43,32 @@ public:
                        data[0][1], data[1][1]);
     }
 
-    inline float determinant() const {
+    float determinant() const {
         return data[0][0] * data[1][1] - data[0][1] * data[1][0];
     }
 
-    inline Matrix2 operator*(float f) const {
+    Matrix2 operator*(float f) const {
         return Matrix2(data[0][0] * f, data[0][1] * f,
                        data[1][0] * f, data[1][1] * f);
     }
 
-    inline Matrix2 operator/(float f) const {
+    Matrix2 operator/(float f) const {
         return Matrix2(data[0][0] / f, data[0][1] / f,
                        data[1][0] / f, data[1][1] / f);
     }
 
-    inline float* operator[](int i) {
+    float* operator[](int i) {
         debugAssert(i >= 0 && i <= 2);
         return data[i];
     }
 
-    inline const float* operator[](int i) const {
+    const float* operator[](int i) const {
         debugAssert(i >= 0 && i <= 1);
         return data[i];
+    }
+
+    Vector2 operator*(const Vector2& v) const {
+        return Vector2(v.x * data[0][0] + v.y * data[0][1], v.x * data[1][0] + v.y * data[1][1]);
     }
 };
 
