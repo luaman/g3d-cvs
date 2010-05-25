@@ -217,6 +217,10 @@ protected:
 
     /**
        Processes all pending events on the OSWindow queue into the userInput.
+       This is automatically called once per frame.  You can manually call it
+       more frequently to get higher resolution mouse tracking or to prevent
+       the OS from locking up (and potentially crashing) while in a lengthy
+       onGraphics call.
     */
     virtual void processGEventQueue();
 
