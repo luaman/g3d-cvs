@@ -24,7 +24,7 @@ All rights reserved.
 #include "GLG3D/glcalls.h"
 #include "GLG3D/UserInput.h"
 #include "directinput8.h"
-#include <Winuser.h>
+#include <winuser.h>
 #include <windowsx.h>
 #include <shellapi.h> // for drag and drop
 
@@ -33,6 +33,10 @@ All rights reserved.
 #include <crtdbg.h>
 
 #include "GLG3D/GApp.h" // for screenPrintf
+
+#ifndef WM_MOUSEHWHEEL // Only defined on Vista
+#define WM_MOUSEHWHEEL 0x020E
+#endif
 
 using G3D::_internal::_DirectInput;
 
@@ -1522,6 +1526,22 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
         case WM_RBUTTONUP:
         case WM_XBUTTONUP:
             this_window->mouseButton(message, lParam, wParam);
+            return 0;
+
+        case WM_MOUSEWHEEL:
+            e.scroll2d.type = GEventType::MOUSE_SCROLL_2D;
+            e.scroll2d.which = 0;
+            e.scroll2d.dx = 0;
+            e.scroll2d.dy = GET_WHEEL_DELTA_WPARAM(wParam);
+            this_window->m_sysEventQueue->pushBack(e);
+            return 0;
+
+        case WM_MOUSEHWHEEL:
+            e.scroll2d.type = GEventType::MOUSE_SCROLL_2D;
+            e.scroll2d.which = 0;
+            e.scroll2d.dx = GET_WHEEL_DELTA_WPARAM(wParam); // in increments of WHEEL_DELTA = 120
+            e.scroll2d.dy = 0;
+            this_window->m_sysEventQueue->pushBack(e);
             return 0;
 
         case WM_DROPFILES:
