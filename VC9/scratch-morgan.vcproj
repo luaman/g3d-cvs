@@ -174,11 +174,15 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\scratch-morgan\scene\crates.txt"
+			RelativePath="..\scratch-morgan\App.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\scratch-morgan\main.cpp"
+			RelativePath="..\scratch-morgan\App.h"
+			>
+		</File>
+		<File
+			RelativePath="..\scratch-morgan\scene\crates.txt"
 			>
 		</File>
 		<File

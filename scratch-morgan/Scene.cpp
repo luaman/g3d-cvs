@@ -2,17 +2,17 @@
 
 using namespace G3D::units;
 
-Entity::Entity() {}
 
-Entity::Ref Entity::create(const std::string& n, const ArticulatedModel::Ref& m, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::PoseSpline& poseSpline) {
-    Ref e = new Entity();
-    e->m_name  = n;
-    e->m_frameSpline = frameSpline;
+Entity::Entity
+(const std::string& n, const PhysicsFrameSpline& frameSpline, 
+ const ArticulatedModel::Ref& artModel, const ArticulatedModel::PoseSpline& artPoseSpline,
+ const MD2Model::Ref& md2Model,
+ const MD3Model::Ref& md3Model) : GEntity(n, frameSpline, artModel, artPoseSpline, md2Model, md3Model) {
+}
 
-    e->m_artModel = m;
-    e->m_artPoseSpline = poseSpline;
-    e->m_modelType = ARTICULATED_MODEL;
 
+Entity::Ref Entity::create(const std::string& n, const PhysicsFrameSpline& frameSpline, const ArticulatedModel::Ref& m, const ArticulatedModel::PoseSpline& poseSpline) {
+    Entity::Ref e = new Entity(n, frameSpline, m, poseSpline, NULL, NULL);
 
     // Set the initial position
     e->onSimulation(0, 0);
@@ -20,12 +20,8 @@ Entity::Ref Entity::create(const std::string& n, const ArticulatedModel::Ref& m,
 }
 
 
-Entity::Ref Entity::create(const std::string& n, const MD2Model::Ref& m, const PhysicsFrameSpline& frameSpline) {
-    Ref e = new Entity();
-    e->m_modelType = MD2_MODEL;
-    e->m_name  = n;
-    e->m_md2Model = m;
-    e->m_frameSpline = frameSpline;
+Entity::Ref Entity::create(const std::string& n, const PhysicsFrameSpline& frameSpline, const MD2Model::Ref& m) {
+    Entity::Ref e = new Entity(n, frameSpline, NULL, ArticulatedModel::PoseSpline(), m, NULL);
 
     // Set the initial position
     e->onSimulation(0, 0);
@@ -33,57 +29,14 @@ Entity::Ref Entity::create(const std::string& n, const MD2Model::Ref& m, const P
 }
 
 
-Entity::Ref Entity::create(const std::string& n, const MD3Model::Ref& m, const PhysicsFrameSpline& frameSpline) {
-    Ref e = new Entity();
-    e->m_modelType = MD3_MODEL;
-    e->m_name  = n;
-    e->m_md3Model = m;
-    e->m_frameSpline = frameSpline;
+Entity::Ref Entity::create(const std::string& n, const PhysicsFrameSpline& frameSpline, const MD3Model::Ref& m) {
+    Entity::Ref e = new Entity(n, frameSpline, NULL, ArticulatedModel::PoseSpline(), NULL, m);
 
     // Set the initial position
     e->onSimulation(0, 0);
     return e;
 }
 
-
-void Entity::onSimulation(GameTime absoluteTime, GameTime deltaTime) {
-    (void)deltaTime;
-    m_frame = m_frameSpline.evaluate(float(absoluteTime));
-
-    switch (m_modelType) {
-    case ARTICULATED_MODEL:
-        m_artPoseSpline.get(float(absoluteTime), m_artPose);
-        break;
-
-    case MD2_MODEL:
-        {
-            MD2Model::Pose::Action a;
-            m_md2Pose.onSimulation(deltaTime, a);
-            break;
-        }
-
-    case MD3_MODEL:
-        m_md3Model->simulatePose(m_md3Pose, deltaTime);
-        break;
-    }
-}
-
-
-void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
-    switch (m_modelType) {
-    case ARTICULATED_MODEL:
-        m_artModel->pose(surfaceArray, m_frame, m_artPose);
-        break;
-
-    case MD2_MODEL:
-        m_md2Model->pose(surfaceArray, m_frame, m_md2Pose);
-        break;
-
-    case MD3_MODEL:
-        m_md3Model->pose(surfaceArray, m_frame, m_md3Pose);
-        break;
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -102,7 +55,15 @@ static Table<std::string, std::string>& filenameTable() {
     if (filenameTable.size() == 0) {
         // Create a table mapping scene names to filenames
         Array<std::string> filenameArray;
-		FileSystem::getFiles("*.scn.any", filenameArray, true);
+
+        FileSystem::ListSettings settings;
+        settings.files = true;
+        settings.directories = false;
+        settings.includeParentPath = true;
+        settings.recursive = true;
+
+		FileSystem::list("*.scn.any", filenameArray, settings);
+
         for (int i = 0; i < filenameArray.size(); ++i) {
             Any a;
             a.load(filenameArray[i]);
@@ -192,11 +153,11 @@ Scene::Ref Scene::create(const std::string& scene, GCamera& camera) {
         MD3Model::Ref         md3Model = model->downcast<MD3Model>();
 
         if (artModel.notNull()) {
-            s->m_entityArray.append(Entity::create(name, artModel, frameSpline, poseSpline));
+            s->m_entityArray.append(Entity::create(name, frameSpline, artModel, poseSpline));
         } else if (md2Model.notNull()) {
-            s->m_entityArray.append(Entity::create(name, md2Model, frameSpline));
+            s->m_entityArray.append(Entity::create(name, frameSpline, md2Model));
         } else if (md3Model.notNull()) {
-            s->m_entityArray.append(Entity::create(name, md3Model, frameSpline));
+            s->m_entityArray.append(Entity::create(name, frameSpline, md3Model));
         }
     }
 
