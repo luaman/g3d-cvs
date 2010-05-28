@@ -1127,7 +1127,7 @@ void RenderDevice::setShininess(float s) {
     minStateChange();
     if (m_state.shininess != s) {
         m_state.shininess = s;
-        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, s);
+        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, clamp(s, 0.0f, 128.0f));
         minGLStateChange();
     }
 }
