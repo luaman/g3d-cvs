@@ -35,20 +35,20 @@ Renderbuffer::Renderbuffer (
 
 
 Renderbuffer::~Renderbuffer () {
-    glDeleteRenderbuffersEXT(1, &mImageID);
+    glDeleteRenderbuffers(1, &mImageID);
 }
 
 
 RenderbufferRef Renderbuffer::fromGLRenderbuffer(
     const std::string&		 _name, 
-    const GLuint                 _imageID,
-    const G3D::ImageFormat*    _format) {
+    const GLuint             _imageID,
+    const G3D::ImageFormat*  _format) {
 
     GLint w, h;
 
     // Extract the width and height
-    glGetRenderbufferParameterivEXT (GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_WIDTH_EXT, &w);
-    glGetRenderbufferParameterivEXT (GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_WIDTH_EXT, &h);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_WIDTH_EXT, &w);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_WIDTH_EXT, &h);
     debugAssertGLOk();
 
     // Create new renderbuffer
@@ -57,33 +57,33 @@ RenderbufferRef Renderbuffer::fromGLRenderbuffer(
 
 
 RenderbufferRef Renderbuffer::createEmpty(
-    const std::string&			_name, 
-    const int				_width, 
-    const int				_height,
-    const G3D::ImageFormat*   _format) { 
+    const std::string&      _name, 
+    const int               _width, 
+    const int               _height,
+    const G3D::ImageFormat* _format) { 
     // New Renderbuffer ID
     GLuint _imageID;
 
     // Save old renderbuffer state
     GLint origBuffer;
-    glGetIntegerv(GL_RENDERBUFFER_BINDING_EXT, &origBuffer);
+    glGetIntegerv(GL_RENDERBUFFER_BINDING, &origBuffer);
 
     // Generate buffer
-    glGenRenderbuffersEXT (1, &_imageID);
+    glGenRenderbuffers(1, &_imageID);
     debugAssertGLOk();
 
     // Bind the buffer
-    glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, _imageID);
+    glBindRenderbuffer(GL_RENDERBUFFER, _imageID);
     debugAssertGLOk();
 
     // Allocate storage for it
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, _format->openGLFormat, _width, _height);
+    glRenderbufferStorage(GL_RENDERBUFFER, _format->openGLFormat, _width, _height);
 
     // Check for successful generation (ie, no INVALID_OPERATION)
     debugAssertGLOk();
 
     // Restore renderbuffer state
-    glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, origBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, origBuffer);
     debugAssertGLOk();
 
     // Create new renderbuffer

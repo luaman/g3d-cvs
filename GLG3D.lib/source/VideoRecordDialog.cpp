@@ -124,7 +124,7 @@ void VideoRecordDialog::makeGUI() {
     GuiNumberBox<float>* recordBox   = moviePane->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f);
     recordBox->setCaptionSize(captionSize);
 
-    if (GLCaps::supports_GL_ARB_texture_non_power_of_two() && GLCaps::supports_GL_EXT_framebuffer_object()) {
+    if (GLCaps::supports_GL_ARB_texture_non_power_of_two() && GLCaps::supports_GL_ARB_framebuffer_object()) {
         const OSWindow* window = OSWindow::current();
         int w = window->width() / 2;
         int h = window->height() / 2;

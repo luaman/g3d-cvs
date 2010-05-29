@@ -39,7 +39,7 @@ FramebufferRef Framebuffer::create(const std::string& _name) {
     GLuint _framebufferID;
     
     // Generate Framebuffer
-    glGenFramebuffersEXT(1, &_framebufferID);
+    glGenFramebuffers(1, &_framebufferID);
     debugAssertGLOk();
 
     return new Framebuffer(_name, _framebufferID);
@@ -170,7 +170,7 @@ Framebuffer::Attachment::Ref Framebuffer::get(AttachmentPoint ap) const {
 
 bool Framebuffer::bind(bool alreadyBound) {
     if (! alreadyBound) {
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
+        glBindFramebuffer(GL_FRAMEBUFFER, openGLID());
     }
 
     if (m_currentOutOfSync) {
@@ -183,7 +183,7 @@ bool Framebuffer::bind(bool alreadyBound) {
 
 
 void Framebuffer::bindWindowBuffer() {
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 
@@ -391,28 +391,28 @@ void Framebuffer::Attachment::attach() const {
             (m_texture->dimension() == Texture::DIM_CUBE_MAP_NPOT);
 
         if (isCubeMap) {
-            glFramebufferTexture2DEXT
-                (GL_FRAMEBUFFER_EXT, GLenum(m_point),
+            glFramebufferTexture2D
+                (GL_FRAMEBUFFER, GLenum(m_point),
                  GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)m_cubeFace, m_texture->openGLID(), m_mipLevel);
         } else {
-            glFramebufferTexture2DEXT
-                (GL_FRAMEBUFFER_EXT, GLenum(m_point),
+            glFramebufferTexture2D
+                (GL_FRAMEBUFFER, GLenum(m_point),
                  m_texture->openGLTextureTarget(), 
                  m_texture->openGLID(), m_mipLevel);
         }
     } else {
-        glFramebufferRenderbufferEXT
-            (GL_FRAMEBUFFER_EXT, GLenum(m_point), 
-             GL_RENDERBUFFER_EXT, m_renderbuffer->openGLID());
+        glFramebufferRenderbuffer
+            (GL_FRAMEBUFFER, GLenum(m_point), 
+             GL_RENDERBUFFER, m_renderbuffer->openGLID());
     }
 }
 
 
 void Framebuffer::Attachment::detach() const {
     if (m_type == TEXTURE) {
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GLenum(m_point), GL_TEXTURE_2D, 0, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GLenum(m_point), GL_TEXTURE_2D, 0, 0);
     } else {
-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GLenum(m_point), GL_RENDERBUFFER_EXT, 0);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GLenum(m_point), GL_RENDERBUFFER, 0);
     }
 }
 

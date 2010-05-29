@@ -82,7 +82,7 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
         return;
     }
     
-    if (! GLCaps::supports_GL_EXT_framebuffer_object()) {
+    if (! GLCaps::supports_GL_ARB_framebuffer_object()) {
         // Restrict to screen size
         desiredSize = 512;
     }
@@ -100,7 +100,7 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
          textureSettings);
     m_colorDepthTexture = NULL;
 
-    if (GLCaps::supports_GL_EXT_framebuffer_object()) {
+    if (GLCaps::supports_GL_ARB_framebuffer_object()) {
         m_framebuffer = Framebuffer::create(m_name + " Frame Buffer");
         m_framebuffer->set(Framebuffer::DEPTH_ATTACHMENT, m_depthTexture);
     }

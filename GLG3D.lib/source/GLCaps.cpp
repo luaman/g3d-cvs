@@ -28,6 +28,7 @@ bool GLCaps::m_loadedExtensions = false;
 bool GLCaps::m_initialized = false;
 bool GLCaps::m_checkedForBugs = false;
 bool GLCaps::m_hasGLMajorVersion2 = false;
+bool GLCaps::m_hasGLMajorVersion3 = false;
 
 int GLCaps::m_numTextureCoords = 0;
 int GLCaps::m_numTextures = 0;
@@ -263,6 +264,8 @@ void GLCaps::init() {
     DECLARE_EXT(GL_ARB_vertex_shader);
     DECLARE_EXT(GL_EXT_geometry_shader4);
     DECLARE_EXT(GL_EXT_framebuffer_object);
+    DECLARE_EXT(GL_ARB_framebuffer_object);
+    DECLARE_EXT(GL_ARB_framebuffer_sRGB);
     DECLARE_EXT(GL_SGIS_generate_mipmap);
 	DECLARE_EXT(GL_EXT_texture_mirror_clamp);
 #undef DECLARE_EXT
@@ -291,9 +294,11 @@ void GLCaps::loadExtensions(Log* debugLog) {
     glVersion();
     driverVersion();
 
-    // Initialize cached GL major version pulled from glVersion() for extensions made into 2.0 core
+    // Initialize cached GL major version pulled from glVersion() for extensions made into 2.0/3.0 core
     const std::string glver = glVersion();
     m_hasGLMajorVersion2 = beginsWith(glver, "2.");
+
+    m_hasGLMajorVersion3 = beginsWith(glver, "3.");
 
     // Turn on OpenGL 3.0
     glewExperimental = GL_TRUE;
@@ -315,6 +320,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
         // several extensions.
 #       define DECLARE_EXT(extname) _supports_##extname = supports(#extname)
 #       define DECLARE_EXT_GL2(extname) _supports_##extname = (supports(#extname) || m_hasGLMajorVersion2)
+#       define DECLARE_EXT_GL3(extname) _supports_##extname = (supports(#extname) || m_hasGLMajorVersion3)
             DECLARE_EXT(GL_ARB_texture_float);
             DECLARE_EXT_GL2(GL_ARB_texture_non_power_of_two);
             DECLARE_EXT(GL_EXT_texture_rectangle);
@@ -339,8 +345,12 @@ void GLCaps::loadExtensions(Log* debugLog) {
             DECLARE_EXT(GL_ARB_vertex_shader);
             DECLARE_EXT(GL_EXT_geometry_shader4);
             DECLARE_EXT_GL2(GL_EXT_framebuffer_object);
+            DECLARE_EXT_GL3(GL_ARB_framebuffer_object);
+            DECLARE_EXT_GL3(GL_ARB_framebuffer_sRGB);
             DECLARE_EXT(GL_SGIS_generate_mipmap);
         	DECLARE_EXT(GL_EXT_texture_mirror_clamp);
+#       undef DECLARE_EXT_GL3
+#       undef DECLARE_EXT_GL2
 #       undef DECLARE_EXT
 
         // Some extensions have aliases
@@ -524,7 +534,7 @@ bool GLCaps::supportsRenderBuffer(const ImageFormat* fmt) {
 
         bool supportsFormat = false;
 
-        if (! supports_GL_EXT_framebuffer_object()) {
+        if (! supports_GL_ARB_framebuffer_object()) {
             // No frame buffers
             supportsFormat = false;
 

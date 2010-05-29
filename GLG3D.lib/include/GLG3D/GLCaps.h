@@ -69,6 +69,8 @@ namespace G3D {
     <LI>GL_ARB_vertex_shader
     <LI>GL_EXT_geometry_shader4
     <LI>GL_EXT_framebuffer_object
+    <LI>GL_ARB_framebuffer_object
+    <LI>GL_ARB_frambuffer_sRGB
     <LI>GL_SGIS_generate_mipmap
     <LI>GL_EXT_texture_mirror_clamp
 	</UL>
@@ -96,6 +98,9 @@ private:
     /** True if this is GL 2.0 or greater, which mandates certain extensions.*/
     static bool         m_hasGLMajorVersion2;
 
+    /** True if this is GL 3.0 or greater, which mandates certain extensions.*/
+    static bool         m_hasGLMajorVersion3;
+
     /** True when checkAllBugs has been called. */
     static bool         m_checkedForBugs;
 
@@ -111,9 +116,8 @@ private:
     static Vendor computeVendor();
 
     /**
-       Returns the version string for the video driver.
-       
-       @cite Based in part on code by Ted Peck tpeck@roundwave.com http://www.codeproject.com/dll/ShowVer.asp      
+       Returns the version string for the video driver
+       for MESA or Windows drivers.
     */
     static std::string getDriverVersion();
   
@@ -155,6 +159,8 @@ private:
     DECLARE_EXT(GL_ARB_vertex_shader);
     DECLARE_EXT(GL_EXT_geometry_shader4);
     DECLARE_EXT(GL_EXT_framebuffer_object);
+    DECLARE_EXT(GL_ARB_framebuffer_object);
+    DECLARE_EXT(GL_ARB_framebuffer_sRGB);
     DECLARE_EXT(GL_SGIS_generate_mipmap);
     DECLARE_EXT(GL_EXT_texture_mirror_clamp);
     

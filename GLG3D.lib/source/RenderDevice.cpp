@@ -1557,7 +1557,7 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
             glDrawBuffer(GLenum(m_state.drawBuffer));
             debugAssertGLOk();
         } else {
-            debugAssertM(GLCaps::supports_GL_EXT_framebuffer_object(), 
+            debugAssertM(GLCaps::supports_GL_ARB_framebuffer_object(), 
                 "Framebuffer Object not supported!");
             m_state.framebuffer = fbo;
             syncDrawBuffer(false);
@@ -3424,12 +3424,12 @@ void RenderDevice::describeSystem(
         var(t, "GL_MAX_TEXTURE_SIZE", glGetInteger(GL_MAX_TEXTURE_SIZE));
     debugAssertGLOk();
         var(t, "GL_MAX_CUBE_MAP_TEXTURE_SIZE", glGetInteger(GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT));
-        if (GLCaps::supports_GL_EXT_framebuffer_object()) {
+        if (GLCaps::supports_GL_ARB_framebuffer_object()) {
             debugAssertGLOk();
-            var(t, "GL_MAX_COLOR_ATTACHMENTS_EXT", glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT));
+            var(t, "GL_MAX_COLOR_ATTACHMENTS", glGetInteger(GL_MAX_COLOR_ATTACHMENTS));
             debugAssertGLOk();
         } else {
-            var(t, "GL_MAX_COLOR_ATTACHMENTS_EXT", 0);
+            var(t, "GL_MAX_COLOR_ATTACHMENTS", 0);
         }
     debugAssertGLOk();
     t.popIndent();
