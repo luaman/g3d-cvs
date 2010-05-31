@@ -29,7 +29,7 @@ Framebuffer::Framebuffer(
 
 Framebuffer::~Framebuffer () {
     if (m_framebufferID != 0) {
-        glDeleteFramebuffersEXT(1, &m_framebufferID);
+        glDeleteFramebuffers(1, &m_framebufferID);
         m_framebufferID = 0;
     }
 }
