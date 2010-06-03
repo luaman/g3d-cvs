@@ -6,7 +6,7 @@
    
    Notes:
    <UL>
-   <LI>http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt
+   <LI>http://www.opengl.org/registry/specs/ARB/framebuffer_object.txt
    </UL>
    
    @created 2006-01-07
@@ -101,17 +101,6 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
         set(ap, NULL);
         return;
     }
-
-    if (m_desired.size() > 0) {
-        if (! ((m_desired.size() == 1) &&
-            (m_desired[0]->m_point == ap))) {
-        debugAssertM(texture->vector2Bounds() == m_desired[0]->vector2Bounds(), 
-                     format("Cannot attach a Texture of size %s to a Framebuffer"
-                            " of size %s without calling Framebuffer::clear first.",
-                            texture->vector2Bounds().toString().c_str(),
-                            m_desired[0]->vector2Bounds().toString().c_str()));
-        }
-    }
     
     Attachment::Ref a = get(ap);
     if (a.isNull() || ! (a->equals(texture, face, mipLevel))) {
@@ -127,15 +116,6 @@ void Framebuffer::set(AttachmentPoint ap, const Renderbuffer::Ref& b) {
         set(ap, NULL);
         return;
     }
-
-    if (m_desired.size() > 0) {
-        debugAssertM(b->vector2Bounds() == m_desired[0]->vector2Bounds(), 
-                     format("Cannot attach a Renderbuffer of size %s to a Framebuffer"
-                            " of size %s without calling Framebuffer::clear first.",
-                            b->vector2Bounds().toString().c_str(),
-                            m_desired[0]->vector2Bounds().toString().c_str()));
-    }
-                    
     
     Attachment::Ref a = get(ap);
     if (a.isNull() || ! (a->equals(b))) {
