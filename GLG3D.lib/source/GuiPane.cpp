@@ -306,7 +306,11 @@ GuiPane* GuiPane::addPane(const GuiText& text, GuiTheme::PaneStyle style) {
     // Back up by the border size
     pos -= minRect.x0y0();
 
-    Rect2D newRect = Rect2D::xywh(pos, Vector2(m_clientRect.width() - pos.x * 2, minRect.height()));
+    // Ensure the width isn't negative due to a very small m_clientRect
+    // which would push the position off the parent panel
+    float newRectWidth = max(m_clientRect.width() - pos.x * 2, 0.0f);
+
+    Rect2D newRect = Rect2D::xywh(pos, Vector2(newRectWidth, minRect.height()));
 
     GuiPane* p = new GuiPane(this, text, newRect, style);
 
