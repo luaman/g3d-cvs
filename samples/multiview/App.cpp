@@ -40,15 +40,16 @@ void App::onInit() {
     m_scene = Scene::create();
 
     GBuffer::Specification specification;
-    specification.wsPosition = true;
-    specification.wsNormal = true;
-    specification.lambertian = true;
-    specification.specular = true;
+    specification.wsPosition    = true;
+    specification.wsNormal      = true;
+    specification.lambertian    = true;
+    specification.specular      = true;
     m_gbuffer = GBuffer::create("GBuffer", specification);
     m_gbuffer->resize((window()->width() - 4) / 2, window()->height() - GUI_HEIGHT - 2);
 
     GuiTheme::Ref theme = debugWindow->theme();
 
+    /*
     GuiWindow::Ref toolBar = GuiWindow::create("Tools", theme, Rect2D(), GuiTheme::TOOL_WINDOW_STYLE);
 
     IconSet::Ref icons = IconSet::fromFile(System::findDataFile("tango.icn"));
@@ -62,6 +63,7 @@ void App::onInit() {
     toolPane->addButton(icons->get("22x22/categories/applications-system.png"), GuiTheme::TOOL_BUTTON_STYLE);
     toolBar->pack();
     addWidget(toolBar);
+    */
 
 
     GuiWindow::Ref background = GuiWindow::create("", theme, renderDevice->viewport(), GuiTheme::NO_WINDOW_STYLE);
@@ -104,7 +106,7 @@ void App::onInit() {
     shaBox->moveRightOf(gloBox);
     shaBox->setShowInfo(false);
     shaBox->zoomToFit();
-    
+
     pane->setHeight(GUI_HEIGHT);
     pane->pack();
     background->pack();

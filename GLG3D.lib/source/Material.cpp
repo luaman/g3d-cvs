@@ -8,6 +8,10 @@
 #include "G3D/Table.h"
 #include "G3D/WeakCache.h"
 
+#ifdef OPTIONAL
+#   undef OPTIONAL
+#endif
+
 namespace G3D {
 
 Material::Material() : m_customConstant(Color4::inf()), m_depthWriteHintDistance(nan()) {
@@ -114,50 +118,51 @@ void Material::setStorage(ImageStorage s) const {
 }
 
 void Material::configure(VertexAndPixelShader::ArgList& args) const {
+    static const bool OPTIONAL = true;
 
     if (m_bsdf->lambertian().notBlack() || m_bsdf->lambertian().nonUnitAlpha()) {
         if (m_bsdf->lambertian().texture().notNull()) {
-            args.set("lambertianMap",            m_bsdf->lambertian().texture());
+            args.set("lambertianMap",            m_bsdf->lambertian().texture(), OPTIONAL);
             if (m_bsdf->lambertian().constant() != Color4::one()) {
-                args.set("lambertianConstant",   m_bsdf->lambertian().constant());
+                args.set("lambertianConstant",   m_bsdf->lambertian().constant(), OPTIONAL);
             }
         } else {
-            args.set("lambertianConstant",       m_bsdf->lambertian().constant());
+            args.set("lambertianConstant",       m_bsdf->lambertian().constant(), OPTIONAL);
         }
     }
 
     if (m_bsdf->specular().notBlack()) {
         if (m_bsdf->specular().texture().notNull()) {
-            args.set("specularMap",              m_bsdf->specular().texture());
+            args.set("specularMap",              m_bsdf->specular().texture(), OPTIONAL);
             if (m_bsdf->specular().constant() != Color4::one()) {
-                args.set("specularConstant",     m_bsdf->specular().constant());
+                args.set("specularConstant",     m_bsdf->specular().constant(), OPTIONAL);
             }
         } else {
-            args.set("specularConstant",         m_bsdf->specular().constant());
+            args.set("specularConstant",         m_bsdf->specular().constant(), OPTIONAL);
         }
     }
 
     if (m_customConstant.isFinite()) {
-        args.set("customConstant",               m_customConstant);
+        args.set("customConstant",               m_customConstant, OPTIONAL);
     }
 
     if (m_customMap.notNull()) {
-        args.set("customMap",                    m_customMap->texture());
+        args.set("customMap",                    m_customMap->texture(), OPTIONAL);
     }
 
     if (m_emissive.notBlack()) {
-        args.set("emissiveConstant",             m_emissive.constant(), true);
+        args.set("emissiveConstant",             m_emissive.constant(), OPTIONAL);
 
         if (m_emissive.texture().notNull()) {
-            args.set("emissiveMap",              m_emissive.texture(), true);
+            args.set("emissiveMap",              m_emissive.texture(), OPTIONAL);
         }
     }
 
     if (m_bump.notNull() && (m_bump->settings().scale != 0)) {
-        args.set("normalBumpMap",       m_bump->normalBumpMap()->texture());
+        args.set("normalBumpMap",       m_bump->normalBumpMap()->texture(), OPTIONAL);
         if (m_bump->settings().iterations > 0) {
-            args.set("bumpMapScale",        m_bump->settings().scale);
-            args.set("bumpMapBias",         m_bump->settings().bias);
+            args.set("bumpMapScale",        m_bump->settings().scale, OPTIONAL);
+            args.set("bumpMapBias",         m_bump->settings().bias, OPTIONAL);
         }
     }
 
