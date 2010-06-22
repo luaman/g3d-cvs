@@ -84,9 +84,12 @@ float pow5(in float x) {
 
 /** Compute Schlick's approximation of the Fresnel coefficient.  The original goes to 1.0
     at glancing angles, which makes objects appear to glow, so we clamp it.
+
+    We never put a Fresnel term on perfectly diffuse surfaces, so if F0 is exactly black we keep 
+    the result black.
     */
 vec3 computeF(in vec3 F0, in float cos_i) {
-  return F0 + (vec3(1.0) - F0) * clamp(pow5(1.0 - cos_i), 0.0, 0.3);
+    return (F0.r + F0.g + F0.b > 0.0) ? (mix(F0, vec3(1.0), clamp(pow5(1.0 - cos_i), 0.0, 0.3))) : F0;
 }
 
 float square(in float x) {

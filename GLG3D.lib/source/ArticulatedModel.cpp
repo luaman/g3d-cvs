@@ -175,7 +175,7 @@ ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList(const Ma
     TriList::Ref t = new TriList();
 
     if (mat.isNull()) {
-        Material::Settings s;
+        Material::Specification s;
         s.setLambertian(Color3::white() * 0.8f);
         s.setSpecular(Color3::black());
         s.setShininess(0);
@@ -403,7 +403,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Preprocess& pr
                             int i = load.materialNameToIndex[materialName];
                             const Load3DS::Material& material = load.materialArray[i];
                             if (! preprocess.materialSubstitution.get(material.texture1.filename, mat)) {
-                                const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
+                                const Material::Specification& spec = compute3DSMaterial(&material, path, preprocess);
                                 mat = Material::create(spec);
                             }
                             twoSided = material.twoSided || mat->hasAlphaMask();
@@ -489,9 +489,9 @@ Material::Settings ArticulatedModel::compute3DSMaterial
     // Strength of the shininess (higher is brighter)
     spec.setSpecular(material.shininessStrength * material.specular * (1.0f - material.transparency));
 
-    //extent (area, higher is closely contained, lower is spread out) of shininess
-    // Do not exceed 128, which is the OpenGL fixed function maximum
-    spec.setShininess(material.shininess * 128);
+    //extent (area, higher is closely contained, lower is spread out) of shininess.
+    // Don't scale up to the G3D maximum (1024) because 3DS files don't expect to ever be that shiny
+    spec.setGlossyExponentShininess(material.shininess * 512);
 
     spec.setTransmissive(Color3::white() * material.transparency);
     spec.setEmissive(Color3::white() * material.emissive);
