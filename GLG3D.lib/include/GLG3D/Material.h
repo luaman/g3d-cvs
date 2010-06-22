@@ -383,7 +383,7 @@ public:
         other (used by G3D::SuperShader), although the actual textures
         may differ. */
     bool similarTo(const Material& other) const;
-    inline bool similarTo(const Material::Ref& other) const {
+    bool similarTo(const Material::Ref& other) const {
         return similarTo(*other);
     }
 
@@ -391,13 +391,14 @@ public:
      To be identical, two materials must not only have the same images in their
      textures but must share pointers to the same underlying G3D::Texture objects.
      */
-    inline bool operator==(const Material& other) const {
+    bool operator==(const Material& other) const {
         return 
-            (m_bsdf == other.m_bsdf) &&
-            (m_emissive == other.m_emissive) &&
-            (m_bump == other.m_bump) &&
-            (m_customMap == other.m_customMap) &&
-            (m_customConstant == other.m_customConstant);
+            (this == &other) ||
+            ((m_bsdf == other.m_bsdf) &&
+             (m_emissive == other.m_emissive) &&
+             (m_bump == other.m_bump) &&
+             (m_customMap == other.m_customMap) &&
+             (m_customConstant == other.m_customConstant));
     }
 
     /** Can be used with G3D::Table as an Equals function */

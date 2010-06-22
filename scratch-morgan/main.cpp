@@ -92,6 +92,12 @@ void drawRect(const Rect2D& rect, RenderDevice* rd) {
 static bool half = false;
 void App::onInit() {
 
+
+    Material::Ref a = Material::createDiffuse(Color3::red());
+    Material::Ref b = Material::createDiffuse(Color3::red());
+
+    bool c = *a == *b;
+
     showRenderingStats = true;
     developerWindow->cameraControlWindow->setVisible(false);
     developerWindow->setVisible(false);

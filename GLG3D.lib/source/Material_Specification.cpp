@@ -292,7 +292,7 @@ bool Material::Specification::operator==(const Specification& s) const {
         
         (m_customShaderPrefix == s.m_customShaderPrefix) &&
         
-        (m_depthWriteHintDistance == s.m_depthWriteHintDistance);
+        ((m_depthWriteHintDistance == s.m_depthWriteHintDistance) || (isNaN(m_depthWriteHintDistance) && isNaN(s.m_depthWriteHintDistance)));
 }
 
 

@@ -44,6 +44,8 @@ ArticulatedModel::Operation::Ref ArticulatedModel::Operation::create(const Any& 
         return MergeOperation::create(any);
     } else if (any.nameEquals("setCFrame")) {
         return SetCFrameOperation::create(any);
+    } else if (any.nameEquals("mergeByMaterial")) {
+        return MergeByMaterialOperation::create(any);
     } else {
         any.verify(false, "Unrecognized operation type: " + any.name());
         return NULL;
@@ -380,4 +382,107 @@ void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
         sourcePart.removeGeometry();
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////
+
+ArticulatedModel::MergeByMaterialOperation::Ref ArticulatedModel::MergeByMaterialOperation::create(const Any& any) {
+    any.verifyName("mergeByMaterial");
+    any.verifySize(0);
+
+    Ref op = new MergeByMaterialOperation();
+    
+    return op;
+}
+        
+
+void ArticulatedModel::MergeByMaterialOperation::apply(ArticulatedModel::Ref model) {
+    // For each destination
+    for (int dp = 0; dp < model->partArray.size(); ++dp) {
+        Part& destPart = model->partArray[dp];
+        for (int dt = 0; dt < destPart.triList.size(); ++dt) {
+            Part::TriList::Ref destTriList = destPart.triList[dt];
+
+            if (destTriList.notNull()) {
+                // For each source
+                for (int sp = dp; sp < model->partArray.size(); ++sp) {
+                    Part& sourcePart = model->partArray[sp];
+
+                    int numNull = 0;
+                    int startIndex = 0;
+                    bool samePart = (sp == dp);
+
+                    if (samePart) {
+                        // We're in the same part, so don't look at earlier triLists
+                        startIndex = dt + 1;
+                    }
+
+                    bool copyGeom = ! samePart;
+                    int indexOffset = 0;
+
+                    for (int st = startIndex; st < sourcePart.triList.size(); ++st) {
+                        Part::TriList::Ref sourceTriList = sourcePart.triList[st];
+
+                        if (sourceTriList.notNull()) {
+                            if ((*(sourceTriList->material) == *(destTriList->material)) && (sourceTriList->primitive == destTriList->primitive)) {
+                                // Merge into dest
+                                if (samePart) {
+                                    // We already share the geometry, so just append the indices
+                                    destTriList->indexArray.append(sourceTriList->indexArray);
+
+                                } else {
+
+                                    if (copyGeom) {
+                                        const CFrame& xform = destPart.cframe.inverse() * sourcePart.cframe;
+
+                                        // Append arrays
+                                        indexOffset = destPart.geometry.vertexArray.size();
+
+                                        // TODO: Don't assume that parts are not nested
+                                        alwaysAssertM(sourcePart.parent == -1 && destPart.parent == -1, "child part merging is not implemented in this release");
+                                        destPart.geometry.vertexArray.resize(sourcePart.geometry.vertexArray.size() + indexOffset);
+                                        destPart.geometry.normalArray.resize(sourcePart.geometry.normalArray.size() + indexOffset);
+                                        for (int i = 0; i < sourcePart.geometry.vertexArray.size(); ++i) {
+                                            destPart.geometry.vertexArray[i + indexOffset] = xform.pointToWorldSpace(sourcePart.geometry.vertexArray[i]);
+                                        }
+                                        for (int i = 0; i < sourcePart.geometry.normalArray.size(); ++i) {
+                                            destPart.geometry.normalArray[i + indexOffset] = xform.normalToWorldSpace(sourcePart.geometry.normalArray[i]);
+                                        }
+
+                                        // Only copy tex coords if dest expects them or if dest has no tex coords already
+                                        if ((destPart.texCoordArray.size() != 0) || (indexOffset == 0)) {
+                                            destPart.texCoordArray.append(sourcePart.texCoordArray);
+                                        }
+                                        copyGeom = false;
+                                    }
+
+                                    // Append indices, renumbering
+                                    const int renumBegin = destTriList->indexArray.size();
+                                    destTriList->indexArray.append(sourceTriList->indexArray);
+                                    Array<int>& index = destTriList->indexArray;
+                                    for (int i = renumBegin; i < index.size(); ++i) {
+                                        index[i] += indexOffset;
+                                    }
+                                }
+
+                                // Remove from source
+                                sourcePart.triList[st] = NULL;
+                                ++numNull;
+                            }
+                        } else {
+                            ++numNull;
+                        }
+                    }
+
+                    if (sourcePart.triList.size() == numNull) {
+                        // There's nothing left in this part
+                        sourcePart.removeGeometry();
+                    }
+                }
+            }
+        }
+    }
+    // TODO
+}
+
 } // namespace G3D

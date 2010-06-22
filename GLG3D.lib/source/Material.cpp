@@ -45,14 +45,14 @@ Material::Ref Material::create
 
 
 Material::Ref Material::createDiffuse(const Color3& p_Lambertian) {
-    Settings s;
+    Specification s;
     s.setLambertian(p_Lambertian);
     return create(s);
 }
 
 
 Material::Ref Material::createDiffuse(const std::string& lambertianFilename) {
-    Settings s;
+    Specification s;
     s.setLambertian(lambertianFilename);
     return create(s);
 }

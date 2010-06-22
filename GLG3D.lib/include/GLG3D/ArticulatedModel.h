@@ -378,7 +378,7 @@ public:
           <b>setCFrame(parts, cframe);</b>
 
           <b>remove( target );</b>
-            When triList is removed, it is replaced with an empty triList.  The triList array
+            When triList is removed, it is replaced with a NULL triList.  The triList array
             is shrunk if there are no subsequent triLists, and the part geometry is removed
             if there are no triLists.  Thus indexing of valid triLists is not affected.
 
@@ -388,6 +388,10 @@ public:
             Merge all trilists from all parts into the first trilist of the first part,
             obtaining its material and two-sided flag.  Then executes a remove on all but the first
             part and trilist.
+
+          <b>mergeByMaterial();</b>
+            For each triList, merge all other triLists (of all parts) that have 
+            the same material into it.
         </pre>
     */
     class Operation : public ReferenceCountedObject {
@@ -395,6 +399,15 @@ public:
         typedef ReferenceCountedPointer<Operation> Ref;
     
         virtual void apply(ArticulatedModel::Ref model) = 0;
+
+        static Ref create(const Any& any);
+    };
+
+    class MergeByMaterialOperation : public Operation {
+    public:
+        typedef ReferenceCountedPointer<Operation> Ref;
+    
+        virtual void apply(ArticulatedModel::Ref model);
 
         static Ref create(const Any& any);
     };
