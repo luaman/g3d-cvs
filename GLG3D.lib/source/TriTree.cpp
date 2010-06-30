@@ -4,13 +4,14 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
   @created 2009-06-10
-  @edited  2009-06-20
+  @edited  2010-06-20
 */
 
 #include "G3D/AreaMemoryManager.h"
 #include "GLG3D/TriTree.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
+#include "GLG3D/Surface.h"
 
 namespace G3D {
 
@@ -19,6 +20,25 @@ const char* TriTree::algorithmName(SplitAlgorithm s) {
     return n[s];
 }
 
+
+void TriTree::setContents(const Array<Surface::Ref>& surfaceArray, ImageStorage newStorage, const Settings& settings) {
+    Array<Tri> triArray;
+
+    for (int i = 0; i < surfaceArray.size(); ++i) {
+        Tri::getTris(surfaceArray[i], triArray, CFrame());
+    }
+
+    if (newStorage != IMAGE_STORAGE_CURRENT) {
+        for (int i = 0; i < triArray.size(); ++i) {
+            const Tri& tri = triArray[i];
+            if (tri.material().notNull()) {
+                tri.material()->setStorage(newStorage);
+            }
+        }
+    }
+
+    setContents(triArray, settings);
+}
 
 /** Returns true if \a ray hits \a box.
 

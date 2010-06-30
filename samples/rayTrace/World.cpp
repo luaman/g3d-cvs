@@ -46,7 +46,7 @@ World::World() : m_mode(TRACE) {
 
         insert(sphere, CFrame::fromXYZYPRDegrees(19.7f, 0.2f, -1.1f, 70));
     }
-	std::string filename = pathConcat(System::findDataFile("3ds"), "fantasy/sponza/sponza.3DS");
+    std::string filename = pathConcat(System::findDataFile("3ds"), "fantasy/sponza/sponza.3DS");
     insert(ArticulatedModel::fromFile(filename), Vector3(8.2f, -6, 0));
     
     end();

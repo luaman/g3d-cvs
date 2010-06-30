@@ -20,11 +20,14 @@
 #include "G3D/Intersect.h"
 #include "G3D/CollisionDetection.h"
 #include "GLG3D/Tri.h"
+#include "GLG3D/Component.h"
 #ifndef _MSC_VER
 #include <stdint.h>
 #endif
 
 namespace G3D {
+
+typedef ReferenceCountedPointer<class Surface> SurfaceRef;
 
 /** 
  \brief Static bounding interval hierarchy for Ray-Tri intersections.
@@ -448,8 +451,13 @@ public:
 
     /** The array will be copied.  Zero area triangles are removed. */
     void setContents(const Array<Tri>& triArray, const Settings& settings = Settings());
+    
+    /** Uses Tri::getTris to extract the triangles from each surface and then invokes setContents() */
+    void setContents(const Array<SurfaceRef>& surfaceArray,
+                     ImageStorage newStorage = IMAGE_STORAGE_CURRENT, 
+                     const Settings& settings = Settings());
 
-    inline int size() const {
+    int size() const {
         return m_size;
     }
 

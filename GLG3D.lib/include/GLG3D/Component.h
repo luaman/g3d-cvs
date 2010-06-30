@@ -28,7 +28,10 @@ enum ImageStorage {
     COPY_TO_CPU, 
 
     /** Ensure that all image data is stored at least on the GPU. */
-    COPY_TO_GPU
+    COPY_TO_GPU,
+
+    /** Do not change image storage */
+    IMAGE_STORAGE_CURRENT
 };
 
 
@@ -129,7 +132,7 @@ private:
 public:
 
     /** Returns NULL if both are NULL */
-    static inline Ref create(const class ReferenceCountedPointer<Image>& im, const Texture::Ref& tex) {
+    static Ref create(const class ReferenceCountedPointer<Image>& im, const Texture::Ref& tex) {
         if (im.isNull() && tex.isNull()) {
             return NULL;
         } else {
@@ -152,7 +155,8 @@ public:
     const typename Image::Compute& mean() const {
         return m_mean;
     }
-            
+
+           
     /** Returns the CPU image portion of this component, synthesizing
         it if necessary.  Returns NULL if there is no GPU data to 
         synthesize from.*/
@@ -202,9 +206,13 @@ public:
         case COPY_TO_CPU:
             image();
             break;
+
+        case IMAGE_STORAGE_CURRENT:
+            // Nothing to do
+            break;
         }
     }
-            
+
 #   undef MyType
 };
 
@@ -325,14 +333,14 @@ public:
         init(Color::one());
     }
     
-    inline bool operator==(const Component<Color, Image>& other) const {
+    bool operator==(const Component<Color, Image>& other) const {
         return 
             (m_factors == other.m_factors) &&
             (m_constant == other.m_constant) &&
             (m_map == other.m_map);
     }
     
-    inline Factors factors() const {
+    Factors factors() const {
         return m_factors;
     }
         
@@ -349,7 +357,7 @@ public:
         Coordinates are normalized; will be scaled by the image width and height
         automatically.
     */
-    inline Color sample(const Vector2& pos) const {
+    Color sample(const Vector2& pos) const {
         switch (m_factors) {
         case BLACK:
         case CONSTANT:

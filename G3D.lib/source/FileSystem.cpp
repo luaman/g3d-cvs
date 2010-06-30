@@ -555,7 +555,6 @@ void FileSystem::listHelper(const std::string& shortSpec, const std::string& par
 
     for (int i = 0; i < dir.nodeArray.size(); ++i) {
         Entry& entry = dir.nodeArray[i];
-
         // See if it matches the spec
         if (FilePath::matches(entry.name, shortSpec, settings.caseSensitive)) {
 
