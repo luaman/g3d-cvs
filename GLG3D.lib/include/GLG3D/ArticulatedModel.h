@@ -333,6 +333,7 @@ public:
         PartID(int index = ALL);
         PartID(const Any& any);
 
+        /** True if this part is the ALL part.*/
         bool isAll() const {
             return m_index == ALL;
         }
@@ -388,6 +389,9 @@ public:
             Merge all trilists from all parts into the first trilist of the first part,
             obtaining its material and two-sided flag.  Then executes a remove on all but the first
             part and trilist.
+
+          <b>merge()</b>
+            Execute merge on all parts.
 
           <b>mergeByMaterial();</b>
             For each triList, merge all other triLists (of all parts) that have 
@@ -495,7 +499,15 @@ public:
     public:
         Array<PartID>       part;
         typedef ReferenceCountedPointer<MergeOperation> Ref;
+
+        /** For use when parsing Anys */
         static Ref create(const Any& any);
+
+        /** For explicit creation in C++ code */
+        static Ref create() {
+            return new MergeOperation();
+        }
+
         virtual void apply(ArticulatedModel::Ref model);
     };
 

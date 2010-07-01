@@ -312,9 +312,13 @@ ArticulatedModel::MergeOperation::Ref ArticulatedModel::MergeOperation::create(c
     any.verifyName("merge");
 
     Ref op = new MergeOperation();
-    op->part.resize(any.size());
-    for (int i = 0; i < op->part.size(); ++i) {
-        op->part[i] = any[i];
+    if (any.size() == 0) {
+        op->part.append(ALL);
+    } else {
+        op->part.resize(any.size());
+        for (int i = 0; i < op->part.size(); ++i) {
+            op->part[i] = any[i];
+        }
     }
 
     return op;
@@ -323,7 +327,14 @@ ArticulatedModel::MergeOperation::Ref ArticulatedModel::MergeOperation::create(c
 
 void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
     // The target part
-    Part& targetPart = model->partArray[model->partIndex(part[0])];
+    int targetPartIndex = 0;
+    if (part[0].isAll()) {
+        targetPartIndex = 0;
+    } else {
+        targetPartIndex = model->partIndex(part[0]);
+    }
+
+    Part& targetPart = model->partArray[targetPartIndex];
 
     alwaysAssertM(targetPart.triList.size() > 0, "No trilists in target part");
 
@@ -344,15 +355,40 @@ void ArticulatedModel::MergeOperation::apply(ArticulatedModel::Ref model) {
 
     const bool needTexCoords = targetPart.texCoordArray.size() == targetPart.geometry.vertexArray.size();
 
-    // Merge all parts 
-    for (int p = 1; p < part.size(); ++p) {
-        const int offset = targetPart.geometry.vertexArray.size();
-        Part& sourcePart = model->partArray[model->partIndex(part[p])];
-        
-        // TODO: (maybe we should apply their transformations)
+    Array<int> sourcePartIndex;
 
-        targetPart.geometry.vertexArray.append(sourcePart.geometry.vertexArray);
-        targetPart.geometry.normalArray.append(sourcePart.geometry.normalArray);
+    if (part[0].isAll()) {
+        sourcePartIndex.resize(model->partArray.size() - 1);
+        for (int i = 1; i < model->partArray.size(); ++i) {
+            sourcePartIndex[i - 1] = i;
+        }
+    } else {
+        sourcePartIndex.resize(part.size());
+        for (int i = 0; i < part.size(); ++i) {
+            sourcePartIndex[i] = model->partIndex(part[i]);
+        }
+    }
+
+    // Iterate over source parts
+    for (int p = 1; p < sourcePartIndex.size(); ++p) {
+        const int offset = targetPart.geometry.vertexArray.size();
+
+        Part& sourcePart = model->partArray[sourcePartIndex[p]];
+        
+        // Apply transformation
+        const CFrame& xform = targetPart.cframe.inverse() * sourcePart.cframe;
+
+        // TODO: Don't assume that parts are not nested
+        alwaysAssertM(sourcePart.parent == -1 && targetPart.parent == -1, "child part merging is not implemented in this release");
+
+        targetPart.geometry.vertexArray.resize(sourcePart.geometry.vertexArray.size() + offset);
+        targetPart.geometry.normalArray.resize(sourcePart.geometry.normalArray.size() + offset);
+        for (int i = 0; i < sourcePart.geometry.vertexArray.size(); ++i) {
+            targetPart.geometry.vertexArray[i + offset] = xform.pointToWorldSpace(sourcePart.geometry.vertexArray[i]);
+        }
+        for (int i = 0; i < sourcePart.geometry.normalArray.size(); ++i) {
+            targetPart.geometry.normalArray[i + offset] = xform.normalToWorldSpace(sourcePart.geometry.normalArray[i]);
+        }
 
         // Append the arrays
         if (needTexCoords) {
