@@ -30,11 +30,15 @@ class Any;
  correct transparency. Use a custom SuperShader::Pass to add new
  effects.
  
- Loads 3DS, OBJ, PLY2, PLY, OFF, BSP, and IFS files (with Articulatedmodel::fromFile), or
+ Loads <a href="http://www.the-labs.com/Blender/3DS-details.html">3DS</a>, 
+ <a href="http://people.sc.fsu.edu/~jburkardt/data/obj/obj.html">OBJ</a>, <a href="http://www.riken.jp/brict/Yoshizawa/Research/PLYformat/PLYformat.html">PLY2</a>,
+ <a href="http://local.wasp.uwa.edu.au/~pbourke/dataformats/ply/">PLY</a>, <a href="http://people.sc.fsu.edu/~jburkardt/data/off/off.html">OFF</a>, 
+ <a href="http://www.mralligator.com/q3/">BSP</a>, and <a href="http://graphics.cs.brown.edu/games/brown-mesh-set/">IFS</a> files (with Articulatedmodel::fromFile), or
  you can create models (with ArticulatedModel::createEmpty) from code at
  run time.  You can also load a model and then adjust the materials
  explicitly.  See ArticulatedModel::Preprocess and
- ArticulatedModel::Setings for options.
+ ArticulatedModel::Setings for options.  See <a href="http://web.axelero.hu/karpo/">3D Object Converter</a> for 
+ a shareware program that converts between many other file formats.
 
  Note that merging parts by material can dramatically improve the performance 
  of rendering imported models.  The easiest way to import models is to create a
