@@ -30,11 +30,16 @@ class Any;
  correct transparency. Use a custom SuperShader::Pass to add new
  effects.
  
- Loads 3DS, PLY2, PLY, OFF, BSP, and IFS files (Articulatedmodel::fromFile), or
- you can create models (ArticulatedModel::createEmpty) from code at
+ Loads 3DS, OBJ, PLY2, PLY, OFF, BSP, and IFS files (with Articulatedmodel::fromFile), or
+ you can create models (with ArticulatedModel::createEmpty) from code at
  run time.  You can also load a model and then adjust the materials
  explicitly.  See ArticulatedModel::Preprocess and
  ArticulatedModel::Setings for options.
+
+ Note that merging parts by material can dramatically improve the performance 
+ of rendering imported models.  The easiest way to import models is to create a
+ .am.any file for them and then specify merging and other transformations 
+ in the data file instead of in code.
 
  BSP models loaded by ArticulatedModel will produce G3D::SuperSurface when posed,
  which is useful for advanced rendering algorithms.
@@ -80,10 +85,8 @@ class Any;
  Part::geometry.normalArray, Part::indexArray, Part::tangentArray or
  Part::xxxVAR fields, or call TriList::computeBounds.
  
- <b>Known Bug:</b> rotations are loaded incorrectly for a small number
- of older 3DS files.  These files will have parts located in the wrong
- position.  Re-exporting those files from 3DS Max tends to fix the
- problem.
+ <b>Known Bug:</b> 3DS Hierarchy is not properly parsed.  Re-exporting those files from 
+ 3DS Max tends to avoid the problem.  OBJ materials are not always loaded properly.
  */
 class ArticulatedModel : public ReferenceCountedObject {
 public:
@@ -623,6 +626,9 @@ private:
     void init3DS(const std::string& filename, const Preprocess& preprocess);
 
     /** Called from the constructor */
+    void initOBJ(const std::string& filename, const Preprocess& preprocess);
+
+    /** Called from the constructor */
     void initIFS(const std::string& filename, const Matrix4& xform);
 
     /** Called from the constructor */
@@ -690,7 +696,7 @@ public:
     /**
        @brief Load a 3D model from disk, optionally applying some processing.
 
-       Supports 3DS, IFS, OFF, BSP, PLY, and PLY2 file formats.  The format of a file is 
+       Supports 3DS, OBJ, IFS, OFF, BSP, PLY, and PLY2 file formats.  The format of a file is 
        detected by the extension.   
      */
     static ArticulatedModel::Ref fromFile

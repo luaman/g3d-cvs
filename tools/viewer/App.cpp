@@ -148,6 +148,7 @@ void App::setViewer(const std::string& newFilename) {
     
     if ((ext == "3ds") ||
         (ext == "ifs") ||
+        (ext == "obj") ||
         (ext == "ply2") ||
         (ext == "off") ||
         (ext == "ply") ||

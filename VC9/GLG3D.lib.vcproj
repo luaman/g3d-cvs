@@ -169,6 +169,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\ArticulatedModel_OBJ.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\ArticulatedModel_Operation.cpp"
 				>
 			</File>

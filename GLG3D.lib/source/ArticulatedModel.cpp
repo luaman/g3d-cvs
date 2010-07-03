@@ -220,6 +220,8 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
 
     if (ext == "3ds") {
         model->init3DS(filename, preprocess);
+    } else if (ext == "obj") {
+        model->initOBJ(filename, preprocess);
     } else if ((ext == "ifs") || (ext == "ply2") || (ext == "off") || (ext == "ply")) {
         model->initIFS(filename, preprocess.xform);
     } else if (ext == "bsp") {
@@ -235,6 +237,7 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
         }
     }
 
+    // Run the program
     for (int i = 0; i < preprocess.program.size(); ++i) {
         preprocess.program[i]->apply(model);
     }
@@ -790,6 +793,7 @@ public:
         }
     }
 };
+
 
 void ArticulatedModel::updateAll() {
     // Extract the parts with real geometry

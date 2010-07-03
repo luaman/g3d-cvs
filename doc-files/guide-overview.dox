@@ -95,7 +95,7 @@ Our philosophy is simple. The library should have the following properties:
 
 %G3D supports images in PNG, TGA, BMP, JPG, PCX, PPM, PGM, PBM, DDS,
 and ICO format through the G3D::Texture, G3D::Image3, G3D::GImage classes.  %G3D
-has loaders for the BSP, PLY2, IFS, OFF, 3DS and MD2 mesh formats.  %G3D
+has loaders for the BSP, PLY2, IFS, OFF, 3DS, OBJ, and MD2 mesh formats.  %G3D
 uses its own font format (FNT) to avoid legal issues with TrueType.
 Over 30 popular fonts are provided in this format and the code
 contains a routine to help you make more from your TrueType fonts.

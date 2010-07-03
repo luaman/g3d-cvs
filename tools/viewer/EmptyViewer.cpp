@@ -23,6 +23,6 @@ void EmptyViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& ligh
 	screenPrintf("Drag and drop an item to view it in 3D\n");
 	screenPrintf("\n");
 	screenPrintf("Image Formats: ico, jpg, bmp, pcx, dds, tga, ppm, png, gif");
-	screenPrintf("3D Formats:    pk3, md2, md3, bsp, 3ds, ifs, am.any");
+	screenPrintf("3D Formats:    pk3, md2, md3, bsp, 3ds, obj, off, ply, ply2, ifs, am.any");
     screenPrintf("GUI Formats:   fnt, gtm");
 }
