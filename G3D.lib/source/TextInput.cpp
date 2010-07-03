@@ -6,7 +6,7 @@
  @cite Based on a lexer written by Aaron Orenstein. 
  
  @created 2001-11-27
- @edited  2010-03-27
+ @edited  2010-07-03
  */
 
 #include "G3D/fileutils.h"
@@ -127,6 +127,41 @@ Token TextInput::read() {
     }
 }
 
+
+std::string TextInput::readUntilNewlineAsString() {
+    // Go to the front of the next token
+    Token t = read();
+
+    // Reset the position to the start of this token
+    currentCharOffset = t.bytePosition();
+    stack.clear();
+
+    int begin = currentCharOffset;
+
+    if (currentCharOffset == buffer.size()) {
+        // End of file
+        return "";
+    }
+
+    std::string s;
+
+    // Read until newline or eof
+    char c = '\0';
+    do {
+      c = buffer[currentCharOffset];
+      if (c == '\r' || c == '\n') {
+          // Done
+          break;
+      } else {
+          s += c;
+          ++currentCharOffset;
+      }
+    } while (currentCharOffset < buffer.size());
+
+    return s;    
+}
+
+
 static void toUpper(Set<std::string>& set) {
     Array<std::string> symbols;
     set.getMembers(symbols);
@@ -208,6 +243,7 @@ int TextInput::peekInputChar(int distance) {
 Token TextInput::nextToken() {
     Token t;
 
+    t._bytePosition = currentCharOffset;
     t._line         = lineNumber;
     t._character    = charNumber;
     t._type         = Token::END;
@@ -247,6 +283,7 @@ Token TextInput::nextToken() {
         // update line and character number to include discarded whitespace
         t._line         = lineNumber;
         t._character    = charNumber;
+        t._bytePosition = currentCharOffset;
 
         int c2 = peekInputChar(1);
 
@@ -337,6 +374,7 @@ Token TextInput::nextToken() {
 
     t._line      = lineNumber;
     t._character = charNumber;
+    t._bytePosition = currentCharOffset;
 
     // handle EOF
     if (c == EOF) {
