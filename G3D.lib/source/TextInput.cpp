@@ -261,21 +261,24 @@ Token TextInput::nextToken() {
         whitespaceDone = true;
 
         // generate newlines tokens for '\n' and '\r' and '\r\n'
-        if (options.generateNewlineTokens && isNewline(c)) {
-            t._type         = Token::NEWLINE;
-            t._extendedType = Token::NEWLINE_TYPE;
-            t._string       = c;
+        while (isWhiteSpace(c)) {
+            if (options.generateNewlineTokens && isNewline(c)) {
+                t._type         = Token::NEWLINE;
+                t._extendedType = Token::NEWLINE_TYPE;
+                t._bytePosition = currentCharOffset;
+                t._line         = lineNumber;
+                t._character    = charNumber;
+                t._string       = c;
 
-            int c2 = peekInputChar(1);
-            if (c == '\r' && c2 == '\n') {
-                t._string  += c2;
-            }
+                int c2 = peekInputChar(1);
+                if (c == '\r' && c2 == '\n') {
+                    t._string  += c2;
+                }
 
-            eatInputChar();
-            return t;
-        } else {
-            // Consume whitespace
-            while (isWhiteSpace(c)) {
+                eatInputChar();
+                return t;
+            } else {
+                // Consume the single whitespace
                 c = eatAndPeekInputChar();
             }
         }
