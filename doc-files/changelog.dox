@@ -46,6 +46,7 @@
      <li> G3D::OSWindow::primaryDisplaySize, G3D::OSWindow::virtualDisplaySize, G3D::OSWindow::primaryDisplayWindowSize, G3D::OSWindow::numDisplays
      <li> G3D::RenderDevice::shader
      <li> G3D::GApp::drawMessage
+     <li> Changed G3D::Vector3 and G3D::Vector4::hashCode to use the FNV 128-bit hash, which reduces collisions for common scenes
      <li> G3D::Matrix4::operator+(const Matrix4&)
      <li> Upgraded to libpng 1.4.1
      <li> Upgraded to glew 1.5.3
