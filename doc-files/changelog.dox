@@ -178,6 +178,7 @@
      <li> TextInput::readSignificant
      <li> G3D::Matrix3::squaredFrobeniusNorm, G3D::Matrix3::frobeniusNorm, G3D::Matrix3::l1Norm, G3D::Matrix3::lInfNorm, G3D::Matrix3::diffOneNorm
      <li> G3D::Matrix3::polarDecomposition 
+     <li> Removed g3d_NumLights, g3d_NumTextures, g3d_ObjectLight0, g3d_WorldLight0 from G3D::Shader preprocessor
      <li> Switched .tga textures to .png in the data/image directory
      <li> Fix: GKey::toString for F10-F15 [Shawn]
      <li> Fix: Matrix2::inverse() [Dan Lipsa]
@@ -231,6 +232,7 @@
      <li> Fix: Color3uint8::operator!=
      <li> Fix: Texture::Preprocess::modulate now affects alpha channel
      <li> Fix: debugAssertGLOk and GLCapps::supports now call glGetError until the entire error stack is cleared
+     <li> Fix: I switched Shader to read uniforms missed by OpenGL from the output of the preprocessor in case uniforms were introduced by #include.
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

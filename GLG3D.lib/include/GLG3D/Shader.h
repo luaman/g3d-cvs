@@ -215,31 +215,31 @@ protected:
         ~GPUShader();
         
         /** Shader type, e.g. GL_VERTEX_SHADER_ARB */
-        inline GLenum glShaderType() const {
+        GLenum glShaderType() const {
             return _glShaderType;
         }
         
-        inline const std::string& shaderType() const {
+        const std::string& shaderType() const {
             return _shaderType;
         }
         
         /** Why compilation failed, or any compiler warnings if it succeeded.*/
-        inline const std::string& messages() const {
+        const std::string& messages() const {
             return _messages;
         }
         
         /** Returns true if compilation and loading succeeded.  If they failed,
             check the message string.*/
-        inline bool ok() const {
+        bool ok() const {
             return _ok;
         }
         
         /** Returns the underlying OpenGL shader object for this shader */
-        inline GLhandleARB glShaderObject() const {
+        GLhandleARB glShaderObject() const {
             return _glShaderObject;
         }
         
-        inline bool fixedFunction() const {
+        bool fixedFunction() const {
             return _fixedFunction;
         }
     };
@@ -547,10 +547,6 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
     uniform mat4 g3d_CameraToWorldMatrix;
     uniform mat3 g3d_ObjectToWorldNormalMatrix; // Upper 3x3 matrix (assumes that the transformation is RT so that the inverse transpose of the upper 3x3 is just R)
     uniform mat3 g3d_WorldToObjectNormalMatrix; // Upper 3x3 matrix (assumes that the transformation is RT so that the inverse transpose of the upper 3x3 is just R)
-    uniform int  g3d_NumLights;        // 1 + highest index of the enabled lights
-    uniform int  g3d_NumTextures;      // 1 + highest index of the enabled textures
-    uniform vec4 g3d_ObjectLight0;     // g3d_WorldToObject * g3d_CameraToWorld * gl_LightState[0].position
-    uniform vec4 g3d_WorldLight0;      // g3d_CameraToWorld * gl_LightState[0].position
    </pre>
 
    Macros:

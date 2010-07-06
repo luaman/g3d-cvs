@@ -396,7 +396,7 @@ public:
         var2.init(masterVAR, size1, glFormatOf(T2), size2, src2.size(), stride);
         var3.init(masterVAR, size1 + size2, glFormatOf(T3), size3, src3.size(), stride);
         var4.init(masterVAR, size1 + size2 + size3, glFormatOf(T4), size4, src4.size(), stride);
-        var4.init(masterVAR, size1 + size2 + size3 + size4, glFormatOf(T5), size5, src5.size(), stride);
+        var5.init(masterVAR, size1 + size2 + size3 + size4, glFormatOf(T5), size5, src5.size(), stride);
 
         updateInterleaved(src1, var1, src2, var2, src3, var3, src4, var4, src5, var5);
     }

@@ -62,6 +62,7 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
     if (_preserveState) {
         renderDevice->pushState();
     }
+    debugAssertGLOk();
 
     if (m_useUniforms) {
         const CoordinateFrame& o2w = renderDevice->objectToWorldMatrix();
@@ -92,44 +93,6 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
 
         if (uniformNames.contains("g3d_WorldToCameraMatrix")) {
             args.set("g3d_WorldToCameraMatrix", c2w.inverse());
-        }
-
-        if (uniformNames.contains("g3d_NumLights")) {
-            if (glGetBoolean(GL_LIGHTING)) {
-                // Search for the highest light number
-                int i = 7;
-                while (i >= 0 && ! glGetBoolean(GL_LIGHT0 + i)) {
-                    --i;
-                }
-                args.set("g3d_NumLights", i + 1);
-            } else {
-                args.set("g3d_NumLights", 0);
-            }
-        }
-
-        if (uniformNames.contains("g3d_ObjectLight0")) {
-            Vector4 cL;
-            // OpenGL lights are already in camera space, so take them
-            // from camera to world to object space.
-            glGetLightfv(GL_LIGHT0, GL_POSITION, reinterpret_cast<float*>(&cL));
-            args.set("g3d_ObjectLight0", o2w.toObjectSpace(c2w.toWorldSpace(cL)));
-        }
-
-        if (uniformNames.contains("g3d_WorldLight0")) {
-            Vector4 cL;
-            // OpenGL lights are already in camera space, so take them
-            // from camera to world to object space.
-            glGetLightfv(GL_LIGHT0, GL_POSITION, reinterpret_cast<float*>(&cL));
-            args.set("g3d_WorldLight0", c2w.toWorldSpace(cL));
-        }
-
-        if (uniformNames.contains("g3d_NumTextures")) {
-            // Search for the highest texture number
-            int i = 7;
-            while ((i >= 0) && ! glGetBoolean(GL_TEXTURE0_ARB + i)) {
-                --i;
-            }
-            args.set("g3d_NumTextures", i + 1);
         }
     }
     debugAssertGLOk();
@@ -687,11 +650,15 @@ VertexAndPixelShader::VertexAndPixelShader
         if (_ok) {
             uniformNames.clear();
             computeUniformArray();
+            addUniformsFromCode(vertexShader.code());
+            addUniformsFromCode(pixelShader.code());
+            addUniformsFromCode(geometryShader.code());
+            
             // note that the extra uniforms are computed from the original code,
             // not from the code that has the g3d uniforms prepended.
-            addUniformsFromCode(vsFromFile ? readWholeFile(vsFilename) : vsCode);
-            addUniformsFromCode(gsFromFile ? readWholeFile(gsFilename) : gsCode);
-            addUniformsFromCode(psFromFile ? readWholeFile(psFilename) : psCode);
+            //vsFromFile ? readWholeFile(vsFilename) : vsCode);
+            //addUniformsFromCode(gsFromFile ? readWholeFile(gsFilename) : gsCode);
+            //addUniformsFromCode(psFromFile ? readWholeFile(psFilename) : psCode);
 
             // Add all uniforms to the name list
             for (int i = uniformArray.size() - 1; i >= 0; --i) {
@@ -1184,7 +1151,7 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
 
                 if (! foundArgument) {
                     // Put into a string so that it is visible in the debugger
-                    std::string msg = "Extra VertexAndPixelShader uniform variable provided at runtime: " +
+                    std::string msg = "Extra VertexAndPixelShader uniform variable provided at run time: " +
                          arg->key + ".";
 #if 0
 // Debugging code for particularly tricky shader errors
