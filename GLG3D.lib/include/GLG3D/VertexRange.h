@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2001-05-29
-  @edited  2009-02-03
+  @edited  2010-07-06
 */
 
 #ifndef GLG3D_VERTEXRANGE_h
@@ -266,30 +266,35 @@ public:
     /** @brief Update a set of interleaved arrays.  
     
         Update a set of interleaved arrays.  None may change size from the original. */
-    template<class T1, class T2, class T3, class T4>
+    template<class T1, class T2, class T3, class T4, class T5>
     static void updateInterleaved
-        (const Array<T1>& src1,
+        (const Array<T1>&         src1,
          VertexRange&             var1,
-         const Array<T2>& src2,
+         const Array<T2>&         src2,
          VertexRange&             var2,
-         const Array<T3>& src3,
+         const Array<T3>&         src3,
          VertexRange&             var3,
-         const Array<T4>& src4,
-         VertexRange&             var4) {
+         const Array<T4>&         src4,
+         VertexRange&             var4,
+         const Array<T5>&         src5,
+         VertexRange&             var5) {
 
-        int N = iMax(iMax(src1.size(), src2.size()),
-                     iMax(src3.size(), src4.size()));
+
+        int N = iMax(src5.size(),
+                    iMax(iMax(src1.size(), src2.size()),
+                         iMax(src3.size(), src4.size())));
 
         // Pack arguments into arrays to avoid repeated code below.
-        uint8* src[4]   = {(uint8*)src1.getCArray(), (uint8*)src2.getCArray(),
-                           (uint8*)src3.getCArray(), (uint8*)src4.getCArray()};
-        int    count[4] = {src1.size(), src2.size(), src3.size(), src4.size()};
-        int size[4]  = {sizeof(T1), sizeof(T2), sizeof(T3), sizeof(T4)};
-        VertexRange*   var[4]   = {&var1, &var2, &var3, &var4};
+        uint8* src[5]   = {(uint8*)src1.getCArray(), (uint8*)src2.getCArray(),
+                           (uint8*)src3.getCArray(), (uint8*)src4.getCArray(),
+                           (uint8*)src5.getCArray()};
+        int            count[5] = {src1.size(), src2.size(), src3.size(), src4.size(), src5.size()};
+        int            size[5]  = {sizeof(T1), sizeof(T2), sizeof(T3), sizeof(T4), sizeof(T5)};
+        VertexRange*   var[5]   = {&var1, &var2, &var3, &var4, &var5};
         (void)var;
 
         // Zero out the size of unused arrays
-        for (int a = 0; a < 4; ++a) {
+        for (int a = 0; a < 5; ++a) {
             if (count[a] == 0) {
                 // If an array is unused, it occupies no space in the interleaved array.
                 size[a] = 0;
@@ -298,7 +303,7 @@ public:
             debugAssertM(count[a] == var[a]->m_numElements, 
                 "Updated arrays must have the same size they were created with.");
             if (a > 1) {
-                debugAssertM(var[a]->m_pointer == (uint8*)var[a - 1]->m_pointer + size[a - 1],
+                debugAssertM((var[a]->m_pointer == (uint8*)var[a - 1]->m_pointer + size[a - 1]) || ((count[a] == 0) && (var[a]->m_pointer == 0)),
                              "Updated interleaved arrays must be the same set and"
                              " order as original interleaved arrays.");
             }
@@ -307,7 +312,7 @@ public:
         uint8* dstPtr = (uint8*)var1.mapBuffer(GL_WRITE_ONLY);
 
         for (int i = 0; i < N; ++i) {
-            for (int a = 0; a < 4; ++a) {
+            for (int a = 0; a < 5; ++a) {
                 if (count[a] > 0) {
                     System::memcpy(dstPtr, src[a] + size[a] * i, size[a]);
                     dstPtr += size[a];
@@ -316,6 +321,23 @@ public:
         }
 
         var1.unmapBuffer();
+    }
+
+    template<class T1, class T2, class T3, class T4>
+    static void updateInterleaved
+        (const Array<T1>&         src1,
+         VertexRange&             var1,
+         const Array<T2>&         src2,
+         VertexRange&             var2,
+         const Array<T3>&         src3,
+         VertexRange&             var3,
+         const Array<T4>&         src4,
+         VertexRange&             var4) {
+         
+         Array<Vector3> src5;
+         VertexRange var5;
+
+         updateInterleaved(src1, var1, src2, var2, src3, var3, src4, var4, src5, var5);
     }
 
     /** @brief Creates four interleaved VertexRange arrays simultaneously. 
@@ -334,34 +356,39 @@ public:
 
         @sa updateInterleaved
     */
-    template<class T1, class T2, class T3, class T4>
+    template<class T1, class T2, class T3, class T4, class T5>
     static void createInterleaved(
-                       const Array<T1>& src1,
+                       const Array<T1>&         src1,
                        VertexRange&             var1,
-                       const Array<T2>& src2,
+                       const Array<T2>&         src2,
                        VertexRange&             var2,
-                       const Array<T3>& src3,
+                       const Array<T3>&         src3,
                        VertexRange&             var3,
-                       const Array<T4>& src4,
+                       const Array<T4>&         src4,
                        VertexRange&             var4,
-                       VertexBufferRef       area) {
+                       const Array<T5>&         src5,
+                       VertexRange&             var5,
+                       VertexBufferRef          area) {
 
-        int N = iMax(iMax(src1.size(), src2.size()),
-                     iMax(src3.size(), src4.size()));
+        int N = iMax(src5.size(),
+                    iMax(iMax(src1.size(), src2.size()),
+                         iMax(src3.size(), src4.size())));
 
         debugAssert(area->type() == VertexBuffer::DATA);
         debugAssert(src1.size() == N || src1.size() == 0);
         debugAssert(src2.size() == N || src2.size() == 0);
         debugAssert(src3.size() == N || src3.size() == 0);
         debugAssert(src4.size() == N || src4.size() == 0);
+        debugAssert(src5.size() == N || src5.size() == 0);
 
         // Treat sizes as zero if the corresponding array is not used
         int size1 = (src1.size() == N) ? sizeof(T1) : 0;
         int size2 = (src2.size() == N) ? sizeof(T2) : 0;
         int size3 = (src3.size() == N) ? sizeof(T3) : 0;
         int size4 = (src4.size() == N) ? sizeof(T4) : 0;
+        int size5 = (src5.size() == N) ? sizeof(T5) : 0;
 
-        int stride = size1 + size2 + size3 + size4;
+        int stride = size1 + size2 + size3 + size4 + size5;
         int totalMemory = stride * N;
         
         VertexRange masterVAR(totalMemory, area);
@@ -369,10 +396,26 @@ public:
         var2.init(masterVAR, size1, glFormatOf(T2), size2, src2.size(), stride);
         var3.init(masterVAR, size1 + size2, glFormatOf(T3), size3, src3.size(), stride);
         var4.init(masterVAR, size1 + size2 + size3, glFormatOf(T4), size4, src4.size(), stride);
+        var4.init(masterVAR, size1 + size2 + size3 + size4, glFormatOf(T5), size5, src5.size(), stride);
 
-        updateInterleaved(src1, var1, src2, var2, src3, var3, src4, var4);
+        updateInterleaved(src1, var1, src2, var2, src3, var3, src4, var4, src5, var5);
     }
 
+    template<class T1, class T2, class T3, class T4>
+    static void createInterleaved(
+                       const Array<T1>&         src1,
+                       VertexRange&             var1,
+                       const Array<T2>&         src2,
+                       VertexRange&             var2,
+                       const Array<T3>&         src3,
+                       VertexRange&             var3,
+                       const Array<T4>&         src4,
+                       VertexRange&             var4,
+                       VertexBufferRef          area) {
+        Array<Vector3> src5;
+        VertexRange var5;
+        createInterleaved(src1, var1, src2, var2, src3, var3, src4, var4, src5, var5, area);
+    }
 
     /**
        @brief Create an interleaved array within an existing VertexRange
@@ -394,12 +437,13 @@ public:
        2</code>.  May not be negative.
      */
     template<class T>
-    VertexRange(const T* srcPtr, 
-        int      _numElements,
-        int      srcStride,
-        VertexRange      dstPtr,
-        int   dstOffset, 
-        int   dstStride) {
+    VertexRange
+        (const T*       srcPtr, 
+        int             _numElements,
+        int             srcStride,
+        VertexRange     dstPtr,
+        int             dstOffset, 
+        int             dstStride) {
         init(srcPtr, _numElements, srcStride, glFormatOf(T), sizeof(T), dstPtr, dstOffset, dstStride);
     }
 

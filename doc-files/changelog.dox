@@ -33,6 +33,7 @@
      <li> G3D::Any replaces G3D::AnyVal
      <li> System::findDataFile no longer scans all disk drives; instead it checks the G3DDATA environment variable
      <li> G3D::Texture::createColor
+     <li> G3D::VertexRange::createInterleaved can now take up to 5 vertex arrays
      <li> G3D::ArticulatedModel::PoseSpline
      <li> G3D::ArticulatedModel can now load Quake3 BSP maps.  This is less efficient than G3D::BSPMap but more convenient for some algorithms.
      <li> G3D::Material::customShaderPrefix
