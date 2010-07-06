@@ -1138,8 +1138,9 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
 
         while (arg != end) {
             // See if this arg was in the formal binding list
+            const ArgList::Arg& value = arg->value;
 
-            if (! arg->value.optional) {
+            if (! value.optional) {
                 bool foundArgument = false;
 
                 for (int u = 0; u < uniformArray.size(); ++u) {
@@ -1153,7 +1154,7 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
                     // Put into a string so that it is visible in the debugger
                     std::string msg = "Extra VertexAndPixelShader uniform variable provided at run time: " +
                          arg->key + ".";
-#if 0
+#if 1
 // Debugging code for particularly tricky shader errors
 debugPrintf("%s \n\n %s\n", vertexShader.code().c_str(), pixelShader.code().c_str());
 debugPrintf("Uniform args found in the shader:\n");
@@ -1470,10 +1471,10 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, double          
 
 
 void VertexAndPixelShader::ArgList::set(const std::string& var, float          val, bool optional) {
-    (void)optional;
     Arg arg;
     arg.type = GL_FLOAT;
     arg.vector[0] = Vector4(val, 0, 0, 0);
+    arg.optional = optional;
     set(var, arg);
 }
 
