@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\GLG3D.lib\source\ArticulatedModel.cpp" />
+    <ClCompile Include="..\GLG3D.lib\source\ArticulatedModel_OBJ.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\ArticulatedModel_Operation.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\BackgroundWidget.cpp" />
     <ClCompile Include="..\GLG3D.lib\source\BSPMAP.cpp" />

@@ -290,6 +290,9 @@
     <ClCompile Include="..\GLG3D.lib\source\CarbonWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\GLG3D.lib\source\ArticulatedModel_OBJ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GLG3D.lib\source\directinput8.h">
