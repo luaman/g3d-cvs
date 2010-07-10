@@ -192,11 +192,11 @@ def initOS():
 
             # Ensure that gmake is on the system
             if shell('which ' + make, False) == '':
-                raise Error('The version of make in this computer has a known bug ' +
-                            'that prevents it from compiling FFMPEG correctly, but ' +
-                            'gmake was not found on this computer to use as a replacement. ' +
-                            'please install gmake (from ftp://ftp.gnu.org/gnu/make/ or MacPort) ' +
-                            'to compile G3D.')
+                raise Exception('The version of make in this computer has a known bug ' +
+                       'that prevents it from compiling FFMPEG correctly, but ' +
+                       'gmake was not found on this computer to use as a replacement. ' +
+                       'please install gmake (from ftp://ftp.gnu.org/gnu/make/ or MacPort) ' +
+                       'to compile G3D.')
 
 
 initOS()
