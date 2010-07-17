@@ -852,7 +852,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\netheaders.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\NetworkDevice.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\networkHelpers.h"
 				>
 			</File>
 			<File
