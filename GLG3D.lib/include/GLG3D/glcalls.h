@@ -99,6 +99,9 @@ Vector4 glGetVector4(GLenum which);
      */
     typedef HGLRC GLContext;
 
+    /** The HDC that wglMakeCurrent will use on Windows.*/
+    extern HDC OpenGLWindowHDC;
+
     /**
      Returns the current OpenGL context if more than one is in use.
      <B>BETA API-- subject to change</B>
@@ -107,9 +110,10 @@ Vector4 glGetVector4(GLenum which);
         return wglGetCurrentContext();
     }
 
+
     /** This is a platform-independent version of the function to set the current OpenGL context for a thread.*/
     inline void glMakeCurrent(const GLContext& c) {
-        wglMakeCurrent(c);
+        wglMakeCurrent(OpenGLWindowHDC, c);
     }
 
 #elif defined(G3D_LINUX) || defined(G3D_FREEBSD)

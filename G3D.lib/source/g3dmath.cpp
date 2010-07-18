@@ -11,7 +11,12 @@
 #include <cstdlib>
 #include <cstring>
 
+// From glcalls.h
+extern HDC OpenGLWindowHDC;
+
 namespace G3D {
+
+HDC OpenGLWindowHDC;
 
 float gaussRandom(float mean, float stdev) {
 

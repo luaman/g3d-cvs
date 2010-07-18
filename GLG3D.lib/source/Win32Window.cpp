@@ -329,7 +329,7 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
     if (! creatingShareWindow) {
         // for glMakeCurrent()
-        OpenGLWindowHDC = hdc;
+        OpenGLWindowHDC = m_hDC;
     }
 
     bool foundARBFormat = false;

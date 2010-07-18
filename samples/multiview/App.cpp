@@ -128,8 +128,7 @@ void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surfa
 
 void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     // Render G-Buffer
-    m_gbuffer->compute(rd, defaultCamera, surface3D);
-   
+    m_gbuffer->compute(rd, defaultCamera, surface3D);   
 
     // Render full shading viewport
     Rect2D shadeViewport = m_gbuffer->rect2DBounds() + Vector2(m_gbuffer->width(), 0) + Vector2(3, 1);
@@ -148,6 +147,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     rd->pop2D();
     rd->pushState();
     {
+        rd->setProjectionAndCameraMatrix(defaultCamera);
         Draw::axes(rd);
         rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
         rd->setColor(Color3::black());
