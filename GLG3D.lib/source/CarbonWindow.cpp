@@ -247,7 +247,7 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
     }
     
     if (pWindow->_droppedFiles.size() > 0) {
-        Rect rect, rectGrow;
+        Rect rect;
         if (GetWindowBounds(pWindow->_window, kWindowContentRgn, &rect) == noErr) {
 
             GEvent e;
@@ -506,6 +506,7 @@ CarbonWindow::CarbonWindow
         osErr = DMGetGDeviceByDisplayID((DisplayIDType)kCGDirectMainDisplay, &displayHandle, false);
     }
     
+    // See http://docs.google.com/viewer?a=v&q=cache:pfv4_KKOg-IJ:developer.apple.com/legacy/mac/library/documentation/Carbon/Conceptual/HandlingWindowsControls/windowscontrols.pdf+carbon+window+attributes&hl=en&gl=us&pid=bl&srcid=ADGEESiyZ95G6KQuq2lbCOQIHd1rpZxsU_QIfyzSH-CdfY98SQxsHTnjjln6-oo6-Vl9ZRYoWzTk07-_imZPYdpmy1sGRNKnJItJZ5RetFqNLXbI_GDrEGNFD2YhikPag9t2zORnYjDe&sig=AHIEtbSvzUzANlSySSg2ENLauHh-0wsLhw
     if (!m_settings.fullScreen && m_settings.center) {
         m_settings.x = (rScreen.size.width - rScreen.origin.x)/2;
         m_settings.x = m_settings.x - (m_settings.width/2);
@@ -525,7 +526,7 @@ CarbonWindow::CarbonWindow
     osErr = CreateNewWindow(kDocumentWindowClass, attributes, &rWin, &_window);
     
     alwaysAssertM(_window != NULL, "Could Not Create Window.");
-    
+
     _title = m_settings.caption;
     CFStringRef titleRef = CFStringCreateWithCString(kCFAllocatorDefault, _title.c_str(), kCFStringEncodingMacRoman);
     
@@ -548,7 +549,9 @@ CarbonWindow::CarbonWindow
         }
     }
     
-    ShowWindow(_window);
+    if (m_settings.visible) {
+        ShowWindow(_window);
+    }
     
     osErr = InstallStandardEventHandler(GetWindowEventTarget(_window));
     osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowSized), GetEventTypeCount(_resizeSpec), _resizeSpec, this, NULL);
