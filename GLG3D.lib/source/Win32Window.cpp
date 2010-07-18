@@ -327,6 +327,11 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
     // Setup the pixel format properties for the output device
     m_hDC = GetDC(m_window);
 
+    if (! creatingShareWindow) {
+        // for glMakeCurrent()
+        OpenGLWindowHDC = hdc;
+    }
+
     bool foundARBFormat = false;
 
     // Index of the format
