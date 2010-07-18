@@ -146,6 +146,8 @@ href="classes.html">Classes</a>.
     \link G3D::glVertex glVertex\endlink,
     \link G3D::sizeOfGLFormat sizeOfGlFormate\endlink, 
     \link G3D::glFormatOf glFormatOf\endlink, 
+    \link G3D::glGetCurrentContext glGetCurrentContext\endlink, 
+    \link G3D::glMakeCurrent glMakeCurrent\endlink,     
     \link G3D::glGetProcAddress glGetProcAddress\endlink,
     \link G3D::getOpenGLState getOpenGlState\endlink,
     \link G3D::glGetInteger glGetInteger\endlink, 

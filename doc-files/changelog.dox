@@ -157,6 +157,7 @@
      <li> Made empty G3D::Table default to zero allocation
      <li> Multithreaded G3D::ArticulatedModel loading
      <li> G3D::System::numCores
+     <li> glMakeCurrent
      <li> Added buffering (with appropriate flushes) to G3D::logPrintf decrease the startup cost of writing the log
      <li> G3D::System::findDataFile now caches the locations of found files
      <li> G3D::Widget now inherits from G3D::Surface2D
@@ -233,7 +234,7 @@
      <li> Fix: Texture::Preprocess::modulate now affects alpha channel
      <li> Fix: debugAssertGLOk and GLCapps::supports now call glGetError until the entire error stack is cleared
      <li> Fix: Switched Shader to read uniforms missed by OpenGL from the output of the preprocessor in case uniforms were introduced by #include.
-     <li> Fix: CarbonWindow (OS X) now obeys the OSWindow::Settings::resizable flag
+     <li> Fix: CarbonWindow (OS X) now obeys the OSWindow::Settings::resizable and visible flags
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

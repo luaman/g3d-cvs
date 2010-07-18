@@ -107,6 +107,11 @@ Vector4 glGetVector4(GLenum which);
         return wglGetCurrentContext();
     }
 
+    /** This is a platform-independent version of the function to set the current OpenGL context for a thread.*/
+    inline void glMakeCurrent(const GLContext& c) {
+        wglMakeCurrent(c);
+    }
+
 #elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
     typedef GLXContext GLContext;
@@ -114,11 +119,21 @@ Vector4 glGetVector4(GLenum which);
         return glXGetCurrentContext();
     }
 
+    /** This is a platform-independent version of the function to set the current OpenGL context for a thread.*/
+    inline void glMakeCurrent(const GLContext& c) {
+        glXMakeCurrent(c);
+    }
+
 #elif defined(G3D_OSX)
 
     typedef CGLContextObj GLContext;
     inline GLContext glGetCurrentContext() {
         return CGLGetCurrentContext();
+    }
+
+    /** This is a platform-independent version of the function to set the current OpenGL context for a thread.*/
+    inline void glMakeCurrent(const GLContext& c) {
+        CGLSetCurrentContext(c);
     }
 #endif
 
