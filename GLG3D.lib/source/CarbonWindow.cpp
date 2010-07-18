@@ -402,13 +402,13 @@ void CarbonWindow::createShareWindow(GWindow::Settings s) {
 }
     
 
-CarbonWindow::CarbonWindow(
-                           const GWindow::Settings& s, 
-                           bool creatingShareWindow) : 
+CarbonWindow::CarbonWindow
+(const GWindow::Settings& s, 
+ bool creatingShareWindow) : 
     lastMod(GKeyMod::NONE),
     _createdWindow(true) {
 
-    if(!_ProcessBroughtToFront) {
+    if (!_ProcessBroughtToFront) {
         // Hack to get our window/process to the front...
         ProcessSerialNumber psn = { 0, kCurrentProcess};
         TransformProcessType(&psn, kProcessTransformToForegroundApplication);
@@ -503,10 +503,10 @@ CarbonWindow::CarbonWindow(
         m_settings.height = rScreen.size.height;
         
         CGDisplayCapture(kCGDirectMainDisplay);
-        osErr = DMGetGDeviceByDisplayID((DisplayIDType)kCGDirectMainDisplay,&displayHandle,false);
+        osErr = DMGetGDeviceByDisplayID((DisplayIDType)kCGDirectMainDisplay, &displayHandle, false);
     }
     
-    if(!m_settings.fullScreen && m_settings.center) {
+    if (!m_settings.fullScreen && m_settings.center) {
         m_settings.x = (rScreen.size.width - rScreen.origin.x)/2;
         m_settings.x = m_settings.x - (m_settings.width/2);
         m_settings.y = (rScreen.size.height - rScreen.origin.y)/2;
@@ -515,7 +515,14 @@ CarbonWindow::CarbonWindow(
     
     Rect rWin = {m_settings.y, m_settings.x, m_settings.height+m_settings.y, m_settings.width+m_settings.x};
     
-    osErr = CreateNewWindow(kDocumentWindowClass,kWindowStandardDocumentAttributes|kWindowStandardHandlerAttribute,&rWin,&_window);
+    int attributes = kWindowStandardDocumentAttributes | kWindowStandardHandlerAttribute;
+    if (m_settings.resizable) {
+        attributes |= kWindowFullZoomAttribute | kWindowResizableAttribute;
+    } else {
+        attributes &= ~(kWindowFullZoomAttribute | kWindowResizableAttribute);
+    }
+
+    osErr = CreateNewWindow(kDocumentWindowClass, attributes, &rWin, &_window);
     
     alwaysAssertM(_window != NULL, "Could Not Create Window.");
     
@@ -922,15 +929,17 @@ bool CarbonWindow::inputCapture() const {
 
 
 void CarbonWindow::setMouseVisible(bool b) {
-    if(_mouseVisible == b)
+    if (_mouseVisible == b) {
         return;
+    }
     
     _mouseVisible = b;
     
-    if(_mouseVisible)
+    if (_mouseVisible) {
         CGDisplayShowCursor(kCGDirectMainDisplay);
-    else
+    } else {
         CGDisplayHideCursor(kCGDirectMainDisplay);
+    }
 }
 
 
@@ -940,7 +949,7 @@ bool CarbonWindow::mouseVisible() const {
 
 
 void CarbonWindow::swapGLBuffers() {
-    if(_glContext) {
+    if (_glContext) {
         aglSetCurrentContext(_glContext);
         aglSwapBuffers(_glContext);
     }
@@ -993,8 +1002,9 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
         if((point.x >= rect.left) && (point.y >= rect.top) && (point.x <= rect.right) && (point.y <= rect.bottom)) {
             // If the user wants to resize, we should allow them to.
             GetWindowBounds(_window, kWindowGrowRgn, &rectGrow);
-            if(!m_settings.fullScreen && m_settings.resizable && ((point.x >= rectGrow.left) && (point.y >= rectGrow.top)))
+            if (!m_settings.fullScreen && m_settings.resizable && ((point.x >= rectGrow.left) && (point.y >= rectGrow.top))) {
                 return false;
+            }
             
             GetEventParameter(theEvent, kEventParamMouseButton, typeMouseButton, NULL, sizeof(button), NULL, &button);
             
