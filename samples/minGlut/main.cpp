@@ -1,14 +1,18 @@
 /**
-   This code sample shows how to use GLUT to initialize OpenGL.  This provides
-   fewer features and much less support than the regular G3D initialization,
-   but provides a convenient minimal base when tracking down GPU driver bugs
-   or other issues for which you would like to rule out G3D's interactions.
+   This code sample shows how to use GLUT to initialize OpenGL.  This
+   provides fewer features and much less support than the regular G3D
+   initialization, but provides a convenient minimal base when
+   tracking down GPU driver bugs or other issues for which you would
+   like to rule out G3D's interactions.
 
-   The provided Image class allows simple setPixel() access and can be saved
-   to disk or shown on screen (both gamma corrected) for debugging.
+   The provided Image class allows simple setPixel() access and can be
+   saved to disk or shown on screen (both gamma corrected) for
+   debugging.  You can also make direct OpenGL calls.
 
-   Note that this project requires linking to GLUT, which is not distributed
-   with G3D.
+   Note that this project requires linking to GLUT, which is not
+   formally distributed with G3D but is part of OS X and most Linux
+   distributions.  The Windows version of GLUT is included in this
+   directory.
  */
 #include "supportclasses.h"
 

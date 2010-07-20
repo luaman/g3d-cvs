@@ -44,7 +44,7 @@ void Image::display(float deviceGamma) const {
     glutInit(&argc, NULL);
     glutInitWindowSize(m_width, m_height);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutCreateWindow("Ray trace result");
+    glutCreateWindow("G3D");
     glutKeyboardFunc(&quitOnEscape);
     glutDisplayFunc(&render);
 
