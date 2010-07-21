@@ -233,6 +233,13 @@ def runicompile(dir):
 def buildNativeFFmpeg():
     if windows: raise Error('Cannot build FFmpeg directly on Windows.  Must use cross-compiler')
 
+    if linux:
+        # test that we can write to TMPDIR
+        TMPDIR = os.environ.get('TMPDIR')
+        f = open(TMPDIR + '/test', 'wb')
+        if (f == 0):
+            raise Error('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.')
+        close(f)
 
     libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']
     print '----------------------------------------------------\n'
