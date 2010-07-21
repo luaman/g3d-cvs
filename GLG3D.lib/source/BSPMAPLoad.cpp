@@ -457,7 +457,7 @@ void Map::loadEntities(BinaryInput&	bi,const BSPLump& lump){
 		}
 	}
 
-	delete entities;
+	delete[] entities;
 }
 
 
@@ -494,9 +494,11 @@ void Map::loadFaces(
     BinaryInput&           bi,
     const BSPLump&         lump) {
 
+    alwaysAssertM(lump.length < 1e9, "Corrupt file");
     int facesCount = lump.length / sizeof(Q3BSPFace);
     faceArray.deleteAll();
     faceArray.resize(facesCount);
+    alwaysAssertM(facesCount < 1e6, "Corrupt file");
     Q3BSPFace* faceData = new Q3BSPFace[facesCount];
 
     bi.setPosition(lump.offset);
@@ -559,7 +561,7 @@ void Map::loadFaces(
         }
         faceArray[ct] = theFace;
     }
-    delete faceData;
+    delete[] faceData;
 }
 
 
@@ -994,6 +996,9 @@ void Map::loadHLVisData(
 
         decompressQ1VisData(pvsBuffer, visOffset);
 
+
+        delete[] pvsBuffer;
+        delete[] visOffset;
     } else {
         visData.bitsets = NULL;
     }
@@ -1074,9 +1079,6 @@ void Map::decompressQ1VisData(
         }
 
     }
-
-    delete pvsBuffer;
-    delete visOffset;
 }
 
 
