@@ -110,7 +110,8 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
 
         debugAssertGLOk();
         // Opaque
-        glCullFace(GL_FRONT);
+        renderDevice->setCullFace(RenderDevice::CULL_FRONT);
+//        glCullFace(GL_FRONT);
         glDisable(GL_BLEND);
         glDisable(GL_LIGHTING);
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -473,14 +474,14 @@ void Map::render(GCamera& camera, void* obj) {
 */  
 }
 
-void Map::checkCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
+void Map::checkCollision(Vector3& pos, Vector3& vel, const Vector3& extent) {
 	if (vel.squaredLength() > 0) {
 		collide(pos, vel, extent);
 	}
 }
 
 
-void Map::slideCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
+void Map::slideCollision(Vector3& pos, Vector3& vel, const Vector3& extent) {
 
 	if (vel.squaredLength() == 0) {
 		return;
@@ -496,7 +497,7 @@ void Map::slideCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
 	Vector3 up = startPos;
 
 	// For going up stairs
-	const double STEP_SIZE = 22 * 0.03;//LOAD_SCALE;
+	const double STEP_SIZE = 22 * 0.03; // G3D_LOAD_SCALE
 	up.y += STEP_SIZE;
 	Vector3 up2 = up;
 	BSPCollision collision = checkMove(up, up2, extent);
@@ -513,7 +514,7 @@ void Map::slideCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
 	down.y -= STEP_SIZE;
 	collision = checkMove(up, down, extent);
 
-	if (!collision.isSolid) {
+	if (! collision.isSolid) {
 		tmp = collision.end;
 	}
 
@@ -531,7 +532,7 @@ void Map::slideCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
 }
 
 
-void Map::collide(Vector3& pos, Vector3& vel, Vector3& extent) {
+void Map::collide(Vector3& pos, Vector3& vel, const Vector3& extent) {
 	BSPCollision collision;
 	collision.fraction = 0;
 	Vector3 initPos = pos;
@@ -570,7 +571,7 @@ void Map::collide(Vector3& pos, Vector3& vel, Vector3& extent) {
 }
 
 
-void Map::slide(Vector3& pos, Vector3& vel, Vector3& extent) {
+void Map::slide(Vector3& pos, Vector3& vel, const Vector3& extent) {
 	BSPCollision collision;
 	collision.fraction = 0;
 	Vector3 initPos = pos;
@@ -653,7 +654,7 @@ void Map::slide(Vector3& pos, Vector3& vel, Vector3& extent) {
 }
 
 
-BSPCollision Map::checkMove(Vector3& start, Vector3& end, Vector3& extent) {
+BSPCollision Map::checkMove(Vector3& start, Vector3& end, const Vector3& extent) {
 
 	BSPCollision moveCollision;
 	moveCollision.size      = extent;

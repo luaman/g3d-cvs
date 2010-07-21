@@ -1,0 +1,19 @@
+Quake3 format maps from Tremulous
+http://www.tremulous.net/index.php?section=news
+
+You can open these in G3D using contrib/BSPMap
+after renaming the .pk3 files to .zip and
+unzipping them.
+
+These files are Quake3 maps licensed under
+the Create Commons Attribution-ShareAlike 2.5
+license.  This allows you to use these data
+files provided that you give attribution and
+make any changes *to these files* publically
+available.
+
+For full details, see:
+
+http://creativecommons.org/licenses/by-sa/2.5/
+
+and the file CC in this directory.

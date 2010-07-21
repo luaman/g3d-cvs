@@ -588,11 +588,11 @@ private:
     
     int findLeaf(const Vector3& pos) const;
     
-    void slide(Vector3& pos, Vector3& vel, Vector3& extent);
+    void slide(Vector3& pos, Vector3& vel, const Vector3& extent);
     
-    void collide(Vector3& pos, Vector3& vel, Vector3& extent);
+    void collide(Vector3& pos, Vector3& vel, const Vector3& extent);
     
-    BSPCollision checkMove(Vector3& pos, Vector3& vel, Vector3& extent);
+    BSPCollision checkMove(Vector3& pos, Vector3& vel, const Vector3& extent);
     
     void checkMoveLeaf(int leaf, BSPCollision* moveCollision) const;
 
@@ -636,10 +636,20 @@ public:
     ~Map();
     
     /** 
-     */
-    void slideCollision(Vector3& pos, Vector3& vel, Vector3& extent);
+      Move an object, sliding where it collides with walls (as is done in Quake and most FPS games).
 
-    void checkCollision(Vector3& pos, Vector3& vel, Vector3& extent);
+      \param pos Initial pos, which is updated to the new position.
+      \param extent World-space axis aligned extents of the object.
+      \param vel Movement step size.  This is updated based on the actual step taken.
+
+     \sa checkCollision
+     */
+    void slideCollision(Vector3& pos, Vector3& vel, const Vector3& extent);
+
+    /** 
+     \sa slideCollision
+     */
+    void checkCollision(Vector3& pos, Vector3& vel, const Vector3& extent);
 
     /**
      Returns NULL if an error occurs while loading.
@@ -671,7 +681,7 @@ public:
     static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f, std::string altLoad = "",
          const std::string& defaultTextureFile = "");
 
-    inline void setDefaultTexture(const Texture::Ref& txt) {
+    void setDefaultTexture(const Texture::Ref& txt) {
         defaultTexture = txt;
     }
 
