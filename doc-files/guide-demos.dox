@@ -91,6 +91,28 @@
 </tr>
 
 
+
+<tr><td culspan=2 height=10> </td></tr>
+
+<tr><td culspan=2>Remote Rendering (<a href="../samples/remoteRender">samples/remoteRender</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="remote.png" width=250 > \endhtmlonly
+</td>
+<td>
+ <ul>
+ <li> Rendering from a console program
+ <li> Multithreaded OpenGL
+ <li> HTML/HTTP client code and HTTP server
+ <li> G3D::BSPMap
+ <li> G3D::NetAddress
+ <li> G3D::GImage::encode
+ <li> G3D::Any
+</ul>
+</td>
+</tr>
+
+
 <tr><td culspan=2 height=10> </td></tr>
 
 <tr><td culspan=2>Multiple Views (<a href="../samples/multiview">samples/multiview</a>)</td></tr>
