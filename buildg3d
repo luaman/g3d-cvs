@@ -341,7 +341,7 @@ def libTarget():
     x = 0
 
     if windows:
-        x = VC9('VC9/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'zip.lib', 'G3D.lib', 'GLG3D.lib']);
+        x = VC9('VC9/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'zip.lib', 'mongoose.lib', 'G3D.lib', 'GLG3D.lib']);
              
     else:
     
@@ -356,6 +356,8 @@ def libTarget():
             if x == 0: x = runicompile('zip.lib')
          
         if x == 0: x = buildNativeFFmpeg()
+
+        if x == 0: x = runicompile('mongoose.lib')
 
         if x == 0: x = runicompile('G3D.lib')
 

@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * $Id: mongoose.c,v 1.1 2010/07/22 04:58:09 morgan3d Exp $
+ * $Id: mongoose.c,v 1.1 2010/07/22 05:23:07 morgan3d Exp $
  */
 
 #if defined(_WIN32)

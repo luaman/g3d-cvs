@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * $Id: mongoose.h,v 1.1 2010/07/22 04:58:09 morgan3d Exp $
+ * $Id: mongoose.h,v 1.1 2010/07/22 05:23:07 morgan3d Exp $
  * 
  * This version of Mongoose was patched by the G3D library (http://g3d.sf.net)
  * The above license is still in effect for this patched version.

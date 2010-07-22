@@ -156,7 +156,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multiview", "multiview.vcpr
 		{A0F6F9E7-529E-4656-B11D-A3185A77E4C9} = {A0F6F9E7-529E-4656-B11D-A3185A77E4C9}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mongose.lib", "mongose.lib.vcproj", "{8A2D1953-9568-43A6-BC81-CCFBCBC98227}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mongoose.lib", "mongoose.lib.vcproj", "{8A2D1953-9568-43A6-BC81-CCFBCBC98227}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
