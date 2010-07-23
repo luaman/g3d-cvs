@@ -1,0 +1,1 @@
+These are programs written by the G3D team in the process of identifying specific driver bugs.  These are not intended as sample programs and are not a supported part of the G3D distribution.
