@@ -55,10 +55,9 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
 
     default:
         glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-        glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, 
-                        GL_COMPARE_R_TO_TEXTURE_ARB);
+        glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 
-        glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC_ARB, 
+        glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, 
                         (m == Texture::DEPTH_LEQUAL) ? 
                         GL_LEQUAL : GL_GEQUAL);
         break;

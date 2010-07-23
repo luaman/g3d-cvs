@@ -93,7 +93,7 @@ void createShadowMap() {
     glGenTextures(1, &shadowMapTexture);
     glBindTexture(shadowMapTextureTarget, shadowMapTexture);
     glTexParameteri(shadowMapTextureTarget, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
-    glTexParameteri(shadowMapTextureTarget, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+    glTexParameteri(shadowMapTextureTarget, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
     glTexParameteri(shadowMapTextureTarget, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
     glTexParameteri(shadowMapTextureTarget, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
     glTexParameteri(shadowMapTextureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
