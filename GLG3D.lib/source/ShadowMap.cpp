@@ -19,8 +19,7 @@ ShadowMap::ShadowMap(const std::string& name) :
     m_bias(0.002f),
     m_polygonOffset(1.0f),
     m_backfacePolygonOffset(1.0f),
-    m_lastRenderDevice(NULL),
-    m_colorDepthTextureIsDirty(true) {
+    m_lastRenderDevice(NULL) {
 }
 
 
@@ -74,7 +73,6 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
     if (desiredSize == 0) {
         m_depthTexture = NULL;
         m_framebuffer = NULL;
-        m_colorDepthTexture = NULL;
         return;
     }
 
@@ -95,10 +93,9 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
     m_depthTexture = Texture::createEmpty
         (m_name,
          desiredSize, desiredSize,
-         ImageFormat::DEPTH16(),
+         ImageFormat::DEPTH32(),
          dim, 
          textureSettings);
-    m_colorDepthTexture = NULL;
 
     if (GLCaps::supports_GL_ARB_framebuffer_object()) {
         m_framebuffer = Framebuffer::create(m_name + " Frame Buffer");
@@ -169,7 +166,7 @@ void ShadowMap::updateDepth
         bool debugShadows = false;
         renderDevice->setColorWrite(debugShadows);
         renderDevice->setDepthWrite(true);
-        renderDevice->clear(debugShadows, true, false);
+        renderDevice->clear(true, true, false);
 
         // Draw from the light's point of view
         renderDevice->setCameraToWorldMatrix(m_lightFrame);
@@ -190,6 +187,11 @@ void ShadowMap::updateDepth
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        /* Debug:
+renderDevice->push2D();
+Draw::rect2D(renderDevice->viewport(), renderDevice);
+renderDevice->pop2D();
+*/
     }
     renderDevice->popState();
 
@@ -200,8 +202,6 @@ void ShadowMap::updateDepth
         m_depthTexture->copyFromScreen(rect);
         renderDevice->setReadBuffer(old);
     }
-
-    m_colorDepthTextureIsDirty = true;
 }
 
 
@@ -226,61 +226,6 @@ void ShadowMap::renderDepthOnly(RenderDevice* renderDevice, const Array<Surface:
     }
 
     debugAssertGLOk();
-}
-
-
-Texture::Ref ShadowMap::colorDepthTexture() const {
-    if (m_colorDepthTextureIsDirty) {
-        // We pretend that this is a const method, but
-        // we might have to update the internal cache.
-        const_cast<ShadowMap*>(this)->computeColorDepthTexture();
-    }
-
-    return m_colorDepthTexture;
-}
-
-
-void ShadowMap::computeColorDepthTexture() {
-    RenderDevice* rd = m_lastRenderDevice;
-    debugAssertM(rd, "Must call updateDepth() before colorDepthTexture()");
-
-    if (m_colorDepthTexture.isNull()) {
-        Texture::Settings settings = Texture::Settings::video();
-        settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
-        settings.wrapMode = m_depthTexture->settings().wrapMode;
-
-        // Must be RGB16 or RGB16F because OpenGL can't render to
-        // luminance textures and we need high bit depth for the
-        // depth.
-        
-        const ImageFormat* fmt = ImageFormat::RGB16F();
-        debugAssert(GLCaps::supportsTexture(fmt));
-
-        m_colorDepthTexture = Texture::createEmpty
-            (m_name, m_depthTexture->width(), m_depthTexture->height(), 
-             fmt, Texture::defaultDimension(), settings);
-    }
-
-    // Convert depth to color
-    if (m_colorConversionFramebuffer.isNull()) {
-        m_colorConversionFramebuffer = Framebuffer::create("Depth to Color Conversion");
-    }
-    
-    m_colorConversionFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_colorDepthTexture);
-
-    setMode(Texture::DEPTH_NORMAL);
-    rd->push2D(m_colorConversionFramebuffer);
-    {
-        rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-        rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);
-        rd->setColorWrite(true);
-        rd->setDepthWrite(false);
-        rd->setTexture(0, m_depthTexture);
-        Draw::fastRect2D(m_depthTexture->rect2DBounds(), rd);
-    }
-    rd->pop2D();
-    setMode(m_depthTexture->settings().depthReadMode);
-    m_colorDepthTextureIsDirty = false;
 }
 
 

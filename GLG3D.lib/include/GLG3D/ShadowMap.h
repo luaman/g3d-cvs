@@ -33,8 +33,6 @@ protected:
     /** If NULL, use the backbuffer */
     Framebuffer::Ref    m_framebuffer;
 
-    Framebuffer::Ref    m_colorConversionFramebuffer;
-
     Matrix4             m_lightMVP;
 
     CFrame              m_lightFrame;
@@ -49,13 +47,6 @@ protected:
     float               m_backfacePolygonOffset;
 
     class RenderDevice* m_lastRenderDevice;
-
-    /** True when m_colorTexture is out of date */
-    bool                m_colorDepthTextureIsDirty;
-
-    Texture::Ref        m_colorDepthTexture;
-
-    void computeColorDepthTexture();
 
     ShadowMap(const std::string& name);
 
@@ -200,10 +191,6 @@ public:
     Texture::Ref depthTexture() const {
         return m_depthTexture;
     }
-
-    /** Returns the depthTexture as RGB16F format. Useful for cards
-        that do not support reading against depth textures.*/
-    Texture::Ref colorDepthTexture() const;
 
     inline Rect2D rect2DBounds() const {
         return m_depthTexture->rect2DBounds();

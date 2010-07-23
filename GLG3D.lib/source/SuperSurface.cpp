@@ -525,6 +525,8 @@ bool SuperSurface::renderFFNonShadowedOpaqueTerms(
     RenderDevice*                   rd,
     const LightingRef&              lighting) const {
 
+    debugAssertGLOk();
+
     bool renderedOnce = false;
 
     const Material::Ref& material = m_gpuGeom->material;
@@ -578,6 +580,7 @@ bool SuperSurface::renderFFNonShadowedOpaqueTerms(
             rd->setTexture(1, NULL);
         rd->popState();
     }
+    debugAssertGLOk();
 
     // Add ambient + lights
     if (bsdf->lambertian().factors() != Component4::BLACK || 
@@ -589,6 +592,7 @@ bool SuperSurface::renderFFNonShadowedOpaqueTerms(
         // Fixed function does not receive specular texture maps, only constants.
         rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
         rd->setShininess(SuperBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
+        debugAssertGLOk();
 
         // Ambient
         if (lighting.notNull()) {
@@ -603,6 +607,7 @@ bool SuperSurface::renderFFNonShadowedOpaqueTerms(
                 rd->setLight(L + 1, lighting->lightArray[L]);
             }
         }
+        debugAssertGLOk();
 
         if (renderedOnce) {
             // Make sure we add this pass to the previous already-rendered terms
@@ -960,6 +965,7 @@ void SuperSurface::renderFFShadowMappedLightPass(
 void SuperSurface::sendGeometry2(
     RenderDevice*           rd) const {
 
+    debugAssertGLOk();
 
     CoordinateFrame o2w = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(m_frame);

@@ -383,11 +383,7 @@ void ShadowedPass::setLight(
     configureSingleLightShaderArgs(light, 0, args, true);
 
     // Shadow map setup
-    if (GLCaps::enumVendor() == GLCaps::ATI) {
-        args.set("shadowMap",       shadowMap->colorDepthTexture());
-    } else {
-        args.set("shadowMap",       shadowMap->depthTexture());
-    }
+    args.set("shadowMap",       shadowMap->depthTexture());
 
     //printf("ShadowedPass::setLight: lightMVP = %s\n", shadowMap->biasedLightMVP().toString().c_str());
     args.set("lightMVP",        shadowMap->biasedLightMVP());

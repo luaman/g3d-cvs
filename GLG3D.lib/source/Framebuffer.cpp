@@ -337,7 +337,7 @@ int Framebuffer::Attachment::height() const {
 }
 
 
-    bool Framebuffer::Attachment::equals(const Texture::Ref& t, Texture::CubeFace c, int L) const {
+bool Framebuffer::Attachment::equals(const Texture::Ref& t, Texture::CubeFace c, int L) const {
     return
         (m_type == TEXTURE) &&
         (m_texture == t) &&
