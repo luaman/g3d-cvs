@@ -5,9 +5,9 @@
  @author Shawn Yarbrough
   
  @created 2006-06-11
- @edited  2010-03-20
+ @edited  2010-07-24
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
  */
 
@@ -28,7 +28,12 @@ std::string Any::resolveStringAsFilename() const {
     if (FileSystem::exists(f)) {
         return f;
     } else {
-        return System::findDataFile(string(), false);
+        const std::string& s = System::findDataFile(string(), false);
+        if (s.empty()) {
+            return string();
+        } else {
+            return s;
+        }
     }
 }
 
