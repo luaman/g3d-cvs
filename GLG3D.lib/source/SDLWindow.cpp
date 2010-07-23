@@ -238,6 +238,10 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
     // A Drawable appears to be either a Window or a Pixmap
     G3D::_internal::x11Window  = glXGetCurrentDrawable();
 
+    // These are the variables used by glMakeCurrent
+    OpenGLDisplay = G3D::_internal::x11Display;
+    OpenGLDrawable = G3D::_internal::x11Window;
+
     if (! settings.fullScreen) {
         int W = screenWidth(m_X11Display);
         int H = screenHeight(m_X11Display);

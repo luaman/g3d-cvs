@@ -22,6 +22,14 @@ extern "C" void* NSGLGetProcAddress(const GLubyte*);
 
 namespace G3D {
 
+#if defined(G3D_LINUX) || defined(G3D_FREEBSD)
+    Display* OpenGLDisplay = NULL;
+    GLXDrawable OpenGLDrawable;
+#elif defined(G3D_WIN32)
+    HDC OpenGLWindowHDC;
+#endif
+
+
 /**
  Sets up matrix m from rot and trans
  */

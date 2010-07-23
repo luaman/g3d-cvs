@@ -14,12 +14,6 @@
 
 namespace G3D {
 
-#ifdef G3D_WIN32
-// From glcalls.h
-extern HDC OpenGLWindowHDC;
-HDC OpenGLWindowHDC;
-#endif
-
 float gaussRandom(float mean, float stdev) {
 
     // Using Box-Mueller method from http://www.taygeta.com/random/gaussian.html

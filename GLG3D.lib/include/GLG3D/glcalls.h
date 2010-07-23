@@ -95,7 +95,6 @@ Vector4 glGetVector4(GLenum which);
 
     /**
      OpenGL context (argument to glMakeCurrent, return value of glGetCurrentContext).
-     <B>BETA API-- subject to change</B>
      */
     typedef HGLRC GLContext;
 
@@ -118,6 +117,10 @@ Vector4 glGetVector4(GLenum which);
 
 #elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
+    /** The HDC that glMakeCurrent will use on Linux.*/
+    extern Display* OpenGLDisplay;
+    extern GLXDrawable OpenGLDrawable;
+
     typedef GLXContext GLContext;
     inline GLContext glGetCurrentContext() {
         return glXGetCurrentContext();
@@ -125,7 +128,7 @@ Vector4 glGetVector4(GLenum which);
 
     /** This is a platform-independent version of the function to set the current OpenGL context for a thread.*/
     inline void glMakeCurrent(const GLContext& c) {
-        glXMakeCurrent(c);
+        glXMakeCurrent(OpenGLDisplay, OpenGLDrawable, c);
     }
 
 #elif defined(G3D_OSX)
