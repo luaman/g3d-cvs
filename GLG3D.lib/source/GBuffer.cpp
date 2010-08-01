@@ -38,7 +38,7 @@ GBuffer::Indices::Indices(const GBuffer::Specification& spec)
 
     numPositionAttach = j;
 
-    int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
+    //int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
     alwaysAssertM(max(numPrimaryAttach, numPositionAttach) >= i, 
         format("GBuffer requires a GL_MAX_COLOR_ATTACHMENTS value >= %d for this specification "
                "(%d color attachments on this GPU)", i, max(numPrimaryAttach, numPositionAttach)));
@@ -340,6 +340,7 @@ void GBuffer::compute
 
                 m_positionShader->args.set("lambertianConstant", bsdf->lambertian().constant());
                 m_positionShader->args.set("lambertianMap", Texture::opaqueBlackIfNull(bsdf->lambertian().texture()));
+                m_positionShader->args.set("backside", 1.0f);
 
                 rd->setObjectToWorldMatrix(model->coordinateFrame());
                 rd->setVARs(geom->vertex, geom->normal, geom->texCoord0, geom->packedTangent);
@@ -350,6 +351,7 @@ void GBuffer::compute
                     rd->setCullFace(RenderDevice::CULL_FRONT);
                     
                     // Render backfaces
+                    m_positionShader->args.set("backside", -1.0f);
                     rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
                     
                     // Restore backface state
