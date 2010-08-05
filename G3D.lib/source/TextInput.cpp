@@ -136,8 +136,6 @@ std::string TextInput::readUntilNewlineAsString() {
     currentCharOffset = t.bytePosition();
     stack.clear();
 
-    int begin = currentCharOffset;
-
     if (currentCharOffset == buffer.size()) {
         // End of file
         return "";
