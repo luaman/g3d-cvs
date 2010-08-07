@@ -188,7 +188,7 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
             exit(-3);
         }
     }
-
+    debugAssertGLOk();
     // See what video mode we really got
     int depthBits, stencilBits, redBits, greenBits, blueBits, alphaBits;
     glGetIntegerv(GL_DEPTH_BITS, &depthBits);
@@ -224,8 +224,10 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
     SDL_VERSION(&info.version);
     SDL_GetWMInfo(&info);
 
+    debugAssertGLOk();
     m_glContext = glGetCurrentContext();
 
+    debugAssertGLOk();
     GLCaps::init();
 
     // Extract SDL's internal Display pointer on Linux        
