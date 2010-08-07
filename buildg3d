@@ -345,14 +345,13 @@ def libTarget():
              
     else:
     
-        if osx:
-            # Build jpeg
+        if (osx and not os.path.exists('/usr/X11/include/png.h')) or (ice.utils.shell("locate libpng.a") == ''):
+            if x == 0: x = runicompile('png.lib')
+
+        if osx or (ice.utils.shell("locate libjpeg.a") == ''):
             if x == 0: x = runicompile('jpeg.lib')
-
-            if not os.path.exists('/usr/X11/include/png.h'):
-                # Build png
-                if x == 0: x = runicompile('png.lib')
-
+    
+        if osx or (ice.utils.shell("locate libzip.a") == ''):
             if x == 0: x = runicompile('zip.lib')
          
         if x == 0: x = buildNativeFFmpeg()
@@ -858,7 +857,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         helpTarget()
         sys.exit(-1)
-        
+
+       
     t0 = time.time()
     
     code = dispatchOnTarget(sys.argv[1] + 'Target',
