@@ -38,6 +38,10 @@ pushd /tmp
 curl http://prdownloads.sourceforge.net/g3d/G3D-8.00-src.zip?download > G3D-8.00-src.zip
 unzip G3D-8.00-src.zip
 pushd G3D
+
+more BUILD_INSTRUCTIONS.txt
+# Read the instructions; make sure you have the required packages!
+
 chmod u+x buildg3d
 sudo ./buildg3d --install /usr/local update
 popd

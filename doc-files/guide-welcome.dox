@@ -1,6 +1,7 @@
 /** @mainpage 
 
 \htmlonly
+
 <table border=0 width=100% >
 <tr align=top >
 <td valign=top >
@@ -99,8 +100,14 @@
 </td>
 </tr>
 </table>
-\endhtmlonly
-
+<HR>
+The G3D 8.00 Development Team is:
+<blockquote>
+<b>Morgan McGuire</b>, Williams College
+<br><b>Corey Taylor</b>, Electronic Arts
+<br><b>Shawn Yarbrough</b>, weaponizedgames.com
+<br><b>Trevor O'Brien</b>, Brown University
+</blockquote>
 <HR>
 Manual and Library source code
 <br>Copyright 2000-2010, Morgan McGuire.
@@ -115,6 +122,7 @@ Manual and Library source code
 <br>
 <br>
 <br>
+\endhtmlonly
 
 */
 

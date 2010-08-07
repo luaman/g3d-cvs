@@ -484,7 +484,7 @@ def dataTarget():
     # Generate demos and support
     copyIfNewer('data-files', 'build/data')
     copyIfNewer('../data', 'build/data')
-    copyIfNewer('demos', 'build/demos')
+    copyIfNewer('samples', 'build/samples')
 
     return 0
 
