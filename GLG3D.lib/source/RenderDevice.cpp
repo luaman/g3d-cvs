@@ -191,6 +191,7 @@ void RenderDevice::init(OSWindow* window) {
     
     // Load the OpenGL extensions if they have not already been loaded.
     GLCaps::init();
+    debugAssertGLOk();
 
     m_beginEndFrame = 0;
 
@@ -243,6 +244,7 @@ void RenderDevice::init(OSWindow* window) {
     bool stencilOk = stencilBits >= minimumStencilBits;
 
     cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();
+    debugAssertGLOk();
 
     {
         int t = 0;
@@ -265,6 +267,7 @@ void RenderDevice::init(OSWindow* window) {
                      t0,
                      t);   
 
+        debugAssertGLOk();
         logLazyPrintf("Operating System: %s\n",
                          System::operatingSystem().c_str());
 
@@ -289,6 +292,7 @@ void RenderDevice::init(OSWindow* window) {
         logLazyPrintf("Supported Formats:\n");
         logLazyPrintf("%20s  %s %s\n", "Format", "Texture", "RenderBuffer");
 	
+        debugAssertGLOk();
         for (int code = 0; code < ImageFormat::CODE_NUM; ++code) {
             if ((code == ImageFormat::CODE_DEPTH24_STENCIL8) && 
                 (GLCaps::enumVendor() == GLCaps::MESA)) {
@@ -307,10 +311,13 @@ void RenderDevice::init(OSWindow* window) {
             }
         }
 
+        debugAssertGLOk();
         logLazyPrintf("\n");
     
         OSWindow::Settings actualSettings;
         window->getSettings(actualSettings);
+        debugAssertGLOk();
+    
 
         // This call is here to make GCC realize that isOk is used.
         (void)isOk(false);
@@ -356,6 +363,7 @@ void RenderDevice::init(OSWindow* window) {
         logPrintf("Done initializing RenderDevice.\n"); 
     }
 
+    debugAssertGLOk();
     m_initialized = true;
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
