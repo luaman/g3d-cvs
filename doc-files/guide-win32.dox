@@ -34,10 +34,14 @@ instead use the latest (free!) version of Visual Studio.
 <hr>
 @section vs10install Visual Studio 2010 (VC++ 10.0) Notes
 
-As of the time of this writing, Visual Studio 2010 is in beta but has not been released.  We expect
-that the following instructions will work more-or-less with VC10, however we have not had an opportunity
-to test them.  When it is released publicly, VC10 will become the prefered Windows compiler for 
-%G3D and will be fully supported by the %G3D project.
+G3D 8.00 was developed on Visual Studio 2008, and the precompiled binaries were compiled with it.  Microsoft
+recently released Visual Studio 2010.  We do not provide instructions for configuring that compiler, however
+it should work with the provided library binaries.
+
+The G3D source distribution includes VC10 project files to help you build G3D under that compiler if you 
+would like.  We do not explicitly support G3D 8.00 under VC10, but will answer questions posted to the 
+user forum about it.  G3D 9.00 (currently under development and available through Subversion) exclusively
+supports VC10 and later.
 
 <hr>
 @section g3dinstall G3D Installation

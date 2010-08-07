@@ -1,4 +1,4 @@
-/** @page guideunix Installing %G3D on Linux and FreeBSD
+/** @page guideunix Installing %G3D on Unix-based Operating Systems (OS X, Linux, and FreeBSD)
 
 The following sections give step-by-step instructions for downloading,
 building, and installing the 8.00 version of %G3D on OS X and Linux.
@@ -15,9 +15,19 @@ href="http://prdownloads.sourceforge.net/g3d/G3D-8.00-src.zip?download">G3D-8.00
 </ol>
 \endhtmlonly
 </p>
+
+The G3D team fully supports G3D on OS X, including the build system and working around GPU driver problems on that platform.
+
+We answer any questions posted to the user forum about any operating system.  However,
+we do not officially provide build support on Linux (or FreeBSD), or work arounds for driver bugs on Linux.  There are many reasons for this.  The GPU vendors have
+not provided reliable drivers for Linux.  There are many Linux distributions, each with its own quirks.
+The G3D team members largely do not develop on Linux themselves,
+and therefore are poorly positioned to support it--there is currently no Linux team lead. If you would like
+to improve our Linux support and are an experienced Linux developer, volunteer to be the new Linux team lead by posting on the user forum.
+
 <hr>
 
-\section full Full Unix (Linux and OS X) installation instructions
+\section full Full Unix (OS X and Linux) installation instructions
 \htmlonly
 
 <ol>
