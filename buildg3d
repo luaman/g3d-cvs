@@ -236,9 +236,14 @@ def buildNativeFFmpeg():
     if linux:
         # test that we can write to TMPDIR
         TMPDIR = os.environ.get('TMPDIR')
-        f = open(TMPDIR + '/test', 'wb')
+        f = 0
+        if TMPDIR != None:
+            f = open(TMPDIR + '/test', 'wb')
+        else:
+            TMPDIR = "<UNDEFINED>"
+
         if (f == 0):
-            raise Error('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.')
+            raise Error('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.  Current value is $TMPDIR=' + TMPDIR)
         f.close()
 
     libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']

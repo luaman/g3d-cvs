@@ -1,5 +1,11 @@
 G3D 8.xx Build System Instructions
 
+(If you are on Windows or OS X, you can use the precompiled binaries
+provided on our website http://g3d.sf.net for regular and beta
+releases instead of building by yourself.)
+
+
+
 To properly run the G3D build scripts you will need the following
 software.  It is all available for free and comes pre-installed on
 most OS X, Linux, and FreeBSD systems:
@@ -15,18 +21,18 @@ To build the documentation target, the following are also required:
 * Latex (on Windows: http://miktex.org/)
 * Ghostscript (http://pages.cs.wisc.edu/~ghost/)
 
-The OSX, Linux and FreeBSD builds require the following library packages:
+The OSX, Linux and FreeBSD builds require the following library packages
+(these will be built if they are not found on your system):
 
-* Current version of libpng 1.2 (http://www.libpng.org/)
-* Current version of libjpeg 6 (http://www.ijg.org/)
-* Current version of libz (http://www.zlib.net/)
+* libpng 1.2 (http://www.libpng.org/)
+* libjpeg 6 (http://www.ijg.org/)
+* libz (http://www.zlib.net/)
 
 The Linux and FreeBSD builds require the following library packages:
 
-* Current version of libzip (http://nih.at/libzip/)
-* Current version of libsdl 1.2 dev (http://www.libsdl.org/)
-* Distribution specific x11-dev (x11/xorg development libraries + headers)
-
+* libzip (http://nih.at/libzip/)
+* libsdl 1.2 dev (http://www.libsdl.org/)
+* Distribution-specific x11-dev (x11/xorg development libraries + headers)
 
 The OSX and Linux builds will install an internal version of FFmpeg
 (http://ffmpeg.org/) to the G3D installation directory so be careful
@@ -37,6 +43,11 @@ Studio IDE, however documentation, headers, demos, and other aspects
 of the full build will be missing.  The G3D team DOES NOT SUPPORT
 direct use of the Visual Studio project files.  We only support
 the build scripts that call them.
+
+[We are often asked why we don't use CMake.  We previously used CMake
+and found that it was too hard to maintain the source files, was
+inflexible, and gave incorrect dependency checking under Visual
+Studio.]
 
 --------------------------------------------------------------------
 
