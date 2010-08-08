@@ -231,7 +231,7 @@ def runicompile(dir):
 
 # Called frum libTarget on unix-platforms to build the ffmpeg libraries, which do not use icompile
 def buildNativeFFmpeg():
-    if windows: raise Error('Cannot build FFmpeg directly on Windows.  Must use cross-compiler')
+    if windows: raise Exception('Cannot build FFmpeg directly on Windows.  Must use cross-compiler')
 
     if linux:
         # test that we can write to TMPDIR
@@ -243,7 +243,7 @@ def buildNativeFFmpeg():
             TMPDIR = "<UNDEFINED>"
 
         if (f == 0):
-            raise Error('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.  Current value is $TMPDIR=' + TMPDIR)
+            raise Exception('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.  Current value is $TMPDIR=' + TMPDIR)
         f.close()
 
     libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']
