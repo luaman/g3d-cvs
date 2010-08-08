@@ -483,7 +483,12 @@ def docTarget():
 def dataTarget():
     # Generate demos and support
     copyIfNewer('data-files', 'build/data')
-    copyIfNewer('../data', 'build/data')
+
+    if os.path.exists('../data'):
+        # The build will include the full data set
+        os.remove('build/data/G3D-DATA-README.TXT')
+        copyIfNewer('../data', 'build/data')
+
     copyIfNewer('samples', 'build/samples')
 
     return 0
