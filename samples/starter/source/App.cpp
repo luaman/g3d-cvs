@@ -13,6 +13,8 @@ int main(int argc, char** argv) {
     settings.window.width       = 960; 
     settings.window.height      = 600;
 
+    std::string s = FileSystem::currentDirectory();
+
 #   ifdef G3D_WIN32
 	if (FileSystem::exists("data-files", false)) {
         // Running on Windows, building inside the starter directory

@@ -51,7 +51,7 @@
         ),
 
         environmentMap = Texture::Specification {
-            filename      = "cubemap/noonclouds/noonclouds_*.png",
+            filename      = "cubemap/nooncloudspng/noonclouds_*.png",
             desiredFormat = "RGB8",
             dimension     = "DIM_CUBE_MAP",
             settings      = Texture::Settings::cubeMap(),
