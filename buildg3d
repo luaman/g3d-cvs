@@ -5,7 +5,7 @@
 #
 
 import os, platform, commands, sys, time, getopt, errno
-import urllib, tarfile
+import urllib, tarfile, stat
 
 # To get access to icompile routines
 sys.path.append('bin')
@@ -237,14 +237,16 @@ def buildNativeFFmpeg():
         # test that we can write to TMPDIR
         TMPDIR = os.environ.get('TMPDIR')
         f = 0
-        if TMPDIR != None:
-            f = open(TMPDIR + '/test', 'wb')
-        else:
-            TMPDIR = "<UNDEFINED>"
+        if TMPDIR == None:
+            TMPDIR = '/tmp'
+            os.environ['TMPDIR'] = TMPDIR
 
-        if (f == 0):
+        try:
+            f = open(TMPDIR + '/G3D.test', 'wb')
+            os.fchmod(f.fileno(), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+            f.close()
+        except:
             raise Exception('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.  Current value is $TMPDIR=' + TMPDIR)
-        f.close()
 
     libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']
     print '----------------------------------------------------\n'
