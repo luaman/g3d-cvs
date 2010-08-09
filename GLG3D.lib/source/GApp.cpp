@@ -111,7 +111,6 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     }
 
     renderDevice = new RenderDevice();
-    debugAssertGLOk();
 
     if (window != NULL) {
         _hasUserCreatedWindow = true;
