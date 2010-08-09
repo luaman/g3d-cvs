@@ -1,10 +1,11 @@
+// -*- c++ -*-
 // You can extend this sample scene file format with your own fields.
 // Edit the scene parsing in Scene.cpp.
 {
     name = "Crates",
    
     models = {
-       ship = #include("3ds/spaceFighter01/spaceFighter01.any"),
+       ship = #include("3ds/spaceFighter01/spaceFighter01.am.any"),
        
        groundModel = ArticulatedModel::Specification {
             filename = "ifs/squarex8.ifs",
@@ -50,7 +51,7 @@
         ),
 
         environmentMap = Texture::Specification {
-            filename      = "cubemap/nooncloudspng/noonclouds_*.png",
+            filename      = "cubemap/noonclouds/noonclouds_*.png",
             desiredFormat = "RGB8",
             dimension     = "DIM_CUBE_MAP",
             settings      = Texture::Settings::cubeMap(),
