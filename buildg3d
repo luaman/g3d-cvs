@@ -21,8 +21,8 @@ verbosity = '1' # for icompile
 # G3D version.  Update this when the library version changes.
 class Version:
     major = '8'
-    minor = '00'
-    beta  = ''
+    minor = '01'
+    beta  = '01'
     
     def toString(self):
         if (self.beta != ''):
