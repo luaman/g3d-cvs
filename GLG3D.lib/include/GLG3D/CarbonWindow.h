@@ -25,7 +25,6 @@
 #endif
 */
 
-#include <Carbon/Carbon.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
 #include <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
@@ -37,7 +36,10 @@
 #endif
 */
 
+// Prevent deprecated Carbon Random() function from making G3D::Random ambiguous
+#define Random CarbonRandom
 #include <AGL/agl.h>
+#undef Random
 
 namespace G3D {
 

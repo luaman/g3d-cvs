@@ -21,6 +21,11 @@
        <li> 10x file loading improvement over 7.00
        <li> 200 MB of ready-to-use data files
      </ul>
+   <p>
+   Changes in 8.01:
+   <ul>
+     <li> Fix: G3D::Random is no longer ambiguous on OS X; used macros to hide Carbon's Random() function
+   </ul>
 
    <p>
    Changes in 8.00:
