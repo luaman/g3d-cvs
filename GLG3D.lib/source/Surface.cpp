@@ -84,13 +84,13 @@ void Surface::renderDepthOnly
         rd->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.5f);
 
         // Maintain sort order while extracting generics
-        Array<SuperSurface::Ref> genericModels;
+        Array<SuperSurface::Ref> superSurfaces;
 
         // Render non-generics while filtering
         for (int i = 0; i < allModels.size(); ++i) {
             const SuperSurface::Ref& g = allModels[i].downcast<SuperSurface>();
             if (g.notNull()) {
-                genericModels.append(g);
+                superSurfaces.append(g);
             } else {
                 allModels[i]->render(rd);
             }
@@ -100,8 +100,14 @@ void Surface::renderDepthOnly
         rd->setCullFace(cull);
         rd->beginIndexedPrimitives();
         {
-            for (int g = 0; g < genericModels.size(); ++g) {
-                const SuperSurface::Ref& model = genericModels[g];
+            rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0.5f);
+            rd->setTexture(0, NULL);
+            bool alphaOn = false;
+
+            // It is important to only enable alpha testing when needed; otherwise we lose the z-only
+            // optimization built into GPUs.
+            for (int g = 0; g < superSurfaces.size(); ++g) {
+                const SuperSurface::Ref& model = superSurfaces[g];
                 const SuperSurface::GPUGeom::Ref& geom = model->gpuGeom();
 
                 if (geom->twoSided) {
@@ -109,11 +115,18 @@ void Surface::renderDepthOnly
                 }
 
                 const Texture::Ref& lambertian = geom->material->bsdf()->lambertian().texture();
-                if (lambertian.notNull() && ! lambertian->opaque()) {
-                    // We need the texture for alpha masking
-                    rd->setTexture(0, lambertian);
-                } else {
-                    rd->setTexture(0, NULL);
+                bool a = lambertian.notNull() && ! lambertian->opaque();
+
+                if (a != alphaOn) {
+                    alphaOn = a;
+                    if (alphaOn) {
+                        // We need the texture for alpha masking
+                        rd->setTexture(0, lambertian);
+                        rd->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.5f);
+                    } else {
+                        rd->setTexture(0, NULL);
+                        rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0.5f);
+                    }
                 }
 
                 rd->setObjectToWorldMatrix(model->coordinateFrame());

@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
   @created 2004-11-20
-  @edited  2009-02-20
+  @edited  2010-08-19
 
   Copyright 2001-2010, Morgan McGuire
  */
