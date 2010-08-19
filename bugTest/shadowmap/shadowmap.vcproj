@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="ati_shadow"
+	Name="shadowmap"
 	ProjectGUID="{37F10140-02F9-47AA-85F2-DB217AF1132D}"
 	RootNamespace="ati_shadow"
 	Keyword="Win32Proj"

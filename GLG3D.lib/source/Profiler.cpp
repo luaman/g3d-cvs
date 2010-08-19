@@ -3,13 +3,15 @@
   @author Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2009-01-01
- @edited  2009-11-05
+ @edited  2010-11-05
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
 */
 #include "GLG3D/Profiler.h"
 #include "G3D/stringutils.h"
+#include "GLG3D/glcalls.h"
+#include "GLG3D/GLCaps.h"
 
 namespace G3D {
 
@@ -74,30 +76,35 @@ void Profiler::nextFrame() {
 
 
 void Profiler::beginGFX(const std::string& name) {
-    if (! GLEW_EXT_timer_query || ! m_enabled) {
+    if (! GLEW_EXT_timer_query || ! m_enabled || ! GLCaps::supports("EXT_timer_query")) {
         return;
     }
     alwaysAssertM(m_currentGFX == "", "There is already a GFX task named " + m_currentCPU + " pending.");
     alwaysAssertM(! m_gfxTask.contains(name, m_frameNum), "A GFX task named " + name +
         " was already timed this frame.");
 
+    debugAssertGLOk();
     if (m_queryFreelist.size() == 0) {
         // Allocate some more query objects
         const int N = 10;
         m_queryFreelist.resize(N);
+    debugAssertGLOk();
         glGenQueries(N, m_queryFreelist.getCArray());
+    debugAssertGLOk();
     }
 
     m_currentGFX = name;
     GLint query = m_queryFreelist.pop();
     m_pendingQueries.append(Pair(name, query));
+    debugAssertGLOk();
 
     glBeginQuery(GL_TIME_ELAPSED_EXT, query);
+    debugAssertGLOk();
 }
 
 
 void Profiler::endGFX() {
-    if (! GLEW_EXT_timer_query || ! m_enabled) {
+    if (! GLEW_EXT_timer_query || ! m_enabled || ! GLCaps::supports("EXT_timer_query")) {
         return;
     }
 

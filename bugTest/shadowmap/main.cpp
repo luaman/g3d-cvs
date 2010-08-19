@@ -5,9 +5,12 @@
 #include "assert.h"
 #include "glew.h"
 #include "glut.h"
+#include <algorithm>
 #ifdef _MSC_VER
 #   include <windows.h>
 #   pragma comment(lib, "glut32.lib")
+#   undef min
+#   undef max
 #endif
 
 
@@ -98,7 +101,7 @@ void createShadowMap() {
     glTexParameteri(shadowMapTextureTarget, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
     glTexParameteri(shadowMapTextureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(shadowMapTextureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(shadowMapTextureTarget, 0, GL_DEPTH_COMPONENT16, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);    
+    glTexImage2D(shadowMapTextureTarget, 0, GL_DEPTH_COMPONENT32, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);    
     glBindTexture(shadowMapTextureTarget, GL_NONE);
     assertGLOK();
 
@@ -111,6 +114,7 @@ void createShadowMap() {
     GLenum e = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     assert(e == GL_FRAMEBUFFER_COMPLETE);
     glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+
 
     assertGLOK();
 }
@@ -206,6 +210,47 @@ void createShader() {
 }
 
 
+void savePGM(const char* filename, int width, int height, const float* data) {
+    //http://netpbm.sourceforge.net/doc/pgm.html
+    FILE* file = fopen(filename, "wt");
+    fprintf(file, "P2 %d %d 255\n", width, height);                                                    
+    for (int y = 0; y < height; ++y) {
+        fprintf(file, "\n# y = %d\n", y);                                                                  
+        for (int x = 0; x < width; ++x) {
+            fprintf(file, "%d\n", std::min(255, std::max(0, int(255 * data[x + y * width]))));
+        }
+    }
+    fflush(file);
+    fclose(file);
+}
+
+
+void saveShadowMap() {
+
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFramebuffer);
+
+    float* data = new float[shadowMapWidth * shadowMapHeight];
+    glReadBuffer(GL_NONE);
+    glReadPixels(0, 0, shadowMapWidth, shadowMapHeight, 
+                    GL_DEPTH_COMPONENT, GL_FLOAT, data);
+    assertGLOK();
+    glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    savePGM("shadowmap.pgm", shadowMapWidth, shadowMapHeight, data);
+    /*
+    int numNonZero = 0;
+    for (int y = 0; y < shadowMapHeight; ++y) {
+        for (int x = 0; x < shadowMapWidth; ++x) {
+            if (data[x + y * shadowMapWidth] != 0.0f) {
+                ++numNonZero;
+            }
+        }
+    }*/
+
+    delete[] data;
+}
+
 int main(int argc, char** argv) {
     
     // Initialize OpenGL
@@ -224,6 +269,8 @@ int main(int argc, char** argv) {
     createShader();
     createShadowMap();
     renderShadowMap();
+
+    saveShadowMap();
 
     // Never returns
     glutMainLoop();
