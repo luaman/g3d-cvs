@@ -16,6 +16,7 @@
 namespace G3D {
 
 Profiler::Profiler() : m_frameNum(1), m_enabled(true) {
+    m_supportsQuery = GLCaps::supports("GL_EXT_timer_query") || GLCaps::supports("GL_ARB_timer_query");
 }
 
 
@@ -39,7 +40,7 @@ void Profiler::setEnabled(bool e) {
 void Profiler::nextFrame() {
     // Wait for all queries to complete
 
-    if (GLEW_EXT_timer_query && m_enabled) {
+    if (m_supportsQuery && m_enabled) {
         for (int i = 0; i < m_pendingQueries.size(); ++i) {
             // Block until available
             GLint available = 0;
@@ -76,7 +77,7 @@ void Profiler::nextFrame() {
 
 
 void Profiler::beginGFX(const std::string& name) {
-    if (! GLEW_EXT_timer_query || ! m_enabled || ! GLCaps::supports("EXT_timer_query")) {
+    if (! m_supportsQuery || ! m_enabled) {
         return;
     }
     alwaysAssertM(m_currentGFX == "", "There is already a GFX task named " + m_currentCPU + " pending.");
@@ -88,23 +89,19 @@ void Profiler::beginGFX(const std::string& name) {
         // Allocate some more query objects
         const int N = 10;
         m_queryFreelist.resize(N);
-    debugAssertGLOk();
         glGenQueries(N, m_queryFreelist.getCArray());
-    debugAssertGLOk();
     }
 
     m_currentGFX = name;
     GLint query = m_queryFreelist.pop();
     m_pendingQueries.append(Pair(name, query));
-    debugAssertGLOk();
 
     glBeginQuery(GL_TIME_ELAPSED_EXT, query);
-    debugAssertGLOk();
 }
 
 
 void Profiler::endGFX() {
-    if (! GLEW_EXT_timer_query || ! m_enabled || ! GLCaps::supports("EXT_timer_query")) {
+    if (! m_supportsQuery || ! m_enabled) {
         return;
     }
 

@@ -103,6 +103,8 @@ protected:
         void clear();
     };
 
+    bool                                m_supportsQuery;
+
     /** Updated on every call to nextFrame() to ensure */
     uint64                              m_frameNum;
 
