@@ -30,6 +30,7 @@
      <li> Fix: G3D::Random is no longer ambiguous on OS X; used macros to hide Carbon's Random() function
      <li> Fix: G3D::PointHashGrid::Iterator on an empty grid is correctly initialized to empty.
      <li> Fix: G3D::Profiler checks for the presence of the timer query extension before using it
+     <li> Fix: G3D::Profiler disables profiling if glGetQueryObjectiv takes too long to return
    </ul>
 
    <p>

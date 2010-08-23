@@ -3,7 +3,7 @@
   @author Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2009-01-01
- @edited  2010-11-05
+ @edited  2010-08-05
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -12,6 +12,7 @@
 #include "G3D/stringutils.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/GLCaps.h"
+#include "G3D/Log.h"
 
 namespace G3D {
 
@@ -41,6 +42,8 @@ void Profiler::nextFrame() {
     // Wait for all queries to complete
 
     if (m_supportsQuery && m_enabled) {
+        static const RealTime TIMEOUT = 2;
+        RealTime startQuery = System::time();
         for (int i = 0; i < m_pendingQueries.size(); ++i) {
             // Block until available
             GLint available = 0;
@@ -50,7 +53,7 @@ void Profiler::nextFrame() {
 
             do {
                 glGetQueryObjectiv(id, GL_QUERY_RESULT_AVAILABLE, &available);
-            } while (available == 0);
+            } while ((available == 0) && (System::time() - startQuery < TIMEOUT));
 
             // Get the time, in nanoseconds
             GLuint64EXT nsElapsed = 0;
@@ -63,6 +66,10 @@ void Profiler::nextFrame() {
 
             // Put the query object back on the GPU freelist
             m_queryFreelist.append(id);
+        }
+        if (System::time() - startQuery >= TIMEOUT) {
+            logPrintf("\nWARNING: G3D::Profiler::nextFrame() aborted profiling because glGetQueryObjectiv took more than %f seconds to return.", TIMEOUT);
+            m_enabled = false;
         }
     }
 
