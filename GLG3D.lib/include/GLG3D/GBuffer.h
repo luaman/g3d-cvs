@@ -340,6 +340,10 @@ public:
     (RenderDevice*                  rd, 
      const GCamera&                 camera,
      const Array<Surface::Ref>&     modelArray) const;
+
+    const Specification& specification() const {
+        return m_specification;
+    }
 };
 
 } // namespace G3D

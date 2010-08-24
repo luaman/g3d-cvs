@@ -27,6 +27,7 @@
    <ul>
      <li> G3D::Surface::renderDepthOnly (i.e., for shadow maps) is now 3x faster than 8.00
      <li> G3D::PointHashGrid::Iterator::hasMore
+     <li> G3D::GBuffer::specification()
      <li> Fix: G3D::Random is no longer ambiguous on OS X; used macros to hide Carbon's Random() function
      <li> Fix: G3D::PointHashGrid::Iterator on an empty grid is correctly initialized to empty.
      <li> Fix: G3D::Profiler checks for the presence of the timer query extension before using it
