@@ -344,6 +344,11 @@ public:
     const Specification& specification() const {
         return m_specification;
     }
+
+    /** Explicitly override the camera stored in the GBuffer. */
+    void setCamera(const GCamera& camera) {
+        m_camera = camera;
+    }
 };
 
 } // namespace G3D
