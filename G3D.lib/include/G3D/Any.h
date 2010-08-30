@@ -17,6 +17,7 @@
 #include "G3D/platform.h"
 #include "G3D/Table.h"
 #include "G3D/Array.h"
+#include "G3D/Set.h"
 #include "G3D/AtomicInt32.h"
 #include <string>
 
@@ -448,7 +449,6 @@ public:
      */
     std::string resolveStringAsFilename() const;
 
-
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;
 
@@ -518,7 +518,7 @@ public:
 
     // Needed to prevent the operator[](int) overload from catching
     // string literals
-    inline const Any& operator[](const char* key) const {
+    const Any& operator[](const char* key) const {
         return operator[](std::string(key));
     }
 
@@ -548,7 +548,7 @@ public:
     Any& operator[](const std::string& key);
 
     /** \copydoc Any::operator[](const std::string&) */
-    inline Any& operator[](const char* key) {
+    Any& operator[](const char* key) {
         return operator[](std::string(key));
     }
     
@@ -635,6 +635,112 @@ private:
     void deserializeArray(TextInput& ti,const std::string& term);
 
 };    // class Any
+
+
+/**
+   Convenient iteration over the keys of a Any::TABLE, usually
+   for implementing construction of an object from an Any.
+
+   <pre>
+    AnyKeyIterator r(a);
+    r.extractOptional("enabled",            enabled);
+    r.extractOptional("showSamples",        showSamples);
+    r.extractOptional("showTiles",          showTiles);
+
+    r.verifyDone();
+    </pre>
+
+    \beta
+*/
+class AnyTableReader {
+private:
+   Any              m_any;
+   Set<std::string> m_alreadyRead;
+public:
+    
+    /** Verifies that \a is a TABLE with the given \a name. */
+    AnyTableReader(const std::string& name, const Any& a) : m_any(a) {
+        try {
+            m_any.verifyType(Any::TABLE);
+            m_any.verifyName(name);
+        } catch (const ParseError& e) {
+            // If an exception is thrown, the destructors will not be 
+            // invoked automatically.
+            m_any.~Any();
+            m_alreadyRead.~Set();
+            throw e;
+        }
+    }
+
+    /** Verifies that \a is a TABLE. */
+    AnyTableReader(const Any& a) : m_any(a) {
+        try {
+            m_any.verifyType(Any::TABLE);
+        } catch (const ParseError& e) {
+            // If an exception is thrown, the destructors will not be 
+            // invoked automatically.
+            m_any.~Any();
+            m_alreadyRead.~Set();
+            throw e;
+        }
+    }
+
+    bool hasMore() const {
+        return m_any.size() > m_alreadyRead.size();
+    }
+
+    /** Verifies that all keys have been read. */
+    void verifyDone() const {
+        if (hasMore()) {
+            // Generate all keys
+            // Remove the ones we've read
+            // Assert the rest
+          //  any.verify("");
+        }
+    }
+   /*
+    Any::Iterator beginUnread() { 
+        // Iterates through keys that are not in alreadyRead.
+    }
+    */
+   
+    
+    /** If key \s appears in the any, reads its value into \a v and 
+        removes that key from the ones available to iterate over.
+
+        If key \s does not appear in the any, throws a G3D::ParseError.
+
+        Assumes that if key \s appears in the any it has not already been extracted
+        by this iterator.  If it has been read before, an assertion will fail in debug mode.
+      */
+    template<class ValueType>
+    void extractRequired(const std::string& s, ValueType& v) {
+        v = m_any[s];
+        m_alreadyRead.insert(toLower(s));
+    }
+
+    /** If key \s appears in the any, reads its value into \a v and 
+        removes that key from the ones available to iterate over.
+
+        If key \s does not appear in the any, does nothing.
+
+        Assumes that if key \s appears in the any it has not already been extracted
+        by this iterator.  If it has been read before, an assertion will fail in debug mode.
+
+        \return True if the value was read.
+      */
+    template<class ValueType>
+    bool extractOptional(const std::string& s, ValueType& v) {
+        if (m_any.containsKey(s)) {
+            debugAssertM(! m_alreadyRead.contains(toLower(s)), "read twice");
+
+            extractRequired(s, v);
+            return true;
+        } else {
+            return false;
+        }
+    }
+};
 
 }    // namespace G3D
 
