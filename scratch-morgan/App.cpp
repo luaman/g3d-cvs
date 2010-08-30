@@ -14,15 +14,10 @@ int main(int argc, char** argv) {
     settings.window.height      = 600;
     settings.film.enabled =false;
 
-#   ifdef G3D_WIN32
-	if (FileSystem::exists("data-files", false)) {
-            // Running on Windows, building inside the starter directory
-            chdir("data-files");
-        } else if (FileSystem::exists("../samples/starter/data-files", false)) {
-            // Running on Windows, building from the G3D.sln project (TODO: remove this from your program!)
-            chdir("../samples/starter/data-files");
-        }
-#   endif
+    if (FileSystem::exists("../samples/starter/data-files", false)) {
+        // Running on Windows, building from the G3D.sln project (TODO: remove this from your program!)
+        chdir("../scratch-morgan");
+    }
 
     return App(settings).run();
 }

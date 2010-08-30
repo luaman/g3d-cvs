@@ -14,13 +14,14 @@
                                 0,  0,12, 0,
                                 0,-12, 0,  0,
                                 0,  0, 0,  1),
-
+/*
                 materialOverride = Material::Specification {
                     lambertian   = "material/asphalt/asphalt-L.png",
                     specular     = "material/asphalt/asphalt-G.png",
                     shininess    = glossyExponent(20),
                     bump         = "material/asphalt/asphalt-L.png",
                 }
+                */
 
             }
        },
@@ -32,10 +33,12 @@
                 // options here as was done for groundModel.  #include can be
                 // used to replace any Any value, including a whole 
                 // ArticulatedModel::Specification.
-                materialOverride = #include("material/metalcrate/metalcrate.mat.any")              
+                materialOverride = //#include("material/metalcrate/metalcrate.mat.any")              
+                    Material::Specification {
+                       lambertian = Color3(0,0,0)
+                    }
             }
-       },
-       
+       },       
        
     },
     
@@ -91,6 +94,7 @@
            }),
         
         ground = groundModel(CFrame::fromXYZYPRDegrees(0, -0.01, 0, 45))
+   
     },
     
     camera = GCamera {
