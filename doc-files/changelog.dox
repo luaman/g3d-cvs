@@ -33,6 +33,7 @@
      <li> Fix: G3D::Profiler checks for the presence of the timer query extension before using it
      <li> Fix: G3D::Profiler disables profiling if glGetQueryObjectiv takes too long to return
      <li> Fix: Perfectly black G3D::SuperSurfaces now render black rather than picking up the previous material
+     <li> Fix: TextInput::readUntilNewlineAsString now does not skip lines if invoked at the end of a line
    </ul>
 
    <p>

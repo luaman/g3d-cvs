@@ -641,11 +641,16 @@ private:
    Convenient iteration over the keys of a Any::TABLE, usually
    for implementing construction of an object from an Any.
 
+   Getting an element using either iteration or explicit requests
+   consumes that element from the iterator (but not from the Any!)
+   It is an error to consume the same element more than once from
+   the same iterator.
+
    <pre>
     AnyKeyIterator r(a);
-    r.extractOptional("enabled",            enabled);
-    r.extractOptional("showSamples",        showSamples);
-    r.extractOptional("showTiles",          showTiles);
+    r.getIfPresent("enabled",            enabled);
+    r.getIfPresent("showSamples",        showSamples);
+    r.getIfPresent("showTiles",          showTiles);
 
     r.verifyDone();
     </pre>
@@ -698,12 +703,16 @@ public:
           //  any.verify("");
         }
     }
-   /*
-    Any::Iterator beginUnread() { 
-        // Iterates through keys that are not in alreadyRead.
-    }
-    */
-   
+
+#if 0
+    /** Returns the current key */
+    const std::string& key() const;
+
+    /** Returns the current value */
+    const Any& value() const;
+
+    AnyKeyIterator& operator++();
+#endif   
     
     /** If key \s appears in the any, reads its value into \a v and 
         removes that key from the ones available to iterate over.
@@ -712,14 +721,17 @@ public:
 
         Assumes that if key \s appears in the any it has not already been extracted
         by this iterator.  If it has been read before, an assertion will fail in debug mode.
+
       */
     template<class ValueType>
-    void extractRequired(const std::string& s, ValueType& v) {
+    void get(const std::string& s, ValueType& v) {
         v = m_any[s];
         m_alreadyRead.insert(toLower(s));
     }
 
-    /** If key \s appears in the any, reads its value into \a v and 
+    /** Get the value associated with a key only if the key is actually present.
+    
+        If key \s appears in the any, reads its value into \a v and 
         removes that key from the ones available to iterate over.
 
         If key \s does not appear in the any, does nothing.
@@ -730,11 +742,11 @@ public:
         \return True if the value was read.
       */
     template<class ValueType>
-    bool extractOptional(const std::string& s, ValueType& v) {
+    bool getIfPresent(const std::string& s, ValueType& v) {
         if (m_any.containsKey(s)) {
             debugAssertM(! m_alreadyRead.contains(toLower(s)), "read twice");
 
-            extractRequired(s, v);
+            get(s, v);
             return true;
         } else {
             return false;
