@@ -25,6 +25,7 @@
 
    Changes in 8.01:
    <ul>
+     <li> G3D::GApp::Settings::argArray
      <li> G3D::Surface::renderDepthOnly (i.e., for shadow maps) is now 3x faster than 8.00
      <li> G3D::PointHashGrid::Iterator::hasMore
      <li> G3D::GBuffer::specification(), G3D::GBuffer::setCamera()

@@ -136,9 +136,22 @@ public:
         };
 
         FilmSettings            film;
-        
-        inline Settings() : dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
-                     logFilename("log.txt"), useDeveloperTools(true), writeLicenseFile(true) {
+
+        /** Arguments to the program, from argv.  The first is the name of the program. */
+        Array<std::string>      argArray;
+
+        Settings() : 
+            dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
+            logFilename("log.txt"), useDeveloperTools(true), writeLicenseFile(true) {
+        }
+
+        Settings(int argc, const char* argv[]) : 
+            dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
+            logFilename("log.txt"), useDeveloperTools(true), writeLicenseFile(true) {
+            argArray.resize(argc);
+            for (int i = 0; i < argc; ++i) {
+                argArray[i] = argv[i];
+            }
         }
     };
 
