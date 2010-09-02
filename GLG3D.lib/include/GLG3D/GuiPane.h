@@ -220,9 +220,9 @@ public:
     }
 
     /** Provide the default clamp bounds for addNumberBox.*/
-    static int minVal(int x) { (void)x;return INT_MAX; }
+    static int minVal(int x) { (void)x;return INT_MIN; }
     /** Provide the default clamp bounds for addNumberBox.*/
-    static int maxVal(int x) { (void)x;return INT_MIN; }
+    static int maxVal(int x) { (void)x;return INT_MAX; }
     /** Provide the default clamp bounds for addNumberBox.*/
     static double minVal(double x) { (void)x;return -inf();}
     /** Provide the default clamp bounds for addNumberBox.*/

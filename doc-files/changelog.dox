@@ -35,6 +35,7 @@
      <li> Fix: G3D::Profiler disables profiling if glGetQueryObjectiv takes too long to return
      <li> Fix: Perfectly black G3D::SuperSurfaces now render black rather than picking up the previous material
      <li> Fix: TextInput::readUntilNewlineAsString now does not skip lines if invoked at the end of a line
+     <li> Fix: Default bounds for GuiNumberBox<int> are now correct [Matthaeus Chajdas]
    </ul>
 
    <p>
