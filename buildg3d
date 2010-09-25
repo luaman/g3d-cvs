@@ -242,9 +242,10 @@ def buildNativeFFmpeg():
             os.environ['TMPDIR'] = TMPDIR
 
         try:
-            f = open(TMPDIR + '/G3D.test', 'wb')
-            os.fchmod(f.fileno(), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+            testname = TMPDIR + '/G3D.test'
+            f = open(testname, 'wb')
             f.close()
+            os.fchmod(testname, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         except:
             raise Exception('Compiling FFMPEG requires that environment variable TMPDIR refer to a writable directory.  Current value is $TMPDIR=' + TMPDIR)
 
