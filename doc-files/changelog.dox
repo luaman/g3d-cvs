@@ -37,6 +37,7 @@
      <li> Fix: TextInput::readUntilNewlineAsString now does not skip lines if invoked at the end of a line
      <li> Fix: Default bounds for GuiNumberBox<int> are now correct [Matthaeus Chajdas]
      <li> Fix: Corrected shutdown memory leak in G3D::System::flushPool [Eric Cassel]
+     <li> Fix: GuiTextureBox now correctly displays colors when some channels are negative.
    </ul>
 
    <p>

@@ -5,7 +5,7 @@
     name = "Crates",
    
     models = {
-       ship = #include("3ds/spaceFighter01/spaceFighter01.am.any"),
+     //  ship = #include("3ds/spaceFighter01/spaceFighter01.am.any"),
        
        groundModel = ArticulatedModel::Specification {
             filename = "ifs/squarex8.ifs",
@@ -25,7 +25,7 @@
 
             }
        },
-        
+        /*
        crateModel = ArticulatedModel::Specification {            
             filename = "ifs/crate.ifs",
             preprocess = ArticulatedModel::Preprocess {
@@ -38,7 +38,7 @@
                        lambertian = Color3(0,0,0)
                     }
             }
-       },       
+       }, */      
        
     },
     
@@ -66,7 +66,7 @@
         // Each entity has a name and is an instance of a model.  The instantiation syntax accepts
         // two (optional) arguments: a position spline (which can be a single position), and a 
         // pose spline (which can be a single pose).
-        
+        /*
         c0 = crateModel(Vector3(1.0, 0.5, 0.0)),
         
         c1 = crateModel(CFrame::fromXYZYPRDegrees(0.6f, 0.5f, -1.8f, 30.0f)),
@@ -92,7 +92,7 @@
            time = (0,3,4,6,8,10,12,14,16),
            cyclic = true
            }),
-        
+        */
         ground = groundModel(CFrame::fromXYZYPRDegrees(0, -0.01, 0, 45))
    
     },

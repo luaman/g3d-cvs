@@ -978,8 +978,9 @@ void GuiTextureBox::setSettings(const Settings& s) {
                              vec4 c = texture2D(texture, gl_TexCoord[g3d_Index(texture)].xy);
                              c = (c + bias) * scale;
                              c = invertIntensity ? vec4(1.0 - c) : c;
-                             c = pow(c, vec4(adjustGamma));
-                             gl_FragColor.rgb = (colorShift * c).rgb;
+                             c = colorShift * c;
+                             c = max(c, vec4(0.0));
+                             gl_FragColor.rgb = pow(c.rgb, vec4(adjustGamma));
                              gl_FragColor.a = 1.0;
                              }));
                 g_cachedShader = m_shader;
