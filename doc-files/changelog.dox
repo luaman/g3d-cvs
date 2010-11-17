@@ -38,6 +38,7 @@
      <li> Fix: Default bounds for GuiNumberBox<int> are now correct [Matthaeus Chajdas]
      <li> Fix: Corrected shutdown memory leak in G3D::System::flushPool [Eric Cassel]
      <li> Fix: GuiTextureBox now correctly displays colors when some channels are negative.
+     <li> Fix: Made ShadowMap more robust when encountering infinite bounds.  Corrected CameraControlWindow's spline editor to have finite bounds.
    </ul>
 
    <p>

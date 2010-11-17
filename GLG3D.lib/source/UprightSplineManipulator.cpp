@@ -22,11 +22,13 @@ namespace G3D {
 class PosedCameraSpline : public Surface {
 private:
 
-    UprightSpline* spline;
-    Color3        color;
+    UprightSpline*  spline;
+    Color3          color;
 
-    VertexRange           vertex;
-    int           numVertices;
+    VertexRange     vertex;
+    int             numVertices;
+
+    AABox           boxBounds;
 
 public:
 
@@ -43,9 +45,16 @@ public:
             Array<Vector3> v;
             v.resize(numVertices);
             
+            AABox boxBounds;
             for (int i = 0; i < numVertices; ++i) {
                 float s = count * i / (float)(numVertices - 1);
                 v[i] = spline->evaluate(s).translation;
+
+                if (i == 0) {
+                    boxBounds = AABox(v[i]);
+                } else {
+                    boxBounds.merge(v[i]);
+                }
             }
             
             vertex = VertexRange(v, area);
@@ -148,11 +157,11 @@ public:
     }
 
     virtual void getObjectSpaceBoundingBox(AABox& b) const {
-        b = AABox(Vector3::minFinite(), Vector3::maxFinite());
+        b = boxBounds;
     }
 
     virtual void getObjectSpaceBoundingSphere(Sphere& s) const {
-        s = Sphere(Vector3::zero(), finf());
+        boxBounds.getBounds(s);
     }
 
     virtual void getObjectSpaceFaceNormals(Array<Vector3>& faceNormals, bool normalize = true) const {
